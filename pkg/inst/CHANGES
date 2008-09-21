@@ -1,0 +1,70 @@
+Version 0.9-0 initial release to CRAN
+
+Version 1.0-0
+
+o Rewrote summary.effect method and added print.summary.effect method.
+
+Version 1.0-1
+
+o Blanks can be inserted into or removed from effect names without causing an error; thus, e.g., "poly(education,3)" is equivalent to "poly(education, 3)".
+
+o Name spaces of lattice and grid packages are imported, as required in R 1.8.0.
+
+Version 1.0-2
+
+o Added ask argument to plot.effect.list, and row, col, nrow, ncol, and more arguments to plot.effect, to support graphing an array of effect plots.
+
+o Fixed bug in plot.effect that caused xlab argument to be ignored in certain circumstances.
+
+Version 1.0-3
+
+o effect function now works if na.action is na.exclude.
+
+Version 1.0-4
+
+o Fixed small bug introduced in version 1.0-3.
+
+Version 1.0-5
+
+o x.var and z.var arguments to plot.effect now take names as well as indices.
+
+Version 1.0-6
+
+o A variable specified in xlevels can be fixed to a single value.
+
+Version 1.0-7
+
+o Made effect() generic, with a method for lm objects that handles glm objects as well.
+
+Version 1.0-8
+
+o Small fixes to the help files.
+
+Version 1.0-9
+
+o Small change to compile without a warning in R 2.4.0.
+
+Version 1.0-10
+
+o Standard errors of effects are computed using t rather than standard-normal distribution for models with estimated dispersion (as suggested by Brian Ripley).
+
+o Small fixes.
+
+o Objects are now named "eff" and "eff.list" rather than "effect" and "effect.list".
+
+o Data sets now provided by lazy data.
+
+Version 1.0-11
+
+o Replaced obsolete \non_function{} markup in Rd files (reported by Kurt Hornik).
+
+Version 1.0-12
+
+o key.args argument added to plot.eff() (coutesy of Michael Friendly), to allow conrol over, e.g., placement of legend.
+
+
+
+
+
+
+   
