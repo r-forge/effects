@@ -1,17 +1,20 @@
 \name{effect}
 \alias{effect}
 \alias{effect.lm}
-\alias{all.effects}
+\alias{effect.multinom}
+\alias{effect.polr}
+\alias{allEffects}
 \alias{as.data.frame.eff}
 
 \title{Functions For Constructing Effect Plots}
 \description{
   \code{effect} constructs an \code{"effect"} object for a term (usually a high-order term) 
-  in a linear or generalized linear model, absorbing the lower-order terms marginal
+  in a linear, generalized linear, multinomial-logit, or proportional-odds logit model, 
+  absorbing the lower-order terms marginal
   to the term in question, and averaging over other terms in the model. 
   
-  \code{all.effects} identifies all of the high-order terms in a model and returns
-  a list of \code{"effect"} objects (i.e., an object of type \code{"effect.list"}).
+  \code{allEffects} identifies all of the high-order terms in a model and returns
+  a list of \code{"effect"} objects (i.e., an object of type \code{"efflist"}).
 }
 
 \usage{
@@ -22,7 +25,13 @@ effect(term, mod, ...)
     transformation=list(link=family(mod)$linkfun, inverse=family(mod)$linkinv), 
     typical=mean, ...)
     
-all.effects(mod, ...)
+\method{effect}{multinom}(term, mod, 
+		confidence.level=.95, xlevels=list(), default.levels=10, ...)
+		
+\method{effect}{polr}(term, mod, 
+		confidence.level=.95, xlevels=list(), default.levels=10, ...)
+    
+allEffects(mod, ...)
 
 \method{as.data.frame}{eff}(x, row.names=NULL, optional=TRUE, ...)
 }
@@ -58,13 +67,13 @@ all.effects(mod, ...)
 }
 
 \details{
-  Normally, the functions to be used directly are \code{all.effects}, to return
+  Normally, the functions to be used directly are \code{allEffects}, to return
   a list of high-order effects, and the generic \code{plot} function to plot the effects.
-  (see \code{\link{plot.eff.list}} and \code{\link{plot.eff}}).
+  (see \code{\link{plot.efflist}} and \code{\link{plot.eff}}).
   Plots are drawn using the \code{\link[lattice]{xyplot}} function in the 
   \code{lattice} package. Effects may also be printed (implicitly or explicitly via
   \code{print}) or summarized (using \code{summary})
-  (see \code{\link{print.eff.list}}, \code{\link{summary.eff.list}},
+  (see \code{\link{print.efflist}}, \code{\link{summary.efflist}},
   \code{\link{print.eff}}, and \code{\link{summary.eff}}).
   
   If asked, the \code{effect} function will compute effects for terms that have 
@@ -80,7 +89,7 @@ all.effects(mod, ...)
 }
 
 \value{
-  \code{effect} returns an \code{"eff"} object with the following components:
+  For \code{lm} and \code{glm}, \code{effect} returns an \code{"eff"} object with the following components:
   \item{term}{the term to which the effect pertains.}
   \item{formula}{the complete model formula.}
   \item{response}{a character string giving the response variable.}
@@ -101,6 +110,27 @@ all.effects(mod, ...)
   \item{confidence.level}{corresponding to the confidence limits.}
   \item{transformation}{a two-element list, with element \code{link} giving the
     link function, and element \code{inverse} giving the inverse-link (mean) function.}
+    
+  or an \code{"effpoly"} object with the following components:
+  \item{term}{as above.}
+  \item{formula}{as above.}
+  \item{response}{as above.}
+  \item{y.levels}{names of levels of the response factor.}
+  \item{variables}{as above.}
+  \item{x}{as above.}
+  \item{prob}{matrix of fitted probabilities, with rows given by \code{x} and columns by
+  	the response levels.}
+  \item{logit}{matrix of fitted logits.}
+  \item{se.prob}{matrix of standard errors of the fitted probabilities.}
+  \item{se.logit}{matrix of standard errors of the fitted logits.}
+  \item{lower.logit, upper.logit, lower.prob, upper.prob}{matrices of confidence limits
+  	for the fitted logits and probabilities; the latter are computed by back-transforming
+  	the former.}
+  \item{data}{as above.}
+  \item{confidence.level}{as above.}
+    
+  \code{effectList} returns a list of \code{eff} or \code{effpoly} objects
+  corresponding to the high-order terms of the model.
 }
 
 \references{
@@ -114,6 +144,11 @@ all.effects(mod, ...)
     \emph{Journal of Statistical Software}
     \bold{8:15}, 1--27, <\url{http://www.jstatsoft.org/counter.php?id=75&url=v08/i15/effect-displays-revised.pdf&ct=1}>.
     
+  	Fox, J. and R. Andersen (2006)
+   	Effect displays  for multinomial and proportional-odds logit models.
+  	\emph{Sociological Methodology} 
+  	\bold{36}, 225--255.
+    
     Hastie, T. J. (1992)
     Generalized additive models.
     In Chambers, J. M., and Hastie, T. J. (eds.)
@@ -126,13 +161,13 @@ all.effects(mod, ...)
 
 
 \seealso{\code{\link{print.eff}}, \code{\link{summary.eff}}, \code{\link{plot.eff}}, 
-    \code{\link{print.summary.eff}}, \code{\link{print.eff.list}}, \code{\link{summary.eff.list}},
-    \code{\link{plot.eff.list}}, \code{\link[lattice]{xyplot}}}
+    \code{\link{print.summary.eff}}, \code{\link{print.efflist}}, \code{\link{summary.efflist}},
+    \code{\link{plot.efflist}}, \code{\link[lattice]{xyplot}}}
 
 \examples{
 mod.cowles <- glm(volunteer ~ sex + neuroticism*extraversion, 
     data=Cowles, family=binomial)
-eff.cowles <- all.effects(mod.cowles, xlevels=list(neuroticism=0:24, 
+eff.cowles <- allEffects(mod.cowles, xlevels=list(neuroticism=0:24, 
     extraversion=seq(0, 24, 6)))
 eff.cowles
     \dontrun{
@@ -176,7 +211,7 @@ plot(effect('sex:neuroticism:extraversion', mod.cowles,
 
 mod.pres <- lm(prestige ~ log(income, 10) + poly(education, 3) + poly(women, 2), 
     data=Prestige)
-eff.pres <- all.effects(mod.pres, default.levels=50)
+eff.pres <- allEffects(mod.pres, default.levels=50)
 plot(eff.pres, ask=FALSE)
 
 }

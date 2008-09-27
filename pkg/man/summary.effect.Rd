@@ -1,11 +1,14 @@
 \name{summary.eff}
 \alias{print.eff}
-\alias{print.eff.list}
+\alias{print.efflist}
+\alias{print.effpoly}
 \alias{print.summary.eff}
 \alias{summary.eff}
-\alias{summary.eff.list}
+\alias{summary.efflist}
+\alias{summary.effpoly}
 \alias{plot.eff}
-\alias{plot.eff.list}
+\alias{plot.efflist}
+\alias{plot.effpoly}
 
 \title{Summarizing, Printing, and Plotting Effects}
 
@@ -16,29 +19,41 @@ and \code{eff.list} objects.
 
 \usage{
 \method{print}{eff}(x, type=c("response", "link"), ...)
-\method{print}{eff.list}(x, ...)
+\method{print}{efflist}(x, ...)
+\method{print}{effpoly}(x, type=c("probability", "logits"), ...)
 \method{print}{summary.eff}(x, ...)
 \method{summary}{eff}(object, type=c("response", "link"), ...)
-\method{summary}{eff.list}(object, ...)
+\method{summary}{efflist}(object, ...)
+\method{summary}{effpoly}(object, type=c("probability", "logits"), ...)
 \method{plot}{eff}(x, x.var=which.max(levels),
     z.var=which.min(levels), multiline=is.null(x$se), rug=TRUE, xlab,
     ylab=x$response, main=paste(effect, "effect plot"),
     colors=palette(), symbols=1:10, lines=1:10, cex=1.5, ylim,
     factor.names=TRUE, type=c("response", "link"), ticks=list(at=NULL, n=5), 
-    alternating=TRUE, rescale.axis=TRUE, key.args=NULL,
+    alternating=TRUE, layout, rescale.axis=TRUE, key.args=NULL,
     row=1, col=1, nrow=1, ncol=1, more=FALSE, ...)
-\method{plot}{eff.list}(x, selection, ask=TRUE, ...)
+\method{plot}{efflist}(x, selection, ask=TRUE, ...)
+\method{plot}{effpoly}(x, type=c("probability", "logit"),
+	x.var=which.max(levels), rug=TRUE, xlab,
+	ylab=paste(x$response, " (", type, ")", sep=""), 
+	main=paste(effect, "effect plot"),
+	colors=palette(), symbols=1:10, lines=1:10, cex=1.5, 
+	factor.names=TRUE, confint=TRUE, ylim,  
+	alternating=TRUE, layout, key.args=NULL,
+	row=1, col=1, nrow=1, ncol=1, more=FALSE, ...)
 }
 
 \arguments{
   \item{x}{an object of type \code{"effect"}, \code{"summary.effect"}, or \code{"effect.list"},
     as appropriate.}
-  \item{object}{an object of type \code{"effect"} or \code{"effect.list"},
+  \item{object}{an object of type \code{"eff"}, \code{"efflist"}, or \code{"effpoly"},
     as appropriate.}
   \item{type}{if \code{"response"} (the default), effects are printed 
     or the vertical axis is labelled on the scale of the response
     variable; if \code{"link"}, effects are printed 
-    or the vertical axis labelled on the scale of the linear predictor.}
+    or the vertical axis labelled on the scale of the linear predictor.
+    For polytomous logit models, this argument takes either \code{"probability"}
+    or \code{"logit"}, with the former as the default.}
   \item{x.var}{the index (number) or quoted name of the covariate or factor to place on the 
     horizontal axis of each panel of the effect plot. The default is the 
     predictor with the largest number of levels or values.}
@@ -51,6 +66,9 @@ and \code{eff.list} objects.
     on the horzontal axis, and the other (corresponding to \code{z.var}) used to define
     lines in the graph; defaults to \code{TRUE} if there are no standard errors in
     the object being plotted, and \code{FALSE} otherwise.}
+  \item{confint}{plot point-wise confidence bands around fitted effects (for
+  	multinomial and proportional-odds logit models); defaults to \code{TRUE},
+  	in which case separate panels are used for different response levels.}
   \item{rug}{if \code{TRUE}, the default, a rug plot is shown giving the marginal 
     distribution of the predictor on the horizontal axis, if this predictor is
     a covariate.}
@@ -80,6 +98,9 @@ and \code{eff.list} objects.
   \item{alternating}{if \code{TRUE} (the default), the tick labels alternate by panels in
     multi-panel displays from left to right and top to bottom; if \code{FALSE}, tick labels
     appear at the bottom and on the left.}
+  \item{layout}{the layout argument to the \pkg{lattice} function \code{\link[lattice]{xyplot}}, which
+  	is used to draw the effect display; if not specified, the plot will be formatted so that
+  	it appears on a single page.}
   \item{rescale.axis}{if \code{TRUE} (the default), the tick marks on the vertical axis
     are labelled on the response scale (e.g., the probability scale for effects computed on
     the logit scale for a binomial GLM).}
@@ -127,12 +148,12 @@ and \code{eff.list} objects.
 \author{John Fox \email{jfox@mcmaster.ca}.}
 
 
-\seealso{\code{\link{effect}}, \code{\link{all.effects}}, \code{\link[lattice]{xyplot}}}
+\seealso{\code{\link{effect}}, \code{\link{allEffects}}, \code{\link[lattice]{xyplot}}}
 
 \examples{
 mod.cowles <- glm(volunteer ~ sex + neuroticism*extraversion, 
     data=Cowles, family=binomial)
-eff.cowles <- all.effects(mod.cowles, xlevels=list(neuroticism=0:24, 
+eff.cowles <- allEffects(mod.cowles, xlevels=list(neuroticism=0:24, 
     extraversion=seq(0, 24, 6)))
 eff.cowles
     \dontrun{
@@ -176,7 +197,7 @@ plot(effect('sex:neuroticism:extraversion', mod.cowles,
 
 mod.pres <- lm(prestige ~ log(income, 10) + poly(education, 3) + poly(women, 2), 
     data=Prestige)
-eff.pres <- all.effects(mod.pres, default.levels=50)
+eff.pres <- allEffects(mod.pres, default.levels=50)
 plot(eff.pres, ask=FALSE)
 
 }

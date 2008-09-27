@@ -1,0 +1,343 @@
+# effect generic and methods; allEffects
+# John Fox and Jangman Hong
+#  last modified 27 September 2008 by J. Fox
+
+effect <- function(term, mod, ...){
+	UseMethod("effect", mod)
+}
+
+effect.lm <- function (term, mod, xlevels=list(), default.levels=10, se=TRUE, 
+	confidence.level=.95, 
+	transformation=list(link=family(mod)$linkfun, inverse=family(mod)$linkinv), 
+	typical=mean, ...){
+	
+	variable <- list()
+	variable <- variable(term, mod, xlevels)
+	predict.data <-variable$predict.data
+	factor.levels <- variable$factor.levels
+	factor.cols <- variable$factor.cols
+	mod.aug <- variable$mod.aug
+	term <- variable$term
+	n.basic <- variable$n.basic
+	x<- variable$x
+	X.mod <- variable$X.mod
+	cnames<- variable$cnames
+	X <- variable$X
+	
+	formula.rhs <- formula(mod)[c(1,3)]  
+	nrow.X <- nrow(X)
+	mf <- model.frame(formula.rhs, data=rbind(X[,names(predict.data),drop=FALSE], predict.data), 
+		xlev=factor.levels)
+	mod.matrix.all <- model.matrix(formula.rhs, data=mf, contrasts.arg=mod$contrasts)
+	mod.matrix <- mod.matrix.all[-(1:nrow.X),]
+	fit.1 <- predict(mod)
+	wts <- mod$weights
+	if (is.null(wts)) wts <- rep(1, length(fit.1))
+	mod.2 <- lm.wfit(mod.matrix.all[1:nrow.X,], fit.1, wts)
+	discrepancy <- 100*sqrt(mean(mod.2$residuals^2)/mean(mod$residuals^2))
+	if (discrepancy > 1e-3) warning(paste("There is a discrepancy of", round(discrepancy, 3),
+				"percent \n     in the 'safe' predictions used to generate effect", term))
+	attr(mod.matrix, "assign") <- attr(mod.matrix.all, "assign")
+	stranger.cols <- factor.cols & 
+		apply(outer(strangers(term, mod, mod.aug), attr(mod.matrix,'assign'), '=='), 2, any)
+	if (has.intercept(mod)) stranger.cols[1] <- TRUE
+	if (any(stranger.cols)) mod.matrix[,stranger.cols] <- 
+			matrix(apply(as.matrix(X.mod[,stranger.cols]), 2, mean), 
+				nrow=nrow(mod.matrix), ncol=sum(stranger.cols),byrow=TRUE)
+	for (name in cnames){
+		components <- unlist(strsplit(name, ':'))
+		if (length(components) > 1) 
+			mod.matrix[,name] <- apply(mod.matrix[,components], 1, prod)
+	}
+	
+	effect <- mod.matrix %*% mod.2$coefficients
+	result <- list(term=term, formula=formula(mod), response=response.name(mod),
+		variables=x, fit=effect, 
+		x=predict.data[,1:n.basic, drop=FALSE], model.matrix=mod.matrix, 
+		data=X, discrepancy=discrepancy)
+	if (se){
+		if (any(family(mod)$family == c('binomial', 'poisson'))){
+			dispersion <-  1
+			z <- qnorm(1 - (1 - confidence.level)/2)
+		}
+		else {
+			dispersion <- sum(wts * mod$residuals^2)/mod$df.residual
+			z <- qt(1 - (1 - confidence.level)/2, df=mod$df.residual)
+		}
+		mod.2$terms <- mod$terms
+		V <- dispersion * summary.lm(mod.2)$cov
+		var <- diag(mod.matrix %*% V %*% t(mod.matrix))
+		result$se <- sqrt(var)        
+		result$lower <- effect - z*result$se
+		result$upper <- effect + z*result$se
+		result$confidence.level <- confidence.level
+	}
+	if (is.null(transformation$link) && is.null(transformation$inverse)){
+		transformation$link <- I
+		transformation$inverse <- I
+	}
+	result$transformation <- transformation
+	class(result)<-'eff'
+	result
+}
+
+effect.multinom <- function(term, mod, 
+	confidence.level=.95, xlevels=list(), default.levels=10, ...){
+	
+	eff.mul <- function(x0, mod, ...){
+		d <- array(0, c(m, m - 1, p))
+		exp.x0.B <- as.vector(exp(x0 %*% B))
+		sum.exp.x0.B <- sum(exp.x0.B)
+		for (j in 1:(m-1)){
+			d[m, j,] <- - exp.x0.B[j]*x0
+			for (jj in 1:(m-1)){
+				d[j, jj,] <- if (jj != j)
+						- exp(x0 %*% (B[,jj] + B[,j]))*x0
+					else exp.x0.B[j]*(1 + sum.exp.x0.B - exp.x0.B[j])*x0
+			}
+		}
+		d <- d/(1 + sum.exp.x0.B)^2
+		V.mu <- rep(0, m)
+		for (j in 1:m){
+			dd <- as.vector(t(d[j,,]))
+			for (s in 1:r){
+				for (t in 1:r){
+					V.mu[j] <- V.mu[j] + V[s,t]*dd[s]*dd[t]
+				}
+			}
+		}
+		mu <- exp(x0 %*% B)
+		mu <- mu/(1 + sum(mu))
+		mu[m] <- 1 - sum(mu)
+		logits <- log(mu/(1 - mu))
+		V.logits <- V.mu/(mu^2 * (1 - mu)^2)
+		list(p=mu, std.err.p=sqrt(V.mu), logits=logits,
+			std.error.logits=sqrt(V.logits))
+	}
+	
+	# refit model to produce 'safe' predictions when the model matrix includes
+	#   terms -- e.g., poly(), bs() -- whose basis depends upon the data
+	
+	
+	variable <- list()
+	variable <- variable(term, mod, xlevels)
+	predict.data <-variable$predict.data
+	factor.levels <- variable$factor.levels
+	factor.cols <- variable$factor.cols
+	mod.aug <- variable$mod.aug
+	term <- variable$term
+	n.basic <- variable$n.basic
+	x<- variable$x
+	X.mod <- variable$X.mod
+	cnames<- variable$cnames
+	X <- variable$X
+	
+	formula.rhs <- formula(mod)[c(1,3)]
+	new <- newdata <- predict.data
+	newdata[[as.character(formula(mod)[2])]] <- rep(mod$lev[1], nrow(newdata))
+	extras <- setdiff(all.vars(formula(mod)), names(model.frame(mod)))
+	X <- if (length(extras) == 0) model.frame(mod)
+		else {
+			if (is.null(mod$call$data))
+				mod$call$data <- environment(formula(mod))
+			expand.model.frame(mod, extras)
+		}
+	nrow.X <- nrow(X)
+	data <- rbind(X[,names(newdata),drop=FALSE], newdata)
+	data$wt <- rep(0, nrow(data))
+	data$wt[1:nrow.X] <- 1
+	mod.matrix.all <- model.matrix(formula.rhs, data=data)
+	X0 <- mod.matrix.all[-(1:nrow.X),]
+	resp.names <- make.names(mod$lev, unique=TRUE)
+	
+	resp.names <- c(resp.names[-1], resp.names[1]) # make the last level
+	# the reference level
+	mod <- multinom(formula(mod), data=data, Hess=TRUE, weights=wt)
+	B <- t(coef(mod))
+	V <- vcov(mod)
+	m <- ncol(B) + 1
+	p <- nrow(B)
+	r <- p*(m - 1)
+	
+	n <- nrow(X0)
+	z <- qnorm(1 - (1 - confidence.level)/2)
+	Lower.P <- Upper.P <- Lower.logit <- Upper.logit <- P <- Logit <- SE.P <- SE.logit <- matrix(0, n, m)
+	colnames(Lower.logit) <-  paste("L.logit.", resp.names, sep="")
+	colnames(Upper.logit) <-  paste("U.logit.", resp.names, sep="")
+	colnames(Lower.P) <-  paste("L.prob.", resp.names, sep="")
+	colnames(Upper.P) <-  paste("U.prob.", resp.names, sep="")
+	colnames(P) <-  paste("prob.", resp.names, sep="")
+	colnames(Logit) <-  paste("logit.", resp.names, sep="")
+	colnames(SE.P) <-  paste("se.prob.", resp.names, sep="")
+	colnames(SE.logit) <-  paste("se.logit.", resp.names, sep="")
+	for (i in 1:n){
+		res <- eff.mul(X0[i,], mod) # compute effects
+		P[i,] <- prob <- res$p # fitted probabilities
+		SE.P[i,] <- se.p <- res$std.err.p # std. errors of fitted probs
+		Logit[i,] <- logit <- res$logits # fitted logits
+		SE.logit[i,] <- se.logit <- res$std.error.logits # std. errors of logits
+		Lower.P[i,] <- logit2p(logit - z*se.logit)
+		Upper.P[i,] <- logit2p(logit + z*se.logit)
+		Lower.logit[i,] <- logit - z*se.logit
+		Upper.logit[i,] <- logit + z*se.logit
+	}
+	result <- list(term=term, formula=formula(mod), response=response.name(mod),
+		y.levels=mod$lev, variables=x, x=predict.data[,1:n.basic, drop=FALSE], 
+		prob=P, logit=Logit, se.prob=SE.P, se.logit=SE.logit,
+		lower.logit=Lower.logit, upper.logit=Upper.logit, 
+		lower.prob=Lower.P, upper.prob=Upper.P,
+		data=X, confidence.level=confidence.level)
+	class(result) <-'effpoly'
+	result
+}
+
+effect.polr <- function(term, mod, 
+	confidence.level=.95, xlevels=list(), default.levels=10, ...){
+	
+	eff.polr <- function(x0, mod, ...){
+		eta0 <- x0 %*% b
+		mu <- rep(0, m)
+		mu[1] <- 1/(1 + exp(alpha[1] + eta0))
+		for (j in 2:(m-1)){
+			mu[j] <- exp(eta0)*(exp(alpha[j - 1]) - exp(alpha[j]))/
+				((1 + exp(alpha[j - 1] + eta0))*(1 + exp(alpha[j] + eta0)))
+		}
+		mu[m] <- 1 - sum(mu)
+		d <- matrix(0, m, r)
+		d[1, 1] <- - exp(alpha[1] + eta0)/(1 + exp(alpha[1] + eta0))^2
+		d[1, m:r] <- - exp(alpha[1] + eta0)*x0/(1 + exp(alpha[1] + eta0))^2
+		for (j in 2:(m-1)){
+			d[j, j-1] <- exp(alpha[j-1] + eta0)/(1 + exp(alpha[j-1] + eta0))^2
+			d[j, j]   <- - exp(alpha[j] + eta0)/(1 + exp(alpha[j] + eta0))^2
+			d[j, m:r] <- exp(eta0)*(exp(alpha[j]) - exp(alpha[j-1]))*
+				(exp(alpha[j-1] + alpha[j] + 2*eta0) - 1) * x0 /
+				(((1 + exp(alpha[j-1] + eta0))^2)*
+					((1 + exp(alpha[j] + eta0))^2))
+		}
+		d[m, m-1] <- exp(alpha[m-1] + eta0)/(1 + exp(alpha[m-1] + eta0))^2
+		d[m, m:r] <- exp(alpha[m-1] + eta0)*x0/(1 + exp(alpha[m-1] + eta0))^2
+		V.mu <- rep(0, m)
+		for (j in 1:m){
+			dd <- d[j,]
+			for (s in 1:r){
+				for (t in 1:r){
+					V.mu[j] <- V.mu[j] + V[s,t]*dd[s]*dd[t]
+				}
+			}
+		}
+		logits <- log(mu/(1 - mu))
+		V.logits <- V.mu/(mu^2 * (1 - mu)^2)
+		list(p=mu, std.err.p=sqrt(V.mu), logits=logits,
+			std.error.logits=sqrt(V.logits))
+	}
+	
+	# refit model to produce 'safe' predictions when the model matrix includes
+	#   terms -- e.g., poly(), bs() -- whose basis depends upon the data
+	
+	
+	variable <- list()
+	variable <- variable(term, mod, xlevels)
+	predict.data <-variable$predict.data
+	factor.levels <- variable$factor.levels
+	factor.cols <- variable$factor.cols
+	mod.aug <- variable$mod.aug
+	term <- variable$term
+	n.basic <- variable$n.basic
+	x<- variable$x
+	X.mod <- variable$X.mod
+	cnames<- variable$cnames
+	X <- variable$X
+	
+	formula.rhs <- formula(mod)[c(1,3)]
+	new <- newdata <- predict.data
+	newdata[[as.character(formula(mod)[2])]] <- rep(mod$lev[1], nrow(newdata))
+	extras <- setdiff(all.vars(formula(mod)), names(model.frame(mod)))
+	X <- if (length(extras) == 0) model.frame(mod)
+		else {
+			if (is.null(mod$call$data))
+				mod$call$data <- environment(formula(mod))
+			expand.model.frame(mod, extras)
+		}
+	nrow.X <- nrow(X)
+	data <- rbind(X[,names(newdata),drop=FALSE], newdata)
+	data$wt <- rep(0, nrow(data))
+	data$wt[1:nrow.X] <- 1
+	mod.matrix.all <- model.matrix(formula.rhs, data=data)
+	X0 <- mod.matrix.all[-(1:nrow.X),]
+	resp.names <- make.names(mod$lev, unique=TRUE)
+	
+	mod <- polr(formula(mod), data=data, Hess=TRUE, weights=wt)
+	X0 <- X0[,-1]
+	b <- coef(mod)
+	p <- length(b)  # corresponds to p - 1 in the text
+	alpha <- - mod$zeta  # intercepts are negatives of thresholds
+	m <- length(alpha) + 1
+	r <- m + p - 1
+	indices <- c((p+1):r, 1:p)
+	V <- vcov(mod)[indices, indices]
+	for (j in 1:(m-1)){  # fix up the signs of the covariances
+		V[j,] <- -V[j,]  #  for the intercepts
+		V[,j] <- -V[,j]}
+	
+	n <- nrow(X0)
+	z <- qnorm(1 - (1 - confidence.level)/2)
+	Lower.logit <- Upper.logit <- Lower.P <- Upper.P <- P <- Logit <- SE.P <- SE.Logit <- matrix(0, n, m)
+	colnames(Lower.logit) <-  paste("L.logit.", resp.names, sep="")
+	colnames(Upper.logit) <-  paste("U.logit.", resp.names, sep="")
+	colnames(Lower.P) <-  paste("L.prob.", resp.names, sep="")
+	colnames(Upper.P) <-  paste("U.prob.", resp.names, sep="")
+	colnames(P) <-  paste("prob.", resp.names, sep="")
+	colnames(Logit) <-  paste("logit.", resp.names, sep="")
+	colnames(SE.P) <-  paste("se.prob.", resp.names, sep="")
+	colnames(SE.Logit) <-  paste("se.logit.", resp.names, sep="")
+	for (i in 1:n){
+		res <- eff.polr(X0[i,], mod) # compute effects
+		P[i,] <- prob <- res$p # fitted probabilities
+		SE.P[i,] <- se.p <- res$std.err.p # std. errors of fitted probs
+		Logit[i,] <- logit <- res$logits # fitted logits
+		SE.Logit[i,] <- se.logit <- res$std.error.logits # std. errors of logits
+		Lower.P[i,] <- logit2p(logit - z*se.logit)
+		Upper.P[i,] <- logit2p(logit + z*se.logit)
+		Lower.logit[i,] <- logit - z*se.logit
+		Upper.logit[i,] <- logit + z*se.logit
+	}
+	result <- list(term=term, formula=formula(mod), response=response.name(mod),
+		y.levels=mod$lev, variables=x, x=predict.data[,1:n.basic, drop=FALSE], 
+		prob=P, logit=Logit, se.prob=SE.P, se.logit=SE.Logit,
+		lower.logit=Lower.logit, upper.logit=Upper.logit, 
+		lower.prob=Lower.P, upper.prob=Upper.P,
+		data=X, confidence.level=confidence.level)
+	class(result) <-'effpoly'
+	result
+}
+
+allEffects <- function(mod, ...){
+#	descendants<-function(term, mod){
+#		names <- term.names(mod)
+#		if (has.intercept(mod)) names <- names[-1]
+#		factors <- attr(mod$terms, "factors")
+#		rownames(factors) <- gsub(" ", "", rownames(factors))
+#		colnames(factors) <- gsub(" ", "", colnames(factors))
+#		if(length(names)==1) return(NULL)
+#		which.term<-which(term==names)
+#		(1:length(names))[-which.term][sapply(names[-which.term],
+#						function(term2) is.relative(term, term2, factors))]
+#	}
+#	is.relative <- function(term1, term2, factors) {
+#		all(!(factors[,term1]&(!factors[,term2])))
+#	}
+	high.order.terms <- function(mod){
+		names <- term.names(mod)
+		if (has.intercept(mod)) names<-names[-1]
+		rel <- lapply(names, descendants, mod=mod)
+		(1:length(names))[sapply(rel, function(x) length(x)==0)]
+	}
+	names <- term.names(mod)
+	if (has.intercept(mod)) names <- names[-1]
+	if (length(names) == 0) stop("the model contains no terms (beyond a constant)")
+	terms <- names[high.order.terms(mod)]
+	result <- lapply(terms, effect, mod=mod, ...)
+	names(result) <- terms
+	class(result) <- 'efflist'
+	result
+}
