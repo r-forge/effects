@@ -118,8 +118,6 @@ effect.multinom <- function(term, mod,
 	# refit model to produce 'safe' predictions when the model matrix includes
 	#   terms -- e.g., poly(), bs() -- whose basis depends upon the data
 	
-	
-	variable <- list()
 	variable <- variable(term, mod, xlevels)
 	predict.data <-variable$predict.data
 	factor.levels <- variable$factor.levels
@@ -145,13 +143,12 @@ effect.multinom <- function(term, mod,
 	nrow.X <- nrow(X)
 	data <- rbind(X[,names(newdata),drop=FALSE], newdata)
 	data$wt <- rep(0, nrow(data))
-	data$wt[1:nrow.X] <- 1
+	data$wt[1:nrow.X] <- weights(mod)
 	mod.matrix.all <- model.matrix(formula.rhs, data=data)
 	X0 <- mod.matrix.all[-(1:nrow.X),]
 	resp.names <- make.names(mod$lev, unique=TRUE)
 	
-	resp.names <- c(resp.names[-1], resp.names[1]) # make the last level
-	# the reference level
+	resp.names <- c(resp.names[-1], resp.names[1]) # make the last level the reference level
 	mod <- multinom(formula(mod), data=data, Hess=TRUE, weights=wt)
 	B <- t(coef(mod))
 	V <- vcov(mod)
@@ -193,6 +190,7 @@ effect.multinom <- function(term, mod,
 
 effect.polr <- function(term, mod, 
 	confidence.level=.95, xlevels=list(), default.levels=10, ...){
+	if (mod$method != "logistic") stop('method argument to polr must be "logistic"')
 	
 	eff.polr <- function(x0, mod, ...){
 		eta0 <- x0 %*% b
@@ -234,8 +232,6 @@ effect.polr <- function(term, mod,
 	# refit model to produce 'safe' predictions when the model matrix includes
 	#   terms -- e.g., poly(), bs() -- whose basis depends upon the data
 	
-	
-	variable <- list()
 	variable <- variable(term, mod, xlevels)
 	predict.data <-variable$predict.data
 	factor.levels <- variable$factor.levels
@@ -312,20 +308,6 @@ effect.polr <- function(term, mod,
 }
 
 allEffects <- function(mod, ...){
-#	descendants<-function(term, mod){
-#		names <- term.names(mod)
-#		if (has.intercept(mod)) names <- names[-1]
-#		factors <- attr(mod$terms, "factors")
-#		rownames(factors) <- gsub(" ", "", rownames(factors))
-#		colnames(factors) <- gsub(" ", "", colnames(factors))
-#		if(length(names)==1) return(NULL)
-#		which.term<-which(term==names)
-#		(1:length(names))[-which.term][sapply(names[-which.term],
-#						function(term2) is.relative(term, term2, factors))]
-#	}
-#	is.relative <- function(term1, term2, factors) {
-#		all(!(factors[,term1]&(!factors[,term2])))
-#	}
 	high.order.terms <- function(mod){
 		names <- term.names(mod)
 		if (has.intercept(mod)) names<-names[-1]

@@ -195,6 +195,16 @@ plot(effect('sex:neuroticism:extraversion', mod.cowles,
       xlevels = list(neuroticism = 0:24,
 }
 
+mod.beps <- multinom.mod <- multinom(vote ~ age + gender + economic.cond.national +
+				economic.cond.household + Blair + Hague + Kennedy +
+				Europe*political.knowledge, data=BEPS)
+plot(effect("Europe*political.knowledge", mod.beps, 
+	xlevels=list(Europe=1:11, political.knowledge=0:3)))
+	
+mod.wvs <- polr(poverty ~ gender + religion + degree + country*poly(age,3),
+	data=WVS)
+plot(effect("country*poly(age, 3)", mod.wvs))
+
 mod.pres <- lm(prestige ~ log(income, 10) + poly(education, 3) + poly(women, 2), 
     data=Prestige)
 eff.pres <- allEffects(mod.pres, default.levels=50)
