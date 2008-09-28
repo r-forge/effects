@@ -435,6 +435,11 @@ plot.effpoly <- function(x,
 	predictors <- names(x.frame)[1:n.predictors]
 	levels <- if (n.predictors==1) length (x.frame[,predictors])
 		else sapply(apply(x.frame[,predictors], 2, unique), length)
+if (is.character(x.var)) {
+	which.x <- which(x.var == predictors)
+	if (length(which.x) == 0) stop(paste("x.var = '", x.var, "' is not in the model.", sep=""))
+	x.var <- which.x
+}
 	x.vals <- x.frame[, names(x.frame)[x.var]]	
 	response <-matrix(0, nrow=nrow(x.frame), ncol=n.y.lev)
 	for (i in 1:length(x$y.lev)){
@@ -455,7 +460,7 @@ plot.effpoly <- function(x,
 	}
 	if (!confint){
 		if (is.factor(x$data[[predictors[x.var]]])){
-			levs <- x$data[[predictors[x.var]]]
+			levs <- levels(x$data[[predictors[x.var]]])
 			n.predictor.cats <- sapply(data[, predictors[-c(x.var)], drop=FALSE], 
 				function(x) length(unique(x)))
 			if (length(n.predictor.cats) == 0) n.predictor.cats <- 1
@@ -541,7 +546,7 @@ plot.effpoly <- function(x,
 		n.predictor.cats <- sapply(data[, predictors[-x.var], drop=FALSE], function(x) length(unique(x)))
 		if (length(n.predictor.cats) == 0) n.predictor.cats <- 1
 		if (is.factor(x$data[[predictors[x.var]]])){
-			levs <- x$data[[predictors[x.var]]]
+			levs <- levels(x$data[[predictors[x.var]]])
 			print(xyplot(eval(if (type=="probability") 
 								parse(text=if (n.predictors==1) 
 											paste("prob~as.numeric(", predictors[x.var],") |", "response")
