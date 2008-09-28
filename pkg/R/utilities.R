@@ -1,6 +1,6 @@
 # utilities and common functions for effects package
 # John Fox and Jangman Hong
-#  last modified 27 September 2008 by J. Fox
+#  last modified 28 September 2008 by J. Fox
 
 
 has.intercept <- function(model, ...) any(names(coefficients(model))=="(Intercept)")
@@ -146,7 +146,7 @@ strangers <- function(term, mod,...){
 			union(union(ancestors, descendants), self)))
 }
 
-variable<- function(term, mod, xlevels=list(), default.levels=10, ... ){
+analyze.model <- function(term, mod, xlevels, default.levels){
 	if ((!is.null(mod$na.action)) && class(mod$na.action) == "exclude") 
 		class(mod$na.action) <- "omit"
 	term <- gsub(" ", "", gsub("\\*", ":", term))
@@ -236,6 +236,22 @@ variable<- function(term, mod, xlevels=list(), default.levels=10, ... ){
 	list(predict.data=predict.data, factor.levels=factor.levels, 
 		factor.cols=factor.cols, mod.aug=mod.aug, term=term, n.basic=n.basic,
 		x=x, X.mod=X.mod, cnames=cnames, X=X)   
+}
+
+fixup.model.matrix <- function(mod, mod.matrix, mod.matrix.all, X.mod, mod.aug, factor.cols, cnames, term, typical){
+	attr(mod.matrix, "assign") <- attr(mod.matrix.all, "assign")
+	stranger.cols <- factor.cols & 
+		apply(outer(strangers(term, mod, mod.aug), attr(mod.matrix,'assign'), '=='), 2, any)
+	if (has.intercept(mod)) stranger.cols[1] <- TRUE
+	if (any(stranger.cols)) mod.matrix[,stranger.cols] <- 
+			matrix(apply(as.matrix(X.mod[,stranger.cols]), 2, typical), 
+				nrow=nrow(mod.matrix), ncol=sum(stranger.cols),byrow=TRUE)
+	for (name in cnames){
+		components <- unlist(strsplit(name, ':'))
+		if (length(components) > 1) 
+			mod.matrix[,name] <- apply(mod.matrix[,components], 1, prod)
+	}
+	mod.matrix
 }
 
 as.data.frame.eff <- function(x, row.names=NULL, optional=TRUE, ...){

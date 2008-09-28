@@ -1,3 +1,5 @@
+# last modified 28 September 2008 by J. Fox
+
 import(grid, lattice)
 export(effect, allEffects)
 S3method(effect, lm)
@@ -8,6 +10,7 @@ S3method(print, efflist)
 S3method(summary, eff)
 S3method(summary, efflist)
 S3method(as.data.frame, eff)
+S3method(as.data.frame, effpoly)
 S3method(plot, eff)
 S3method(plot, efflist)
 S3method(print, effpoly)

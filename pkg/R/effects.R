@@ -1,6 +1,6 @@
 # effect generic and methods; allEffects
 # John Fox and Jangman Hong
-#  last modified 27 September 2008 by J. Fox
+#  last modified 28 September 2008 by J. Fox
 
 effect <- function(term, mod, ...){
 	UseMethod("effect", mod)
@@ -11,18 +11,17 @@ effect.lm <- function (term, mod, xlevels=list(), default.levels=10, se=TRUE,
 	transformation=list(link=family(mod)$linkfun, inverse=family(mod)$linkinv), 
 	typical=mean, ...){
 	
-	variable <- list()
-	variable <- variable(term, mod, xlevels)
-	predict.data <-variable$predict.data
-	factor.levels <- variable$factor.levels
-	factor.cols <- variable$factor.cols
-	mod.aug <- variable$mod.aug
-	term <- variable$term
-	n.basic <- variable$n.basic
-	x<- variable$x
-	X.mod <- variable$X.mod
-	cnames<- variable$cnames
-	X <- variable$X
+	model.components <- analyze.model(term, mod, xlevels, default.levels)
+	predict.data <-model.components$predict.data
+	factor.levels <- model.components$factor.levels
+	factor.cols <- model.components$factor.cols
+	mod.aug <- model.components$mod.aug
+	term <- model.components$term
+	n.basic <- model.components$n.basic
+	x<- model.components$x
+	X.mod <- model.components$X.mod
+	cnames<- model.components$cnames
+	X <- model.components$X
 	
 	formula.rhs <- formula(mod)[c(1,3)]  
 	nrow.X <- nrow(X)
@@ -37,18 +36,19 @@ effect.lm <- function (term, mod, xlevels=list(), default.levels=10, se=TRUE,
 	discrepancy <- 100*sqrt(mean(mod.2$residuals^2)/mean(mod$residuals^2))
 	if (discrepancy > 1e-3) warning(paste("There is a discrepancy of", round(discrepancy, 3),
 				"percent \n     in the 'safe' predictions used to generate effect", term))
-	attr(mod.matrix, "assign") <- attr(mod.matrix.all, "assign")
-	stranger.cols <- factor.cols & 
-		apply(outer(strangers(term, mod, mod.aug), attr(mod.matrix,'assign'), '=='), 2, any)
-	if (has.intercept(mod)) stranger.cols[1] <- TRUE
-	if (any(stranger.cols)) mod.matrix[,stranger.cols] <- 
-			matrix(apply(as.matrix(X.mod[,stranger.cols]), 2, mean), 
-				nrow=nrow(mod.matrix), ncol=sum(stranger.cols),byrow=TRUE)
-	for (name in cnames){
-		components <- unlist(strsplit(name, ':'))
-		if (length(components) > 1) 
-			mod.matrix[,name] <- apply(mod.matrix[,components], 1, prod)
-	}
+	mod.matrix <- fixup.model.matrix(mod, mod.matrix, mod.matrix.all, X.mod, mod.aug, factor.cols, cnames, term, typical)
+#	attr(mod.matrix, "assign") <- attr(mod.matrix.all, "assign")
+#	stranger.cols <- factor.cols & 
+#		apply(outer(strangers(term, mod, mod.aug), attr(mod.matrix,'assign'), '=='), 2, any)
+#	if (has.intercept(mod)) stranger.cols[1] <- TRUE
+#	if (any(stranger.cols)) mod.matrix[,stranger.cols] <- 
+#			matrix(apply(as.matrix(X.mod[,stranger.cols]), 2, typical), 
+#				nrow=nrow(mod.matrix), ncol=sum(stranger.cols),byrow=TRUE)
+#	for (name in cnames){
+#		components <- unlist(strsplit(name, ':'))
+#		if (length(components) > 1) 
+#			mod.matrix[,name] <- apply(mod.matrix[,components], 1, prod)
+#	}
 	
 	effect <- mod.matrix %*% mod.2$coefficients
 	result <- list(term=term, formula=formula(mod), response=response.name(mod),
@@ -82,7 +82,7 @@ effect.lm <- function (term, mod, xlevels=list(), default.levels=10, se=TRUE,
 }
 
 effect.multinom <- function(term, mod, 
-	confidence.level=.95, xlevels=list(), default.levels=10, ...){
+	confidence.level=.95, xlevels=list(), default.levels=10, typical=mean, ...){
 	
 	eff.mul <- function(x0, mod, ...){
 		d <- array(0, c(m, m - 1, p))
@@ -118,17 +118,17 @@ effect.multinom <- function(term, mod,
 	# refit model to produce 'safe' predictions when the model matrix includes
 	#   terms -- e.g., poly(), bs() -- whose basis depends upon the data
 	
-	variable <- variable(term, mod, xlevels)
-	predict.data <-variable$predict.data
-	factor.levels <- variable$factor.levels
-	factor.cols <- variable$factor.cols
-	mod.aug <- variable$mod.aug
-	term <- variable$term
-	n.basic <- variable$n.basic
-	x<- variable$x
-	X.mod <- variable$X.mod
-	cnames<- variable$cnames
-	X <- variable$X
+	model.components <- analyze.model(term, mod, xlevels, default.levels)
+	predict.data <-model.components$predict.data
+	factor.levels <- model.components$factor.levels
+	factor.cols <- model.components$factor.cols
+	mod.aug <- model.components$mod.aug
+	term <- model.components$term
+	n.basic <- model.components$n.basic
+	x<- model.components$x
+	X.mod <- model.components$X.mod
+	cnames<- model.components$cnames
+	X <- model.components$X
 	
 	formula.rhs <- formula(mod)[c(1,3)]
 	new <- newdata <- predict.data
@@ -146,8 +146,8 @@ effect.multinom <- function(term, mod,
 	data$wt[1:nrow.X] <- weights(mod)
 	mod.matrix.all <- model.matrix(formula.rhs, data=data)
 	X0 <- mod.matrix.all[-(1:nrow.X),]
+	X0 <- fixup.model.matrix(mod, X0, mod.matrix.all, X.mod, mod.aug, factor.cols, cnames, term, typical)
 	resp.names <- make.names(mod$lev, unique=TRUE)
-	
 	resp.names <- c(resp.names[-1], resp.names[1]) # make the last level the reference level
 	mod <- multinom(formula(mod), data=data, Hess=TRUE, weights=wt)
 	B <- t(coef(mod))
@@ -179,7 +179,8 @@ effect.multinom <- function(term, mod,
 		Upper.logit[i,] <- logit + z*se.logit
 	}
 	result <- list(term=term, formula=formula(mod), response=response.name(mod),
-		y.levels=mod$lev, variables=x, x=predict.data[,1:n.basic, drop=FALSE], 
+		y.levels=mod$lev, variables=x, x=predict.data[,1:n.basic, drop=FALSE],
+		model.matrix=X0,
 		prob=P, logit=Logit, se.prob=SE.P, se.logit=SE.logit,
 		lower.logit=Lower.logit, upper.logit=Upper.logit, 
 		lower.prob=Lower.P, upper.prob=Upper.P,
@@ -189,7 +190,7 @@ effect.multinom <- function(term, mod,
 }
 
 effect.polr <- function(term, mod, 
-	confidence.level=.95, xlevels=list(), default.levels=10, ...){
+	confidence.level=.95, xlevels=list(), default.levels=10, typical=mean, ...){
 	if (mod$method != "logistic") stop('method argument to polr must be "logistic"')
 	
 	eff.polr <- function(x0, mod, ...){
@@ -232,17 +233,17 @@ effect.polr <- function(term, mod,
 	# refit model to produce 'safe' predictions when the model matrix includes
 	#   terms -- e.g., poly(), bs() -- whose basis depends upon the data
 	
-	variable <- variable(term, mod, xlevels)
-	predict.data <-variable$predict.data
-	factor.levels <- variable$factor.levels
-	factor.cols <- variable$factor.cols
-	mod.aug <- variable$mod.aug
-	term <- variable$term
-	n.basic <- variable$n.basic
-	x<- variable$x
-	X.mod <- variable$X.mod
-	cnames<- variable$cnames
-	X <- variable$X
+	model.components <- analyze.model(term, mod, xlevels, default.levels)
+	predict.data <-model.components$predict.data
+	factor.levels <- model.components$factor.levels
+	factor.cols <- model.components$factor.cols
+	mod.aug <- model.components$mod.aug
+	term <- model.components$term
+	n.basic <- model.components$n.basic
+	x<- model.components$x
+	X.mod <- model.components$X.mod
+	cnames<- model.components$cnames
+	X <- model.components$X
 	
 	formula.rhs <- formula(mod)[c(1,3)]
 	new <- newdata <- predict.data
@@ -256,12 +257,14 @@ effect.polr <- function(term, mod,
 		}
 	nrow.X <- nrow(X)
 	data <- rbind(X[,names(newdata),drop=FALSE], newdata)
+	wts <- mod$model[["(weights)"]]
+	if (is.null(wts)) wts <- 1
 	data$wt <- rep(0, nrow(data))
-	data$wt[1:nrow.X] <- 1
+	data$wt[1:nrow.X] <- wts
 	mod.matrix.all <- model.matrix(formula.rhs, data=data)
 	X0 <- mod.matrix.all[-(1:nrow.X),]
+	X0 <- fixup.model.matrix(mod, X0, mod.matrix.all, X.mod, mod.aug, factor.cols, cnames, term, typical)
 	resp.names <- make.names(mod$lev, unique=TRUE)
-	
 	mod <- polr(formula(mod), data=data, Hess=TRUE, weights=wt)
 	X0 <- X0[,-1]
 	b <- coef(mod)
@@ -298,7 +301,8 @@ effect.polr <- function(term, mod,
 		Upper.logit[i,] <- logit + z*se.logit
 	}
 	result <- list(term=term, formula=formula(mod), response=response.name(mod),
-		y.levels=mod$lev, variables=x, x=predict.data[,1:n.basic, drop=FALSE], 
+		y.levels=mod$lev, variables=x, x=predict.data[,1:n.basic, drop=FALSE],
+		model.matrix=X0,
 		prob=P, logit=Logit, se.prob=SE.P, se.logit=SE.Logit,
 		lower.logit=Lower.logit, upper.logit=Upper.logit, 
 		lower.prob=Lower.P, upper.prob=Upper.P,

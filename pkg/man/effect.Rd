@@ -5,6 +5,7 @@
 \alias{effect.polr}
 \alias{allEffects}
 \alias{as.data.frame.eff}
+\alias{as.data.frame.effpoly}
 
 \title{Functions For Constructing Effect Plots}
 \description{
@@ -25,15 +26,17 @@ effect(term, mod, ...)
     transformation=list(link=family(mod)$linkfun, inverse=family(mod)$linkinv), 
     typical=mean, ...)
     
-\method{effect}{multinom}(term, mod, 
-		confidence.level=.95, xlevels=list(), default.levels=10, ...)
+\method{effect}{multinom}(term, mod, confidence.level=.95, xlevels=list(), default.levels=10, 
+	typical=mean, ...)
 		
-\method{effect}{polr}(term, mod, 
-		confidence.level=.95, xlevels=list(), default.levels=10, ...)
+\method{effect}{polr}(term, mod, confidence.level=.95, xlevels=list(), default.levels=10, 
+	typical=mean, ...)
     
 allEffects(mod, ...)
 
 \method{as.data.frame}{eff}(x, row.names=NULL, optional=TRUE, ...)
+
+\method{as.data.frame}{effpoly}(x, row.names=NULL, optional=TRUE, ...)
 }
 
 \arguments{
@@ -69,12 +72,12 @@ allEffects(mod, ...)
 \details{
   Normally, the functions to be used directly are \code{allEffects}, to return
   a list of high-order effects, and the generic \code{plot} function to plot the effects.
-  (see \code{\link{plot.efflist}} and \code{\link{plot.eff}}).
+  (see \code{\link{plot.efflist}}, \code{\link{plot.eff}}, and \code{\link{plot.effpoly}}).
   Plots are drawn using the \code{\link[lattice]{xyplot}} function in the 
   \code{lattice} package. Effects may also be printed (implicitly or explicitly via
   \code{print}) or summarized (using \code{summary})
   (see \code{\link{print.efflist}}, \code{\link{summary.efflist}},
-  \code{\link{print.eff}}, and \code{\link{summary.eff}}).
+  \code{\link{print.eff}}, \code{\link{summary.eff}}, \code{\link{print.effpoly}}, and \code{\link{summary.effpoly}}).
   
   If asked, the \code{effect} function will compute effects for terms that have 
   higher-order relatives in the model, averaging over those terms (which rarely makes sense), or for terms that
@@ -89,45 +92,37 @@ allEffects(mod, ...)
 }
 
 \value{
-  For \code{lm} and \code{glm}, \code{effect} returns an \code{"eff"} object with the following components:
+  For \code{lm} and \code{glm}, \code{effect} returns an \code{"eff"} object, and for \code{multinom}
+  and \code{polr}, an \code{"effpoly"} object, with the following components:
   \item{term}{the term to which the effect pertains.}
   \item{formula}{the complete model formula.}
   \item{response}{a character string giving the response variable.}
+  \item{y.levels}{(for \code{"effpoly"} object) levels of the polytomous response variable.}
   \item{variables}{a list with information about each predictor, including
     its name, whether it is a factor, and its levels or values.}
-  \item{fit}{a one-column matrix of fitted values, representing the effect
+  \item{fit}{(for \code{"eff"} object) a one-column matrix of fitted values, representing the effect
     on the scale of the linear predictor; this is a ravelled table, representing all
     combinations of predictor values.}
-  \item{x}{a data frame, the columns of which are the predictors, and the
+  \item{prob}{(for \code{"effpoly"} object) a matrix giving fitted probabilities for the effect
+  	for the various levels of the the response(columns) and combinations of the focal predictors (rows).}
+  \item{logit}{(for \code{"effpoly"} object) a matrix giving fitted logits for the effect
+  	for the various levels of the the response(columns) and combinations of the focal predictors (rows).}
+  \item{x}{a data frame, the columns of which are the predictors in the effect, and the
     rows of which give all combinations of values of the predictors.}
   \item{model.matrix}{the model matrix from which the effect was calculated.}
   \item{data}{a data frame with the data on which the fitted model was based.}
-  \item{discrepancy}{the percentage discrepancy for the `safe' predictions of
+  \item{discrepancy}{(for \code{"eff"} object) the percentage discrepancy for the `safe' predictions of
     the original fit; should be very close to 0.}
-  \item{se}{a vector of standard errors for the effect, on the scale of the linear predictor.}
-  \item{lower, upper}{one-column matrices of confidence limits, on the
+  \item{se}{(for \code{"eff"} object) a vector of standard errors for the effect, on the scale of the linear predictor.}
+  \item{se.prob, se.logit}{(for \code{"effpoly"} object) matrices of standard errors for the effect, on the probability and logit scale.}
+  \item{lower, upper}{(for \code{"eff"} object) one-column matrices of confidence limits, on the
     scale of the linear predictor.}
-  \item{confidence.level}{corresponding to the confidence limits.}
-  \item{transformation}{a two-element list, with element \code{link} giving the
-    link function, and element \code{inverse} giving the inverse-link (mean) function.}
-    
-  or an \code{"effpoly"} object with the following components:
-  \item{term}{as above.}
-  \item{formula}{as above.}
-  \item{response}{as above.}
-  \item{y.levels}{names of levels of the response factor.}
-  \item{variables}{as above.}
-  \item{x}{as above.}
-  \item{prob}{matrix of fitted probabilities, with rows given by \code{x} and columns by
-  	the response levels.}
-  \item{logit}{matrix of fitted logits.}
-  \item{se.prob}{matrix of standard errors of the fitted probabilities.}
-  \item{se.logit}{matrix of standard errors of the fitted logits.}
-  \item{lower.logit, upper.logit, lower.prob, upper.prob}{matrices of confidence limits
+  \item{lower.prob, upper.prob, lower.logit, upper.logit}{(for \code{"effpoly"} object) matrices of confidence limits
   	for the fitted logits and probabilities; the latter are computed by back-transforming
   	the former.}
-  \item{data}{as above.}
-  \item{confidence.level}{as above.}
+  \item{confidence.level}{for the confidence limits.}
+  \item{transformation}{(for \code{"eff"} object)a two-element list, with element \code{link} giving the
+    link function, and element \code{inverse} giving the inverse-link (mean) function.}
     
   \code{effectList} returns a list of \code{eff} or \code{effpoly} objects
   corresponding to the high-order terms of the model.
@@ -170,29 +165,8 @@ mod.cowles <- glm(volunteer ~ sex + neuroticism*extraversion,
 eff.cowles <- allEffects(mod.cowles, xlevels=list(neuroticism=0:24, 
     extraversion=seq(0, 24, 6)))
 eff.cowles
-    \dontrun{
-    model: volunteer ~ sex + neuroticism * extraversion
-    
-    sex effect
-    sex
-    female      male 
-    0.4409441 0.3811941 
-    
-    neuroticism*extraversion effect
-            extraversion
-    neuroticism          0         6        12        18        24
-            0  0.07801066 0.1871263 0.3851143 0.6301824 0.8225756
-            1  0.08636001 0.1963396 0.3870453 0.6200668 0.8083638
-            2  0.09551039 0.2058918 0.3889798 0.6098458 0.7932997
-            3  0.10551835 0.2157839 0.3909179 0.5995275 0.7773775
-           . . .
-            23 0.51953129 0.4747277 0.4303273 0.3870199 0.3454282
-            24 0.54709527 0.4895731 0.4323256 0.3768303 0.3243880
-    }
+
 plot(eff.cowles, 'sex', ylab="Prob(Volunteer)")
-    \dontrun{
-    Loading required package: lattice 
-    }
 
 plot(eff.cowles, 'neuroticism:extraversion', ylab="Prob(Volunteer)",
     ticks=list(at=c(.1,.25,.5,.75,.9)))
@@ -202,12 +176,6 @@ plot(eff.cowles, 'neuroticism:extraversion', multiline=TRUE,
     
 plot(effect('sex:neuroticism:extraversion', mod.cowles,
     xlevels=list(neuroticism=0:24, extraversion=seq(0, 24, 6))), multiline=TRUE)
-\dontrun{
-    Warning message: 
-    sex:neuroticism:extraversion does not appear in the model in: 
-      effect("sex:neuroticism:extraversion", mod.cowles, 
-      xlevels = list(neuroticism = 0:24,  
-}
 
 mod.beps <- multinom.mod <- multinom(vote ~ age + gender + economic.cond.national +
 				economic.cond.household + Blair + Hague + Kennedy +
