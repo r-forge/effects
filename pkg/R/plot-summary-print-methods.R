@@ -459,6 +459,8 @@ if (is.character(x.var)) {
 		data <-cbind(data, x.frame[predictors[i]])
 	}
 	if (!confint){
+		if (n.y.lev > min(c(length(colors), length(lines), length(symbols))))
+			stop(paste('Not enough colors, lines, or symbols to plot', n.y.lev, 'lines'))
 		if (is.factor(x$data[[predictors[x.var]]])){
 			levs <- levels(x$data[[predictors[x.var]]])
 			n.predictor.cats <- sapply(data[, predictors[-c(x.var)], drop=FALSE], 
