@@ -9,8 +9,7 @@ effect <- function(term, mod, ...){
 effect.lm <- function (term, mod, xlevels=list(), default.levels=10, se=TRUE, 
 	confidence.level=.95, 
 	transformation=list(link=family(mod)$linkfun, inverse=family(mod)$linkinv), 
-	typical=mean, ...){
-	
+	typical=mean, ...){	
 	model.components <- analyze.model(term, mod, xlevels, default.levels)
 	predict.data <-model.components$predict.data
 	factor.levels <- model.components$factor.levels
@@ -21,8 +20,7 @@ effect.lm <- function (term, mod, xlevels=list(), default.levels=10, se=TRUE,
 	x<- model.components$x
 	X.mod <- model.components$X.mod
 	cnames<- model.components$cnames
-	X <- model.components$X
-	
+	X <- model.components$X	
 	formula.rhs <- formula(mod)[c(1,3)]  
 	nrow.X <- nrow(X)
 	mf <- model.frame(formula.rhs, data=rbind(X[,names(predict.data),drop=FALSE], predict.data), 
@@ -69,8 +67,7 @@ effect.lm <- function (term, mod, xlevels=list(), default.levels=10, se=TRUE,
 }
 
 effect.multinom <- function(term, mod, 
-	confidence.level=.95, xlevels=list(), default.levels=10, typical=mean, ...){
-	
+	confidence.level=.95, xlevels=list(), default.levels=10, typical=mean, ...){	
 	eff.mul <- function(x0, mod, ...){
 		d <- array(0, c(m, m - 1, p))
 		exp.x0.B <- as.vector(exp(x0 %*% B))
@@ -115,8 +112,7 @@ effect.multinom <- function(term, mod,
 	x<- model.components$x
 	X.mod <- model.components$X.mod
 	cnames<- model.components$cnames
-	X <- model.components$X
-	
+	X <- model.components$X	
 	formula.rhs <- formula(mod)[c(1,3)]
 	newdata <- predict.data
 	newdata[[as.character(formula(mod)[2])]] <- rep(mod$lev[1], nrow(newdata))
@@ -145,8 +141,7 @@ effect.multinom <- function(term, mod,
 	V <- vcov(mod)
 	m <- ncol(B) + 1
 	p <- nrow(B)
-	r <- p*(m - 1)
-	
+	r <- p*(m - 1)	
 	n <- nrow(X0)
 	z <- qnorm(1 - (1 - confidence.level)/2)
 	Lower.P <- Upper.P <- Lower.logit <- Upper.logit <- P <- Logit <- SE.P <- SE.logit <- matrix(0, n, m)
@@ -182,8 +177,7 @@ effect.multinom <- function(term, mod,
 
 effect.polr <- function(term, mod, 
 	confidence.level=.95, xlevels=list(), default.levels=10, typical=mean, ...){
-	if (mod$method != "logistic") stop('method argument to polr must be "logistic"')
-	
+	if (mod$method != "logistic") stop('method argument to polr must be "logistic"')	
 	eff.polr <- function(x0, mod, ...){
 		eta0 <- x0 %*% b
 		mu <- rep(0, m)
@@ -219,13 +213,12 @@ effect.polr <- function(term, mod,
 		V.logits <- V.mu/(mu^2 * (1 - mu)^2)
 		list(p=mu, std.err.p=sqrt(V.mu), logits=logits,
 			std.error.logits=sqrt(V.logits))
-	}
-	
+	}	
 	# refit model to produce 'safe' predictions when the model matrix includes
 	#   terms -- e.g., poly(), bs() -- whose basis depends upon the data
 	fit1 <- predict(mod, type="probs")
 	model.components <- analyze.model(term, mod, xlevels, default.levels)
-	predict.data <-model.components$predict.data
+	predict.data <- model.components$predict.data
 	factor.levels <- model.components$factor.levels
 	factor.cols <- model.components$factor.cols
 	mod.aug <- model.components$mod.aug
@@ -270,8 +263,7 @@ effect.polr <- function(term, mod,
 	V <- vcov(mod)[indices, indices]
 	for (j in 1:(m-1)){  # fix up the signs of the covariances
 		V[j,] <- -V[j,]  #  for the intercepts
-		V[,j] <- -V[,j]}
-	
+		V[,j] <- -V[,j]}	
 	n <- nrow(X0)
 	z <- qnorm(1 - (1 - confidence.level)/2)
 	Lower.logit <- Upper.logit <- Lower.P <- Upper.P <- P <- Logit <- SE.P <- SE.Logit <- matrix(0, n, m)
