@@ -104,7 +104,7 @@ effect.multinom <- function(term, mod,
 	if (length(mod$lev) < 3) stop("effects for multinomial logit model only available for response levels > 2")
 	# refit model to produce 'safe' predictions when the model matrix includes
 	#   terms -- e.g., poly(), bs() -- whose basis depends upon the data
-	
+	fit1 <- predict(mod, type="probs")
 	model.components <- analyze.model(term, mod, xlevels, default.levels)
 	predict.data <-model.components$predict.data
 	factor.levels <- model.components$factor.levels
@@ -136,7 +136,11 @@ effect.multinom <- function(term, mod,
 	X0 <- fixup.model.matrix(mod, X0, mod.matrix.all, X.mod, mod.aug, factor.cols, cnames, term, typical)
 	resp.names <- make.names(mod$lev, unique=TRUE)
 	resp.names <- c(resp.names[-1], resp.names[1]) # make the last level the reference level
-	mod <- multinom(formula(mod), data=data, Hess=TRUE, weights=wt)
+	mod <- multinom(formula(mod), data=data, Hess=TRUE, weights=wt)	
+	fit2 <- predict(mod, type="probs")[1:nrow.X,]
+	discrepancy <- 100*mean(as.vector(abs(fit1 - fit2)/(fit1 + 1e-6)))
+	if (discrepancy > 0.1) warning(paste("There is a discrepancy of", round(discrepancy, 2),
+				"percent \n     in the 'safe' predictions used to generate effect", term))	
 	B <- t(coef(mod))
 	V <- vcov(mod)
 	m <- ncol(B) + 1
@@ -171,7 +175,7 @@ effect.multinom <- function(term, mod,
 		prob=P, logit=Logit, se.prob=SE.P, se.logit=SE.logit,
 		lower.logit=Lower.logit, upper.logit=Upper.logit, 
 		lower.prob=Lower.P, upper.prob=Upper.P,
-		data=X, confidence.level=confidence.level)
+		data=X, discrepancy=discrepancy, confidence.level=confidence.level)
 	class(result) <-'effpoly'
 	result
 }
@@ -219,7 +223,7 @@ effect.polr <- function(term, mod,
 	
 	# refit model to produce 'safe' predictions when the model matrix includes
 	#   terms -- e.g., poly(), bs() -- whose basis depends upon the data
-	
+	fit1 <- predict(mod, type="probs")
 	model.components <- analyze.model(term, mod, xlevels, default.levels)
 	predict.data <-model.components$predict.data
 	factor.levels <- model.components$factor.levels
@@ -252,6 +256,10 @@ effect.polr <- function(term, mod,
 	X0 <- fixup.model.matrix(mod, X0, mod.matrix.all, X.mod, mod.aug, factor.cols, cnames, term, typical)
 	resp.names <- make.names(mod$lev, unique=TRUE)
 	mod <- polr(formula(mod), data=data, Hess=TRUE, weights=wt)
+	fit2 <- predict(mod, type="probs")[1:nrow.X,]
+	discrepancy <- 100*mean(as.vector(abs(fit1 - fit2)/(fit1 + 1e-6)))
+	if (discrepancy > 0.1) warning(paste("There is a discrepancy of", round(discrepancy, 2),
+				"percent \n     in the 'safe' predictions used to generate effect", term))	
 	X0 <- X0[,-1]
 	b <- coef(mod)
 	p <- length(b)  # corresponds to p - 1 in the text
@@ -293,7 +301,7 @@ effect.polr <- function(term, mod,
 		prob=P, logit=Logit, se.prob=SE.P, se.logit=SE.Logit,
 		lower.logit=Lower.logit, upper.logit=Upper.logit, 
 		lower.prob=Lower.P, upper.prob=Upper.P,
-		data=X, confidence.level=confidence.level)
+		data=X, discrepancy=discrepancy, confidence.level=confidence.level)
 	class(result) <-'effpoly'
 	result
 }

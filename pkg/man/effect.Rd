@@ -112,8 +112,7 @@ allEffects(mod, ...)
     rows of which give all combinations of values of the predictors.}
   \item{model.matrix}{the model matrix from which the effect was calculated.}
   \item{data}{a data frame with the data on which the fitted model was based.}
-  \item{discrepancy}{(for \code{"eff"} objects) the percentage discrepancy for the `safe' predictions of
-    the original fit; should be very close to 0.}
+  \item{discrepancy}{the percentage discrepancy for the `safe' predictions of the original fit; should be very close to 0.}
   \item{se}{(for \code{"eff"} objects) a vector of standard errors for the effect, on the scale of the linear predictor.}
   \item{se.prob, se.logit}{(for \code{"effpoly"} objects) matrices of standard errors for the effect, on the probability and logit scales.}
   \item{lower, upper}{(for \code{"eff"} objects) one-column matrices of confidence limits, on the

@@ -369,6 +369,10 @@ print.effpoly <- function(x, type=c("probability", "logits"), ...){
 			dimnames=lapply(x$variables, function(x) x$levels))
 		print(table)
 	}
+	if (x$discrepancy > 0.1) cat(paste("\nWarning: There is an average discrepancy of", 
+				round(x$discrepancy, 2),
+				"percent \n     in the 'safe' predictions for effect", x$term, '\n'))
+	invisible(x)
 }
 
 summary.effpoly <- function(object, type=c("probability", "logits"), ...){
@@ -376,7 +380,7 @@ summary.effpoly <- function(object, type=c("probability", "logits"), ...){
 	x.frame <-as.data.frame(object)
 	n.predictors <- length(names(object$x))
 	predictors <- names(x.frame)[1:n.predictors]
-	y.lev<- object$y.lev
+	y.lev <- object$y.lev
 	y.categories <-matrix(0, nrow=length(x.frame[,predictors[1]]), ncol=length(y.lev))
 	for (i in 1:length(y.lev)){
 		level<- grep(colnames(object$prob)[i], make.names(paste("prob",y.lev)) )
@@ -410,6 +414,10 @@ summary.effpoly <- function(object, type=c("probability", "logits"), ...){
 			dimnames=lapply(object$variables, function(x) x$levels))
 		print(table)
 	}
+	if (object$discrepancy > 0.1) cat(paste("\nWarning: There is an average discrepancy of", 
+			round(object$discrepancy, 2),
+			"percent \n     in the 'safe' predictions for effect", object$term, '\n'))
+	invisible(NULL)
 }  
 
 plot.effpoly <- function(x,
