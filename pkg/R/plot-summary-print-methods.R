@@ -453,7 +453,7 @@ if (is.character(x.var)) {
 	upper.prob <- as.vector(x$upper.prob)
 	lower.logit <- as.vector(x$lower.logit)
 	upper.logit <- as.vector(x$upper.logit)
-	response <- factor(response)
+	response <- factor(response, levels=y.lev)
 	data <- data.frame(prob, logit, response, lower.prob, upper.prob, lower.logit, upper.logit)
 	for (i in 1:length(predictors)){
 		data <-cbind(data, x.frame[predictors[i]])
@@ -477,7 +477,7 @@ if (is.character(x.var)) {
 												paste(predictors[-x.var], collapse="*")))
 							else parse(text=if (n.predictors==1) 
 											paste("logit ~ as.numeric(", predictors[x.var], ")")
-										else paste("logit~ as.numeric(", predictors[x.var],") | ", 
+										else paste("logit ~ as.numeric(", predictors[x.var],") | ", 
 												paste(predictors[-x.var], collapse="*")))), 
 					strip=function(...) strip.default(..., strip.names=c(factor.names, TRUE)),
 					panel=function(x, y, subscripts, rug, z, x.vals, ...){

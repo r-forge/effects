@@ -1,6 +1,6 @@
 # effect generic and methods; allEffects
 # John Fox and Jangman Hong
-#  last modified 28 September 2008 by J. Fox
+#  last modified 29 September 2008 by J. Fox
 
 effect <- function(term, mod, ...){
 	UseMethod("effect", mod)
@@ -36,20 +36,7 @@ effect.lm <- function (term, mod, xlevels=list(), default.levels=10, se=TRUE,
 	discrepancy <- 100*sqrt(mean(mod.2$residuals^2)/mean(mod$residuals^2))
 	if (discrepancy > 1e-3) warning(paste("There is a discrepancy of", round(discrepancy, 3),
 				"percent \n     in the 'safe' predictions used to generate effect", term))
-	mod.matrix <- fixup.model.matrix(mod, mod.matrix, mod.matrix.all, X.mod, mod.aug, factor.cols, cnames, term, typical)
-#	attr(mod.matrix, "assign") <- attr(mod.matrix.all, "assign")
-#	stranger.cols <- factor.cols & 
-#		apply(outer(strangers(term, mod, mod.aug), attr(mod.matrix,'assign'), '=='), 2, any)
-#	if (has.intercept(mod)) stranger.cols[1] <- TRUE
-#	if (any(stranger.cols)) mod.matrix[,stranger.cols] <- 
-#			matrix(apply(as.matrix(X.mod[,stranger.cols]), 2, typical), 
-#				nrow=nrow(mod.matrix), ncol=sum(stranger.cols),byrow=TRUE)
-#	for (name in cnames){
-#		components <- unlist(strsplit(name, ':'))
-#		if (length(components) > 1) 
-#			mod.matrix[,name] <- apply(mod.matrix[,components], 1, prod)
-#	}
-	
+	mod.matrix <- fixup.model.matrix(mod, mod.matrix, mod.matrix.all, X.mod, mod.aug, factor.cols, cnames, term, typical)	
 	effect <- mod.matrix %*% mod.2$coefficients
 	result <- list(term=term, formula=formula(mod), response=response.name(mod),
 		variables=x, fit=effect, 
@@ -114,7 +101,7 @@ effect.multinom <- function(term, mod,
 		list(p=mu, std.err.p=sqrt(V.mu), logits=logits,
 			std.error.logits=sqrt(V.logits))
 	}
-	
+	if (length(mod$lev) < 3) stop("effects for multinomial logit model only available for response levels > 2")
 	# refit model to produce 'safe' predictions when the model matrix includes
 	#   terms -- e.g., poly(), bs() -- whose basis depends upon the data
 	
@@ -131,7 +118,7 @@ effect.multinom <- function(term, mod,
 	X <- model.components$X
 	
 	formula.rhs <- formula(mod)[c(1,3)]
-	new <- newdata <- predict.data
+	newdata <- predict.data
 	newdata[[as.character(formula(mod)[2])]] <- rep(mod$lev[1], nrow(newdata))
 	extras <- setdiff(all.vars(formula(mod)), names(model.frame(mod)))
 	X <- if (length(extras) == 0) model.frame(mod)
@@ -244,9 +231,8 @@ effect.polr <- function(term, mod,
 	X.mod <- model.components$X.mod
 	cnames<- model.components$cnames
 	X <- model.components$X
-	
 	formula.rhs <- formula(mod)[c(1,3)]
-	new <- newdata <- predict.data
+	newdata <- predict.data
 	newdata[[as.character(formula(mod)[2])]] <- rep(mod$lev[1], nrow(newdata))
 	extras <- setdiff(all.vars(formula(mod)), names(model.frame(mod)))
 	X <- if (length(extras) == 0) model.frame(mod)
@@ -301,7 +287,8 @@ effect.polr <- function(term, mod,
 		Upper.logit[i,] <- logit + z*se.logit
 	}
 	result <- list(term=term, formula=formula(mod), response=response.name(mod),
-		y.levels=mod$lev, variables=x, x=predict.data[,1:n.basic, drop=FALSE],
+		y.levels=mod$lev, variables=x, 
+		x=predict.data[,1:n.basic, drop=FALSE],
 		model.matrix=X0,
 		prob=P, logit=Logit, se.prob=SE.P, se.logit=SE.Logit,
 		lower.logit=Lower.logit, upper.logit=Upper.logit, 

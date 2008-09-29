@@ -9,13 +9,13 @@
 
 \title{Functions For Constructing Effect Plots}
 \description{
-  \code{effect} constructs an \code{"effect"} object for a term (usually a high-order term) 
+  \code{effect} constructs an \code{"eff"} object for a term (usually a high-order term) 
   in a linear, generalized linear, multinomial-logit, or proportional-odds logit model, 
   absorbing the lower-order terms marginal
   to the term in question, and averaging over other terms in the model. 
   
   \code{allEffects} identifies all of the high-order terms in a model and returns
-  a list of \code{"effect"} objects (i.e., an object of type \code{"efflist"}).
+  a list of \code{"eff"} objects (i.e., an object of type \code{"efflist"}).
 }
 
 \usage{
@@ -42,7 +42,7 @@ allEffects(mod, ...)
 \arguments{
   \item{term}{the quoted name of a term, usually, but not necessarily, a high-order 
     term in the model.}
-  \item{mod}{an object of class \code{"lm"} or \code{"glm"}.}
+  \item{mod}{an object of class \code{"lm"}, \code{"glm"}, \code{multinom}, or \code{polr}.}
   \item{xlevels}{an optional list of values at which to set covariates,
     with components of the form \code{covariate.name = vector.of.values}.}
   \item{default.levels}{number of values for covariates that are not
@@ -64,15 +64,16 @@ allEffects(mod, ...)
     made to approximate it from the inverse-link.}
   \item{typical}{a function to be applied to the columns of the model matrix
     over which the effect is "averaged"; the default is \code{mean}.}
-  \item{...}{arguments to be passed down.}
-  \item{x}{an object of type \code{"effect"}.}
+  \item{x}{an object of class \code{"eff"} or \code{effpoly}.}
   \item{row.names, optional}{not used.}
+  \item{...}{arguments to be passed down.}
 }
 
 \details{
   Normally, the functions to be used directly are \code{allEffects}, to return
   a list of high-order effects, and the generic \code{plot} function to plot the effects.
-  (see \code{\link{plot.efflist}}, \code{\link{plot.eff}}, and \code{\link{plot.effpoly}}).
+  (see \code{\link{plot.efflist}}, \code{\link{plot.eff}}, \code{\link{plot.effpoly}},
+  and \code{\link{plot.effpoly}}).
   Plots are drawn using the \code{\link[lattice]{xyplot}} function in the 
   \code{lattice} package. Effects may also be printed (implicitly or explicitly via
   \code{print}) or summarized (using \code{summary})
@@ -97,31 +98,31 @@ allEffects(mod, ...)
   \item{term}{the term to which the effect pertains.}
   \item{formula}{the complete model formula.}
   \item{response}{a character string giving the response variable.}
-  \item{y.levels}{(for \code{"effpoly"} object) levels of the polytomous response variable.}
+  \item{y.levels}{(for \code{"effpoly"} objects) levels of the polytomous response variable.}
   \item{variables}{a list with information about each predictor, including
     its name, whether it is a factor, and its levels or values.}
-  \item{fit}{(for \code{"eff"} object) a one-column matrix of fitted values, representing the effect
+  \item{fit}{(for \code{"eff"} objects) a one-column matrix of fitted values, representing the effect
     on the scale of the linear predictor; this is a ravelled table, representing all
     combinations of predictor values.}
-  \item{prob}{(for \code{"effpoly"} object) a matrix giving fitted probabilities for the effect
+  \item{prob}{(for \code{"effpoly"} objects) a matrix giving fitted probabilities for the effect
   	for the various levels of the the response(columns) and combinations of the focal predictors (rows).}
-  \item{logit}{(for \code{"effpoly"} object) a matrix giving fitted logits for the effect
+  \item{logit}{(for \code{"effpoly"} objects) a matrix giving fitted logits for the effect
   	for the various levels of the the response(columns) and combinations of the focal predictors (rows).}
   \item{x}{a data frame, the columns of which are the predictors in the effect, and the
     rows of which give all combinations of values of the predictors.}
   \item{model.matrix}{the model matrix from which the effect was calculated.}
   \item{data}{a data frame with the data on which the fitted model was based.}
-  \item{discrepancy}{(for \code{"eff"} object) the percentage discrepancy for the `safe' predictions of
+  \item{discrepancy}{(for \code{"eff"} objects) the percentage discrepancy for the `safe' predictions of
     the original fit; should be very close to 0.}
-  \item{se}{(for \code{"eff"} object) a vector of standard errors for the effect, on the scale of the linear predictor.}
-  \item{se.prob, se.logit}{(for \code{"effpoly"} object) matrices of standard errors for the effect, on the probability and logit scale.}
-  \item{lower, upper}{(for \code{"eff"} object) one-column matrices of confidence limits, on the
+  \item{se}{(for \code{"eff"} objects) a vector of standard errors for the effect, on the scale of the linear predictor.}
+  \item{se.prob, se.logit}{(for \code{"effpoly"} objects) matrices of standard errors for the effect, on the probability and logit scales.}
+  \item{lower, upper}{(for \code{"eff"} objects) one-column matrices of confidence limits, on the
     scale of the linear predictor.}
-  \item{lower.prob, upper.prob, lower.logit, upper.logit}{(for \code{"effpoly"} object) matrices of confidence limits
-  	for the fitted logits and probabilities; the latter are computed by back-transforming
+  \item{lower.prob, upper.prob, lower.logit, upper.logit}{(for \code{"effpoly"} objects) matrices of confidence limits
+  	for the fitted logits and probabilities; the latter are computed by transforming
   	the former.}
   \item{confidence.level}{for the confidence limits.}
-  \item{transformation}{(for \code{"eff"} object)a two-element list, with element \code{link} giving the
+  \item{transformation}{(for \code{"eff"} objects) a two-element list, with element \code{link} giving the
     link function, and element \code{inverse} giving the inverse-link (mean) function.}
     
   \code{effectList} returns a list of \code{eff} or \code{effpoly} objects
@@ -152,11 +153,13 @@ allEffects(mod, ...)
     
     
     
-\author{John Fox \email{jfox@mcmaster.ca}.}
+\author{John Fox \email{jfox@mcmaster.ca} and Jangman Hong.}
 
 
 \seealso{\code{\link{print.eff}}, \code{\link{summary.eff}}, \code{\link{plot.eff}}, 
-    \code{\link{print.summary.eff}}, \code{\link{print.efflist}}, \code{\link{summary.efflist}},
+    \code{\link{print.summary.eff}}, 
+    \code{\link{print.effpoly}}, \code{\link{summary.effpoly}}, \code{\link{plot.effpoly}},
+    \code{\link{print.efflist}}, \code{\link{summary.efflist}},
     \code{\link{plot.efflist}}, \code{\link[lattice]{xyplot}}}
 
 \examples{

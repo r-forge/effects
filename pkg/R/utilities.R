@@ -1,6 +1,6 @@
 # utilities and common functions for effects package
 # John Fox and Jangman Hong
-#  last modified 28 September 2008 by J. Fox
+#  last modified 29 September 2008 by J. Fox
 
 
 has.intercept <- function(model, ...) any(names(coefficients(model))=="(Intercept)")
@@ -166,8 +166,8 @@ analyze.model <- function(term, mod, xlevels, default.levels){
 	all.vars <- (1:nrow(attr(mod$terms, 'factors')))[
 		0 != apply(attr(mod$terms, 'factors'), 1, sum) ]
 	if (intercept) all.vars <- all.vars - 1
-	if (inherits(mod, "multinom")) all.vars <- all.vars-1
-	if (inherits(mod, "polr")) all.vars <- all.vars-1
+	if (inherits(mod, "multinom")) all.vars <- all.vars - 1
+	if (inherits(mod, "polr")) all.vars <- all.vars - 1
 	
 	excluded.vars <- setdiff(all.vars, basic.vars)
 	if (length(terms) == 1) {
@@ -260,6 +260,14 @@ as.data.frame.eff <- function(x, row.names=NULL, optional=TRUE, ...){
 }
 
 as.data.frame.effpoly <- function(x, row.names=NULL, optional=TRUE, ...){
+	factors <- sapply(x$variables, function(x) x$is.factor)
+	factor.levels <- lapply(x$variables[factors], function(x) x$levels)
+	if (!length(factor.levels) == 0){
+		factor.names <- names(factor.levels)
+		for (fac in factor.names){
+			x$x[[fac]] <- factor(x$x[[fac]], levels=factor.levels[[fac]])
+		}
+	}
 	data.frame(x$x, x$prob, x$logit,x$se.prob, x$se.logit, 
 		x$lower.prob, x$upper.prob, x$lower.logit, x$upper.logit)
 }
