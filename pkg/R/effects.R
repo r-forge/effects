@@ -1,6 +1,6 @@
 # effect generic and methods; allEffects
 # John Fox and Jangman Hong
-#  last modified 29 September 2008 by J. Fox
+#  last modified 30 September 2008 by J. Fox
 
 effect <- function(term, mod, ...){
 	UseMethod("effect", mod)
@@ -127,16 +127,19 @@ effect.multinom <- function(term, mod,
 	data <- rbind(X[,names(newdata),drop=FALSE], newdata)
 	data$wt <- rep(0, nrow(data))
 	data$wt[1:nrow.X] <- weights(mod)
-	mod.matrix.all <- model.matrix(formula.rhs, data=data)
+	mod.matrix.all <- model.matrix(formula.rhs, data=data, contrasts.arg=mod$contrasts)
 	X0 <- mod.matrix.all[-(1:nrow.X),]
 	X0 <- fixup.model.matrix(mod, X0, mod.matrix.all, X.mod, mod.aug, factor.cols, cnames, term, typical)
 	resp.names <- make.names(mod$lev, unique=TRUE)
 	resp.names <- c(resp.names[-1], resp.names[1]) # make the last level the reference level
 	mod <- multinom(formula(mod), data=data, Hess=TRUE, weights=wt)	
 	fit2 <- predict(mod, type="probs")[1:nrow.X,]
-	discrepancy <- 100*mean(as.vector(abs(fit1 - fit2)/(fit1 + 1e-6)))
-	if (discrepancy > 0.1) warning(paste("There is a discrepancy of", round(discrepancy, 2),
-				"percent \n     in the 'safe' predictions used to generate effect", term))	
+	fit1 <- as.vector(p2logit(fit1))
+	fit2 <- as.vector(p2logit(fit2))
+	discrepancy <- 100*sqrt(mean((fit1 - fit2)^2)/mean(fit1^2))
+#	discrepancy <- 100*mean(as.vector(abs(fit1 - fit2)/(fit1 + 1e-6)))
+	if (discrepancy > 0.1) warning(paste("There is a discrepancy of", round(discrepancy, 3),
+				"percent \n     in the 'safe' predictions used to generate effect", term))
 	B <- t(coef(mod))
 	V <- vcov(mod)
 	m <- ncol(B) + 1
@@ -244,15 +247,18 @@ effect.polr <- function(term, mod,
 	if (is.null(wts)) wts <- 1
 	data$wt <- rep(0, nrow(data))
 	data$wt[1:nrow.X] <- wts
-	mod.matrix.all <- model.matrix(formula.rhs, data=data)
+	mod.matrix.all <- model.matrix(formula.rhs, data=data, contrasts.arg=mod$contrasts)
 	X0 <- mod.matrix.all[-(1:nrow.X),]
 	X0 <- fixup.model.matrix(mod, X0, mod.matrix.all, X.mod, mod.aug, factor.cols, cnames, term, typical)
 	resp.names <- make.names(mod$lev, unique=TRUE)
 	mod <- polr(formula(mod), data=data, Hess=TRUE, weights=wt)
 	fit2 <- predict(mod, type="probs")[1:nrow.X,]
-	discrepancy <- 100*mean(as.vector(abs(fit1 - fit2)/(fit1 + 1e-6)))
-	if (discrepancy > 0.1) warning(paste("There is a discrepancy of", round(discrepancy, 2),
-				"percent \n     in the 'safe' predictions used to generate effect", term))	
+	fit1 <- as.vector(p2logit(fit1))
+	fit2 <- as.vector(p2logit(fit2))
+	discrepancy <- 100*sqrt(mean((fit1 - fit2)^2)/mean(fit1^2))
+#	discrepancy <- 100*mean(as.vector(abs(fit1 - fit2)/(fit1 + 1e-6)))
+	if (discrepancy > 0.1) warning(paste("There is a discrepancy of", round(discrepancy, 3),
+				"percent \n     in the 'safe' predictions used to generate effect", term))
 	X0 <- X0[,-1]
 	b <- coef(mod)
 	p <- length(b)  # corresponds to p - 1 in the text

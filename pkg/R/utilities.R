@@ -1,6 +1,6 @@
 # utilities and common functions for effects package
 # John Fox and Jangman Hong
-#  last modified 29 September 2008 by J. Fox
+#  last modified 30 September 2008 by J. Fox
 
 
 has.intercept <- function(model, ...) any(names(coefficients(model))=="(Intercept)")
@@ -273,6 +273,9 @@ as.data.frame.effpoly <- function(x, row.names=NULL, optional=TRUE, ...){
 }
 
 logit2p <- function(logit) 1/(1 + exp(-logit))
+
+p2logit <- function(p) log(p/(1 - p))
+
 
 lrug <- function(x) {
 	if (length(unique(x)) < 0.8 * length(x)) x <- jitter(x)
