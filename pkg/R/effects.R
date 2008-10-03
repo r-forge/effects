@@ -1,15 +1,18 @@
 # effect generic and methods; allEffects
 # John Fox and Jangman Hong
-#  last modified 30 September 2008 by J. Fox
+#  last modified 2 October 2008 by J. Fox
 
 effect <- function(term, mod, ...){
 	UseMethod("effect", mod)
 }
 
-effect.lm <- function (term, mod, xlevels=list(), default.levels=10, se=TRUE, 
-	confidence.level=.95, 
+effect.lm <- function (term, mod, xlevels=list(), default.levels=10, given.values,
+	se=TRUE, confidence.level=.95, 
 	transformation=list(link=family(mod)$linkfun, inverse=family(mod)$linkinv), 
 	typical=mean, ...){	
+	if (missing(given.values)) given.values <- NULL
+	else if (!all(which <- names(given.values) %in% names(coef(mod)))) 
+		stop("given.values (", names(given.values[!which]),") not in the model")
 	model.components <- analyze.model(term, mod, xlevels, default.levels)
 	predict.data <-model.components$predict.data
 	factor.levels <- model.components$factor.levels
@@ -34,7 +37,8 @@ effect.lm <- function (term, mod, xlevels=list(), default.levels=10, se=TRUE,
 	discrepancy <- 100*sqrt(mean(mod.2$residuals^2)/mean(mod$residuals^2))
 	if (discrepancy > 1e-3) warning(paste("There is a discrepancy of", round(discrepancy, 3),
 				"percent \n     in the 'safe' predictions used to generate effect", term))
-	mod.matrix <- fixup.model.matrix(mod, mod.matrix, mod.matrix.all, X.mod, mod.aug, factor.cols, cnames, term, typical)	
+	mod.matrix <- fixup.model.matrix(mod, mod.matrix, mod.matrix.all, X.mod, mod.aug, 
+			factor.cols, cnames, term, typical, given.values)	
 	effect <- mod.matrix %*% mod.2$coefficients
 	result <- list(term=term, formula=formula(mod), response=response.name(mod),
 		variables=x, fit=effect, 
@@ -67,7 +71,7 @@ effect.lm <- function (term, mod, xlevels=list(), default.levels=10, se=TRUE,
 }
 
 effect.multinom <- function(term, mod, 
-	confidence.level=.95, xlevels=list(), default.levels=10, typical=mean, ...){	
+	confidence.level=.95, xlevels=list(), default.levels=10, given.values, typical=mean, ...){	
 	eff.mul <- function(x0, mod, ...){
 		d <- array(0, c(m, m - 1, p))
 		exp.x0.B <- as.vector(exp(x0 %*% B))
@@ -99,6 +103,9 @@ effect.multinom <- function(term, mod,
 			std.error.logits=sqrt(V.logits))
 	}
 	if (length(mod$lev) < 3) stop("effects for multinomial logit model only available for response levels > 2")
+	if (missing(given.values)) given.values <- NULL
+	else if (!all(which <- names(given.values) %in% names(coef(mod)))) 
+		stop("given.values (", names(given.values[!which]),") not in the model")
 	# refit model to produce 'safe' predictions when the model matrix includes
 	#   terms -- e.g., poly(), bs() -- whose basis depends upon the data
 	fit1 <- predict(mod, type="probs")
@@ -129,7 +136,8 @@ effect.multinom <- function(term, mod,
 	data$wt[1:nrow.X] <- weights(mod)
 	mod.matrix.all <- model.matrix(formula.rhs, data=data, contrasts.arg=mod$contrasts)
 	X0 <- mod.matrix.all[-(1:nrow.X),]
-	X0 <- fixup.model.matrix(mod, X0, mod.matrix.all, X.mod, mod.aug, factor.cols, cnames, term, typical)
+	X0 <- fixup.model.matrix(mod, X0, mod.matrix.all, X.mod, mod.aug, factor.cols, 
+			cnames, term, typical, given.values)
 	resp.names <- make.names(mod$lev, unique=TRUE)
 	resp.names <- c(resp.names[-1], resp.names[1]) # make the last level the reference level
 	mod <- multinom(formula(mod), data=data, Hess=TRUE, weights=wt)	
@@ -179,8 +187,11 @@ effect.multinom <- function(term, mod,
 }
 
 effect.polr <- function(term, mod, 
-	confidence.level=.95, xlevels=list(), default.levels=10, typical=mean, ...){
+	confidence.level=.95, xlevels=list(), default.levels=10, given.values, typical=mean, ...){
 	if (mod$method != "logistic") stop('method argument to polr must be "logistic"')	
+	if (missing(given.values)) given.values <- NULL
+	else if (!all(which <- names(given.values) %in% names(coef(mod)))) 
+		stop("given.values (", names(given.values[!which]),") not in the model")
 	eff.polr <- function(x0, mod, ...){
 		eta0 <- x0 %*% b
 		mu <- rep(0, m)
@@ -249,7 +260,8 @@ effect.polr <- function(term, mod,
 	data$wt[1:nrow.X] <- wts
 	mod.matrix.all <- model.matrix(formula.rhs, data=data, contrasts.arg=mod$contrasts)
 	X0 <- mod.matrix.all[-(1:nrow.X),]
-	X0 <- fixup.model.matrix(mod, X0, mod.matrix.all, X.mod, mod.aug, factor.cols, cnames, term, typical)
+	X0 <- fixup.model.matrix(mod, X0, mod.matrix.all, X.mod, mod.aug, factor.cols, 
+			cnames, term, typical, given.values)
 	resp.names <- make.names(mod$lev, unique=TRUE)
 	mod <- polr(formula(mod), data=data, Hess=TRUE, weights=wt)
 	fit2 <- predict(mod, type="probs")[1:nrow.X,]

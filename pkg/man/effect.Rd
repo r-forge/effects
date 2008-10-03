@@ -21,16 +21,16 @@
 \usage{
 effect(term, mod, ...)
 
-\method{effect}{lm}(term, mod, xlevels=list(), default.levels=10, se=TRUE, 
-    confidence.level=.95, 
+\method{effect}{lm}(term, mod, xlevels=list(), default.levels=10, given.values, 
+	se=TRUE, confidence.level=.95, 
     transformation=list(link=family(mod)$linkfun, inverse=family(mod)$linkinv), 
     typical=mean, ...)
     
 \method{effect}{multinom}(term, mod, confidence.level=.95, xlevels=list(), default.levels=10, 
-	typical=mean, ...)
+	given.values, typical=mean, ...)
 		
 \method{effect}{polr}(term, mod, confidence.level=.95, xlevels=list(), default.levels=10, 
-	typical=mean, ...)
+	given.values, typical=mean, ...)
     
 allEffects(mod, ...)
 
@@ -49,6 +49,13 @@ allEffects(mod, ...)
     specified explicitly via \code{xlevels}; covariate values set by
     default are evenly spaced between the minimum and maximum values in
     the data.}
+  \item{given.values}{a numeric vector of named elements, setting particular
+  	columns of the model matrix to specific values for terms \emph{not}
+  	appearing in an effect; if specified, takes precedence over the
+  	application of the function given in the \code{typical} argument
+  	(below). Care must be taken in specifying these values --- e.g.,
+  	for a factor, the values of all contrasts should be given and these
+  	should be consistent with each other.}
   \item{se}{if \code{TRUE}, the default, calculate standard errors and
     confidence limits for the effects.}
   \item{confidence.level}{level at which to compute confidence limits
@@ -165,7 +172,7 @@ allEffects(mod, ...)
 mod.cowles <- glm(volunteer ~ sex + neuroticism*extraversion, 
     data=Cowles, family=binomial)
 eff.cowles <- allEffects(mod.cowles, xlevels=list(neuroticism=0:24, 
-    extraversion=seq(0, 24, 6)))
+    extraversion=seq(0, 24, 6)), given.values=c(sexmale=0.5))
 eff.cowles
 
 plot(eff.cowles, 'sex', ylab="Prob(Volunteer)")

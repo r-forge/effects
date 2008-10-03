@@ -1,6 +1,6 @@
 # utilities and common functions for effects package
 # John Fox and Jangman Hong
-#  last modified 30 September 2008 by J. Fox
+#  last modified 2 October 2008 by J. Fox
 
 
 has.intercept <- function(model, ...) any(names(coefficients(model))=="(Intercept)")
@@ -238,14 +238,22 @@ analyze.model <- function(term, mod, xlevels, default.levels){
 		x=x, X.mod=X.mod, cnames=cnames, X=X)   
 }
 
-fixup.model.matrix <- function(mod, mod.matrix, mod.matrix.all, X.mod, mod.aug, factor.cols, cnames, term, typical){
+fixup.model.matrix <- function(mod, mod.matrix, mod.matrix.all, X.mod, mod.aug, 
+		factor.cols, cnames, term, typical, given.values){
 	attr(mod.matrix, "assign") <- attr(mod.matrix.all, "assign")
 	stranger.cols <- factor.cols & 
 		apply(outer(strangers(term, mod, mod.aug), attr(mod.matrix,'assign'), '=='), 2, any)
 	if (has.intercept(mod)) stranger.cols[1] <- TRUE
-	if (any(stranger.cols)) mod.matrix[,stranger.cols] <- 
+	if (any(stranger.cols)) {
+		mod.matrix[,stranger.cols] <- 
 			matrix(apply(as.matrix(X.mod[,stranger.cols]), 2, typical), 
-				nrow=nrow(mod.matrix), ncol=sum(stranger.cols),byrow=TRUE)
+				nrow=nrow(mod.matrix), ncol=sum(stranger.cols), byrow=TRUE)
+		if (!is.null(given.values)){
+			stranger.names <- names(stranger.cols[stranger.cols])
+			given <- stranger.names %in% names(given.values)
+			if (any(given)) mod.matrix[,stranger.names[given]] <- given.values[stranger.names[given]]
+		} 
+	}
 	for (name in cnames){
 		components <- unlist(strsplit(name, ':'))
 		if (length(components) > 1) 
