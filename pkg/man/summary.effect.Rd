@@ -172,7 +172,7 @@ plot(eff.cowles, 'neuroticism:extraversion', multiline=TRUE,
 plot(effect('sex:neuroticism:extraversion', mod.cowles,
     xlevels=list(neuroticism=0:24, extraversion=seq(0, 24, 6))), multiline=TRUE)
 
-mod.beps <- multinom.mod <- multinom(vote ~ age + gender + economic.cond.national +
+mod.beps <- multinom(vote ~ age + gender + economic.cond.national +
 				economic.cond.household + Blair + Hague + Kennedy +
 				Europe*political.knowledge, data=BEPS)
 plot(effect("Europe*political.knowledge", mod.beps, 
