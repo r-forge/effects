@@ -10,7 +10,7 @@
 \title{Functions For Constructing Effect Plots}
 \description{
   \code{effect} constructs an \code{"eff"} object for a term (usually a high-order term) 
-  in a linear or generalized linear, or an \code{"effpoly"} object for a term in a
+  in a linear or generalized linear model, or an \code{"effpoly"} object for a term in a
    multinomial or proportional-odds logit model, 
   absorbing the lower-order terms marginal
   to the term in question, and averaging over other terms in the model. 
@@ -107,7 +107,7 @@ allEffects(mod, ...)
   and \code{polr}, an \code{"effpoly"} object, with the following components:
   \item{term}{the term to which the effect pertains.}
   \item{formula}{the complete model formula.}
-  \item{response}{a character string giving the response variable.}
+  \item{response}{a character string giving the name of the response variable.}
   \item{y.levels}{(for \code{"effpoly"} objects) levels of the polytomous response variable.}
   \item{variables}{a list with information about each predictor, including
     its name, whether it is a factor, and its levels or values.}
@@ -119,7 +119,7 @@ allEffects(mod, ...)
   \item{logit}{(for \code{"effpoly"} objects) a matrix giving fitted logits for the effect
   	for the various levels of the the response (columns) and combinations of the focal predictors (rows).}
   \item{x}{a data frame, the columns of which are the predictors in the effect, and the
-    rows of which give all combinations of values of the predictors.}
+    rows of which give all combinations of values of these predictors.}
   \item{model.matrix}{the model matrix from which the effect was calculated.}
   \item{data}{a data frame with the data on which the fitted model was based.}
   \item{discrepancy}{the percentage discrepancy for the `safe' predictions of the original fit; should be very close to 0.}

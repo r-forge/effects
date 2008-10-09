@@ -49,7 +49,8 @@ and \code{efflist} objects.
   	or \code{"summary.eff"}, as appropriate.}
   \item{object}{an object of class \code{"eff"}, \code{"effpoly"}, or \code{"efflist"},
     as appropriate.}
-  \item{type}{if \code{"response"} (the default), effects are printed 
+  \item{type}{for linear and generalized linear models, 
+  	if \code{"response"} (the default), effects are printed 
     or the vertical axis is labelled on the scale of the response
     variable; if \code{"link"}, effects are printed 
     or the vertical axis labelled on the scale of the linear predictor.
@@ -58,11 +59,13 @@ and \code{efflist} objects.
   \item{x.var}{the index (number) or quoted name of the covariate or factor to place on the 
     horizontal axis of each panel of the effect plot. The default is the 
     predictor with the largest number of levels or values.}
-  \item{z.var}{the index (number) or quoted name of the covariate or factor for which
+  \item{z.var}{for linear or generalized linear models,
+  	the index (number) or quoted name of the covariate or factor for which
     individual lines are to be drawn in each panel of the effect plot. The default is the 
     predictor with the smallest number of levels or values. This argument is only
     used if \code{multiline = TRUE}.}
-  \item{multiline}{if \code{TRUE}, each panel of the display represents combinations
+  \item{multiline}{for linear or generalized linear models,
+  	if \code{TRUE}, each panel of the display represents combinations
     of values of two predictors, with one predictor (corresponding to \code{x.var})
     on the horzontal axis, and the other (corresponding to \code{z.var}) used to define
     lines in the graph; defaults to \code{TRUE} if there are no standard errors in
@@ -88,7 +91,9 @@ and \code{efflist} objects.
     \emph{cannot} be abbreviated to \code{col}, which is used for a different
     purpose (see below).}
   \item{symbols, lines}{corresponding to the levels of the \code{z.var} covariate
-    or factor on a multiline plot. These arguments are used only if \code{multiline = TRUE}
+    or factor on a multiline plot, or to the successive levels of the response factor
+    in a line plot for a polytomous logit model. 
+    These arguments are used only if \code{multiline = TRUE}
     or for polytomous logit models where the effects are plotted without confidence bands;
     in these cases a legend is drawn at the top of the display.}
   \item{cex}{character expansion for plotted symbols; default is \code{1.5}.}
@@ -108,7 +113,7 @@ and \code{efflist} objects.
   \item{alternating}{if \code{TRUE} (the default), the tick labels alternate by panels in
     multi-panel displays from left to right and top to bottom; if \code{FALSE}, tick labels
     appear at the bottom and on the left.}
-  \item{layout}{the layout argument to the \pkg{lattice} function \code{\link[lattice]{xyplot}}
+  \item{layout}{the \code{layout} argument to the \pkg{lattice} function \code{\link[lattice]{xyplot}}
   	(or, in some cases \code{\link[lattice]{densityplot}}), which
   	is used to draw the effect display; if not specified, the plot will be formatted so that
   	it appears on a single page.}
@@ -166,7 +171,7 @@ and \code{efflist} objects.
 
 
 \seealso{\code{\link{effect}}, \code{\link{allEffects}}, \code{\link[lattice]{xyplot}},
-	\code{\link[lattice]{densityplot}}}
+	\code{\link[lattice]{densityplot}}, \code{\link[lattice]{print.trellis}}}
 
 \examples{
 mod.cowles <- glm(volunteer ~ sex + neuroticism*extraversion, 
