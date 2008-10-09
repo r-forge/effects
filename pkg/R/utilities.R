@@ -1,6 +1,6 @@
 # utilities and common functions for effects package
 # John Fox and Jangman Hong
-#  last modified 2 October 2008 by J. Fox
+#  last modified 7 October 2008 by J. Fox
 
 
 has.intercept <- function(model, ...) any(names(coefficients(model))=="(Intercept)")
@@ -162,7 +162,6 @@ analyze.model <- function(term, mod, xlevels, default.levels){
 	if (!is.high.order.term(term, mod, mod.aug))
 		warning(paste(term, 'is not a high-order term in the model'))
 	basic.vars <- first.order.ancestors(term, mod, mod.aug)
-#                  else {first.order.ancestors(term, mod, mod.aug=list())}
 	all.vars <- (1:nrow(attr(mod$terms, 'factors')))[
 		0 != apply(attr(mod$terms, 'factors'), 1, sum) ]
 	if (intercept) all.vars <- all.vars - 1
@@ -199,8 +198,6 @@ analyze.model <- function(term, mod, xlevels, default.levels){
 		if (!fac) {
 			levels <- if (is.null(xlevels[[name]]))
 					seq(min(X[, name]), max(X[,name]), length=default.levels)
-#                else if (length(xlevels[[name]]) == 1) 
-#                    seq(min(X[, name]), max(X[,name]), length=xlevels[[name]])
 				else xlevels[[name]]
 		}
 		else factor.levels[[name]] <- levels
@@ -239,7 +236,7 @@ analyze.model <- function(term, mod, xlevels, default.levels){
 }
 
 fixup.model.matrix <- function(mod, mod.matrix, mod.matrix.all, X.mod, mod.aug, 
-		factor.cols, cnames, term, typical, given.values){
+	factor.cols, cnames, term, typical, given.values){
 	attr(mod.matrix, "assign") <- attr(mod.matrix.all, "assign")
 	stranger.cols <- factor.cols & 
 		apply(outer(strangers(term, mod, mod.aug), attr(mod.matrix,'assign'), '=='), 2, any)

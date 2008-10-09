@@ -1,6 +1,6 @@
 # effect generic and methods; allEffects
 # John Fox and Jangman Hong
-#  last modified 2 October 2008 by J. Fox
+#  last modified 8 October 2008 by J. Fox
 
 effect <- function(term, mod, ...){
 	UseMethod("effect", mod)
@@ -38,7 +38,7 @@ effect.lm <- function (term, mod, xlevels=list(), default.levels=10, given.value
 	if (discrepancy > 1e-3) warning(paste("There is a discrepancy of", round(discrepancy, 3),
 				"percent \n     in the 'safe' predictions used to generate effect", term))
 	mod.matrix <- fixup.model.matrix(mod, mod.matrix, mod.matrix.all, X.mod, mod.aug, 
-			factor.cols, cnames, term, typical, given.values)	
+		factor.cols, cnames, term, typical, given.values)	
 	effect <- mod.matrix %*% mod.2$coefficients
 	result <- list(term=term, formula=formula(mod), response=response.name(mod),
 		variables=x, fit=effect, 
@@ -72,7 +72,7 @@ effect.lm <- function (term, mod, xlevels=list(), default.levels=10, given.value
 
 effect.multinom <- function(term, mod, 
 	confidence.level=.95, xlevels=list(), default.levels=10, given.values, typical=mean, ...){	
-	eff.mul <- function(x0, mod, ...){
+	eff.mul <- function(x0){
 		d <- array(0, c(m, m - 1, p))
 		exp.x0.B <- as.vector(exp(x0 %*% B))
 		sum.exp.x0.B <- sum(exp.x0.B)
@@ -104,8 +104,8 @@ effect.multinom <- function(term, mod,
 	}
 	if (length(mod$lev) < 3) stop("effects for multinomial logit model only available for response levels > 2")
 	if (missing(given.values)) given.values <- NULL
-	else if (!all(which <- names(given.values) %in% names(coef(mod)))) 
-		stop("given.values (", names(given.values[!which]),") not in the model")
+	else if (!all(which <- colnames(given.values) %in% names(coef(mod)))) 
+		stop("given.values (", colnames(given.values[!which]),") not in the model")
 	# refit model to produce 'safe' predictions when the model matrix includes
 	#   terms -- e.g., poly(), bs() -- whose basis depends upon the data
 	fit1 <- predict(mod, type="probs")
@@ -137,7 +137,7 @@ effect.multinom <- function(term, mod,
 	mod.matrix.all <- model.matrix(formula.rhs, data=data, contrasts.arg=mod$contrasts)
 	X0 <- mod.matrix.all[-(1:nrow.X),]
 	X0 <- fixup.model.matrix(mod, X0, mod.matrix.all, X.mod, mod.aug, factor.cols, 
-			cnames, term, typical, given.values)
+		cnames, term, typical, given.values)
 	resp.names <- make.names(mod$lev, unique=TRUE)
 	resp.names <- c(resp.names[-1], resp.names[1]) # make the last level the reference level
 	mod <- multinom(formula(mod), data=data, Hess=TRUE, weights=wt)	
@@ -145,7 +145,6 @@ effect.multinom <- function(term, mod,
 	fit1 <- as.vector(p2logit(fit1))
 	fit2 <- as.vector(p2logit(fit2))
 	discrepancy <- 100*sqrt(mean((fit1 - fit2)^2)/mean(fit1^2))
-#	discrepancy <- 100*mean(as.vector(abs(fit1 - fit2)/(fit1 + 1e-6)))
 	if (discrepancy > 0.1) warning(paste("There is a discrepancy of", round(discrepancy, 3),
 				"percent \n     in the 'safe' predictions used to generate effect", term))
 	B <- t(coef(mod))
@@ -165,7 +164,7 @@ effect.multinom <- function(term, mod,
 	colnames(SE.P) <-  paste("se.prob.", resp.names, sep="")
 	colnames(SE.logit) <-  paste("se.logit.", resp.names, sep="")
 	for (i in 1:n){
-		res <- eff.mul(X0[i,], mod) # compute effects
+		res <- eff.mul(X0[i,]) # compute effects
 		P[i,] <- prob <- res$p # fitted probabilities
 		SE.P[i,] <- se.p <- res$std.err.p # std. errors of fitted probs
 		Logit[i,] <- logit <- res$logits # fitted logits
@@ -175,6 +174,15 @@ effect.multinom <- function(term, mod,
 		Lower.logit[i,] <- logit - z*se.logit
 		Upper.logit[i,] <- logit + z*se.logit
 	}
+	resp.levs <- c(m, 1:(m-1)) # restore the order of the levels
+	Lower.P <- Lower.P[, resp.levs]
+	Upper.P <- Upper.P[, resp.levs]
+	Lower.logit <- Lower.logit[, resp.levs]
+	Upper.logit <- Upper.logit[, resp.levs]
+	P <- P[, resp.levs]
+	Logit <- Logit[, resp.levs]
+	SE.P <- SE.P[, resp.levs]
+	SE.logit <- SE.logit[, resp.levs]
 	result <- list(term=term, formula=formula(mod), response=response.name(mod),
 		y.levels=mod$lev, variables=x, x=predict.data[,1:n.basic, drop=FALSE],
 		model.matrix=X0,
@@ -192,7 +200,7 @@ effect.polr <- function(term, mod,
 	if (missing(given.values)) given.values <- NULL
 	else if (!all(which <- names(given.values) %in% names(coef(mod)))) 
 		stop("given.values (", names(given.values[!which]),") not in the model")
-	eff.polr <- function(x0, mod, ...){
+	eff.polr <- function(x0){
 		eta0 <- x0 %*% b
 		mu <- rep(0, m)
 		mu[1] <- 1/(1 + exp(alpha[1] + eta0))
@@ -261,14 +269,13 @@ effect.polr <- function(term, mod,
 	mod.matrix.all <- model.matrix(formula.rhs, data=data, contrasts.arg=mod$contrasts)
 	X0 <- mod.matrix.all[-(1:nrow.X),]
 	X0 <- fixup.model.matrix(mod, X0, mod.matrix.all, X.mod, mod.aug, factor.cols, 
-			cnames, term, typical, given.values)
+		cnames, term, typical, given.values)
 	resp.names <- make.names(mod$lev, unique=TRUE)
 	mod <- polr(formula(mod), data=data, Hess=TRUE, weights=wt)
 	fit2 <- predict(mod, type="probs")[1:nrow.X,]
 	fit1 <- as.vector(p2logit(fit1))
 	fit2 <- as.vector(p2logit(fit2))
 	discrepancy <- 100*sqrt(mean((fit1 - fit2)^2)/mean(fit1^2))
-#	discrepancy <- 100*mean(as.vector(abs(fit1 - fit2)/(fit1 + 1e-6)))
 	if (discrepancy > 0.1) warning(paste("There is a discrepancy of", round(discrepancy, 3),
 				"percent \n     in the 'safe' predictions used to generate effect", term))
 	X0 <- X0[,-1]
@@ -294,7 +301,7 @@ effect.polr <- function(term, mod,
 	colnames(SE.P) <-  paste("se.prob.", resp.names, sep="")
 	colnames(SE.Logit) <-  paste("se.logit.", resp.names, sep="")
 	for (i in 1:n){
-		res <- eff.polr(X0[i,], mod) # compute effects
+		res <- eff.polr(X0[i,]) # compute effects
 		P[i,] <- prob <- res$p # fitted probabilities
 		SE.P[i,] <- se.p <- res$std.err.p # std. errors of fitted probs
 		Logit[i,] <- logit <- res$logits # fitted logits

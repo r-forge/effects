@@ -37,16 +37,17 @@ and \code{efflist} objects.
 	ylab=paste(x$response, " (", type, ")", sep=""), 
 	main=paste(effect, "effect plot"),
 	colors=palette(), symbols=1:10, lines=1:10, cex=1.5, 
-	factor.names=TRUE, confint=TRUE, ylim,  
+	factor.names=TRUE, style=c("lines", "stacked"),
+	confint=(style == "lines"), ylim,  
 	alternating=TRUE, layout, key.args=NULL,
 	row=1, col=1, nrow=1, ncol=1, more=FALSE, ...)
 \method{plot}{efflist}(x, selection, ask=TRUE, ...)
 }
 
 \arguments{
-  \item{x}{an object of type \code{"eff"}, \code{"summary.eff"}, or \code{"efflist"},
-    as appropriate.}
-  \item{object}{an object of type \code{"eff"}, \code{"effpoly", or \code{"efflist"}},
+  \item{x}{an object of class \code{"eff"}, \code{"effpoly"}, \code{"efflist"}, 
+  	or \code{"summary.eff"}, as appropriate.}
+  \item{object}{an object of class \code{"eff"}, \code{"effpoly"}, or \code{"efflist"},
     as appropriate.}
   \item{type}{if \code{"response"} (the default), effects are printed 
     or the vertical axis is labelled on the scale of the response
@@ -80,7 +81,12 @@ and \code{efflist} objects.
     name of the effect.}
   \item{colors}{\code{colors[1]} is used to plot effects, \code{colors[2]} to plot 
     confidence bands. In a mulitline plot, the successive \code{colors} correspond
-    to the levels of the \code{z.var} covariate or factor.}
+    to the levels of the \code{z.var} covariate or factor. In a stacked plot or a plot
+    without confidence bands for a
+    multinomial or proportional-odds logit model, the successive \code{colors}
+    correspond to the levels of the response factor. \bold{Warning:} This argument
+    \emph{cannot} be abbreviated to \code{col}, which is used for a different
+    purpose (see below).}
   \item{symbols, lines}{corresponding to the levels of the \code{z.var} covariate
     or factor on a multiline plot. These arguments are used only if \code{multiline = TRUE}
     or for polytomous logit models where the effects are plotted without confidence bands;
@@ -90,6 +96,9 @@ and \code{efflist} objects.
     if \code{NULL}, the default, then the vertical axes are scaled from the data.}
   \item{factor.names}{a logical value, default \code{TRUE}, that controls the inclusion of
     factor names in conditioning-variable labels.}
+  \item{style}{(for multinomial or proportional-odds logit models) \code{"lines"} (the default
+    for a line plot, or \code{"stacked"} for a stacked-bar or stacked-area plot. In the latter
+    case only fitted probabilities may be plotted and confidence envelopes cannot be shown.}
   \item{ticks}{a two-item list controlling the placement of tick marks on the vertical axis,
     with elements \code{at} and \code{n}. If \code{at=NULL} (the default), the program
     attempts to find `nice' locations for the ticks, and the value of \code{n} (default, 
@@ -99,18 +108,22 @@ and \code{efflist} objects.
   \item{alternating}{if \code{TRUE} (the default), the tick labels alternate by panels in
     multi-panel displays from left to right and top to bottom; if \code{FALSE}, tick labels
     appear at the bottom and on the left.}
-  \item{layout}{the layout argument to the \pkg{lattice} function \code{\link[lattice]{xyplot}}, which
+  \item{layout}{the layout argument to the \pkg{lattice} function \code{\link[lattice]{xyplot}}
+  	(or, in some cases \code{\link[lattice]{densityplot}}), which
   	is used to draw the effect display; if not specified, the plot will be formatted so that
   	it appears on a single page.}
   \item{rescale.axis}{if \code{TRUE} (the default), the tick marks on the vertical axis
     are labelled on the response scale (e.g., the probability scale for effects computed on
     the logit scale for a binomial GLM).}
-  \item{key.args}{additional arguments to be passed to the \code{key} trellis option to 
-    \code{\link[lattice]{xyplot}}, e.g., to position the key (legend) in the plotting region.}
+  \item{key.args}{additional arguments to be passed to the \code{key} trellis argument to 
+    \code{\link[lattice]{xyplot}} or \code{\link[lattice]{densityplot}}, 
+    e.g., to position the key (legend) in the plotting region.}
   \item{row, col, nrow, ncol, more}{These arguments are used to graph an effect as part of an
     array of plots; \code{row}, \code{col}, \code{nrow}, and \code{ncol} are used to compose
     the \code{split} argument and \code{more} the \code{more} argument to \code{\link[lattice]{print.trellis}}.
-    Normally these arguments are not set by the user, but by \code{plot.efflist}.}
+    Normally these arguments are not set by the user, but by \code{plot.efflist}.
+    \bold{Warning:} Note that \code{col} is \emph{not} used to specify colors;
+    use \code{colors} instead (see above).}
   \item{selection}{the optional index (number) or quoted name of the effect in an effect
     list to be plotted; if not supplied, a menu of high-order terms is presented or all effects
     are plotted.}
@@ -152,7 +165,8 @@ and \code{efflist} objects.
 \author{John Fox \email{jfox@mcmaster.ca} and Jangman Hong.}
 
 
-\seealso{\code{\link{effect}}, \code{\link{allEffects}}, \code{\link[lattice]{xyplot}}}
+\seealso{\code{\link{effect}}, \code{\link{allEffects}}, \code{\link[lattice]{xyplot}},
+	\code{\link[lattice]{densityplot}}}
 
 \examples{
 mod.cowles <- glm(volunteer ~ sex + neuroticism*extraversion, 
@@ -178,9 +192,17 @@ mod.beps <- multinom(vote ~ age + gender + economic.cond.national +
 plot(effect("Europe*political.knowledge", mod.beps, 
 	xlevels=list(Europe=1:11, political.knowledge=0:3)))
 	
+plot(effect("Europe*political.knowledge", mod.beps, 
+		xlevels=list(Europe=1:11, political.knowledge=0:3),
+		given.values=c(gendermale=0.5)),
+	style="stacked", colors=c("blue", "red", "orange"), rug=FALSE)
+	
 mod.wvs <- polr(poverty ~ gender + religion + degree + country*poly(age,3),
 	data=WVS)
 plot(effect("country*poly(age, 3)", mod.wvs))
+
+plot(effect("country*poly(age, 3)", mod.wvs), style="stacked", 
+	colors=c("gray75", "gray50", "gray25"))
 
 mod.pres <- lm(prestige ~ log(income, 10) + poly(education, 3) + poly(women, 2), 
     data=Prestige)

@@ -10,12 +10,13 @@
 \title{Functions For Constructing Effect Plots}
 \description{
   \code{effect} constructs an \code{"eff"} object for a term (usually a high-order term) 
-  in a linear, generalized linear, multinomial-logit, or proportional-odds logit model, 
+  in a linear or generalized linear, or an \code{"effpoly"} object for a term in a
+   multinomial or proportional-odds logit model, 
   absorbing the lower-order terms marginal
   to the term in question, and averaging over other terms in the model. 
   
   \code{allEffects} identifies all of the high-order terms in a model and returns
-  a list of \code{"eff"} objects (i.e., an object of type \code{"efflist"}).
+  a list of \code{"eff"} or \code{"effpoly"} objects (i.e., an object of type \code{"efflist"}).
 }
 
 \usage{
@@ -41,8 +42,10 @@ allEffects(mod, ...)
 
 \arguments{
   \item{term}{the quoted name of a term, usually, but not necessarily, a high-order 
-    term in the model.}
-  \item{mod}{an object of class \code{"lm"}, \code{"glm"}, \code{multinom}, or \code{polr}.}
+    term in the model. The term must be given exactly as it appears in the printed
+    model, although either colons (\code{:}) or asterisks (\code{*}) may be used
+    for interactions.}
+  \item{mod}{an object of class \code{"lm"}, \code{"glm"}, \code{"multinom"}, or \code{"polr"}.}
   \item{xlevels}{an optional list of values at which to set covariates,
     with components of the form \code{covariate.name = vector.of.values}.}
   \item{default.levels}{number of values for covariates that are not
@@ -71,7 +74,7 @@ allEffects(mod, ...)
     made to approximate it from the inverse-link.}
   \item{typical}{a function to be applied to the columns of the model matrix
     over which the effect is "averaged"; the default is \code{mean}.}
-  \item{x}{an object of class \code{"eff"} or \code{effpoly}.}
+  \item{x}{an object of class \code{"eff"} or \code{"effpoly"}.}
   \item{row.names, optional}{not used.}
   \item{...}{arguments to be passed down.}
 }
@@ -79,9 +82,9 @@ allEffects(mod, ...)
 \details{
   Normally, the functions to be used directly are \code{allEffects}, to return
   a list of high-order effects, and the generic \code{plot} function to plot the effects.
-  (see \code{\link{plot.efflist}}, \code{\link{plot.eff}}, \code{\link{plot.effpoly}},
-  and \code{\link{plot.effpoly}}).
-  Plots are drawn using the \code{\link[lattice]{xyplot}} function in the 
+  (see \code{\link{plot.efflist}}, \code{\link{plot.eff}}, and \code{\link{plot.effpoly}}).
+  Plots are drawn using the \code{\link[lattice]{xyplot}} (or in some cases, 
+  the \code{\link[lattice]{densityplot}}) function in the 
   \code{lattice} package. Effects may also be printed (implicitly or explicitly via
   \code{print}) or summarized (using \code{summary})
   (see \code{\link{print.efflist}}, \code{\link{summary.efflist}},
@@ -112,9 +115,9 @@ allEffects(mod, ...)
     on the scale of the linear predictor; this is a ravelled table, representing all
     combinations of predictor values.}
   \item{prob}{(for \code{"effpoly"} objects) a matrix giving fitted probabilities for the effect
-  	for the various levels of the the response(columns) and combinations of the focal predictors (rows).}
+  	for the various levels of the the response (columns) and combinations of the focal predictors (rows).}
   \item{logit}{(for \code{"effpoly"} objects) a matrix giving fitted logits for the effect
-  	for the various levels of the the response(columns) and combinations of the focal predictors (rows).}
+  	for the various levels of the the response (columns) and combinations of the focal predictors (rows).}
   \item{x}{a data frame, the columns of which are the predictors in the effect, and the
     rows of which give all combinations of values of the predictors.}
   \item{model.matrix}{the model matrix from which the effect was calculated.}
@@ -131,7 +134,7 @@ allEffects(mod, ...)
   \item{transformation}{(for \code{"eff"} objects) a two-element list, with element \code{link} giving the
     link function, and element \code{inverse} giving the inverse-link (mean) function.}
     
-  \code{effectList} returns a list of \code{eff} or \code{effpoly} objects
+  \code{effectList} returns a list of \code{"eff"} or \code{"effpoly"} objects
   corresponding to the high-order terms of the model.
 }
 
@@ -166,7 +169,8 @@ allEffects(mod, ...)
     \code{\link{print.summary.eff}}, 
     \code{\link{print.effpoly}}, \code{\link{summary.effpoly}}, \code{\link{plot.effpoly}},
     \code{\link{print.efflist}}, \code{\link{summary.efflist}},
-    \code{\link{plot.efflist}}, \code{\link[lattice]{xyplot}}}
+    \code{\link{plot.efflist}}, \code{\link[lattice]{xyplot}}, 
+    \code{\link[lattice]{densityplot}}}
 
 \examples{
 mod.cowles <- glm(volunteer ~ sex + neuroticism*extraversion, 
@@ -192,9 +196,17 @@ mod.beps <- multinom(vote ~ age + gender + economic.cond.national +
 plot(effect("Europe*political.knowledge", mod.beps, 
 	xlevels=list(Europe=1:11, political.knowledge=0:3)))
 	
+plot(effect("Europe*political.knowledge", mod.beps, 
+		xlevels=list(Europe=1:11, political.knowledge=0:3),
+		given.values=c(gendermale=0.5)),
+	style="stacked", colors=c("blue", "red", "orange"), rug=FALSE)
+	
 mod.wvs <- polr(poverty ~ gender + religion + degree + country*poly(age,3),
 	data=WVS)
 plot(effect("country*poly(age, 3)", mod.wvs))
+
+plot(effect("country*poly(age, 3)", mod.wvs), style="stacked", 
+	colors=c("gray75", "gray50", "gray25"))
 
 mod.pres <- lm(prestige ~ log(income, 10) + poly(education, 3) + poly(women, 2), 
     data=Prestige)

@@ -1,6 +1,6 @@
 # plot, summary, and print methods for effects package
 # John Fox and Jangman Hong
-#  last modified 27 September 2008 by J. Fox
+#  last modified 8 October 2008 by J. Fox
 
 
 summary.eff <- function(object, type=c("response", "link"), ...){
@@ -415,8 +415,8 @@ summary.effpoly <- function(object, type=c("probability", "logits"), ...){
 		print(table)
 	}
 	if (object$discrepancy > 0.1) cat(paste("\nWarning: There is an average discrepancy of", 
-			round(object$discrepancy, 2),
-			"percent \n     in the 'safe' predictions for effect", object$term, '\n'))
+				round(object$discrepancy, 2),
+				"percent \n     in the 'safe' predictions for effect", object$term, '\n'))
 	invisible(NULL)
 }  
 
@@ -428,12 +428,23 @@ plot.effpoly <- function(x,
 	ylab=paste(x$response, " (", type, ")", sep=""), 
 	main=paste(effect, "effect plot"),
 	colors=palette(), symbols=1:10, lines=1:10, cex=1.5, 
-	factor.names=TRUE, confint=TRUE, ylim,  
+	factor.names=TRUE, style=c("lines", "stacked"), 
+	confint=(style == "lines"), ylim,  
 	alternating=TRUE, layout, key.args=NULL,
-	row=1, col=1, nrow=1, ncol=1, 
-	more=FALSE, ...){ 	
+	row=1, col=1, nrow=1, ncol=1, more=FALSE, ...){ 	
 	require(lattice)
 	type <- match.arg(type)
+	style <- match.arg(style)
+	if (style == "stacked"){
+		if (type != "probability"){
+			type <- "probability"
+			warning('type set to "probability" for stacked plot')
+		}
+		if (confint){
+			confint <- FALSE
+			warning('confint set to FALSE for stacked plot')
+		}
+	}
 	effect <- paste(sapply(x$variables, "[[", "name"), collapse="*")
 	split <- c(col, row, ncol, nrow)
 	n.predictors <- length(names(x$x))
@@ -443,11 +454,11 @@ plot.effpoly <- function(x,
 	predictors <- names(x.frame)[1:n.predictors]
 	levels <- if (n.predictors==1) length (x.frame[,predictors])
 		else sapply(apply(x.frame[,predictors], 2, unique), length)
-if (is.character(x.var)) {
-	which.x <- which(x.var == predictors)
-	if (length(which.x) == 0) stop(paste("x.var = '", x.var, "' is not in the model.", sep=""))
-	x.var <- which.x
-}
+	if (is.character(x.var)) {
+		which.x <- which(x.var == predictors)
+		if (length(which.x) == 0) stop(paste("x.var = '", x.var, "' is not in the model.", sep=""))
+		x.var <- which.x
+	}
 	x.vals <- x.frame[, names(x.frame)[x.var]]	
 	response <-matrix(0, nrow=nrow(x.frame), ncol=n.y.lev)
 	for (i in 1:length(x$y.lev)){
@@ -462,89 +473,151 @@ if (is.character(x.var)) {
 	lower.logit <- as.vector(x$lower.logit)
 	upper.logit <- as.vector(x$upper.logit)
 	response <- factor(response, levels=y.lev)
-	data <- data.frame(prob, logit, response, lower.prob, upper.prob, lower.logit, upper.logit)
+	data <- data.frame(prob, logit, lower.prob, upper.prob, lower.logit, upper.logit)
+	data[[x$response]] <- response
 	for (i in 1:length(predictors)){
 		data <-cbind(data, x.frame[predictors[i]])
 	}
-	if (!confint){
-		if (n.y.lev > min(c(length(colors), length(lines), length(symbols))))
-			stop(paste('Not enough colors, lines, or symbols to plot', n.y.lev, 'lines'))
-		if (is.factor(x$data[[predictors[x.var]]])){
-			levs <- levels(x$data[[predictors[x.var]]])
-			n.predictor.cats <- sapply(data[, predictors[-c(x.var)], drop=FALSE], 
-				function(x) length(unique(x)))
-			if (length(n.predictor.cats) == 0) n.predictor.cats <- 1
-			key <- list(title=x$response, cex.title=1, border=TRUE,
-				text=list(as.character(unique(response))),
-				lines=list(col=colors[1:n.y.lev], lty=lines[1:n.y.lev], lwd=2),
-				points=list(pch=symbols[1:n.y.lev], col=colors[1:n.y.lev]))
-			print(xyplot(eval(if (type=="probability") 
-								parse(text=if (n.predictors==1) 
-											paste("prob ~ as.numeric(", predictors[x.var], ")")
-										else paste("prob ~ as.numeric(", predictors[x.var],") | ", 
-												paste(predictors[-x.var], collapse="*")))
-							else parse(text=if (n.predictors==1) 
-											paste("logit ~ as.numeric(", predictors[x.var], ")")
-										else paste("logit ~ as.numeric(", predictors[x.var],") | ", 
-												paste(predictors[-x.var], collapse="*")))), 
-					strip=function(...) strip.default(..., strip.names=c(factor.names, TRUE)),
-					panel=function(x, y, subscripts, rug, z, x.vals, ...){
-						for (i in 1:n.y.lev){
-							sub <- z[subscripts] == y.lev[i]
-							llines(x[sub], y[sub], lwd=2, type="b", col=colors[i], lty=lines[i], 
-								pch=symbols[i], cex=cex, ...)
-						}
-					},
-					ylab=ylab,
-					xlab=if (missing(xlab)) predictors[x.var] else xlab,
-					x.vals=x$data[[predictors[x.var]]], 
-					rug=rug,
-					z=response,
-					scales=list(x=list(at=1:length(levs), labels=levs), alternating=alternating),
-					main=main,
-					key=c(key, key.args),
-					layout=if (missing(layout)) c(prod(n.predictor.cats[-(n.predictors - 1)]), n.predictor.cats[(n.predictors - 1)], 1)
-						else layout,
-					data=data),
-				split=split, more=more)
+	levs <- levels(x$data[[predictors[x.var]]])
+	n.predictor.cats <- sapply(data[, predictors[-c(x.var)], drop=FALSE], 
+		function(x) length(unique(x)))
+	if (length(n.predictor.cats) == 0) n.predictor.cats <- 1
+	if (!confint){ # plot without confidence bands
+		layout <- if (missing(layout)) c(prod(n.predictor.cats[-(n.predictors - 1)]), 
+					n.predictor.cats[(n.predictors - 1)], 1)
+			else layout
+		if (style == "lines"){ # line plot
+			if (n.y.lev > min(c(length(colors), length(lines), length(symbols))))
+				stop(paste('Not enough colors, lines, or symbols to plot', n.y.lev, 'lines'))
+			if (is.factor(x$data[[predictors[x.var]]])){ # x-variable a factor
+				key <- list(title=x$response, cex.title=1, border=TRUE,
+					text=list(as.character(unique(response))),
+					lines=list(col=colors[1:n.y.lev], lty=lines[1:n.y.lev], lwd=2),
+					points=list(pch=symbols[1:n.y.lev], col=colors[1:n.y.lev]))
+				print(xyplot(eval(if (type=="probability") 
+									parse(text=if (n.predictors==1) 
+												paste("prob ~ as.numeric(", predictors[x.var], ")")
+											else paste("prob ~ as.numeric(", predictors[x.var],") | ", 
+													paste(predictors[-x.var], collapse="*")))
+								else parse(text=if (n.predictors==1) 
+												paste("logit ~ as.numeric(", predictors[x.var], ")")
+											else paste("logit ~ as.numeric(", predictors[x.var],") | ", 
+													paste(predictors[-x.var], collapse="*")))), 
+						strip=function(...) strip.default(..., strip.names=c(factor.names, TRUE)),
+						panel=function(x, y, subscripts, rug, z, x.vals, ...){
+							for (i in 1:n.y.lev){
+								sub <- z[subscripts] == y.lev[i]
+								llines(x[sub], y[sub], lwd=2, type="b", col=colors[i], lty=lines[i], 
+									pch=symbols[i], cex=cex, ...)
+							}
+						},
+						ylab=ylab,
+						xlab=if (missing(xlab)) predictors[x.var] else xlab,
+						x.vals=x$data[[predictors[x.var]]], 
+						rug=rug,
+						z=response,
+						scales=list(x=list(at=1:length(levs), labels=levs), alternating=alternating),
+						main=main,
+						key=c(key, key.args),
+						layout=layout,
+						data=data),
+					split=split, more=more)
+			}
+			else { # x-variable numeric
+				key <- list(title=x$response, cex.title=1, border=TRUE,
+					text=list(as.character(unique(response))), 
+					lines=list(col=colors[1:n.y.lev], lty=lines[1:n.y.lev], lwd=2))
+				print(xyplot(eval(if (type=="probability") 
+									parse(text=if (n.predictors==1) paste("prob ~ ", predictors[x.var])
+											else paste("prob ~ ", predictors[x.var],"|", 
+													paste(predictors[-x.var], collapse="*")))
+								else parse(text=if (n.predictors==1) paste("logit ~ ", predictors[x.var])
+											else paste("logit ~ ", predictors[x.var]," | ", 
+													paste(predictors[-x.var], collapse="*")))), 
+						strip=function(...) strip.default(..., strip.names=c(factor.names, TRUE)),
+						panel=function(x, y, subscripts, rug, z, x.vals, ...){
+							if (rug) lrug(x.vals)
+							for (i in 1:n.y.lev){
+								sub <- z[subscripts] == y.lev[i]
+								llines(x[sub], y[sub], lwd=2, type="l", col=colors[i], lty=lines[i], ...)
+							}
+						},
+						ylab=ylab,
+						xlab=if (missing(xlab)) predictors[x.var] else xlab,
+						x.vals=x$data[[predictors[x.var]]], 
+						rug=rug,
+						z=response,
+						scales=list(alternating=alternating),
+						main=main,
+						key=c(key, key.args),
+						layout=layout,
+						data=data),
+					split=split, more=more)						
+			}
 		}
-		else {
-			n.predictor.cats <- sapply(data[, predictors[-c(x.var)], drop=FALSE], function(x) length(unique(x)))
-			if (length(n.predictor.cats) == 0) n.predictor.cats <- 1
-			key <- list(title=x$response, cex.title=1, border=TRUE,
-				text=list(as.character(unique(response))), 
-				lines=list(col=colors[1:n.y.lev], lty=lines[1:n.y.lev], lwd=2))
-			print(xyplot(eval(if (type=="probability") 
-								parse(text=if (n.predictors==1) paste("prob ~ ", predictors[x.var])
-										else paste("prob ~ ", predictors[x.var],"|", 
-												paste(predictors[-x.var], collapse="*")))
-							else parse(text=if (n.predictors==1) paste("logit ~ ", predictors[x.var])
-										else paste("logit ~ ", predictors[x.var]," | ", 
-												paste(predictors[-x.var], collapse="*")))), 
-					strip=function(...) strip.default(..., strip.names=c(factor.names, TRUE)),
-					panel=function(x, y, subscripts, rug, z, x.vals, ...){
-						if (rug) lrug(x.vals)
-						for (i in 1:n.y.lev){
-							sub <- z[subscripts] == y.lev[i]
-							llines(x[sub], y[sub], lwd=2, type="l", col=colors[i], lty=lines[i], ...)
-						}
-					},
-					ylab=ylab,
-					xlab=if (missing(xlab)) predictors[x.var] else xlab,
-					x.vals=x$data[[predictors[x.var]]], 
-					rug=rug,
-					z=response,
-					scales=list(alternating=alternating),
-					main=main,
-					key=c(key, key.args),
-					layout=if (missing(layout)) c(prod(n.predictor.cats[-(n.predictors - 1)]),
-								n.predictor.cats[(n.predictors - 1)], 1)
-						else layout,
-					data=data),
-				split=split, more=more)						
+		else { # stacked plot
+			if (n.y.lev > length(colors))
+				stop(paste('Not enough colors to plot', n.y.lev, 'regions'))
+			key <- list(text=list(lab=rev(y.lev)), rectangle=list(col=rev(colors[1:n.y.lev])))
+			if (is.factor(x$data[[predictors[x.var]]])){ # x-variable a factor
+				print(barchart(eval(parse(text=if (n.predictors == 1) 
+										paste("prob ~ ", predictors[x.var], sep="")
+									else paste("prob ~ ", predictors[x.var]," | ", 
+											paste(predictors[-x.var], collapse="*")))), 
+						strip=function(...) strip.default(..., strip.names=c(factor.names, TRUE)),
+						groups = response,
+						col=colors,
+						horizontal=FALSE, 
+						stack=TRUE, 
+						data=data, 
+						ylim=if (missing(ylim)) 0:1 else ylim,
+						ylab=ylab, 
+						xlab=if (missing(xlab)) predictors[x.var] else xlab,
+						scales=list(alternating=alternating),
+						main=main,
+						key=c(key, key.args),
+						layout=layout),
+					split=split, more=more)
+			}
+			else { # x-variable numeric
+				print(densityplot(eval(parse(text=if (n.predictors == 1)
+										paste("~ ", predictors[x.var], sep="")
+									else paste("~ ", predictors[x.var], " | ",
+											paste(predictors[-x.var], collapse="*")))),
+						probs=x$prob,
+						strip=function(...) strip.default(..., strip.names=c(factor.names, TRUE)),
+						panel =  function(x, subscripts, rug, x.vals, probs=probs, col=colors, ...){
+							fill <- function(x, y1, y2, col){
+								if (length(y2) == 1) y2 <- rep(y2, length(y1))
+								if (length(y1) == 1) y1 <- rep(y1, length(y2))
+								panel.polygon(c(x, rev(x)), c(y1, rev(y2)), col=col)
+							}
+							n <- ncol(probs)
+							Y <- t(apply(probs[subscripts,], 1, cumsum))
+							fill(x, 0, Y[,1], col=col[1])
+							for (i in 2:n){
+								fill(x, Y[,i-1], Y[,i], col=col[i])
+							}
+							if (rug) lrug(x.vals)
+						},
+						rug=rug,
+						x.vals=x$data[[predictors[x.var]]],
+						data=x$x,
+						xlim=range(x$x[,x.var]),
+						ylim=if (missing(ylim)) 0:1 else ylim,
+						ylab=ylab,
+						xlab=if (missing(xlab)) predictors[x.var] else xlab,
+						scales=list(alternating=alternating),
+						main=main,
+						key=c(key, key.args),
+						layout=layout),
+					split=split, more=more)
+			}
 		}
 	}
-	else{
+	else{ # plot with confidence bands
+		layout <- if(missing(layout)) c(prod(n.predictor.cats), length(levels(response)), 1) 
+			else layout
 		if (type == "probability"){
 			lower <- lower.prob
 			upper <- upper.prob
@@ -553,21 +626,19 @@ if (is.character(x.var)) {
 			lower <- lower.logit
 			upper <- upper.logit
 		}
-		n.predictor.cats <- sapply(data[, predictors[-x.var], drop=FALSE], function(x) length(unique(x)))
-		if (length(n.predictor.cats) == 0) n.predictor.cats <- 1
-		if (is.factor(x$data[[predictors[x.var]]])){
+		if (is.factor(x$data[[predictors[x.var]]])){ # x-variable a factor
 			levs <- levels(x$data[[predictors[x.var]]])
 			print(xyplot(eval(if (type=="probability") 
 								parse(text=if (n.predictors==1) 
-											paste("prob~as.numeric(", predictors[x.var],") |", "response")
-										else paste("prob~as.numeric(", predictors[x.var],") |", 
+											paste("prob ~ as.numeric(", predictors[x.var],") |", x$response)
+										else paste("prob ~ as.numeric(", predictors[x.var],") |", 
 												paste(predictors[-x.var], collapse="*"), 
-												paste("*","response")))
+												paste("*", x$response)))
 							else parse(text=if (n.predictors==1) 
-											paste("logit~as.numeric(", predictors[x.var],") |", "response")
-										else paste("logit~as.numeric(", predictors[x.var],")|", 
+											paste("logit ~ as.numeric(", predictors[x.var],") |", x$response)
+										else paste("logit ~ as.numeric(", predictors[x.var],")|", 
 												paste(predictors[-x.var], collapse="*"), 
-												paste("*","response")))),
+												paste("*", x$response)))),
 					par.strip.text=list(cex=0.8),							
 					strip=function(...) strip.default(..., strip.names=c(factor.names, TRUE)),
 					panel=function(x, y, subscripts, x.vals, rug, lower, upper, ... ){
@@ -584,22 +655,22 @@ if (is.character(x.var)) {
 					lower=lower,
 					upper=upper, 
 					scales=list(x=list(at=1:length(levs), labels=levs), alternating=alternating),
-					layout=if(missing(layout)) c(prod(n.predictor.cats), length(levels(response)), 1) else layout,
+					layout=layout,
 					data=data),
 				split=split, more=more)
 		}
-		else {
+		else { # x-variable numeric
 			print(xyplot(eval(if (type=="probability") 
 								parse(text=if (n.predictors==1) 
-											paste("prob ~ ", predictors[x.var]," |", "response")
+											paste("prob ~ ", predictors[x.var]," |", x$response)
 										else paste("prob ~ ", predictors[x.var]," |", 
 												paste(predictors[-x.var], collapse="*"), 
-												paste("*","response")))
+												paste("*", x$response)))
 							else parse(text=if (n.predictors==1) 
-											paste("logit ~ ", predictors[x.var]," |", "response")
+											paste("logit ~ ", predictors[x.var]," |", x$response)
 										else paste("logit ~ ", predictors[x.var],"|", 
 												paste(predictors[-x.var], collapse="*"), 
-												paste("*","response")))
+												paste("*", x$response)))
 					),
 					par.strip.text=list(cex=0.8),							
 					strip=function(...) strip.default(..., strip.names=c(factor.names, TRUE)),
@@ -618,11 +689,9 @@ if (is.character(x.var)) {
 					lower=lower,
 					upper=upper, 
 					scales=list(alternating=alternating),
-					layout=if(missing(layout)) c(prod(n.predictor.cats), length(levels(response)), 1) else layout,
+					layout=layout,
 					data=data),
 				split=split, more=more)			
 		}
 	}
 }
-
-
