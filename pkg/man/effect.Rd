@@ -28,10 +28,10 @@ effect(term, mod, ...)
     typical=mean, ...)
     
 \method{effect}{multinom}(term, mod, confidence.level=.95, xlevels=list(), default.levels=10, 
-	given.values, typical=mean, ...)
+	given.values, se=TRUE, typical=mean, ...)
 		
 \method{effect}{polr}(term, mod, confidence.level=.95, xlevels=list(), default.levels=10, 
-	given.values, typical=mean, ...)
+	given.values, se=TRUE, typical=mean, ...)
     
 allEffects(mod, ...)
 

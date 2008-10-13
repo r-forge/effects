@@ -38,8 +38,8 @@ and \code{efflist} objects.
 	main=paste(effect, "effect plot"),
 	colors=palette(), symbols=1:10, lines=1:10, cex=1.5, 
 	factor.names=TRUE, style=c("lines", "stacked"),
-	confint=(style == "lines"), ylim,  
-	alternating=TRUE, layout, key.args=NULL,
+	confint=(style == "lines" && !is.null(x$confidence.level)), 
+	ylim, alternating=TRUE, layout, key.args=NULL,
 	row=1, col=1, nrow=1, ncol=1, more=FALSE, ...)
 \method{plot}{efflist}(x, selection, ask=TRUE, ...)
 }

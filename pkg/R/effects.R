@@ -1,6 +1,6 @@
 # effect generic and methods; allEffects
 # John Fox and Jangman Hong
-#  last modified 8 October 2008 by J. Fox
+#  last modified 13 October 2008 by J. Fox
 
 effect <- function(term, mod, ...){
 	UseMethod("effect", mod)
@@ -71,8 +71,14 @@ effect.lm <- function (term, mod, xlevels=list(), default.levels=10, given.value
 }
 
 effect.multinom <- function(term, mod, 
-	confidence.level=.95, xlevels=list(), default.levels=10, given.values, typical=mean, ...){	
+	confidence.level=.95, xlevels=list(), default.levels=10, 
+	given.values, se=TRUE, typical=mean, ...){	
 	eff.mul <- function(x0){
+		mu <- exp(x0 %*% B)
+		mu <- mu/(1 + sum(mu))
+		mu[m] <- 1 - sum(mu)
+		logits <- log(mu/(1 - mu))
+		if (!se) return(list(p=mu, logits=logits))
 		d <- array(0, c(m, m - 1, p))
 		exp.x0.B <- as.vector(exp(x0 %*% B))
 		sum.exp.x0.B <- sum(exp.x0.B)
@@ -94,10 +100,7 @@ effect.multinom <- function(term, mod,
 				}
 			}
 		}
-		mu <- exp(x0 %*% B)
-		mu <- mu/(1 + sum(mu))
-		mu[m] <- 1 - sum(mu)
-		logits <- log(mu/(1 - mu))
+		
 		V.logits <- V.mu/(mu^2 * (1 - mu)^2)
 		list(p=mu, std.err.p=sqrt(V.mu), logits=logits,
 			std.error.logits=sqrt(V.logits))
@@ -153,49 +156,58 @@ effect.multinom <- function(term, mod,
 	p <- nrow(B)
 	r <- p*(m - 1)	
 	n <- nrow(X0)
-	z <- qnorm(1 - (1 - confidence.level)/2)
-	Lower.P <- Upper.P <- Lower.logit <- Upper.logit <- P <- Logit <- SE.P <- SE.logit <- matrix(0, n, m)
-	colnames(Lower.logit) <-  paste("L.logit.", resp.names, sep="")
-	colnames(Upper.logit) <-  paste("U.logit.", resp.names, sep="")
-	colnames(Lower.P) <-  paste("L.prob.", resp.names, sep="")
-	colnames(Upper.P) <-  paste("U.prob.", resp.names, sep="")
+	P <- Logit <- matrix(0, n, m)
 	colnames(P) <-  paste("prob.", resp.names, sep="")
 	colnames(Logit) <-  paste("logit.", resp.names, sep="")
-	colnames(SE.P) <-  paste("se.prob.", resp.names, sep="")
-	colnames(SE.logit) <-  paste("se.logit.", resp.names, sep="")
+	if (se){
+		z <- qnorm(1 - (1 - confidence.level)/2)
+		Lower.P <- Upper.P <- Lower.logit <- Upper.logit <- SE.P <- SE.logit <- matrix(0, n, m)
+		colnames(Lower.logit) <-  paste("L.logit.", resp.names, sep="")
+		colnames(Upper.logit) <-  paste("U.logit.", resp.names, sep="")
+		colnames(Lower.P) <-  paste("L.prob.", resp.names, sep="")
+		colnames(Upper.P) <-  paste("U.prob.", resp.names, sep="")
+		colnames(SE.P) <-  paste("se.prob.", resp.names, sep="")
+		colnames(SE.logit) <-  paste("se.logit.", resp.names, sep="")
+	}
 	for (i in 1:n){
 		res <- eff.mul(X0[i,]) # compute effects
 		P[i,] <- prob <- res$p # fitted probabilities
-		SE.P[i,] <- se.p <- res$std.err.p # std. errors of fitted probs
 		Logit[i,] <- logit <- res$logits # fitted logits
-		SE.logit[i,] <- se.logit <- res$std.error.logits # std. errors of logits
-		Lower.P[i,] <- logit2p(logit - z*se.logit)
-		Upper.P[i,] <- logit2p(logit + z*se.logit)
-		Lower.logit[i,] <- logit - z*se.logit
-		Upper.logit[i,] <- logit + z*se.logit
+		if (se){
+			SE.P[i,] <- se.p <- res$std.err.p # std. errors of fitted probs		
+			SE.logit[i,] <- se.logit <- res$std.error.logits # std. errors of logits
+			Lower.P[i,] <- logit2p(logit - z*se.logit)
+			Upper.P[i,] <- logit2p(logit + z*se.logit)
+			Lower.logit[i,] <- logit - z*se.logit
+			Upper.logit[i,] <- logit + z*se.logit
+		}
 	}
 	resp.levs <- c(m, 1:(m-1)) # restore the order of the levels
-	Lower.P <- Lower.P[, resp.levs]
-	Upper.P <- Upper.P[, resp.levs]
-	Lower.logit <- Lower.logit[, resp.levs]
-	Upper.logit <- Upper.logit[, resp.levs]
 	P <- P[, resp.levs]
 	Logit <- Logit[, resp.levs]
-	SE.P <- SE.P[, resp.levs]
-	SE.logit <- SE.logit[, resp.levs]
+	if (se){
+		Lower.P <- Lower.P[, resp.levs]
+		Upper.P <- Upper.P[, resp.levs]
+		Lower.logit <- Lower.logit[, resp.levs]
+		Upper.logit <- Upper.logit[, resp.levs]
+		SE.P <- SE.P[, resp.levs]
+		SE.logit <- SE.logit[, resp.levs]
+	}
 	result <- list(term=term, formula=formula(mod), response=response.name(mod),
 		y.levels=mod$lev, variables=x, x=predict.data[,1:n.basic, drop=FALSE],
-		model.matrix=X0,
-		prob=P, logit=Logit, se.prob=SE.P, se.logit=SE.logit,
-		lower.logit=Lower.logit, upper.logit=Upper.logit, 
-		lower.prob=Lower.P, upper.prob=Upper.P,
-		data=X, discrepancy=discrepancy, confidence.level=confidence.level)
+		model.matrix=X0, data=X, discrepancy=discrepancy,
+		prob=P, logit=Logit)
+	if (se) result <- c(result, list(se.prob=SE.P, se.logit=SE.logit,
+				lower.logit=Lower.logit, upper.logit=Upper.logit, 
+				lower.prob=Lower.P, upper.prob=Upper.P,
+				confidence.level=confidence.level))
 	class(result) <-'effpoly'
 	result
 }
 
 effect.polr <- function(term, mod, 
-	confidence.level=.95, xlevels=list(), default.levels=10, given.values, typical=mean, ...){
+	confidence.level=.95, xlevels=list(), default.levels=10, 
+	given.values, se=TRUE, typical=mean, ...){
 	if (mod$method != "logistic") stop('method argument to polr must be "logistic"')	
 	if (missing(given.values)) given.values <- NULL
 	else if (!all(which <- names(given.values) %in% names(coef(mod)))) 
@@ -209,6 +221,8 @@ effect.polr <- function(term, mod,
 				((1 + exp(alpha[j - 1] + eta0))*(1 + exp(alpha[j] + eta0)))
 		}
 		mu[m] <- 1 - sum(mu)
+		logits <- log(mu/(1 - mu))
+		if (!se) return(list(p=mu, logits=logits))
 		d <- matrix(0, m, r)
 		d[1, 1] <- - exp(alpha[1] + eta0)/(1 + exp(alpha[1] + eta0))^2
 		d[1, m:r] <- - exp(alpha[1] + eta0)*x0/(1 + exp(alpha[1] + eta0))^2
@@ -231,7 +245,6 @@ effect.polr <- function(term, mod,
 				}
 			}
 		}
-		logits <- log(mu/(1 - mu))
 		V.logits <- V.mu/(mu^2 * (1 - mu)^2)
 		list(p=mu, std.err.p=sqrt(V.mu), logits=logits,
 			std.error.logits=sqrt(V.logits))
@@ -290,35 +303,42 @@ effect.polr <- function(term, mod,
 		V[j,] <- -V[j,]  #  for the intercepts
 		V[,j] <- -V[,j]}	
 	n <- nrow(X0)
-	z <- qnorm(1 - (1 - confidence.level)/2)
-	Lower.logit <- Upper.logit <- Lower.P <- Upper.P <- P <- Logit <- SE.P <- SE.Logit <- matrix(0, n, m)
-	colnames(Lower.logit) <-  paste("L.logit.", resp.names, sep="")
-	colnames(Upper.logit) <-  paste("U.logit.", resp.names, sep="")
-	colnames(Lower.P) <-  paste("L.prob.", resp.names, sep="")
-	colnames(Upper.P) <-  paste("U.prob.", resp.names, sep="")
+	P <- Logit <- matrix(0, n, m)
 	colnames(P) <-  paste("prob.", resp.names, sep="")
 	colnames(Logit) <-  paste("logit.", resp.names, sep="")
-	colnames(SE.P) <-  paste("se.prob.", resp.names, sep="")
-	colnames(SE.Logit) <-  paste("se.logit.", resp.names, sep="")
+	if (se){
+		z <- qnorm(1 - (1 - confidence.level)/2)
+		Lower.logit <- Upper.logit <- Lower.P <- Upper.P <- SE.P <- SE.Logit <- matrix(0, n, m)
+		colnames(Lower.logit) <-  paste("L.logit.", resp.names, sep="")
+		colnames(Upper.logit) <-  paste("U.logit.", resp.names, sep="")
+		colnames(Lower.P) <-  paste("L.prob.", resp.names, sep="")
+		colnames(Upper.P) <-  paste("U.prob.", resp.names, sep="")
+		colnames(SE.P) <-  paste("se.prob.", resp.names, sep="")
+		colnames(SE.Logit) <-  paste("se.logit.", resp.names, sep="")
+	}
 	for (i in 1:n){
 		res <- eff.polr(X0[i,]) # compute effects
 		P[i,] <- prob <- res$p # fitted probabilities
-		SE.P[i,] <- se.p <- res$std.err.p # std. errors of fitted probs
 		Logit[i,] <- logit <- res$logits # fitted logits
-		SE.Logit[i,] <- se.logit <- res$std.error.logits # std. errors of logits
-		Lower.P[i,] <- logit2p(logit - z*se.logit)
-		Upper.P[i,] <- logit2p(logit + z*se.logit)
-		Lower.logit[i,] <- logit - z*se.logit
-		Upper.logit[i,] <- logit + z*se.logit
+		if (se){
+			SE.P[i,] <- se.p <- res$std.err.p # std. errors of fitted probs		
+			SE.Logit[i,] <- se.logit <- res$std.error.logits # std. errors of logits
+			Lower.P[i,] <- logit2p(logit - z*se.logit)
+			Upper.P[i,] <- logit2p(logit + z*se.logit)
+			Lower.logit[i,] <- logit - z*se.logit
+			Upper.logit[i,] <- logit + z*se.logit
+		}
 	}
 	result <- list(term=term, formula=formula(mod), response=response.name(mod),
 		y.levels=mod$lev, variables=x, 
 		x=predict.data[,1:n.basic, drop=FALSE],
-		model.matrix=X0,
-		prob=P, logit=Logit, se.prob=SE.P, se.logit=SE.Logit,
-		lower.logit=Lower.logit, upper.logit=Upper.logit, 
-		lower.prob=Lower.P, upper.prob=Upper.P,
-		data=X, discrepancy=discrepancy, confidence.level=confidence.level)
+		model.matrix=X0, data=X, discrepancy=discrepancy, 
+		prob=P, logit=Logit)
+	if (se) result <- c(result,
+			list(se.prob=SE.P, se.logit=SE.Logit,
+				lower.logit=Lower.logit, upper.logit=Upper.logit, 
+				lower.prob=Lower.P, upper.prob=Upper.P,
+				confidence.level=confidence.level))
 	class(result) <-'effpoly'
 	result
 }
@@ -338,4 +358,9 @@ allEffects <- function(mod, ...){
 	names(result) <- terms
 	class(result) <- 'efflist'
 	result
+}
+
+all.effects <- function(...){
+	.Deprecated("allEffects")
+	allEffects(...)
 }

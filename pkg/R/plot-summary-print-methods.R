@@ -1,6 +1,6 @@
 # plot, summary, and print methods for effects package
 # John Fox and Jangman Hong
-#  last modified 8 October 2008 by J. Fox
+#  last modified 13 October 2008 by J. Fox
 
 
 summary.eff <- function(object, type=c("response", "link"), ...){
@@ -396,6 +396,7 @@ summary.effpoly <- function(object, type=c("probability", "logits"), ...){
 			dimnames=lapply(object$variables, function(x) x$levels))
 		print(table)
 	}
+	if (is.null(object$confidence.level)) return(invisible(NULL))
 	for (i in 1:length(y.lev)){
 		cat(paste("\n", 'Lower', object$confidence.level*100, 'Percent Confidence Limits for'
 				, y.lev[i],'\n'))
@@ -418,7 +419,7 @@ summary.effpoly <- function(object, type=c("probability", "logits"), ...){
 				round(object$discrepancy, 2),
 				"percent \n     in the 'safe' predictions for effect", object$term, '\n'))
 	invisible(NULL)
-}  
+}
 
 plot.effpoly <- function(x,
 	type=c("probability", "logit"),
@@ -429,12 +430,14 @@ plot.effpoly <- function(x,
 	main=paste(effect, "effect plot"),
 	colors=palette(), symbols=1:10, lines=1:10, cex=1.5, 
 	factor.names=TRUE, style=c("lines", "stacked"), 
-	confint=(style == "lines"), ylim,  
-	alternating=TRUE, layout, key.args=NULL,
+	confint=(style == "lines" && !is.null(x$confidence.level)), 
+	ylim,  alternating=TRUE, layout, key.args=NULL,
 	row=1, col=1, nrow=1, ncol=1, more=FALSE, ...){ 	
 	require(lattice)
 	type <- match.arg(type)
 	style <- match.arg(style)
+	has.se <- !is.null(x$confidence.level) 
+	if (confint && !has.se) stop("there are no confidence limits to plot")
 	if (style == "stacked"){
 		if (type != "probability"){
 			type <- "probability"
@@ -468,12 +471,15 @@ plot.effpoly <- function(x,
 	prob <- as.vector(x$prob)
 	logit <- as.vector(x$logit)
 	response <- as.vector(response)
-	lower.prob <- as.vector(x$lower.prob)
-	upper.prob <- as.vector(x$upper.prob)
-	lower.logit <- as.vector(x$lower.logit)
-	upper.logit <- as.vector(x$upper.logit)
+	if (has.se){
+		lower.prob <- as.vector(x$lower.prob)
+		upper.prob <- as.vector(x$upper.prob)
+		lower.logit <- as.vector(x$lower.logit)
+		upper.logit <- as.vector(x$upper.logit)
+	}
 	response <- factor(response, levels=y.lev)
-	data <- data.frame(prob, logit, lower.prob, upper.prob, lower.logit, upper.logit)
+	data <- data.frame(prob, logit)
+	if (has.se) data <- cbind(data, data.frame(lower.prob, upper.prob, lower.logit, upper.logit))
 	data[[x$response]] <- response
 	for (i in 1:length(predictors)){
 		data <-cbind(data, x.frame[predictors[i]])
