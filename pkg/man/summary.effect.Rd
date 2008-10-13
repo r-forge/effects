@@ -41,7 +41,7 @@ and \code{efflist} objects.
 	confint=(style == "lines" && !is.null(x$confidence.level)), 
 	ylim, alternating=TRUE, layout, key.args=NULL,
 	row=1, col=1, nrow=1, ncol=1, more=FALSE, ...)
-\method{plot}{efflist}(x, selection, ask=TRUE, ...)
+\method{plot}{efflist}(x, selection, ask=TRUE, graphics=TRUE, ...)
 }
 
 \arguments{
@@ -135,6 +135,8 @@ and \code{efflist} objects.
   \item{ask}{if \code{selection} is not supplied and \code{ask} is \code{TRUE} (the default),
     a menu of high-order terms is presented; if \code{ask} is \code{FALSE}, effects for all
     high-order terms are plotted in an array.}
+  \item{graphics}{if \code{TRUE} (the default), then the menu of terms to plot is presented
+    in a dialog box rather than as a text menu.}
   \item{...}{arguments to be passed down.}
 }
 

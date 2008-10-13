@@ -319,7 +319,7 @@ plot.eff <- function(x, x.var=which.max(levels),
 	}
 }
 
-plot.efflist <- function(x, selection, ask=TRUE, ...){
+plot.efflist <- function(x, selection, ask=TRUE, graphics=TRUE, ...){
 	if (!missing(selection)){
 		if (is.character(selection)) selection <- gsub(" ", "", selection)
 		plot(x[[selection]], ...)
@@ -328,7 +328,7 @@ plot.efflist <- function(x, selection, ask=TRUE, ...){
 	effects <- gsub(":", "*", names(x))
 	if (ask){
 		repeat {
-			selection <- menu(effects)
+			selection <- menu(effects, graphics=graphics, title="Select Term to Plot")
 			if (selection == 0) break
 			else plot(x[[selection]], ...)
 		}
