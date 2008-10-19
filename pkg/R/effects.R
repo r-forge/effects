@@ -1,6 +1,6 @@
 # effect generic and methods; allEffects
 # John Fox and Jangman Hong
-#  last modified 13 October 2008 by J. Fox
+#  last modified 19 October 2008 by J. Fox
 
 effect <- function(term, mod, ...){
 	UseMethod("effect", mod)
@@ -14,15 +14,15 @@ effect.lm <- function (term, mod, xlevels=list(), default.levels=10, given.value
 	else if (!all(which <- names(given.values) %in% names(coef(mod)))) 
 		stop("given.values (", names(given.values[!which]),") not in the model")
 	model.components <- analyze.model(term, mod, xlevels, default.levels)
-	predict.data <-model.components$predict.data
+	predict.data <- model.components$predict.data
 	factor.levels <- model.components$factor.levels
 	factor.cols <- model.components$factor.cols
 	mod.aug <- model.components$mod.aug
 	term <- model.components$term
 	n.basic <- model.components$n.basic
-	x<- model.components$x
+	x <- model.components$x
 	X.mod <- model.components$X.mod
-	cnames<- model.components$cnames
+	cnames <- model.components$cnames
 	X <- model.components$X	
 	formula.rhs <- formula(mod)[c(1,3)]  
 	nrow.X <- nrow(X)
@@ -207,7 +207,7 @@ effect.multinom <- function(term, mod,
 
 effect.polr <- function(term, mod, 
 	confidence.level=.95, xlevels=list(), default.levels=10, 
-	given.values, se=TRUE, typical=mean, ...){
+	given.values, se=TRUE, typical=mean, latent=FALSE, ...){
 	if (mod$method != "logistic") stop('method argument to polr must be "logistic"')	
 	if (missing(given.values)) given.values <- NULL
 	else if (!all(which <- names(given.values) %in% names(coef(mod)))) 
@@ -248,7 +248,13 @@ effect.polr <- function(term, mod,
 		V.logits <- V.mu/(mu^2 * (1 - mu)^2)
 		list(p=mu, std.err.p=sqrt(V.mu), logits=logits,
 			std.error.logits=sqrt(V.logits))
-	}	
+	}
+	eff.latent <- function(X0, b, V){
+		eta <- X0 %*% b
+		if (!se) return(list(fit=eta))
+		var <- diag(X0 %*% V %*% t(X0))
+		list(fit=eta, se=sqrt(var))
+	}
 	# refit model to produce 'safe' predictions when the model matrix includes
 	#   terms -- e.g., poly(), bs() -- whose basis depends upon the data
 	fit1 <- predict(mod, type="probs")
@@ -259,9 +265,9 @@ effect.polr <- function(term, mod,
 	mod.aug <- model.components$mod.aug
 	term <- model.components$term
 	n.basic <- model.components$n.basic
-	x<- model.components$x
+	x <- model.components$x
 	X.mod <- model.components$X.mod
-	cnames<- model.components$cnames
+	cnames <- model.components$cnames
 	X <- model.components$X
 	formula.rhs <- formula(mod)[c(1,3)]
 	newdata <- predict.data
@@ -295,6 +301,28 @@ effect.polr <- function(term, mod,
 	b <- coef(mod)
 	p <- length(b)  # corresponds to p - 1 in the text
 	alpha <- - mod$zeta  # intercepts are negatives of thresholds
+	z <- qnorm(1 - (1 - confidence.level)/2)
+	result <- list(term=term, formula=formula(mod), response=response.name(mod),
+		y.levels=mod$lev, variables=x, 
+		x=predict.data[,1:n.basic, drop=FALSE],
+		model.matrix=X0, data=X, discrepancy=discrepancy)
+	if (latent){
+		res <- eff.latent(X0, b, vcov(mod)[1:p, 1:p])
+		result$fit <- res$fit
+		if (se){
+			result$se <- res$se
+			result$lower <- result$fit - z*result$se
+			result$upper <- result$fit + z*result$se
+			result$confidence.level <- confidence.level
+		}
+		transformation <- list()
+		transformation$link <- I
+		transformation$inverse <- I
+		result$transformation <- transformation
+		result$thresholds <- -alpha
+		class(result) <- c("efflatent", "eff")
+		return(result)
+	}
 	m <- length(alpha) + 1
 	r <- m + p - 1
 	indices <- c((p+1):r, 1:p)
@@ -307,7 +335,6 @@ effect.polr <- function(term, mod,
 	colnames(P) <-  paste("prob.", resp.names, sep="")
 	colnames(Logit) <-  paste("logit.", resp.names, sep="")
 	if (se){
-		z <- qnorm(1 - (1 - confidence.level)/2)
 		Lower.logit <- Upper.logit <- Lower.P <- Upper.P <- SE.P <- SE.Logit <- matrix(0, n, m)
 		colnames(Lower.logit) <-  paste("L.logit.", resp.names, sep="")
 		colnames(Upper.logit) <-  paste("U.logit.", resp.names, sep="")
@@ -329,11 +356,8 @@ effect.polr <- function(term, mod,
 			Upper.logit[i,] <- logit + z*se.logit
 		}
 	}
-	result <- list(term=term, formula=formula(mod), response=response.name(mod),
-		y.levels=mod$lev, variables=x, 
-		x=predict.data[,1:n.basic, drop=FALSE],
-		model.matrix=X0, data=X, discrepancy=discrepancy, 
-		prob=P, logit=Logit)
+	result$prob <- P
+	result$logit <- Logit
 	if (se) result <- c(result,
 			list(se.prob=SE.P, se.logit=SE.Logit,
 				lower.logit=Lower.logit, upper.logit=Upper.logit, 

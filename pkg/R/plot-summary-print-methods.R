@@ -1,6 +1,6 @@
 # plot, summary, and print methods for effects package
 # John Fox and Jangman Hong
-#  last modified 13 October 2008 by J. Fox
+#  last modified 19 October 2008 by J. Fox
 
 
 summary.eff <- function(object, type=c("response", "link"), ...){
@@ -45,6 +45,10 @@ print.summary.eff <- function(x, ...){
 		cat(x$upper.header)
 		print(x$upper)
 	}
+	if (!is.null(x$thresholds)){
+		cat("\nThresholds:\n")
+		print(x$thresholds)
+	}
 	if (!is.null(x$warning)) cat(x$warning)
 	invisible(x)
 }
@@ -86,7 +90,9 @@ summary.efflist <- function(object, ...){
 
 plot.eff <- function(x, x.var=which.max(levels),
 	z.var=which.min(levels), multiline=is.null(x$se), rug=TRUE, xlab,
-	ylab=x$response, main=paste(effect, "effect plot"),
+	ylab=if (has.thresholds) paste(x$response, ": ", paste(x$y.levels, collapse=", "), sep="")
+		else x$response,
+	main=paste(effect, "effect plot"),
 	colors=palette(), symbols=1:10, lines=1:10, cex=1.5, ylim,
 	factor.names=TRUE, type=c("response", "link"), ticks=list(at=NULL, n=5),  
 	alternating=TRUE, layout, rescale.axis=TRUE, key.args=NULL, 
@@ -103,7 +109,13 @@ plot.eff <- function(x, x.var=which.max(levels),
 			else at
 		ticks <- sapply(labels, link)
 		list(at=ticks, labels=as.character(labels))
-	}        
+	}
+	thresholds <- x$thresholds
+	has.thresholds <- !is.null(thresholds)
+	if (has.thresholds){ 
+		threshold.labels <- abbreviate(x$y.levels, minlength=1)
+		threshold.labels <- paste(threshold.labels[-length(threshold.labels)], threshold.labels[-1], sep=" - ")
+	}
 	trans.link <- x$transformation$link
 	trans.inverse <- x$transformation$inverse
 	if (!rescale.axis){
@@ -142,6 +154,11 @@ plot.eff <- function(x, x.var=which.max(levels),
 						llines(x, lower, lty=2, col=colors[2])
 						llines(x, upper, lty=2, col=colors[2])
 					}
+					if (has.thresholds){
+						panel.abline(h=thresholds, lty=3)
+						panel.text(rep(current.panel.limits()$xlim[2], length(thresholds)), 
+							thresholds, threshold.labels, adj=c(1,0), cex=0.75)
+					}
 				},
 				ylim=ylim,
 				ylab=ylab,
@@ -165,6 +182,11 @@ plot.eff <- function(x, x.var=which.max(levels),
 					if (has.se){
 						llines(x, lower, lty=2, col=colors[2])
 						llines(x, upper, lty=2, col=colors[2])
+					}
+					if (has.thresholds){
+						panel.abline(h=thresholds, lty=3)
+						panel.text(rep(current.panel.limits()$xlim[2], length(thresholds)), 
+							thresholds, threshold.labels, adj=c(1,0), cex=0.75)
 					}
 				},
 				ylim=ylim,
@@ -220,6 +242,11 @@ plot.eff <- function(x, x.var=which.max(levels),
 						llines(x[sub], y[sub], lwd=2, type='b', col=colors[i], 
 							pch=symbols[i], lty=lines[i], cex=cex, ...)
 					}
+					if (has.thresholds){
+						panel.abline(h=thresholds, lty=3)
+						panel.text(rep(current.panel.limits()$xlim[2], length(thresholds)), 
+							thresholds, threshold.labels, adj=c(1,0), cex=0.75)
+					}
 				},
 				ylim=ylim,
 				ylab=ylab,
@@ -252,6 +279,11 @@ plot.eff <- function(x, x.var=which.max(levels),
 						sub <- z[subscripts] == zvals[i]
 						llines(x[sub], y[sub], lwd=2, type='l', col=colors[i], lty=lines[i], cex=cex, ...)
 					}
+					if (has.thresholds){
+						panel.abline(h=thresholds, lty=3)
+						panel.text(rep(current.panel.limits()$xlim[2], length(thresholds)), 
+							thresholds, threshold.labels, adj=c(1,0), cex=0.75)
+					}
 				},
 				ylim=ylim,
 				ylab=ylab,
@@ -280,6 +312,11 @@ plot.eff <- function(x, x.var=which.max(levels),
 					llines(x, lower[subscripts], lty=2, col=colors[2])
 					llines(x, upper[subscripts], lty=2, col=colors[2])
 				}
+				if (has.thresholds){
+					panel.abline(h=thresholds, lty=3)
+					panel.text(rep(current.panel.limits()$xlim[2], length(thresholds)), 
+						thresholds, threshold.labels, adj=c(1,0), cex=0.75)
+				}
 			},
 			ylim=ylim,
 			ylab=ylab,
@@ -304,6 +341,11 @@ plot.eff <- function(x, x.var=which.max(levels),
 				if (has.se){
 					llines(x, lower[subscripts], lty=2, col=colors[2])
 					llines(x, upper[subscripts], lty=2, col=colors[2])
+				}
+				if (has.thresholds){
+					panel.abline(h=thresholds, lty=3)
+					panel.text(rep(current.panel.limits()$xlim[2], length(thresholds)), 
+						thresholds, threshold.labels, adj=c(1,0), cex=0.75)
 				}
 			},
 			ylim=ylim,
@@ -700,4 +742,44 @@ plot.effpoly <- function(x,
 				split=split, more=more)			
 		}
 	}
+}
+
+print.efflatent <- function(x, ...){
+	cat(paste("\n", gsub(":", "*", x$term), 'effect\n'))
+	table <- array(x$fit,     
+		dim=sapply(x$variables, function(x) length(x$levels)),
+		dimnames=lapply(x$variables, function(x) x$levels))
+	print(table)
+	cat("\nThresholds:\n")
+	print(x$thresholds)
+	if (x$discrepancy > 0.1) cat(paste("\nWarning: There is an average discrepancy of", 
+				round(x$discrepancy, 3),
+				"percent \n     in the 'safe' predictions for effect", x$term, '\n'))
+	invisible(x)
+}
+
+summary.efflatent <- function(object, ...){
+	result <- list()
+	result$header <- paste("\n", gsub(":", "*", object$term), 'effect\n')
+	result$effect <- array(object$fit,     
+		dim=sapply(object$variables, function(x) length(x$levels)),
+		dimnames=lapply(object$variables, function(x) x$levels))
+	if (!is.null(object$se)){
+		result$lower.header <- paste('\n Lower', round(100*object$confidence.level, 2), 
+			'Percent Confidence Limits\n')
+		result$lower <- array(object$lower,   
+			dim=sapply(object$variables, function(x) length(x$levels)),
+			dimnames=lapply(object$variables, function(x) x$levels))
+		result$upper.header <- paste('\n Upper', round(100*object$confidence.level, 2),
+			'Percent Confidence Limits\n')
+		result$upper <- array(object$upper,   
+			dim=sapply(object$variables, function(x) length(x$levels)),
+			dimnames=lapply(object$variables, function(x) x$levels))
+	}
+	result$thresholds <- object$thresholds
+	if (object$discrepancy > 0.1) result$warning <- paste("\nWarning: There is an average discrepancy of", 
+			round(object$discrepancy, 3),
+			"percent \n     in the 'safe' predictions for effect", object$term, '\n')
+	class(result) <- "summary.eff"
+	result
 }

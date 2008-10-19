@@ -1,10 +1,12 @@
 \name{summary.eff}
 \alias{print.eff}
 \alias{print.effpoly}
+\alias{print.efflatent}
 \alias{print.efflist}
 \alias{print.summary.eff}
 \alias{summary.eff}
 \alias{summary.effpoly}
+\alias{summary.efflatent}
 \alias{summary.efflist}
 \alias{plot.eff}
 \alias{plot.effpoly}
@@ -20,14 +22,18 @@ and \code{efflist} objects.
 \usage{
 \method{print}{eff}(x, type=c("response", "link"), ...)
 \method{print}{effpoly}(x, type=c("probability", "logits"), ...)
+\method{print}{efflatent}(x, ...)
 \method{print}{efflist}(x, ...)
 \method{print}{summary.eff}(x, ...)
 \method{summary}{eff}(object, type=c("response", "link"), ...)
 \method{summary}{effpoly}(object, type=c("probability", "logits"), ...)
+\method{summary}{efflatent}(object, ...)
 \method{summary}{efflist}(object, ...)
 \method{plot}{eff}(x, x.var=which.max(levels),
     z.var=which.min(levels), multiline=is.null(x$se), rug=TRUE, xlab,
-    ylab=x$response, main=paste(effect, "effect plot"),
+    	ylab=if (has.thresholds) paste(x$response, ": ", paste(x$y.levels, collapse=", "), sep="")
+		else x$response, 
+	main=paste(effect, "effect plot"),
     colors=palette(), symbols=1:10, lines=1:10, cex=1.5, ylim,
     factor.names=TRUE, type=c("response", "link"), ticks=list(at=NULL, n=5), 
     alternating=TRUE, layout, rescale.axis=TRUE, key.args=NULL,
@@ -210,6 +216,8 @@ plot(effect("country*poly(age, 3)", mod.wvs))
 
 plot(effect("country*poly(age, 3)", mod.wvs), style="stacked", 
 	colors=c("gray75", "gray50", "gray25"))
+	
+plot(effect("country*poly(age, 3)", latent=TRUE, mod.wvs))
 
 mod.pres <- lm(prestige ~ log(income, 10) + poly(education, 3) + poly(women, 2), 
     data=Prestige)

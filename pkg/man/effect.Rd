@@ -6,6 +6,7 @@
 \alias{allEffects}
 \alias{as.data.frame.eff}
 \alias{as.data.frame.effpoly}
+\alias{as.data.frame.efflatent}
 
 \title{Functions For Constructing Effect Plots}
 \description{
@@ -31,13 +32,15 @@ effect(term, mod, ...)
 	given.values, se=TRUE, typical=mean, ...)
 		
 \method{effect}{polr}(term, mod, confidence.level=.95, xlevels=list(), default.levels=10, 
-	given.values, se=TRUE, typical=mean, ...)
+	given.values, se=TRUE, typical=mean, latent=FALSE, ...)
     
 allEffects(mod, ...)
 
 \method{as.data.frame}{eff}(x, row.names=NULL, optional=TRUE, ...)
 
 \method{as.data.frame}{effpoly}(x, row.names=NULL, optional=TRUE, ...)
+
+\method{as.data.frame}{efflatent}(x, row.names=NULL, optional=TRUE, ...)
 }
 
 \arguments{
@@ -74,6 +77,10 @@ allEffects(mod, ...)
     made to approximate it from the inverse-link.}
   \item{typical}{a function to be applied to the columns of the model matrix
     over which the effect is "averaged"; the default is \code{mean}.}
+  \item{latent}{if \code{TRUE}, effects in a proportional-odds logit model
+  	are computed on the scale of the latent response; if \code{FALSE} 
+  	(the default) effects are computed as individual-level probabilities
+  	and logits.}
   \item{x}{an object of class \code{"eff"} or \code{"effpoly"}.}
   \item{row.names, optional}{not used.}
   \item{...}{arguments to be passed down.}
@@ -207,6 +214,8 @@ plot(effect("country*poly(age, 3)", mod.wvs))
 
 plot(effect("country*poly(age, 3)", mod.wvs), style="stacked", 
 	colors=c("gray75", "gray50", "gray25"))
+	
+plot(effect("country*poly(age, 3)", latent=TRUE, mod.wvs))
 
 mod.pres <- lm(prestige ~ log(income, 10) + poly(education, 3) + poly(women, 2), 
     data=Prestige)

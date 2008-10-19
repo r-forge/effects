@@ -1,6 +1,6 @@
 # utilities and common functions for effects package
 # John Fox and Jangman Hong
-#  last modified 13 October 2008 by J. Fox
+#  last modified 19 October 2008 by J. Fox
 
 
 has.intercept <- function(model, ...) any(names(coefficients(model))=="(Intercept)")
@@ -277,6 +277,11 @@ as.data.frame.effpoly <- function(x, row.names=NULL, optional=TRUE, ...){
 	if (!is.null(x$confidence.level)) result <- cbind(result,
 			x$se.prob, x$se.logit, x$lower.prob, x$upper.prob, x$lower.logit, x$upper.logit)
 	result
+}
+
+as.data.frame.efflatent <- function(x, row.names=NULL, optional=TRUE, ...){
+	if (is.null(x$se)) data.frame(x$x, fit=x$fit)
+	else data.frame(x$x, fit=x$fit, se=x$se, lower=x$lower, upper=x$upper)
 }
 
 logit2p <- function(logit) 1/(1 + exp(-logit))
