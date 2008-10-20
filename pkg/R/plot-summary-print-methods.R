@@ -1,6 +1,6 @@
 # plot, summary, and print methods for effects package
 # John Fox and Jangman Hong
-#  last modified 19 October 2008 by J. Fox
+#  last modified 20 October 2008 by J. Fox
 
 
 summary.eff <- function(object, type=c("response", "link"), ...){
@@ -90,9 +90,7 @@ summary.efflist <- function(object, ...){
 
 plot.eff <- function(x, x.var=which.max(levels),
 	z.var=which.min(levels), multiline=is.null(x$se), rug=TRUE, xlab,
-	ylab=if (has.thresholds) paste(x$response, ": ", paste(x$y.levels, collapse=", "), sep="")
-		else x$response,
-	main=paste(effect, "effect plot"),
+	ylab, main=paste(effect, "effect plot"),
 	colors=palette(), symbols=1:10, lines=1:10, cex=1.5, ylim,
 	factor.names=TRUE, type=c("response", "link"), ticks=list(at=NULL, n=5),  
 	alternating=TRUE, layout, rescale.axis=TRUE, key.args=NULL, 
@@ -112,9 +110,15 @@ plot.eff <- function(x, x.var=which.max(levels),
 	}
 	thresholds <- x$thresholds
 	has.thresholds <- !is.null(thresholds)
+	if (missing(ylab)){
+		ylab <- if (has.thresholds) paste(x$response, ": ", paste(x$y.levels, collapse=", "), sep="")
+			else x$response
+	}
 	if (has.thresholds){ 
 		threshold.labels <- abbreviate(x$y.levels, minlength=1)
-		threshold.labels <- paste(threshold.labels[-length(threshold.labels)], threshold.labels[-1], sep=" - ")
+		threshold.labels <- paste(" ", 
+			paste(threshold.labels[-length(threshold.labels)], threshold.labels[-1], sep=" - "),
+			" ", sep="")
 	}
 	trans.link <- x$transformation$link
 	trans.inverse <- x$transformation$inverse
@@ -156,6 +160,8 @@ plot.eff <- function(x, x.var=which.max(levels),
 					}
 					if (has.thresholds){
 						panel.abline(h=thresholds, lty=3)
+						panel.text(rep(current.panel.limits()$xlim[1], length(thresholds)), 
+							thresholds, threshold.labels, adj=c(0,0), cex=0.75)
 						panel.text(rep(current.panel.limits()$xlim[2], length(thresholds)), 
 							thresholds, threshold.labels, adj=c(1,0), cex=0.75)
 					}
@@ -185,6 +191,8 @@ plot.eff <- function(x, x.var=which.max(levels),
 					}
 					if (has.thresholds){
 						panel.abline(h=thresholds, lty=3)
+						panel.text(rep(current.panel.limits()$xlim[1], length(thresholds)), 
+							thresholds, threshold.labels, adj=c(0,0), cex=0.75)
 						panel.text(rep(current.panel.limits()$xlim[2], length(thresholds)), 
 							thresholds, threshold.labels, adj=c(1,0), cex=0.75)
 					}
@@ -244,6 +252,8 @@ plot.eff <- function(x, x.var=which.max(levels),
 					}
 					if (has.thresholds){
 						panel.abline(h=thresholds, lty=3)
+						panel.text(rep(current.panel.limits()$xlim[1], length(thresholds)), 
+							thresholds, threshold.labels, adj=c(0,0), cex=0.75)
 						panel.text(rep(current.panel.limits()$xlim[2], length(thresholds)), 
 							thresholds, threshold.labels, adj=c(1,0), cex=0.75)
 					}
@@ -281,6 +291,8 @@ plot.eff <- function(x, x.var=which.max(levels),
 					}
 					if (has.thresholds){
 						panel.abline(h=thresholds, lty=3)
+						panel.text(rep(current.panel.limits()$xlim[1], length(thresholds)), 
+							thresholds, threshold.labels, adj=c(0,0), cex=0.75)
 						panel.text(rep(current.panel.limits()$xlim[2], length(thresholds)), 
 							thresholds, threshold.labels, adj=c(1,0), cex=0.75)
 					}
@@ -314,6 +326,8 @@ plot.eff <- function(x, x.var=which.max(levels),
 				}
 				if (has.thresholds){
 					panel.abline(h=thresholds, lty=3)
+					panel.text(rep(current.panel.limits()$xlim[1], length(thresholds)), 
+						thresholds, threshold.labels, adj=c(0,0), cex=0.75)
 					panel.text(rep(current.panel.limits()$xlim[2], length(thresholds)), 
 						thresholds, threshold.labels, adj=c(1,0), cex=0.75)
 				}
@@ -344,6 +358,8 @@ plot.eff <- function(x, x.var=which.max(levels),
 				}
 				if (has.thresholds){
 					panel.abline(h=thresholds, lty=3)
+					panel.text(rep(current.panel.limits()$xlim[1], length(thresholds)), 
+						thresholds, threshold.labels, adj=c(0,0), cex=0.75)
 					panel.text(rep(current.panel.limits()$xlim[2], length(thresholds)), 
 						thresholds, threshold.labels, adj=c(1,0), cex=0.75)
 				}

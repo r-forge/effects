@@ -31,9 +31,7 @@ and \code{efflist} objects.
 \method{summary}{efflist}(object, ...)
 \method{plot}{eff}(x, x.var=which.max(levels),
     z.var=which.min(levels), multiline=is.null(x$se), rug=TRUE, xlab,
-    	ylab=if (has.thresholds) paste(x$response, ": ", paste(x$y.levels, collapse=", "), sep="")
-		else x$response, 
-	main=paste(effect, "effect plot"),
+    ylab, main=paste(effect, "effect plot"),
     colors=palette(), symbols=1:10, lines=1:10, cex=1.5, ylim,
     factor.names=TRUE, type=c("response", "link"), ticks=list(at=NULL, n=5), 
     alternating=TRUE, layout, rescale.axis=TRUE, key.args=NULL,
@@ -84,7 +82,8 @@ and \code{efflist} objects.
     a covariate.}
   \item{xlab}{the label for the horizontal axis of the effect plot; if missing, the
     function will use the name of the predictor on the horizontal axis.}
-  \item{ylab}{the label for the vertical axis of the effect plot; the default is the
+  \item{ylab}{the label for the vertical axis of the effect plot; the default is 
+	constructed from the name of the
     response variable for the model from which the effect was computed.}
   \item{main}{the title for the plot, printed at the top; the default title is constructed from the
     name of the effect.}
