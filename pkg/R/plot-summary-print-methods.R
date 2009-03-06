@@ -1,6 +1,6 @@
 # plot, summary, and print methods for effects package
 # John Fox and Jangman Hong
-#  last modified 10 Decemeber 2008 by J. Fox
+#  last modified 6 March 2009 by J. Fox
 
 
 summary.eff <- function(object, type=c("response", "link"), ...){
@@ -492,7 +492,7 @@ plot.effpoly <- function(x,
 	xlab,
 	ylab=paste(x$response, " (", type, ")", sep=""), 
 	main=paste(effect, "effect plot"),
-	colors=palette(), symbols=1:10, lines=1:10, cex=1.5, 
+	colors, symbols=1:10, lines=1:10, cex=1.5, 
 	factor.names=TRUE, style=c("lines", "stacked"), 
 	confint=(style == "lines" && !is.null(x$confidence.level)), 
 	ylim,  alternating=TRUE, layout, key.args=NULL,
@@ -511,6 +511,13 @@ plot.effpoly <- function(x,
 			confint <- FALSE
 			warning('confint set to FALSE for stacked plot')
 		}
+	}
+	if (missing(colors)){
+		if (style == "stacked"){
+			colors <- if (x$model == "multinom") rainbow_hcl(length(x$y.levels))
+				else sequential_hcl(length(x$y.levels))
+		}
+		else colors <- palette()
 	}
 	effect <- paste(sapply(x$variables, "[[", "name"), collapse="*")
 	split <- c(col, row, ncol, nrow)
