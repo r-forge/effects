@@ -85,3 +85,5 @@ o Fixed bug in all effect() methods that caused error when na.action="na.exclude
 Version 2.0-4
 
 o Palettes from the colorspace package are used by default for stacked plots.
+
+o Small changes.

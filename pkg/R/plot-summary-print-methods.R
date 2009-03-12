@@ -1,6 +1,6 @@
 # plot, summary, and print methods for effects package
 # John Fox and Jangman Hong
-#  last modified 6 March 2009 by J. Fox
+#  last modified 12 March 2009 by J. Fox
 
 
 summary.eff <- function(object, type=c("response", "link"), ...){
@@ -601,7 +601,7 @@ plot.effpoly <- function(x,
 						main=main,
 						key=c(key, key.args),
 						layout=layout,
-						data=data),
+						data=data, ...),
 					split=split, more=more)
 			}
 			else { # x-variable numeric
@@ -632,7 +632,7 @@ plot.effpoly <- function(x,
 						main=main,
 						key=c(key, key.args),
 						layout=layout,
-						data=data),
+						data=data, ...),
 					split=split, more=more)						
 			}
 		}
@@ -691,7 +691,7 @@ plot.effpoly <- function(x,
 						scales=list(alternating=alternating),
 						main=main,
 						key=c(key, key.args),
-						layout=layout),
+						layout=layout, ...),
 					split=split, more=more)
 			}
 		}
@@ -737,7 +737,7 @@ plot.effpoly <- function(x,
 					upper=upper, 
 					scales=list(x=list(at=1:length(levs), labels=levs), alternating=alternating),
 					layout=layout,
-					data=data),
+					data=data, ...),
 				split=split, more=more)
 		}
 		else { # x-variable numeric
@@ -771,7 +771,7 @@ plot.effpoly <- function(x,
 					upper=upper, 
 					scales=list(alternating=alternating),
 					layout=layout,
-					data=data),
+					data=data, ...),
 				split=split, more=more)			
 		}
 	}
