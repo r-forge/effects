@@ -1,6 +1,6 @@
 # plot, summary, and print methods for effects package
 # John Fox and Jangman Hong
-#  last modified 12 March 2009 by J. Fox
+#  last modified 19 March 2009 by J. Fox
 
 
 summary.eff <- function(object, type=c("response", "link"), ...){
@@ -564,8 +564,11 @@ plot.effpoly <- function(x,
 		function(x) length(unique(x)))
 	if (length(n.predictor.cats) == 0) n.predictor.cats <- 1
 	if (!confint){ # plot without confidence bands
-		layout <- if (missing(layout)) c(prod(n.predictor.cats[-(n.predictors - 1)]), 
+		layout <- if (missing(layout)){
+			lay <- c(prod(n.predictor.cats[-(n.predictors - 1)]), 
 					n.predictor.cats[(n.predictors - 1)], 1)
+			if (lay[1] > 1) lay else lay[c(2, 1, 3)]
+			}
 			else layout
 		if (style == "lines"){ # line plot
 			if (n.y.lev > min(c(length(colors), length(lines), length(symbols))))
