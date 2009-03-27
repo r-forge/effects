@@ -1,6 +1,6 @@
 Package: effects
 Version: 2.0-4
-Date: 2009/03/24
+Date: 2009/03/26
 Title: Effect Displays for Linear, Generalized Linear, Multinomial-Logit, and Proportional-Odds Logit Models
 Author: John Fox <jfox@mcmaster.ca> and Jangman Hong. We are grateful to Robert Andersen, David Firth, and 
   Michael Friendly, for various suggestions.

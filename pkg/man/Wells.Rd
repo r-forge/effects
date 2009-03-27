@@ -7,7 +7,7 @@
   they were using.
 }
 
-\usage{data(Wells)}
+\usage{Wells}
 \format{
   A data frame with 3020 observations on the following 5 variables.
   \describe{
