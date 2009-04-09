@@ -95,3 +95,5 @@ o Small changes.
 Version 2.0-5
 
 o Added examples for Titanic, BEPS, and WVS data sets.
+
+o Arguments ... (e.g., digits) passed through in print() methods.
