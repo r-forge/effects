@@ -109,3 +109,7 @@ o Added .Rd file for package.
 Version 2.0-7
 
 o Fixed bug in handling of given.values argument to effect().
+
+Version 2.0-8
+
+o The S3 method print.summary.eff is now declared in NAMESPACE (as it should have been all along).
