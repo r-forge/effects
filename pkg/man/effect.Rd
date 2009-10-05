@@ -165,9 +165,15 @@ allEffects(mod, ...)
     \bold{8:15}, 1--27, <\url{http://www.jstatsoft.org/counter.php?id=75&url=v08/i15/effect-displays-revised.pdf&ct=1}>.
     
   	Fox, J. and R. Andersen (2006)
-   	Effect displays  for multinomial and proportional-odds logit models.
+   	Effect displays for multinomial and proportional-odds logit models.
   	\emph{Sociological Methodology} 
   	\bold{36}, 225--255.
+  	
+  	Fox, J. and J. Hong (2009).
+    Effect displays in R for multinomial and proportional-ddds logit models: 
+    	    Extensions to the effects package.
+    \emph{Journal of Statistical Software}
+    \bold{32:1}, 1--24.", <\url{http://www.jstatsoft.org/v32/i01/}>.
     
     Hastie, T. J. (1992)
     Generalized additive models.
