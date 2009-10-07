@@ -184,7 +184,7 @@ and \code{efflist} objects.
 
 \seealso{\code{\link{effect}}, \code{\link{allEffects}}, \code{\link{xyplot}},
 	\code{\link{densityplot}}, \code{\link{print.trellis}}
-	\code{\link[colorspace]{rainbow_hcl}}, \code{\link[colorspace]{sequential_hcl}}}
+	\code{\link[colorspace]{rainbow_hcl}}, \code{\link[colorspace:rainbow_hcl]{sequential_hcl}}}
 
 \examples{
 mod.cowles <- glm(volunteer ~ sex + neuroticism*extraversion, 
