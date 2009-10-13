@@ -124,4 +124,6 @@ Version 2.0-9
 
 o Applied patches contributed by Ian Fellows to allow logical predictors and various coercions in model formulas to work properly.
 
+o Fixed name of CITATION file (was CITATION.txt).
+
 o Small changes to docs.
