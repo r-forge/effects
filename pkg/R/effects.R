@@ -34,6 +34,7 @@ effect.lm <- function (term, mod, xlevels=list(), default.levels=10, given.value
 	wts <- mod$weights
 	if (is.null(wts)) wts <- rep(1, length(fit.1))
 	mod.2 <- lm.wfit(mod.matrix.all[1:nrow.X,], fit.1, wts)
+	class(mod.2) <- "lm"
 	discrepancy <- 100*sqrt(mean(mod.2$residuals^2)/mean(mod$residuals^2))
 	if (discrepancy > 1e-3) warning(paste("There is a discrepancy of", round(discrepancy, 3),
 				"percent \n     in the 'safe' predictions used to generate effect", term))

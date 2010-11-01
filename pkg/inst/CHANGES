@@ -132,3 +132,6 @@ Version 2.0-10
 
 o Backed out Ian Fellows's patches because of errors.
 
+Version 2.0-11
+
+o Small change to eliminate warnings produced in R 2.12.0
