@@ -162,7 +162,7 @@ allEffects(mod, ...)
     Fox, J. (2003)
     Effect displays in R for generalised linear models.
     \emph{Journal of Statistical Software}
-    \bold{8:15}, 1--27, <\url{http://www.jstatsoft.org/counter.php?id=75&url=v08/i15/effect-displays-revised.pdf&ct=1}>.
+    \bold{8:15}, 1--27, <\url{http://www.jstatsoft.org/v08/i15/}>.
     
   	Fox, J. and R. Andersen (2006)
    	Effect displays for multinomial and proportional-odds logit models.
