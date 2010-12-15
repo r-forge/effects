@@ -16,7 +16,7 @@ generalized linear, multinomial-logit, and proportional-odds logit models.
 \tabular{ll}{
 Package: \tab effects\cr
 Version: \tab 2.0-11\cr
-Date: \tab 2010/12/05\cr
+Date: \tab 2010/12/15\cr
 Depends: \tab R (>= 2.4.0), lattice, grid, MASS, nnet, colorspace\cr
 LazyLoad: \tab yes\cr
 LazyData: \tab yes\cr

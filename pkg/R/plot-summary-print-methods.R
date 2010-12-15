@@ -380,7 +380,7 @@ plot.eff <- function(x, x.var=which.max(levels),
 	}
 }
 
-plot.efflist <- function(x, selection, ask=TRUE, graphics=TRUE, ...){
+plot.efflist <- function(x, selection, rows, cols, ask=TRUE, graphics=TRUE, ...){
 	if (!missing(selection)){
 		if (is.character(selection)) selection <- gsub(" ", "", selection)
 		plot(x[[selection]], ...)
@@ -397,8 +397,10 @@ plot.efflist <- function(x, selection, ask=TRUE, graphics=TRUE, ...){
 	else {
 		neffects <- length(x)
 		mfrow <- mfrow(neffects)
-		rows <- mfrow[1]
-		cols <- mfrow[2]
+		if (missing(rows) || missing(cols)){
+			rows <- mfrow[1]
+			cols <- mfrow[2]
+		}
 		for (i in 1:rows) {
 			for (j in 1:cols){
 				if ((i-1)*cols + j > neffects) break
