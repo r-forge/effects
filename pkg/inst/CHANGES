@@ -140,3 +140,6 @@ o Added nrows and ncols argument to plot.efflist() (following suggstion by Micha
 
 o Small fix to docs.
 
+Version 2.0-12
+
+o plot.eff() now returns an object, printed by print.plot.eff() (after a question by Michael Friendly).
