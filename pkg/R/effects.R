@@ -1,6 +1,6 @@
 # effect generic and methods; allEffects
 # John Fox and Jangman Hong
-#  last modified 21 April 2009 by J. Fox (reverted 14 October 2009 by J. Fox)
+#  last modified 28 December 2010 by J. Fox
 
 effect <- function(term, mod, ...){
 	UseMethod("effect", mod)
@@ -56,6 +56,65 @@ effect.lm <- function (term, mod, xlevels=list(), default.levels=10, given.value
 		}
 		mod.2$terms <- mod$terms
 		V <- dispersion * summary.lm(mod.2)$cov
+		var <- diag(mod.matrix %*% V %*% t(mod.matrix))
+		result$se <- sqrt(var)        
+		result$lower <- effect - z*result$se
+		result$upper <- effect + z*result$se
+		result$confidence.level <- confidence.level
+	}
+	if (is.null(transformation$link) && is.null(transformation$inverse)){
+		transformation$link <- I
+		transformation$inverse <- I
+	}
+	result$transformation <- transformation
+	class(result)<-'eff'
+	result
+}
+
+effect.gls <- function (term, mod, xlevels=list(), default.levels=10, given.values,
+	se=TRUE, confidence.level=.95, 
+	transformation=NULL, 
+	typical=mean, ...){	
+	if (missing(given.values)) given.values <- NULL
+	else if (!all(which <- names(given.values) %in% names(coef(mod)))) 
+		stop("given.values (", names(given.values[!which]),") not in the model")
+	model.components <- analyze.model(term, mod, xlevels, default.levels)
+	predict.data <- model.components$predict.data
+	factor.levels <- model.components$factor.levels
+	factor.cols <- model.components$factor.cols
+	mod.aug <- model.components$mod.aug
+	term <- model.components$term
+	n.basic <- model.components$n.basic
+	x <- model.components$x
+	X.mod <- model.components$X.mod
+	cnames <- model.components$cnames
+	X <- model.components$X	
+	formula.rhs <- formula(mod)[c(1,3)]  
+	nrow.X <- nrow(X)
+	mf <- model.frame(formula.rhs, data=rbind(X[,names(predict.data),drop=FALSE], predict.data), 
+		xlev=factor.levels)
+	mod.matrix.all <- model.matrix(formula.rhs, data=mf, contrasts.arg=mod$contrasts)
+	mod.matrix <- mod.matrix.all[-(1:nrow.X),]
+	fit.1 <- na.omit(predict(mod))
+	wts <- mod$weights
+	if (is.null(wts)) wts <- rep(1, length(fit.1))
+	mod.2 <- lm.wfit(mod.matrix.all[1:nrow.X,], fit.1, wts)
+	class(mod.2) <- "lm"
+	discrepancy <- 100*sqrt(mean(mod.2$residuals^2)/mean(mod$residuals^2))
+	if (discrepancy > 1e-3) warning(paste("There is a discrepancy of", round(discrepancy, 3),
+				"percent \n     in the 'safe' predictions used to generate effect", term))
+	mod.matrix <- fixup.model.matrix(mod, mod.matrix, mod.matrix.all, X.mod, mod.aug, 
+		factor.cols, cnames, term, typical, given.values)	
+	effect <- mod.matrix %*% mod.2$coefficients
+	result <- list(term=term, formula=formula(mod), response=response.name(mod),
+		variables=x, fit=effect, 
+		x=predict.data[,1:n.basic, drop=FALSE], model.matrix=mod.matrix, 
+		data=X, discrepancy=discrepancy)
+	if (se){
+		df.res <- mod$dims[["N"]] - mod$dims[["p"]]
+		z <- qt(1 - (1 - confidence.level)/2, df=df.res)
+		mod.2$terms <- terms(mod)
+		V <- vcov(mod)
 		var <- diag(mod.matrix %*% V %*% t(mod.matrix))
 		result$se <- sqrt(var)        
 		result$lower <- effect - z*result$se

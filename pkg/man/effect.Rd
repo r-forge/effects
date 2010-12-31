@@ -1,6 +1,7 @@
 \name{effect}
 \alias{effect}
 \alias{effect.lm}
+\alias{effect.gls}
 \alias{effect.multinom}
 \alias{effect.polr}
 \alias{allEffects}
@@ -11,8 +12,8 @@
 \title{Functions For Constructing Effect Plots}
 \description{
   \code{effect} constructs an \code{"eff"} object for a term (usually a high-order term) 
-  in a linear or generalized linear model, or an \code{"effpoly"} object for a term in a
-   multinomial or proportional-odds logit model, 
+  in a linear (fit by \code{lm} or \code{gls}) or generalized linear model (fit by \code{glm}), or an \code{"effpoly"} object for a term in a
+   multinomial or proportional-odds logit model (fit respectively by \code{multinom} or \code{polr}), 
   absorbing the lower-order terms marginal
   to the term in question, and averaging over other terms in the model. 
   
@@ -27,6 +28,9 @@ effect(term, mod, ...)
 	se=TRUE, confidence.level=.95, 
     transformation=list(link=family(mod)$linkfun, inverse=family(mod)$linkinv), 
     typical=mean, ...)
+    
+effect.gls <- function (term, mod, xlevels=list(), default.levels=10, given.values,
+	se=TRUE, confidence.level=.95, transformation=NULL, typical=mean, ...)
     
 \method{effect}{multinom}(term, mod, confidence.level=.95, xlevels=list(), default.levels=10, 
 	given.values, se=TRUE, typical=mean, ...)
@@ -48,7 +52,7 @@ allEffects(mod, ...)
     term in the model. The term must be given exactly as it appears in the printed
     model, although either colons (\code{:}) or asterisks (\code{*}) may be used
     for interactions.}
-  \item{mod}{an object of class \code{"lm"}, \code{"glm"}, \code{"multinom"}, or \code{"polr"}.}
+  \item{mod}{an object of class \code{"lm"}, \code{"gls"}, \code{"glm"}, \code{"multinom"}, or \code{"polr"}.}
   \item{xlevels}{an optional list of values at which to set covariates,
     with components of the form \code{covariate.name = vector.of.values}.}
   \item{default.levels}{number of values for covariates that are not
@@ -235,6 +239,9 @@ mod.pres <- lm(prestige ~ log(income, 10) + poly(education, 3) + poly(women, 2),
 eff.pres <- allEffects(mod.pres, default.levels=50)
 plot(eff.pres, ask=FALSE)
 
+mod.hart <- gls(fconvict ~ mconvict + tfr + partic + degrees, data=Hartnagel, 
+    correlation=corARMA(p=2, q=0), method="ML")
+plot(allEffects(mod.hart), ask=FALSE)
 }
 
 \keyword{hplot}

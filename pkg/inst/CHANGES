@@ -143,3 +143,5 @@ o Small fix to docs.
 Version 2.0-12
 
 o plot.eff() now returns an object, printed by print.plot.eff() (after a question by Michael Friendly).
+
+o New plot.gls() method, various changes for compatibility (after a question by Oriol Verdeny Vilalta).
