@@ -1,6 +1,6 @@
 # utilities and common functions for effects package
 # John Fox and Jangman Hong
-#  last modified 28 December 2010 by J. Fox
+#  last modified 2 January 2011 by J. Fox
 
 
 has.intercept <- function(model, ...) any(names(coefficients(model))=="(Intercept)")
@@ -327,8 +327,11 @@ lrug <- function(x) {
 }
 
 model.matrix.gls <- function(object, ...){
-	mod.lm <- lm(object$call$model, data=eval(object$call$data))
-	model.matrix(mod.lm)
+	model.matrix(as.formula(object$call$model), data=eval(object$call$data))
 }
 
+# model.response not generic
+model.response.gls <- function(model){
+	model.response(model.frame(as.formula(model$call$model), data=eval(model$call$data)))
+}
 

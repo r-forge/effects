@@ -1,6 +1,6 @@
 # effect generic and methods; allEffects
 # John Fox and Jangman Hong
-#  last modified 28 December 2010 by J. Fox
+#  last modified 2 January 2011 by J. Fox
 
 effect <- function(term, mod, ...){
 	UseMethod("effect", mod)
@@ -35,7 +35,8 @@ effect.lm <- function (term, mod, xlevels=list(), default.levels=10, given.value
 	if (is.null(wts)) wts <- rep(1, length(fit.1))
 	mod.2 <- lm.wfit(mod.matrix.all[1:nrow.X,], fit.1, wts)
 	class(mod.2) <- "lm"
-	discrepancy <- 100*sqrt(mean(mod.2$residuals^2)/mean(mod$residuals^2))
+	y <- if(inherits(mod, "glm")) mod$y else na.omit(model.response(model.frame(mod)))
+	discrepancy <- 100*mean(abs(fitted(mod.2)- fit.1)/(1e-10 + mean(abs(fit.1))))
 	if (discrepancy > 1e-3) warning(paste("There is a discrepancy of", round(discrepancy, 3),
 				"percent \n     in the 'safe' predictions used to generate effect", term))
 	mod.matrix <- fixup.model.matrix(mod, mod.matrix, mod.matrix.all, X.mod, mod.aug, 
@@ -71,6 +72,7 @@ effect.lm <- function (term, mod, xlevels=list(), default.levels=10, given.value
 	result
 }
 
+
 effect.gls <- function (term, mod, xlevels=list(), default.levels=10, given.values,
 	se=TRUE, confidence.level=.95, 
 	transformation=NULL, 
@@ -100,7 +102,8 @@ effect.gls <- function (term, mod, xlevels=list(), default.levels=10, given.valu
 	if (is.null(wts)) wts <- rep(1, length(fit.1))
 	mod.2 <- lm.wfit(mod.matrix.all[1:nrow.X,], fit.1, wts)
 	class(mod.2) <- "lm"
-	discrepancy <- 100*sqrt(mean(mod.2$residuals^2)/mean(mod$residuals^2))
+	y <- na.omit(model.response.gls(mod))
+	discrepancy <- 100*mean(abs(fitted(mod.2)- fit.1)/(1e-10 + mean(abs(fit.1))))
 	if (discrepancy > 1e-3) warning(paste("There is a discrepancy of", round(discrepancy, 3),
 				"percent \n     in the 'safe' predictions used to generate effect", term))
 	mod.matrix <- fixup.model.matrix(mod, mod.matrix, mod.matrix.all, X.mod, mod.aug, 
@@ -208,7 +211,8 @@ effect.multinom <- function(term, mod,
 	fit2 <- predict(mod, type="probs")[1:nrow.X,]
 	fit1 <- na.omit(as.vector(p2logit(fit1)))
 	fit2 <- as.vector(p2logit(fit2))
-	discrepancy <- 100*sqrt(mean((fit1 - fit2)^2)/mean(fit1^2))
+#	discrepancy <- 100*sqrt(mean((fit1 - fit2)^2)/mean(fit1^2))
+	discrepancy <- 100*mean(abs(fit1 - fit2)/(1e-10 + mean(abs(fit1))))
 	if (discrepancy > 0.1) warning(paste("There is a discrepancy of", round(discrepancy, 3),
 				"percent \n     in the 'safe' predictions used to generate effect", term))
 	B <- t(coef(mod))
@@ -356,7 +360,8 @@ effect.polr <- function(term, mod,
 	fit2 <- predict(mod, type="probs")[1:nrow.X,]
 	fit1 <- na.omit(as.vector(p2logit(fit1)))
 	fit2 <- na.omit(as.vector(p2logit(fit2)))
-	discrepancy <- 100*sqrt(mean((fit1 - fit2)^2)/mean(fit1^2))
+#	discrepancy <- 100*sqrt(mean((fit1 - fit2)^2)/mean(fit1^2))
+	discrepancy <- 100*mean(abs(fit1 - fit2)/(1e-10 + mean(abs(fit1))))
 	if (discrepancy > 0.1) warning(paste("There is a discrepancy of", round(discrepancy, 3),
 				"percent \n     in the 'safe' predictions used to generate effect", term))
 	X0 <- X0[,-1, drop=FALSE]
