@@ -1,6 +1,6 @@
 # effect generic and methods; allEffects
 # John Fox and Jangman Hong
-#  last modified 2 January 2011 by J. Fox
+#  last modified 3 January 2011 by J. Fox
 
 effect <- function(term, mod, ...){
 	UseMethod("effect", mod)
@@ -98,11 +98,12 @@ effect.gls <- function (term, mod, xlevels=list(), default.levels=10, given.valu
 	mod.matrix.all <- model.matrix(formula.rhs, data=mf, contrasts.arg=mod$contrasts)
 	mod.matrix <- mod.matrix.all[-(1:nrow.X),]
 	fit.1 <- na.omit(predict(mod))
-	wts <- mod$weights
-	if (is.null(wts)) wts <- rep(1, length(fit.1))
-	mod.2 <- lm.wfit(mod.matrix.all[1:nrow.X,], fit.1, wts)
+	mod.2 <- lm.fit(mod.matrix.all[1:nrow.X,], fit.1)
 	class(mod.2) <- "lm"
-	y <- na.omit(model.response.gls(mod))
+	assign(".y", na.omit(model.response.gls(mod)), envir=.GlobalEnv)
+	assign(".X", na.omit(mod.matrix.all[1:nrow.X,]), envir=.GlobalEnv)
+	mod.3 <- update(mod, .y ~ .X - 1)
+	remove(".X", ".y", envir=.GlobalEnv)
 	discrepancy <- 100*mean(abs(fitted(mod.2)- fit.1)/(1e-10 + mean(abs(fit.1))))
 	if (discrepancy > 1e-3) warning(paste("There is a discrepancy of", round(discrepancy, 3),
 				"percent \n     in the 'safe' predictions used to generate effect", term))
@@ -117,7 +118,7 @@ effect.gls <- function (term, mod, xlevels=list(), default.levels=10, given.valu
 		df.res <- mod$dims[["N"]] - mod$dims[["p"]]
 		z <- qt(1 - (1 - confidence.level)/2, df=df.res)
 		mod.2$terms <- terms(mod)
-		V <- vcov(mod)
+		V <- vcov(mod.3)
 		var <- diag(mod.matrix %*% V %*% t(mod.matrix))
 		result$se <- sqrt(var)        
 		result$lower <- effect - z*result$se
