@@ -1,6 +1,6 @@
 # effect generic and methods; allEffects
 # John Fox and Jangman Hong
-#  last modified 3 January 2011 by J. Fox
+#  last modified 12 January 2011 by J. Fox
 
 effect <- function(term, mod, ...){
 	UseMethod("effect", mod)
@@ -74,13 +74,14 @@ effect.lm <- function (term, mod, xlevels=list(), default.levels=10, given.value
 
 
 effect.gls <- function (term, mod, xlevels=list(), default.levels=10, given.values,
-	se=TRUE, confidence.level=.95, 
-	transformation=NULL, 
-	typical=mean, ...){	
+		se=TRUE, confidence.level=.95, 
+		transformation=NULL, 
+		typical=mean, ...){	
 	if (missing(given.values)) given.values <- NULL
 	else if (!all(which <- names(given.values) %in% names(coef(mod)))) 
 		stop("given.values (", names(given.values[!which]),") not in the model")
-	model.components <- analyze.model(term, mod, xlevels, default.levels)
+	mod.lm <- lm(as.formula(mod$call$model), data=eval(mod$call$data))
+	model.components <- analyze.model(term, mod.lm, xlevels, default.levels)
 	predict.data <- model.components$predict.data
 	factor.levels <- model.components$factor.levels
 	factor.cols <- model.components$factor.cols
@@ -94,7 +95,7 @@ effect.gls <- function (term, mod, xlevels=list(), default.levels=10, given.valu
 	formula.rhs <- formula(mod)[c(1,3)]  
 	nrow.X <- nrow(X)
 	mf <- model.frame(formula.rhs, data=rbind(X[,names(predict.data),drop=FALSE], predict.data), 
-		xlev=factor.levels)
+			xlev=factor.levels)
 	mod.matrix.all <- model.matrix(formula.rhs, data=mf, contrasts.arg=mod$contrasts)
 	mod.matrix <- mod.matrix.all[-(1:nrow.X),]
 	fit.1 <- na.omit(predict(mod))
@@ -106,14 +107,14 @@ effect.gls <- function (term, mod, xlevels=list(), default.levels=10, given.valu
 	remove(".X", ".y", envir=.GlobalEnv)
 	discrepancy <- 100*mean(abs(fitted(mod.2)- fit.1)/(1e-10 + mean(abs(fit.1))))
 	if (discrepancy > 1e-3) warning(paste("There is a discrepancy of", round(discrepancy, 3),
-				"percent \n     in the 'safe' predictions used to generate effect", term))
-	mod.matrix <- fixup.model.matrix(mod, mod.matrix, mod.matrix.all, X.mod, mod.aug, 
-		factor.cols, cnames, term, typical, given.values)	
+						"percent \n     in the 'safe' predictions used to generate effect", term))
+	mod.matrix <- fixup.model.matrix(mod.lm, mod.matrix, mod.matrix.all, X.mod, mod.aug, 
+			factor.cols, cnames, term, typical, given.values)	
 	effect <- mod.matrix %*% mod.2$coefficients
 	result <- list(term=term, formula=formula(mod), response=response.name(mod),
-		variables=x, fit=effect, 
-		x=predict.data[,1:n.basic, drop=FALSE], model.matrix=mod.matrix, 
-		data=X, discrepancy=discrepancy)
+			variables=x, fit=effect, 
+			x=predict.data[,1:n.basic, drop=FALSE], model.matrix=mod.matrix, 
+			data=X, discrepancy=discrepancy)
 	if (se){
 		df.res <- mod$dims[["N"]] - mod$dims[["p"]]
 		z <- qt(1 - (1 - confidence.level)/2, df=df.res)
@@ -133,6 +134,7 @@ effect.gls <- function (term, mod, xlevels=list(), default.levels=10, given.valu
 	class(result)<-'eff'
 	result
 }
+
 
 effect.multinom <- function(term, mod, 
 	confidence.level=.95, xlevels=list(), default.levels=10, 
@@ -435,8 +437,28 @@ effect.polr <- function(term, mod,
 	result
 }
 
-allEffects <- function(mod, ...){
+allEffects <- function(mod, ...) UseMethod("allEffects")
+
+allEffects.default <- function(mod, ...){
 	high.order.terms <- function(mod){
+		names <- term.names(mod)
+		if (has.intercept(mod)) names<-names[-1]
+		rel <- lapply(names, descendants, mod=mod)
+		(1:length(names))[sapply(rel, function(x) length(x)==0)]
+	}
+	names <- term.names(mod)
+	if (has.intercept(mod)) names <- names[-1]
+	if (length(names) == 0) stop("the model contains no terms (beyond a constant)")
+	terms <- names[high.order.terms(mod)]
+	result <- lapply(terms, effect, mod=mod, ...)
+	names(result) <- terms
+	class(result) <- 'efflist'
+	result
+}
+
+allEffects.gls <- function(mod, ...){
+	high.order.terms <- function(mod){
+		mod <- lm(as.formula(mod$call$model), data=eval(mod$call$data))
 		names <- term.names(mod)
 		if (has.intercept(mod)) names<-names[-1]
 		rel <- lapply(names, descendants, mod=mod)

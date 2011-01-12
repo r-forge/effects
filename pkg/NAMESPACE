@@ -1,4 +1,4 @@
-# last modified 28 December 2010 by J. Fox
+# last modified 12 January 2011 by J. Fox
 
 import(grid, lattice)
 export(effect, allEffects, all.effects)
@@ -22,3 +22,5 @@ S3method(summary, effpoly)
 S3method(plot, effpoly)
 S3method(print, efflatent)
 S3method(summary, efflatent)
+S3method(allEffects, default)
+S3method(allEffects, gls)
