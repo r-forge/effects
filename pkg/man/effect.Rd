@@ -8,6 +8,7 @@
 \alias{as.data.frame.eff}
 \alias{as.data.frame.effpoly}
 \alias{as.data.frame.efflatent}
+\alias{vcov.eff}
 
 \title{Functions For Constructing Effect Plots}
 \description{
@@ -45,6 +46,8 @@ allEffects(mod, ...)
 \method{as.data.frame}{effpoly}(x, row.names=NULL, optional=TRUE, ...)
 
 \method{as.data.frame}{efflatent}(x, row.names=NULL, optional=TRUE, ...)
+
+\method{vcov}{eff}(object, ...)
 }
 
 \arguments{
@@ -87,6 +90,7 @@ allEffects(mod, ...)
   	and logits.}
   \item{x}{an object of class \code{"eff"} or \code{"effpoly"}.}
   \item{row.names, optional}{not used.}
+  \item{object}{an object of class \code{"eff"} for which the covariance matrix of the effects is desired.}
   \item{...}{arguments to be passed down.}
 }
 
@@ -134,7 +138,8 @@ allEffects(mod, ...)
   \item{model.matrix}{the model matrix from which the effect was calculated.}
   \item{data}{a data frame with the data on which the fitted model was based.}
   \item{discrepancy}{the percentage discrepancy for the `safe' predictions of the original fit; should be very close to 0.}
-  \item{model}{(for \code{"effpoly"} objects) \code{"multinom"} or \code{"polor"}, as appropriate.}
+  \item{model}{(for \code{"effpoly"} objects) \code{"multinom"} or \code{"polr"}, as appropriate.}
+  \item{vcov}{(for \code{"eff"} objects) a covariance matrix for the effect, on the scale of the linear predictor.}
   \item{se}{(for \code{"eff"} objects) a vector of standard errors for the effect, on the scale of the linear predictor.}
   \item{se.prob, se.logit}{(for \code{"effpoly"} objects) matrices of standard errors for the effect, on the probability and logit scales.}
   \item{lower, upper}{(for \code{"eff"} objects) one-column matrices of confidence limits, on the

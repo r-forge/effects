@@ -1,6 +1,6 @@
 # utilities and common functions for effects package
 # John Fox and Jangman Hong
-#  last modified 12 January 2011 by J. Fox
+#  last modified 6 Februrary 2011 by J. Fox
 
 
 has.intercept <- function(model, ...) any(names(coefficients(model))=="(Intercept)")
@@ -340,4 +340,8 @@ lrug <- function(x) {
 model.response.gls <- function(model){
 	model.response(model.frame(as.formula(model$call$model), data=eval(model$call$data)))
 }
+
+## vcov method for eff objects
+
+vcov.eff <- function(object, ...) object$vcov
 

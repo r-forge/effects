@@ -1,6 +1,6 @@
 # effect generic and methods; allEffects
 # John Fox and Jangman Hong
-#  last modified 12 January 2011 by J. Fox
+#  last modified 6 Februrary 2011 by J. Fox
 
 effect <- function(term, mod, ...){
 	UseMethod("effect", mod)
@@ -57,7 +57,10 @@ effect.lm <- function (term, mod, xlevels=list(), default.levels=10, given.value
 		}
 		mod.2$terms <- mod$terms
 		V <- dispersion * summary.lm(mod.2)$cov
-		var <- diag(mod.matrix %*% V %*% t(mod.matrix))
+		vcov <- mod.matrix %*% V %*% t(mod.matrix)
+		rownames(vcov) <- colnames(vcov) <- NULL
+		var <- diag(vcov)
+		result$vcov <- vcov
 		result$se <- sqrt(var)        
 		result$lower <- effect - z*result$se
 		result$upper <- effect + z*result$se
@@ -120,7 +123,10 @@ effect.gls <- function (term, mod, xlevels=list(), default.levels=10, given.valu
 		z <- qt(1 - (1 - confidence.level)/2, df=df.res)
 		mod.2$terms <- terms(mod)
 		V <- vcov(mod.3)
-		var <- diag(mod.matrix %*% V %*% t(mod.matrix))
+		vcov <- mod.matrix %*% V %*% t(mod.matrix)
+		rownames(vcov) <- colnames(vcov) <- NULL
+		var <- diag(vcov)
+		result$vcov <- vcov
 		result$se <- sqrt(var)        
 		result$lower <- effect - z*result$se
 		result$upper <- effect + z*result$se
