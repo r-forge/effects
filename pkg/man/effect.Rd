@@ -30,7 +30,7 @@ effect(term, mod, ...)
     transformation=list(link=family(mod)$linkfun, inverse=family(mod)$linkinv), 
     typical=mean, ...)
     
-effect.gls <- function (term, mod, xlevels=list(), default.levels=10, given.values,
+\method{effect}{gls}(term, mod, xlevels=list(), default.levels=10, given.values,
 	se=TRUE, confidence.level=.95, transformation=NULL, typical=mean, ...)
     
 \method{effect}{multinom}(term, mod, confidence.level=.95, xlevels=list(), default.levels=10, 
