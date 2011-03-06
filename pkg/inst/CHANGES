@@ -147,3 +147,7 @@ o plot.eff() and plot.effpoly now return an object, printed by print.plot.eff() 
 o New effect.gls() method, various changes for compatibility (after a question by Oriol Verdeny Vilalta).
 
 o effect.lm() now stores the covariance matrix of the effects (after a question by Bernhard Kaess).
+
+Version 2.0-13
+
+o nothing yet!
