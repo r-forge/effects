@@ -150,4 +150,4 @@ o effect.lm() now stores the covariance matrix of the effects (after a question 
 
 Version 2.0-13
 
-o nothing yet!
+o effect.multinom() and effect.polr() now use update() to refit the model rather than calling multinom() or polr() directly; update for effect.multinom() sets trace=FALSE (after suggestions by David Armstrong).

@@ -1,6 +1,6 @@
 # effect generic and methods; allEffects
 # John Fox and Jangman Hong
-#  last modified 6 Februrary 2011 by J. Fox
+#  last modified 29 May 2011 by J. Fox
 
 effect <- function(term, mod, ...){
 	UseMethod("effect", mod)
@@ -216,7 +216,8 @@ effect.multinom <- function(term, mod,
 		cnames, term, typical, given.values)
 	resp.names <- make.names(mod$lev, unique=TRUE)
 	resp.names <- c(resp.names[-1], resp.names[1]) # make the last level the reference level
-	mod <- multinom(formula(mod), data=data, Hess=TRUE, weights=wt)	
+#	mod <- multinom(formula(mod), data=data, Hess=TRUE, weights=wt)	
+	mod <- update(mod, formula(mod), data=data, Hess=TRUE, weights=wt, trace=FALSE)	
 	fit2 <- predict(mod, type="probs")[1:nrow.X,]
 	fit1 <- na.omit(as.vector(p2logit(fit1)))
 	fit2 <- as.vector(p2logit(fit2))
@@ -365,7 +366,8 @@ effect.polr <- function(term, mod,
 	X0 <- fixup.model.matrix(mod, X0, mod.matrix.all, X.mod, mod.aug, factor.cols, 
 		cnames, term, typical, given.values)
 	resp.names <- make.names(mod$lev, unique=TRUE)
-	mod <- polr(formula(mod), data=data, Hess=TRUE, weights=wt)
+#	mod <- polr(formula(mod), data=data, Hess=TRUE, weights=wt)
+	mod <- update(mod, formula(mod), data=data, Hess=TRUE, weights=wt)
 	fit2 <- predict(mod, type="probs")[1:nrow.X,]
 	fit1 <- na.omit(as.vector(p2logit(fit1)))
 	fit2 <- na.omit(as.vector(p2logit(fit2)))
