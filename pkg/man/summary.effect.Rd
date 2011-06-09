@@ -11,11 +11,12 @@
 \alias{plot.eff}
 \alias{plot.effpoly}
 \alias{plot.efflist}
+\alias{[.efflist}
 
 \title{Summarizing, Printing, and Plotting Effects}
 
 \description{
-\code{summary}, \code{print}, and \code{plot} methods for \code{eff}, \code{effpoly},
+\code{summary}, \code{print}, \code{plot}, and \code{[} methods for \code{eff}, \code{effpoly},
 and \code{efflist} objects.
 }
 
@@ -46,6 +47,7 @@ and \code{efflist} objects.
 	ylim, alternating=TRUE, layout, key.args=NULL,
 	row=1, col=1, nrow=1, ncol=1, more=FALSE, ...)
 \method{plot}{efflist}(x, selection, rows, cols, ask=TRUE, graphics=TRUE, ...)
+\method{[}{efflist}(x, ...)
 }
 
 \arguments{
@@ -178,6 +180,8 @@ and \code{efflist} objects.
   \item{lower}{an array containing the lower confidence limits.}
   \item{upper.header}{a character string to label the upper confidence limits.}
   \item{upper}{an array containing the upper confidence limits.}
+  
+  The \code{[} method for \code{"efflist"} objects is used to subset an \code{"efflist"} object and returns an object of the same class.
 }
  
     
@@ -230,6 +234,7 @@ mod.pres <- lm(prestige ~ log(income, 10) + poly(education, 3) + poly(women, 2),
     data=Prestige)
 eff.pres <- allEffects(mod.pres, default.levels=50)
 plot(eff.pres, ask=FALSE)
+plot(eff.pres[1:2], ask=FALSE)
 
 }
 
