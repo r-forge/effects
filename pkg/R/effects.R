@@ -56,7 +56,11 @@ effect.lm <- function (term, mod, xlevels=list(), default.levels=10, given.value
 			z <- qt(1 - (1 - confidence.level)/2, df=mod$df.residual)
 		}
 		mod.2$terms <- mod$terms
-		V <- dispersion * summary.lm(mod.2)$cov
+# new lines begin 
+    V2 <- dispersion * summary.lm(mod.2)$cov
+    V1 <- vcov(mod)
+		V <-  if(inherits(mod, "fakeglm")) V1 else V2
+# new lines end
 		vcov <- mod.matrix %*% V %*% t(mod.matrix)
 		rownames(vcov) <- colnames(vcov) <- NULL
 		var <- diag(vcov)
