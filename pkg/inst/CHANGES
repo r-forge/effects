@@ -153,3 +153,7 @@ Version 2.0-13
 o effect.multinom() and effect.polr() now use update() to refit the model rather than calling multinom() or polr() directly; update for effect.multinom() sets trace=FALSE (after suggestions by David Armstrong).
 
 o Added [.efflist method (after a question by Andreas Roesch).
+
+Version 2.0-14
+
+o added support for 'mer' objects from lme4 and 'lme' objects from 'nlme'.  Added 'rotx', 'roty' and 'grid' arguments to the plot methods.
