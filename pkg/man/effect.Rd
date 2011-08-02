@@ -172,11 +172,19 @@ allEffects(mod, ...)
   corresponding to the high-order terms of the model.
 }
 
-\section{Warning}{
+\section{Warnings and Limitations}{
   The \code{effect} function handles factors and covariates differently, and becomes confused if one is changed to the other
   in a model formula. Consequently, formulas that include calls to \code{as.factor}, \code{factor}, or \code{numeric}
   (as, e.g., in \code{as.factor(income)}) will cause errors. Instead, create the modified variables outside of the model
   formula (e.g., \code{fincome <- as.factor(income)}) and use these in the model formula.
+  
+  Factors cannot have colons in level names (e.g., \code{"level:A"}); the \code{effect} function will confuse the
+  colons with interactions; rename levels to remove or replace the colons (e.g., \code{"level.A"}).
+  
+  Binomial generalized linear models cannot have a matrix of successes and failures on the left-hand side of the model formula;
+  instead specify the \emph{proportion} of successes (i.e., successes/(successes + failures)) as the response, and give the number of
+  binomial trials (i.e., successes + failures) in the weights argument to \code{\link[stats]{glm}}.
+  
   }
 
 \references{

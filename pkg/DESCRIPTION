@@ -1,8 +1,8 @@
 Package: effects
-Version: 2.0-14
-Date: 2011/07/28
+Version: 2.1-0
+Date: 2011/08/02
 Title: Effect Displays for Linear, Generalized Linear, Multinomial-Logit, Proportional-Odds Logit Models and mixed-effects models
-Author: John Fox <jfox@mcmaster.ca> and Jangman Hong. We are grateful to Robert Andersen, David Firth, and 
+Author: John Fox <jfox@mcmaster.ca>, Sanford Weisberg, and Jangman Hong. We are grateful to Robert Andersen, David Firth, and 
   Michael Friendly, for various suggestions.
 Maintainer: John Fox <jfox@mcmaster.ca>
 Depends: R (>= 2.4.0), lattice, grid, nlme, MASS, nnet, colorspace
