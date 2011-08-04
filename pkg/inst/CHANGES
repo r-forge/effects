@@ -157,3 +157,7 @@ o Added [.efflist method (after a question by Andreas Roesch).
 Version 2.1-0
 
 o added support for 'mer' objects from lme4 and 'lme' objects from 'nlme'.  Added 'rotx', 'roty' and 'grid' arguments to the plot methods.
+
+Version 2.1-1
+
+o development version: no changes yet
