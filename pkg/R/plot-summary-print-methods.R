@@ -634,6 +634,9 @@ plot.effpoly <- function(x,
 							}
 						},
 						ylab=ylab,
+						ylim= if (missing(ylim))
+									if (type == "probability") range(prob) else range(logit)
+								else ylim,
 						xlab=if (missing(xlab)) predictors[x.var] else xlab,
 						x.vals=x$data[[predictors[x.var]]], 
 						rug=rug,
@@ -670,6 +673,9 @@ plot.effpoly <- function(x,
 							}
 						},
 						ylab=ylab,
+						ylim= if (missing(ylim))
+								if (type == "probability") range(prob) else range(logit)
+							else ylim,
 						xlab=if (missing(xlab)) predictors[x.var] else xlab,
 						x.vals=x$data[[predictors[x.var]]], 
 						rug=rug,
