@@ -161,3 +161,5 @@ o added support for 'mer' objects from lme4 and 'lme' objects from 'nlme'.  Adde
 Version 2.1-1
 
 o plot.effpoly() now honors ylim argument when no confidence intervals are plotted (fixing problem reported by Achim Zeileis).
+
+o safe predictions simplified in effect.lm(), producing correct results for mixed models (other methods to follow).
