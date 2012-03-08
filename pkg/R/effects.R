@@ -1,6 +1,6 @@
 # effect generic and methods; allEffects
 # John Fox and Jangman Hong
-#  last modified 2011-09-24 by J. Fox
+#  last modified 2012-03-08 by J. Fox
 
 effect <- function(term, mod, ...){
 	UseMethod("effect", mod)
@@ -164,6 +164,7 @@ effect.gls <- function (term, mod, xlevels=list(), default.levels=10, given.valu
 		se=TRUE, confidence.level=.95, 
 		transformation=NULL, 
 		typical=mean, ...){	
+	if (!require(nlme)) stop("the nlme package is not installed")
 	if (missing(given.values)) given.values <- NULL
 	else if (!all(which <- names(given.values) %in% names(coef(mod)))) 
 		stop("given.values (", names(given.values[!which]),") not in the model")
@@ -549,6 +550,7 @@ allEffects.default <- function(mod, ...){
 }
 
 allEffects.gls <- function(mod, ...){
+	if (!require(nlme)) stop("the nlme package is not installed")
 	high.order.terms <- function(mod){
 		mod <- lm(as.formula(mod$call$model), data=eval(mod$call$data))
 		names <- term.names(mod)

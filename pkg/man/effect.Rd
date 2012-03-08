@@ -270,25 +270,25 @@ mod.pres <- lm(prestige ~ log(income, 10) + poly(education, 3) + poly(women, 2),
 eff.pres <- allEffects(mod.pres, default.levels=50)
 plot(eff.pres, ask=FALSE)
 
-mod.hart <- gls(fconvict ~ mconvict + tfr + partic + degrees, data=Hartnagel, 
-    correlation=corARMA(p=2, q=0), method="ML")
-plot(allEffects(mod.hart), ask=FALSE)
-
-\dontrun{
-data(cake, package="lme4")
-require(lme4)
-fm1 <- lmer(angle ~ recipe * temperature + (1|recipe:replicate), cake,
-                   REML = FALSE)
-plot(effect("recipe:temperature", fm1), grid=TRUE)
-# lme4 and nlme conflict, so detach lme4
-detach(package:lme4)
-library(nlme)
-cake$rep <- with(cake, paste( as.character(recipe), as.character(replicate), sep=""))
-fm2 <- lme(angle ~ recipe * temperature, data=cake,
-                   random = ~ 1 | rep, method="ML")
-plot(effect("recipe:temperature", fm2), grid=TRUE)
+if (require(nlme)){
+	mod.hart <- gls(fconvict ~ mconvict + tfr + partic + degrees, data=Hartnagel, 
+	    correlation=corARMA(p=2, q=0), method="ML")
+	plot(allEffects(mod.hart), ask=FALSE)
 }
 
+if(require(lme4)){
+	data(cake, package="lme4")
+	fm1 <- lmer(angle ~ recipe * temperature + (1|recipe:replicate), cake,
+                   REML = FALSE)
+	plot(effect("recipe:temperature", fm1), grid=TRUE)
+	if (require(nlme)){
+		detach(package:lme4)
+		cake$rep <- with(cake, paste( as.character(recipe), as.character(replicate), sep=""))
+		fm2 <- lme(angle ~ recipe * temperature, data=cake,
+                   random = ~ 1 | rep, method="ML")
+	plot(effect("recipe:temperature", fm2), grid=TRUE)
+	}
+}
 }
 
 \keyword{hplot}
