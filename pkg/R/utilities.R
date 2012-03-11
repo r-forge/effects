@@ -1,6 +1,6 @@
 # utilities and common functions for effects package
 # John Fox and Jangman Hong
-#  last modified 2011-09-24 by J. Fox
+#  last modified 2012-03-11 by J. Fox
 
 
 has.intercept <- function(model, ...) any(names(coefficients(model))=="(Intercept)")
@@ -146,12 +146,16 @@ matrix.to.df <- function(matrix, colclasses){
 	names(result) <- colnames
 	for (j in 1:ncol){
 		result[[j]] <- matrix[, j]
-#         numbers <- as.numeric(matrix[,j])
-#         result[[colnames[j]]] <-
-#             if(all(is.na(numbers))) matrix[,j] else numbers
-#        class(result[[colnames[j]]]) <- colclasses[[colnames[j]]]
+		#         numbers <- as.numeric(matrix[,j])
+		#         result[[colnames[j]]] <-
+		#             if(all(is.na(numbers))) matrix[,j] else numbers
+		#        class(result[[colnames[j]]]) <- colclasses[[colnames[j]]]
 		class <- colclasses[[colnames[j]]]
-		result[[colnames[j]]] <- if ("numeric" %in% class) as.numeric(result[[colnames[j]]])
+		result[[colnames[j]]] <- if ("numeric" %in% class) {
+					decChar <- getOption('OutDec')
+					if (decChar == '.') as.numeric(result[[colnames[j]]])
+					else as.numeric(gsub(decChar, '.', matrix[,j]))
+				}
 				else if ("ordered" %in% class) ordered(result[[colnames[j]]])
 				else if ("factor" %in% class) factor(result[[colnames[j]]]) 
 				else result[[colnames[j]]]
