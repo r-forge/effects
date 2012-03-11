@@ -146,10 +146,6 @@ matrix.to.df <- function(matrix, colclasses){
 	names(result) <- colnames
 	for (j in 1:ncol){
 		result[[j]] <- matrix[, j]
-		#         numbers <- as.numeric(matrix[,j])
-		#         result[[colnames[j]]] <-
-		#             if(all(is.na(numbers))) matrix[,j] else numbers
-		#        class(result[[colnames[j]]]) <- colclasses[[colnames[j]]]
 		class <- colclasses[[colnames[j]]]
 		result[[colnames[j]]] <- if ("numeric" %in% class) {
 					decChar <- getOption('OutDec')
@@ -162,7 +158,6 @@ matrix.to.df <- function(matrix, colclasses){
 	}
 	as.data.frame(result)
 }
-
 
 strangers <- function(term, mod,...){
 	names <- term.names(mod)
