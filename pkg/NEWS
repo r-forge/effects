@@ -10,6 +10,8 @@ o nlme and lme4 moved to Suggests.
 
 o effect() now works when options(OutDec= ',') (suggstion of Guðmundur Arnkelsson).
 
+o slight redefinition of poly() from the stats package to allow effects to be computed when raw=TRUE.
+
 Version 2.1-0
 
 o added support for 'mer' objects from lme4 and 'lme' objects from 'nlme'.  Added 'rotx', 'roty' and 'grid' arguments to the plot methods.
