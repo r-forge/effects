@@ -13,7 +13,6 @@
 \alias{as.data.frame.effpoly}
 \alias{as.data.frame.efflatent}
 \alias{vcov.eff}
-\alias{poly}
 
 \title{Functions For Constructing Effect Plots}
 \description{
@@ -28,9 +27,6 @@
   
   \code{allEffects} identifies all of the high-order terms in a model and returns
   a list of \code{"eff"} or \code{"effpoly"} objects (i.e., an object of type \code{"efflist"}).
-  
-  \code{poly} is a slight redefinition of the \code{\link[stats]{poly}} function from the \pkg{stats} package, to
-  allow effects to be computed at fewer points than the degree of a raw polynomial.
 }
 
 \usage{
@@ -67,8 +63,6 @@ allEffects(mod, ...)
 \method{as.data.frame}{efflatent}(x, row.names=NULL, optional=TRUE, ...)
 
 \method{vcov}{eff}(object, ...)
-
-poly(x, ..., degree = 1, coefs = NULL, raw = FALSE) 
 }
 
 \arguments{
@@ -110,12 +104,10 @@ poly(x, ..., degree = 1, coefs = NULL, raw = FALSE)
   	are computed on the scale of the latent response; if \code{FALSE} 
   	(the default) effects are computed as individual-level probabilities
   	and logits.}
-  \item{x}{an object of class \code{"eff"} or \code{"effpoly"}, or an argument to \code{poly}.}
+  \item{x}{an object of class \code{"eff"} or \code{"effpoly"}.}
   \item{row.names, optional}{not used.}
   \item{object}{an object of class \code{"eff"} for which the covariance matrix of the effects is desired.}
   \item{...}{arguments to be passed down.}
-  \item{degree, coefs, raw}{see the documentation for \code{\link[stats]{poly}} in the \pkg{stats}
-    package for details.}
 }
 
 \details{
@@ -215,7 +207,7 @@ poly(x, ..., degree = 1, coefs = NULL, raw = FALSE)
     Effect displays in R for multinomial and proportional-odds logit models: 
     	    Extensions to the effects package.
     \emph{Journal of Statistical Software}
-    \bold{32:1}, 1--24.", <\url{http://www.jstatsoft.org/v32/i01/}>.
+    \bold{32:1}, 1--24, <\url{http://www.jstatsoft.org/v32/i01/}>.
     
     Hastie, T. J. (1992)
     Generalized additive models.
@@ -234,7 +226,7 @@ poly(x, ..., degree = 1, coefs = NULL, raw = FALSE)
     \code{\link{print.effpoly}}, \code{\link{summary.effpoly}}, \code{\link{plot.effpoly}},
     \code{\link{print.efflist}}, \code{\link{summary.efflist}},
     \code{\link{plot.efflist}}, \code{\link{xyplot}}, 
-    \code{\link{densityplot}}, \code{\link[stats]{poly}}}
+    \code{\link{densityplot}}}
 
 \examples{
 mod.cowles <- glm(volunteer ~ sex + neuroticism*extraversion, 
