@@ -8,7 +8,7 @@ o plot.eff() now honors type argument.
 
 o nlme and lme4 moved to Suggests.
 
-o effect() now works when options(OutDec= ',') (suggstion of Guðmundur Arnkelsson).
+o effect() now works when options(OutDec= ',') (suggstion of Guomundur Arnkelsson).
 
 
 Version 2.1-0
