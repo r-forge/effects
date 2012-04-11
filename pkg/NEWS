@@ -1,3 +1,7 @@
+Version 2.1-2
+
+o Nothing yet!
+
 Version 2.1-1
 
 o plot.effpoly() now honors ylim argument when no confidence intervals are plotted (fixing problem reported by Achim Zeileis).
@@ -8,7 +12,7 @@ o plot.eff() now honors type argument.
 
 o nlme and lme4 moved to Suggests.
 
-o effect() now works when options(OutDec= ',') (suggstion of Guomundur Arnkelsson).
+o effect() now works when options(OutDec= ',') (suggestion of Guomundur Arnkelsson).
 
 
 Version 2.1-0
