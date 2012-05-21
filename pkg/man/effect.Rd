@@ -35,7 +35,7 @@ effect(term, mod, ...)
 \method{effect}{lm}(term, mod, xlevels=list(), default.levels=10, given.values, 
 	se=TRUE, confidence.level=.95, 
     transformation=list(link=family(mod)$linkfun, inverse=family(mod)$linkinv), 
-    typical=mean, ...)
+    typical=mean, offset=mean, ...)
     
 \method{effect}{gls}(term, mod, xlevels=list(), default.levels=10, given.values,
 	se=TRUE, confidence.level=.95, transformation=NULL, typical=mean, ...)
@@ -100,6 +100,13 @@ allEffects(mod, ...)
     made to approximate it from the inverse-link.}
   \item{typical}{a function to be applied to the columns of the model matrix
     over which the effect is "averaged"; the default is \code{mean}.}
+  \item{offset}{a function to be applied to the offset values (if there is an
+    offset) in a linear or generalized linear model; or a numeric value, to which
+    the offset will be set. The default is the \code{mean} function, and thus
+    the offset will be set to its mean. \emph{Note:} Only offsets defined
+    by the \code{offset} argument to \code{lm} or \code{glm} will be handled
+    correctly; use of the \code{offset} function in the model formula is
+    not supported.}
   \item{latent}{if \code{TRUE}, effects in a proportional-odds logit model
   	are computed on the scale of the latent response; if \code{FALSE} 
   	(the default) effects are computed as individual-level probabilities
@@ -185,6 +192,9 @@ allEffects(mod, ...)
   instead specify the \emph{proportion} of successes (i.e., successes/(successes + failures)) as the response, and give the number of
   binomial trials (i.e., successes + failures) in the weights argument to \code{\link[stats]{glm}}.
   
+  Offsets in linear and generalized linear models are supported, but must be supplied through the \code{offset}
+  argument to \code{lm} or \code{glm}; offsets supplied via calls to the \code{offset} function on the right-hand side
+  of the model formula are not supported.
   }
 
 \references{
