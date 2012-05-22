@@ -191,9 +191,9 @@ analyze.model <- function(term, mod, xlevels, default.levels){
 	if (inherits(mod, "multinom")) all.vars <- all.vars - 1
 	if (inherits(mod, "polr")) all.vars <- all.vars - 1
 	
-	excluded.vars <- setdiff(all.vars, basic.vars)
+	excluded.vars <- setdiff(all.vars, basic.vars) 
 	if (length(terms) == 1) {
-		all.vars <- basic.vars <- all.vars(formula(mod))[2]
+		all.vars <- basic.vars <- tail(all.vars(formula(mod)), 1)
 		excluded.vars <- numeric()
 	}
 	else {
