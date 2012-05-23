@@ -101,10 +101,11 @@ allEffects(mod, ...)
   \item{typical}{a function to be applied to the columns of the model matrix
     over which the effect is "averaged"; the default is \code{mean}.}
   \item{offset}{a function to be applied to the offset values (if there is an
-    offset) in a linear or generalized linear model; or a numeric value, to which
+    offset) in a linear or generalized linear model, or a mixed-effects
+    model fit by \code{lmer} or \code{glmer}; or a numeric value, to which
     the offset will be set. The default is the \code{mean} function, and thus
     the offset will be set to its mean. \emph{Note:} Only offsets defined
-    by the \code{offset} argument to \code{lm} or \code{glm} will be handled
+    by the \code{offset} argument to \code{lm}, \code{glm}, \code{lmer}, or \code{glmer} will be handled
     correctly; use of the \code{offset} function in the model formula is
     not supported.}
   \item{latent}{if \code{TRUE}, effects in a proportional-odds logit model
@@ -162,6 +163,7 @@ allEffects(mod, ...)
   \item{model.matrix}{the model matrix from which the effect was calculated.}
   \item{data}{a data frame with the data on which the fitted model was based.}
   \item{discrepancy}{the percentage discrepancy for the `safe' predictions of the original fit; should be very close to 0.}
+  \item{offset}{value to which the offset is fixed; \code{0} if there is no offset.}
   \item{model}{(for \code{"effpoly"} objects) \code{"multinom"} or \code{"polr"}, as appropriate.}
   \item{vcov}{(for \code{"eff"} objects) a covariance matrix for the effect, on the scale of the linear predictor.}
   \item{se}{(for \code{"eff"} objects) a vector of standard errors for the effect, on the scale of the linear predictor.}
@@ -188,12 +190,10 @@ allEffects(mod, ...)
   Factors cannot have colons in level names (e.g., \code{"level:A"}); the \code{effect} function will confuse the
   colons with interactions; rename levels to remove or replace the colons (e.g., \code{"level.A"}).
   
-  Binomial generalized linear models cannot have a matrix of successes and failures on the left-hand side of the model formula;
-  instead specify the \emph{proportion} of successes (i.e., successes/(successes + failures)) as the response, and give the number of
-  binomial trials (i.e., successes + failures) in the weights argument to \code{\link[stats]{glm}}.
-  
-  Offsets in linear and generalized linear models are supported, but must be supplied through the \code{offset}
-  argument to \code{lm} or \code{glm}; offsets supplied via calls to the \code{offset} function on the right-hand side
+  Offsets in linear and generalized linear models are supported, as are offsets in mixed models fit by 
+  \code{lmer} or \code{glmer}, but must be supplied through the \code{offset}
+  argument to \code{lm}, \code{glm}, \code{lmer} or \code{glmer}; 
+  offsets supplied via calls to the \code{offset} function on the right-hand side
   of the model formula are not supported.
   }
 

@@ -1,6 +1,8 @@
 Version 2.1-2
 
-o Offsets for linear and generalized linear models are now supported.
+o Offsets for linear and generalized linear (and mixed) models are now supported.
+
+o cbind(successes, failures) now supported for binomial generalized linear (and mixed) models.
 
 Version 2.1-1
 

@@ -1,6 +1,6 @@
 # utilities and common functions for effects package
 # John Fox and Jangman Hong
-#  last modified 2012-03-14 by J. Fox
+#  last modified 2012-05-22 by S. Weisberg
 
 
 has.intercept <- function(model, ...) any(names(coefficients(model))=="(Intercept)")
