@@ -1,6 +1,6 @@
 # plot, summary, and print methods for effects package
 # John Fox and Jangman Hong
-#  last modified 2012-05-21 by J. Fox
+#  last modified 2012-06-22 by J. Fox
 #  29 June 2011 added grid, rotx and roty arguments to the two plot methods
 #   by S. Weisberg
 
@@ -415,7 +415,7 @@ print.plot.eff <- function(x, ...){
 	invisible(x)
 }
 
-plot.efflist <- function(x, selection, rows, cols, ask=TRUE, graphics=TRUE, ...){
+plot.efflist <- function(x, selection, rows, cols, ask=FALSE, graphics=TRUE, ...){
 	if (!missing(selection)){
 		if (is.character(selection)) selection <- gsub(" ", "", selection)
 		return(plot(x[[selection]], ...))

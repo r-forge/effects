@@ -307,13 +307,13 @@ plot(effect("country*poly(age, 3)", latent=TRUE, mod.wvs))
 mod.pres <- lm(prestige ~ log(income, 10) + poly(education, 3) + poly(women, 2), 
     data=Prestige)
 eff.pres <- allEffects(mod.pres, default.levels=50)
-plot(eff.pres, ask=FALSE)
+plot(eff.pres)
 
 \dontrun{
 	library(nlme) # for gls()
 	mod.hart <- gls(fconvict ~ mconvict + tfr + partic + degrees, data=Hartnagel, 
 	    correlation=corARMA(p=2, q=0), method="ML")
-	plot(allEffects(mod.hart), ask=FALSE)
+	plot(allEffects(mod.hart))
 
 	library(lme4)
 	data(cake, package="lme4")
