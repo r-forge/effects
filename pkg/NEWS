@@ -1,3 +1,7 @@
+Version 2.2-0
+
+o Introduced more flexible Effect() generic, along with Effect.lm() method for linear and generalized linear models.
+
 Version 2.1-2
 
 o Offsets for linear and generalized linear (and mixed) models are now supported.

@@ -1,5 +1,7 @@
 \name{effect}
 \alias{effect}
+\alias{Effect}
+\alias{Effect.lm}
 \alias{effect.lm}
 \alias{effect.gls}
 \alias{effect.multinom}
@@ -25,6 +27,11 @@
   or fit with \code{lme} from the \code{nlme} package.  In mixed effects models the
   analysis is for the fixed effects only, not for random effects. 
   
+  \code{Effect} also constructs an an \code{"eff"} object, but rather than focusing on a term in the model,
+  it focuses on a subset of the predictors. \code{Effect} is consequently more flexible and robust than 
+  \code{effect}, and will work with some models for which \code{effect} fails, such as models with
+  nested terms (see the examples).
+  
   \code{allEffects} identifies all of the high-order terms in a model and returns
   a list of \code{"eff"} or \code{"effpoly"} objects (i.e., an object of type \code{"efflist"}).
 }
@@ -49,6 +56,13 @@ effect(term, mod, ...)
 \method{effect}{mer}(term, mod, ...)
 
 \method{effect}{lme}(term, mod, ...)
+
+Effect(focal.predictors, mod, ...)
+
+\method{Effect}{lm}(focal.predictors, mod, xlevels=list(), default.levels=10, given.values, 
+		se=TRUE, confidence.level=0.95, 
+		transformation=list(link=family(mod)$linkfun, inverse=family(mod)$linkinv), 
+		typical=mean, offset=mean, ...)
     
 allEffects(mod, ...)
 
@@ -70,6 +84,7 @@ allEffects(mod, ...)
     term in the model. The term must be given exactly as it appears in the printed
     model, although either colons (\code{:}) or asterisks (\code{*}) may be used
     for interactions.}
+  \item{focal.predictors}{a character vector of one or more predictors in the model.}
   \item{mod}{an object of class \code{"lm"}, \code{"gls"}, \code{"glm"}, 
     \code{"multinom"}, \code{"polr"} \code{"mer"} or \code{"lme"}. }
   \item{xlevels}{an optional list of values at which to set covariates,
@@ -122,6 +137,8 @@ allEffects(mod, ...)
   Normally, the functions to be used directly are \code{allEffects}, to return
   a list of high-order effects, and the generic \code{plot} function to plot the effects.
   (see \code{\link{plot.efflist}}, \code{\link{plot.eff}}, and \code{\link{plot.effpoly}}).
+  Alternatively, \code{Effect} can be used to vary a subset of predictors over their ranges,
+  while other predictors are held to typical values.
   Plots are drawn using the \code{\link{xyplot}} (or in some cases, 
   the \code{\link{densityplot}}) function in the 
   \code{lattice} package. Effects may also be printed (implicitly or explicitly via
@@ -136,13 +153,10 @@ allEffects(mod, ...)
   compute the effect corresponding to the absent term \code{A:B:C}, which absorbs the constant, the
   \code{A}, \code{B}, and \code{C} main effects, and the three two-way interactions. In either of these
   cases, a warning is printed.
-  
-  In calculating effects, the strategy for `safe' prediction described
-  in Hastie (1992: Sec. 7.3.3) is employed.
 }
 
 \value{
-  For \code{lm}, \code{glm}, \code{mer} and \code{lme}, \code{effect} returns 
+  For \code{lm}, \code{glm}, \code{mer} and \code{lme}, \code{effect} and \code{Effect} return 
   an \code{"eff"} object, and for \code{multinom}
   and \code{polr}, an \code{"effpoly"} object, with the following components:
   \item{term}{the term to which the effect pertains.}
@@ -245,6 +259,12 @@ eff.cowles <- allEffects(mod.cowles, xlevels=list(neuroticism=0:24,
     extraversion=seq(0, 24, 6)), given.values=c(sexmale=0.5))
 eff.cowles
 
+	# the following are equivalent:
+
+eff.ne <- effect("neuroticism*extraversion", mod.cowles)
+Eff.ne <- Effect(c("neuroticism", "extraversion"), mod.cowles)
+all.equal(eff.ne$fit, Eff.ne$fit)
+
 plot(eff.cowles, 'sex', ylab="Prob(Volunteer)")
 
 plot(eff.cowles, 'neuroticism:extraversion', ylab="Prob(Volunteer)",
@@ -255,6 +275,15 @@ plot(eff.cowles, 'neuroticism:extraversion', multiline=TRUE,
     
 plot(effect('sex:neuroticism:extraversion', mod.cowles,
     xlevels=list(neuroticism=0:24, extraversion=seq(0, 24, 6))), multiline=TRUE)
+    
+# a nested model:
+
+mod <- lm(log(prestige) ~ income:type + education, data=Prestige)
+
+# does not work: effect("income:type", mod, transformation=list(link=log, inverse=exp)) 
+
+plot(Effect(c("income", "type"), mod, transformation=list(link=log, inverse=exp), 
+	ylab="prestige")) # works
 
 mod.beps <- multinom(vote ~ age + gender + economic.cond.national +
 				economic.cond.household + Blair + Hague + Kennedy +
