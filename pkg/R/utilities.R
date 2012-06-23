@@ -1,6 +1,8 @@
 # utilities and common functions for effects package
 # John Fox, Jangman Hong, and Sanford Weisberg
-#  last modified 2012-06-22 by J. Fox
+#  last modified 2012-06-23 by J. Fox
+
+if (getRversion() >= "2.15.1") globalVariables("wt")
 
 
 has.intercept <- function(model, ...) any(names(coefficients(model))=="(Intercept)")
