@@ -6,6 +6,8 @@ o Default is now ask=FALSE for plot.efflist().
 
 o globalVariables("wt") declared for R 2.15.1 and above.
 
+o Small bug fixes.
+
 Version 2.1-2
 
 o Offsets for linear and generalized linear (and mixed) models are now supported.
