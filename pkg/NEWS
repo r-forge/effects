@@ -1,3 +1,7 @@
+Version 2.2-1
+
+o Nothing yet!
+
 Version 2.2-0
 
 o Introduced more flexible Effect() generic, along with Effect.lm() method for linear and generalized linear models.
