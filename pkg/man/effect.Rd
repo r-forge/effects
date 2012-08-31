@@ -284,25 +284,31 @@ mod <- lm(log(prestige) ~ income:type + education, data=Prestige)
 
 plot(Effect(c("income", "type"), mod, transformation=list(link=log, inverse=exp), 
 	ylab="prestige")) # works
-
-mod.beps <- multinom(vote ~ age + gender + economic.cond.national +
-				economic.cond.household + Blair + Hague + Kennedy +
-				Europe*political.knowledge, data=BEPS)
-plot(effect("Europe*political.knowledge", mod.beps, 
-	xlevels=list(Europe=1:11, political.knowledge=0:3)))
-	
-plot(effect("Europe*political.knowledge", mod.beps, 
-		xlevels=list(Europe=1:11, political.knowledge=0:3),
-		given.values=c(gendermale=0.5)),
-	style="stacked", colors=c("blue", "red", "orange"), rug=FALSE)
-	
-mod.wvs <- polr(poverty ~ gender + religion + degree + country*poly(age,3),
-	data=WVS)
-plot(effect("country*poly(age, 3)", mod.wvs))
-
-plot(effect("country*poly(age, 3)", mod.wvs), style="stacked")
-	
-plot(effect("country*poly(age, 3)", latent=TRUE, mod.wvs))
+    
+if (interactive()){ # to speed package check
+    mod.beps <- multinom(vote ~ age + gender + economic.cond.national +
+    				economic.cond.household + Blair + Hague + Kennedy +
+    				Europe*political.knowledge, data=BEPS)
+    plot(effect("Europe*political.knowledge", mod.beps, 
+    	xlevels=list(Europe=1:11, political.knowledge=0:3)))
+    }
+if (interactive()){    
+    plot(effect("Europe*political.knowledge", mod.beps, 
+    		xlevels=list(Europe=1:11, political.knowledge=0:3),
+    		given.values=c(gendermale=0.5)),
+    	style="stacked", colors=c("blue", "red", "orange"), rug=FALSE)
+    }
+if (interactive()){
+    mod.wvs <- polr(poverty ~ gender + religion + degree + country*poly(age,3),
+    	data=WVS)
+    plot(effect("country*poly(age, 3)", mod.wvs))
+    }
+if (interactive()){
+    plot(effect("country*poly(age, 3)", mod.wvs), style="stacked")
+    }
+if (interactive()){
+    plot(effect("country*poly(age, 3)", latent=TRUE, mod.wvs))
+    }
 
 mod.pres <- lm(prestige ~ log(income, 10) + poly(education, 3) + poly(women, 2), 
     data=Prestige)
