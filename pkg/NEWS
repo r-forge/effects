@@ -1,6 +1,6 @@
 Version 2.2-1
 
-o Some examples wrapped in if(interactive()){} to decrease package check time.
+o Some examples wrapped in \donttest{} to decrease package check time.
 
 Version 2.2-0
 
