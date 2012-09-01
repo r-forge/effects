@@ -1,3 +1,7 @@
+Version 2.2-2
+
+o Nothing yet!
+
 Version 2.2-1
 
 o Some examples wrapped in \donttest{} to decrease package check time.
