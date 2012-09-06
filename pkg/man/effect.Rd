@@ -318,6 +318,7 @@ plot(eff.pres)
 	fm1 <- lmer(angle ~ recipe * temperature + (1|recipe:replicate), cake,
                    REML = FALSE)
 	plot(effect("recipe:temperature", fm1), grid=TRUE)
+    plot(Effect(c("recipe", "temperature"), fm1)) # equivalent
 
 	detach(package:lme4) # if previously attached
 	library(nlme)
@@ -326,6 +327,7 @@ plot(eff.pres)
 	fm2 <- lme(angle ~ recipe * temperature, data=cake,
                random = ~ 1 | rep, method="ML")
 	plot(effect("recipe:temperature", fm2), grid=TRUE)
+    plot(Effect(c("recipe", "temperature"), fm2)) # equivalent
 }
 }
 

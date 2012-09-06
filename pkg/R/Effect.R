@@ -1,6 +1,6 @@
 # Effect generic and methods
 # John Fox and Sanford Weisberg
-# last modified 2012-06-22 by J. Fox
+# last modified 2012-09-06 by J. Fox
 
 Effect <- function(focal.predictors, mod, ...){
 	UseMethod("Effect", mod)
@@ -75,4 +75,18 @@ Effect.lm <- function (focal.predictors, mod, xlevels = list(), default.levels =
 	result$transformation <- transformation
 	class(result) <- "eff"
 	result
+}
+
+Effect.mer <- function(focal.predictors, mod, ...) {
+    if (!require(lme4)) stop("the lme4 package is not installed")
+    result <- Effect(focal.predictors, mer.to.glm(mod), ...)
+    result$formula <- as.formula(formula(mod))
+    result
+}
+
+Effect.lme <- function(focal.predictors, mod, ...) {
+    if (!require(nlme)) stop("the nlme package is not installed")
+    result <- Effect(focal.predictors, lme.to.glm(mod), ...)
+    result$formula <- as.formula(formula(mod))
+    result
 }
