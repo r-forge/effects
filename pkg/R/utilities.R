@@ -1,6 +1,6 @@
 # utilities and common functions for effects package
 # John Fox, Jangman Hong, and Sanford Weisberg
-#  last modified 2012-06-23 by J. Fox
+#  last modified 2012-09-06 by J. Fox
 
 if (getRversion() >= "2.15.1") globalVariables("wt")
 
@@ -502,3 +502,36 @@ Strangers <- function(mod, focal.predictors, excluded.predictors){
 	(1:length(sel))[sel]
 }
 
+# the following is a utility function used by effect.multinom() and Effect.multinom()
+
+eff.mul <- function(x0, B, se, m, p, r, V){
+    mu <- exp(x0 %*% B)
+    mu <- mu/(1 + sum(mu))
+    mu[m] <- 1 - sum(mu)
+    logits <- log(mu/(1 - mu))
+    if (!se) return(list(p=mu, logits=logits))
+    d <- array(0, c(m, m - 1, p))
+    exp.x0.B <- as.vector(exp(x0 %*% B))
+    sum.exp.x0.B <- sum(exp.x0.B)
+    for (j in 1:(m-1)){
+        d[m, j,] <- - exp.x0.B[j]*x0
+        for (jj in 1:(m-1)){
+            d[j, jj,] <- if (jj != j)
+                - exp(x0 %*% (B[,jj] + B[,j]))*x0
+            else exp.x0.B[j]*(1 + sum.exp.x0.B - exp.x0.B[j])*x0
+        }
+    }
+    d <- d/(1 + sum.exp.x0.B)^2
+    V.mu <- rep(0, m)
+    for (j in 1:m){
+        dd <- as.vector(t(d[j,,]))
+        for (s in 1:r){
+            for (t in 1:r){
+                V.mu[j] <- V.mu[j] + V[s,t]*dd[s]*dd[t]
+            }
+        }
+    }
+    V.logits <- V.mu/(mu^2 * (1 - mu)^2)
+    list(p=mu, std.err.p=sqrt(V.mu), logits=logits,
+         std.error.logits=sqrt(V.logits))
+}

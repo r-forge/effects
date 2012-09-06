@@ -5,6 +5,7 @@
 \alias{Effect.mer}
 \alias{Effect.lme}
 \alias{Effect.gls}
+\alias{Effect.multinom}
 \alias{effect.lm}
 \alias{effect.gls}
 \alias{effect.multinom}
@@ -70,6 +71,10 @@ Effect(focal.predictors, mod, ...)
 \method{Effect}{gls}(focal.predictors, mod, xlevels = list(), default.levels = 10, 
     given.values, se = TRUE, confidence.level = 0.95, transformation = NULL, 
     typical = mean, ...)
+    
+\method{Effect}{multinom}(focal.predictors, mod, 
+                            confidence.level=.95, xlevels=list(), default.levels=10, 
+                            given.values, se=TRUE, typical=mean, ...)
     
 \method{Effect}{mer}(focal.predictors, mod, ...)
 
@@ -306,6 +311,12 @@ plot(effect("Europe*political.knowledge", mod.beps,
 		xlevels=list(Europe=1:11, political.knowledge=0:3),
 		given.values=c(gendermale=0.5)),
 	style="stacked", colors=c("blue", "red", "orange"), rug=FALSE)
+    
+plot(Effect(c("Europe","political.knowledge"), mod.beps,  # equivalent
+    	xlevels=list(Europe=1:11, political.knowledge=0:3),
+		given.values=c(gendermale=0.5)),
+	style="stacked", colors=c("blue", "red", "orange"), rug=FALSE)
+    
 mod.wvs <- polr(poverty ~ gender + religion + degree + country*poly(age,3),
 	data=WVS)
 plot(effect("country*poly(age, 3)", mod.wvs))

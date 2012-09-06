@@ -156,3 +156,84 @@ Effect.gls <- function (focal.predictors, mod, xlevels = list(), default.levels 
     class(result) <- "eff"
     result
 }
+
+Effect.multinom <- function(focal.predictors, mod, 
+                            confidence.level=.95, xlevels=list(), default.levels=10, 
+                            given.values, se=TRUE, typical=mean, ...){    
+    if (length(mod$lev) < 3) stop("effects for multinomial logit model only available for response levels > 2")
+    if (missing(given.values)) given.values <- NULL
+    else if (!all(which <- colnames(given.values) %in% names(coef(mod)))) 
+        stop("given.values (", colnames(given.values[!which]),") not in the model")
+    formula.rhs <- formula(mod)[c(1, 3)]
+    model.components <- Analyze.model(focal.predictors, mod, xlevels, default.levels, formula.rhs)
+    excluded.predictors <- model.components$excluded.predictors
+    predict.data <- model.components$predict.data
+    factor.levels <- model.components$factor.levels
+    factor.cols <- model.components$factor.cols
+    n.focal <- model.components$n.focal
+    x <- model.components$x
+    X.mod <- model.components$X.mod
+    cnames <- model.components$cnames
+    X <- model.components$X
+    formula.rhs <- formula(mod)[c(1, 3)]
+    Terms <- delete.response(terms(mod))
+    mf <- model.frame(Terms, predict.data, xlev = factor.levels)
+    mod.matrix <- model.matrix(formula.rhs, data = mf, contrasts.arg = mod$contrasts)
+    X0 <- Fixup.model.matrix(mod, mod.matrix, model.matrix(mod), 
+                             X.mod, factor.cols, cnames, focal.predictors, excluded.predictors, typical, given.values)
+    resp.names <- make.names(mod$lev, unique=TRUE)
+    resp.names <- c(resp.names[-1], resp.names[1]) # make the last level the reference level
+    B <- t(coef(mod))
+    V <- vcov(mod)
+    m <- ncol(B) + 1
+    p <- nrow(B)
+    r <- p*(m - 1)	
+    n <- nrow(X0)
+    P <- Logit <- matrix(0, n, m)
+    colnames(P) <-  paste("prob.", resp.names, sep="")
+    colnames(Logit) <-  paste("logit.", resp.names, sep="")
+    if (se){
+        z <- qnorm(1 - (1 - confidence.level)/2)
+        Lower.P <- Upper.P <- Lower.logit <- Upper.logit <- SE.P <- SE.logit <- matrix(0, n, m)
+        colnames(Lower.logit) <-  paste("L.logit.", resp.names, sep="")
+        colnames(Upper.logit) <-  paste("U.logit.", resp.names, sep="")
+        colnames(Lower.P) <-  paste("L.prob.", resp.names, sep="")
+        colnames(Upper.P) <-  paste("U.prob.", resp.names, sep="")
+        colnames(SE.P) <-  paste("se.prob.", resp.names, sep="")
+        colnames(SE.logit) <-  paste("se.logit.", resp.names, sep="")
+    }
+    for (i in 1:n){
+        res <- eff.mul(X0[i,], B, se, m, p, r, V) # compute effects
+        P[i,] <- prob <- res$p # fitted probabilities
+        Logit[i,] <- logit <- res$logits # fitted logits
+        if (se){
+            SE.P[i,] <- se.p <- res$std.err.p # std. errors of fitted probs		
+            SE.logit[i,] <- se.logit <- res$std.error.logits # std. errors of logits
+            Lower.P[i,] <- logit2p(logit - z*se.logit)
+            Upper.P[i,] <- logit2p(logit + z*se.logit)
+            Lower.logit[i,] <- logit - z*se.logit
+            Upper.logit[i,] <- logit + z*se.logit
+        }
+    }
+    resp.levs <- c(m, 1:(m-1)) # restore the order of the levels
+    P <- P[, resp.levs]
+    Logit <- Logit[, resp.levs]
+    if (se){
+        Lower.P <- Lower.P[, resp.levs]
+        Upper.P <- Upper.P[, resp.levs]
+        Lower.logit <- Lower.logit[, resp.levs]
+        Upper.logit <- Upper.logit[, resp.levs]
+        SE.P <- SE.P[, resp.levs]
+        SE.logit <- SE.logit[, resp.levs]
+    }
+    result <- list(term=paste(focal.predictors, collapse="*"), formula=formula(mod), response=response.name(mod),
+                   y.levels=mod$lev, variables=x, x=predict.data[, focal.predictors],
+                   model.matrix=X0, data=X, discrepancy=0, model="multinom",
+                   prob=P, logit=Logit)
+    if (se) result <- c(result, list(se.prob=SE.P, se.logit=SE.logit,
+                                     lower.logit=Lower.logit, upper.logit=Upper.logit, 
+                                     lower.prob=Lower.P, upper.prob=Upper.P,
+                                     confidence.level=confidence.level))
+    class(result) <-'effpoly'
+    result
+}

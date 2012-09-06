@@ -1,6 +1,8 @@
 Version 2.2-2
 
-o Added Effect.mer(), Effect.lme(), and Effect.gls() methods.
+o Added Effect.mer(), Effect.lme(), Effect.gls(), and Effect.multinom() methods.
+
+o Safe predictions simplified in effect.multinom().
 
 Version 2.2-1
 
