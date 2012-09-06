@@ -502,7 +502,7 @@ Strangers <- function(mod, focal.predictors, excluded.predictors){
 	(1:length(sel))[sel]
 }
 
-# the following is a utility function used by effect.multinom() and Effect.multinom()
+# the following is used by effect.multinom() and Effect.multinom()
 
 eff.mul <- function(x0, B, se, m, p, r, V){
     mu <- exp(x0 %*% B)
@@ -534,4 +534,51 @@ eff.mul <- function(x0, B, se, m, p, r, V){
     V.logits <- V.mu/(mu^2 * (1 - mu)^2)
     list(p=mu, std.err.p=sqrt(V.mu), logits=logits,
          std.error.logits=sqrt(V.logits))
+}
+
+# the following are used by effect.polr() and Effect.polr()
+
+eff.polr <- function(x0, b, alpha, V, m, r, se){
+    eta0 <- x0 %*% b
+    mu <- rep(0, m)
+    mu[1] <- 1/(1 + exp(alpha[1] + eta0))
+    for (j in 2:(m-1)){
+        mu[j] <- exp(eta0)*(exp(alpha[j - 1]) - exp(alpha[j]))/
+            ((1 + exp(alpha[j - 1] + eta0))*(1 + exp(alpha[j] + eta0)))
+    }
+    mu[m] <- 1 - sum(mu)
+    logits <- log(mu/(1 - mu))
+    if (!se) return(list(p=mu, logits=logits))
+    d <- matrix(0, m, r)
+    d[1, 1] <- - exp(alpha[1] + eta0)/(1 + exp(alpha[1] + eta0))^2
+    d[1, m:r] <- - exp(alpha[1] + eta0)*x0/(1 + exp(alpha[1] + eta0))^2
+    for (j in 2:(m-1)){
+        d[j, j-1] <- exp(alpha[j-1] + eta0)/(1 + exp(alpha[j-1] + eta0))^2
+        d[j, j]   <- - exp(alpha[j] + eta0)/(1 + exp(alpha[j] + eta0))^2
+        d[j, m:r] <- exp(eta0)*(exp(alpha[j]) - exp(alpha[j-1]))*
+            (exp(alpha[j-1] + alpha[j] + 2*eta0) - 1) * x0 /
+            (((1 + exp(alpha[j-1] + eta0))^2)*
+            ((1 + exp(alpha[j] + eta0))^2))
+    }
+    d[m, m-1] <- exp(alpha[m-1] + eta0)/(1 + exp(alpha[m-1] + eta0))^2
+    d[m, m:r] <- exp(alpha[m-1] + eta0)*x0/(1 + exp(alpha[m-1] + eta0))^2
+    V.mu <- rep(0, m)
+    for (j in 1:m){
+        dd <- d[j,]
+        for (s in 1:r){
+            for (t in 1:r){
+                V.mu[j] <- V.mu[j] + V[s,t]*dd[s]*dd[t]
+            }
+        }
+    }
+    V.logits <- V.mu/(mu^2 * (1 - mu)^2)
+    list(p=mu, std.err.p=sqrt(V.mu), logits=logits,
+         std.error.logits=sqrt(V.logits))
+}
+
+eff.latent <- function(X0, b, V, se){
+    eta <- X0 %*% b
+    if (!se) return(list(fit=eta))
+    var <- diag(X0 %*% V %*% t(X0))
+    list(fit=eta, se=sqrt(var))
 }

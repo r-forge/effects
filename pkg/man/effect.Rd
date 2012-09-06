@@ -6,6 +6,7 @@
 \alias{Effect.lme}
 \alias{Effect.gls}
 \alias{Effect.multinom}
+\alias{Effect.polr}
 \alias{effect.lm}
 \alias{effect.gls}
 \alias{effect.multinom}
@@ -64,17 +65,21 @@ effect(term, mod, ...)
 Effect(focal.predictors, mod, ...)
 
 \method{Effect}{lm}(focal.predictors, mod, xlevels=list(), default.levels=10, given.values, 
-		se=TRUE, confidence.level=0.95, 
-		transformation=list(link=family(mod)$linkfun, inverse=family(mod)$linkinv), 
-		typical=mean, offset=mean, ...)
+    se=TRUE, confidence.level=0.95, 
+    transformation=list(link=family(mod)$linkfun, inverse=family(mod)$linkinv), 
+    typical=mean, offset=mean, ...)
         
 \method{Effect}{gls}(focal.predictors, mod, xlevels = list(), default.levels = 10, 
     given.values, se = TRUE, confidence.level = 0.95, transformation = NULL, 
     typical = mean, ...)
     
 \method{Effect}{multinom}(focal.predictors, mod, 
-                            confidence.level=.95, xlevels=list(), default.levels=10, 
-                            given.values, se=TRUE, typical=mean, ...)
+    confidence.level=.95, xlevels=list(), default.levels=10, 
+    given.values, se=TRUE, typical=mean, ...)
+                            
+\method{Effect}{polr}(focal.predictors, mod, 
+    confidence.level=.95, xlevels=list(), default.levels=10, 
+    given.values, se=TRUE, typical=mean, latent=FALSE, ...)
     
 \method{Effect}{mer}(focal.predictors, mod, ...)
 
@@ -192,7 +197,8 @@ allEffects(mod, ...)
     rows of which give all combinations of values of these predictors.}
   \item{model.matrix}{the model matrix from which the effect was calculated.}
   \item{data}{a data frame with the data on which the fitted model was based.}
-  \item{discrepancy}{the percentage discrepancy for the `safe' predictions of the original fit; should be very close to 0.}
+  \item{discrepancy}{the percentage discrepancy for the `safe' predictions of the original fit; should be very close to 0.
+    Note: except for \code{gls} models, this is now necessarily 0.}
   \item{offset}{value to which the offset is fixed; \code{0} if there is no offset.}
   \item{model}{(for \code{"effpoly"} objects) \code{"multinom"} or \code{"polr"}, as appropriate.}
   \item{vcov}{(for \code{"eff"} objects) a covariance matrix for the effect, on the scale of the linear predictor.}
@@ -321,6 +327,7 @@ mod.wvs <- polr(poverty ~ gender + religion + degree + country*poly(age,3),
 	data=WVS)
 plot(effect("country*poly(age, 3)", mod.wvs))
 plot(effect("country*poly(age, 3)", mod.wvs), style="stacked")
+plot(Effect(c("country", "age"), mod.wvs), style="stacked") # equivalent
 plot(effect("country*poly(age, 3)", latent=TRUE, mod.wvs))
 }
 
