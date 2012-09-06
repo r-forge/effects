@@ -2,6 +2,9 @@
 \alias{effect}
 \alias{Effect}
 \alias{Effect.lm}
+\alias{Effect.mer}
+\alias{Effect.lme}
+\alias{Effect.gls}
 \alias{effect.lm}
 \alias{effect.gls}
 \alias{effect.multinom}
@@ -63,6 +66,14 @@ Effect(focal.predictors, mod, ...)
 		se=TRUE, confidence.level=0.95, 
 		transformation=list(link=family(mod)$linkfun, inverse=family(mod)$linkinv), 
 		typical=mean, offset=mean, ...)
+        
+\method{Effect}{gls}(focal.predictors, mod, xlevels = list(), default.levels = 10, 
+    given.values, se = TRUE, confidence.level = 0.95, transformation = NULL, 
+    typical = mean, ...)
+    
+\method{Effect}{mer}(focal.predictors, mod, ...)
+
+\method{Effect}{lme}(focal.predictors, mod, ...)
     
 allEffects(mod, ...)
 
