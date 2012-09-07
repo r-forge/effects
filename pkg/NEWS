@@ -4,6 +4,8 @@ o Added Effect.mer(), Effect.lme(), Effect.gls(), Effect.multinom(), and Effect.
 
 o Safe predictions simplified in effect.multinom() and effect.polr().
 
+o Small bug fixes.
+
 Version 2.2-1
 
 o Some examples wrapped in \donttest{} to decrease package check time.
