@@ -1,5 +1,7 @@
 Version 2.2-2
 
+o Correct effects.lme to work with weights
+
 o Added Effect.mer(), Effect.lme(), Effect.gls(), Effect.multinom(), and Effect.polr() methods.
 
 o Safe predictions simplified in effect.multinom() and effect.polr().
