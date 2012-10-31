@@ -1,6 +1,7 @@
 # effect generic and methods; allEffects
 # John Fox and Jangman Hong
 #  last modified 2012-09-06 by J. Fox
+#  10/31/2012 modifed effect.lm to use z distn for ses with mer and nlme objects
 
 effect <- function(term, mod, ...){
 	UseMethod("effect", mod)
@@ -119,7 +120,8 @@ effect.lm <- function (term, mod, xlevels = list(), default.levels = 10, given.v
                                                                  drop = FALSE], model.matrix = mod.matrix, data = X, 
                    discrepancy = 0, offset=off)
     if (se) {
-        if (any(family(mod)$family == c("binomial", "poisson"))) {
+        if (any(family(mod)$family == c("binomial", "poisson")) |
+            inherits(mod, "fakeglm")) {
             dispersion <- 1
             z <- qnorm(1 - (1 - confidence.level)/2)
         }

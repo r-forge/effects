@@ -122,7 +122,8 @@ allEffects(mod, ...)
   	for a factor, the values of all contrasts should be given and these
   	should be consistent with each other.}
   \item{se}{if \code{TRUE}, the default, calculate standard errors and
-    confidence limits for the effects.}
+    confidence limits for the effects.  For mer and lme objects, the
+    normal distribution is used to get confidence limits.}
   \item{confidence.level}{level at which to compute confidence limits
     based on the standard-normal distribution; the default is \code{0.95}.}
   \item{transformation}{a two-element list with elements \code{link} and

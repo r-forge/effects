@@ -1,5 +1,7 @@
 Version 2.2-2
 
+o Use asymptotic normal to get confidence limits for mer and lme objects
+
 o Correct effects.lme to work with weights
 
 o Added Effect.mer(), Effect.lme(), Effect.gls(), Effect.multinom(), and Effect.polr() methods.
