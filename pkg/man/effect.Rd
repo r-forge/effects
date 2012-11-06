@@ -336,6 +336,9 @@ mod.pres <- lm(prestige ~ log(income, 10) + poly(education, 3) + poly(women, 2),
     data=Prestige)
 eff.pres <- allEffects(mod.pres, default.levels=50)
 plot(eff.pres)
+plot(eff.pres[1], 
+    transform.x=list(income=list(trans=log10, inverse=function(x) 10^x)),
+    ticks.x=list(at=c(1000, 2000, 5000, 10000, 20000)))
 
 \dontrun{
 	library(nlme) # for gls()
