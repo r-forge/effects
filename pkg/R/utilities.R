@@ -317,6 +317,8 @@ fixup.model.matrix <- function(mod, mod.matrix, mod.matrix.all, X.mod, mod.aug,
 	mod.matrix
 }
 
+# the following function is a modification of code contributed by Steve Taylor
+
 as.data.frame.eff <- function(x, row.names=NULL, optional=TRUE, ...){
 	if (is.null(x$se)) data.frame(x$x, fit=x$fit)
 	else data.frame(x$x, fit=x$fit, se=x$se, lower=x$lower, upper=x$upper)

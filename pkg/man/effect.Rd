@@ -175,6 +175,9 @@ allEffects(mod, ...)
   compute the effect corresponding to the absent term \code{A:B:C}, which absorbs the constant, the
   \code{A}, \code{B}, and \code{C} main effects, and the three two-way interactions. In either of these
   cases, a warning is printed.
+  
+  The \code{as.data.frame} methods convert effect objects to data frames to facilitate the construction
+  of custom displays.
 }
 
 \value{
@@ -298,6 +301,8 @@ plot(eff.cowles, 'neuroticism:extraversion', multiline=TRUE,
     
 plot(effect('sex:neuroticism:extraversion', mod.cowles,
     xlevels=list(neuroticism=0:24, extraversion=seq(0, 24, 6))), multiline=TRUE)
+    
+as.data.frame(eff.cowles[[2]])
     
 # a nested model:
 

@@ -1,13 +1,14 @@
 Package: effects
 Version: 2.2-2
-Date: 2012/11/06
+Date: 2012/11/19
 Title: Effect Displays for Linear, Generalized Linear, Multinomial-Logit, Proportional-Odds Logit Models and Mixed-Effects Models
 Authors@R: c(person("John", "Fox", role = c("aut", "cre"), email = "jfox@mcmaster.ca"),
 	person("Sanford", "Weisberg", role = "aut", email = "sandy@umn.edu"),
     person("Jangman", "Hong", role = "aut"),
     person("Robert", "Andersen", role = "ctb"),
     person("David", "Firth", role = "ctb"),
-    person("Michael", "Friendly", role = "ctb"))
+    person("Michael", "Friendly", role = "ctb"),
+    person("Steve", "Taylor", role = "ctb"))
 Depends: R (>= 2.5.0), lattice, grid, MASS, nnet, colorspace
 Suggests: nlme, lme4
 LazyLoad: yes
