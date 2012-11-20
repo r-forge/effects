@@ -1,6 +1,6 @@
 # utilities and common functions for effects package
 # John Fox, Jangman Hong, and Sanford Weisberg
-#  last modified 2012-09-07 by J. Fox
+#  last modified 2012-11-19 by J. Fox
 
 if (getRversion() >= "2.15.1") globalVariables("wt")
 
@@ -319,9 +319,11 @@ fixup.model.matrix <- function(mod, mod.matrix, mod.matrix.all, X.mod, mod.aug,
 
 # the following function is a modification of code contributed by Steve Taylor
 
-as.data.frame.eff <- function(x, row.names=NULL, optional=TRUE, ...){
-	if (is.null(x$se)) data.frame(x$x, fit=x$fit)
-	else data.frame(x$x, fit=x$fit, se=x$se, lower=x$lower, upper=x$upper)
+as.data.frame.eff <- function(x, row.names=NULL, optional=TRUE, transform=x$transformation$inverse, ...){
+	result <- if (is.null(x$se)) data.frame(x$x, fit=transform(x$fit))
+	else data.frame(x$x, fit=transform(x$fit), se=x$se, lower=transform(x$lower), upper=transform(x$upper))
+    attr(result, "transformation") <- transform
+    result
 }
 
 as.data.frame.effpoly <- function(x, row.names=NULL, optional=TRUE, ...){

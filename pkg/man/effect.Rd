@@ -91,7 +91,8 @@ allEffects(mod, ...)
 
 \method{allEffects}{lme}(mod, ...)
 
-\method{as.data.frame}{eff}(x, row.names=NULL, optional=TRUE, ...)
+\method{as.data.frame}{eff}(x, row.names=NULL, optional=TRUE, 
+    transform=x$transformation$inverse, ...)
 
 \method{as.data.frame}{effpoly}(x, row.names=NULL, optional=TRUE, ...)
 
@@ -149,7 +150,9 @@ allEffects(mod, ...)
   	are computed on the scale of the latent response; if \code{FALSE} 
   	(the default) effects are computed as individual-level probabilities
   	and logits.}
-  \item{x}{an object of class \code{"eff"} or \code{"effpoly"}.}
+  \item{x}{an object of class \code{"eff"}, \code{"effpoly"}, or \code{"efflatent"}.}
+  \item{transform}{a transformation to be applied to the effects and confidence limits,
+    by default taken from the inverse link function saved in the \code{"eff"} object.}
   \item{row.names, optional}{not used.}
   \item{object}{an object of class \code{"eff"} for which the covariance matrix of the effects is desired.}
   \item{...}{arguments to be passed down.}
@@ -177,7 +180,9 @@ allEffects(mod, ...)
   cases, a warning is printed.
   
   The \code{as.data.frame} methods convert effect objects to data frames to facilitate the construction
-  of custom displays.
+  of custom displays. In the case of \code{"eff"} objects, the \code{se} element in the data frame is always
+  on the scale of the linear predictor, and the transformation used for the fit and confidence limits is saved in
+  a \code{"transformation"} attribute.
 }
 
 \value{
