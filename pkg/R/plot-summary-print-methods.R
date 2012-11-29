@@ -94,9 +94,11 @@ summary.efflist <- function(object, ...){
 	invisible(NULL) 
 }
 
-# the following function isn't exported
+# the following two functions aren't exported
 
 make.ticks <- function(range, link, inverse, at, n) {
+    warn <- options(warn=-1)
+    on.exit(warn)
     link <- if (is.null(link)) 
         function(x) nlm(function(y) (inverse(y) - x)^2, 
             mean(range))$estimate
@@ -110,6 +112,12 @@ make.ticks <- function(range, link, inverse, at, n) {
     list(at=ticks, labels=as.character(labels))
 }
 
+range.adj <- function(x){
+    range <- range(x)
+    c(range[1] - .025*(range[2] - range[1]),                                              
+      range[2] + .025*(range[2] - range[1]))
+}
+
 # modified by Michael Friendly: added key.args:
 
 plot.eff <- function(x, x.var=which.max(levels),
@@ -121,19 +129,19 @@ plot.eff <- function(x, x.var=which.max(levels),
     transform.x=NULL, ticks.x=NULL,
     key.args=NULL, 
     row=1, col=1, nrow=1, ncol=1, more=FALSE, ...){
-    make.ticks <- function(range, link, inverse, at, n) {
-        link <- if (is.null(link)) 
-            function(x) nlm(function(y) (inverse(y) - x)^2, 
-                mean(range))$estimate
-        else link
-        if (is.null(n)) n <- 5
-        labels <- if (is.null(at)){
-            labels <- pretty(sapply(range, inverse), n=n+1)
-        }
-        else at
-        ticks <- sapply(labels, link)
-        list(at=ticks, labels=format(labels))
-    }
+#     make.ticks <- function(range, link, inverse, at, n) {
+#         link <- if (is.null(link)) 
+#             function(x) nlm(function(y) (inverse(y) - x)^2, 
+#                 mean(range))$estimate
+#         else link
+#         if (is.null(n)) n <- 5
+#         labels <- if (is.null(at)){
+#             labels <- pretty(sapply(range, inverse), n=n+1)
+#         }
+#         else at
+#         ticks <- sapply(labels, link)
+#         list(at=ticks, labels=format(labels))
+#     }
     type <- match.arg(type)
     thresholds <- x$thresholds
     has.thresholds <- !is.null(thresholds)
@@ -222,7 +230,7 @@ plot.eff <- function(x, x.var=which.max(levels),
             xlm <- if (nm %in% names(xlim)){
                 xlim[[nm]]
             }
-            else range(x.vals)
+            else range.adj(x[nm]) # range(x.vals)
             tickmarks.x <- if ((nm %in% names(transform.x)) && !(is.null(transform.x))){
                 trans <- transform.x[[nm]]$trans
                 make.ticks(trans(xlm), link=transform.x[[nm]]$trans, inverse=transform.x[[nm]]$inverse, at=ticks.x$at, n=ticks.x$n)
@@ -347,7 +355,7 @@ plot.eff <- function(x, x.var=which.max(levels),
             xlm <- if (nm %in% names(xlim)){
                 xlim[[nm]]
             }
-            else range(x.vals)
+            else range.adj(x[nm]) # range(x.vals)
             tickmarks.x <- if ((nm %in% names(transform.x)) && !(is.null(transform.x))){
                 trans <- transform.x[[nm]]$trans
                 make.ticks(trans(xlm), link=transform.x[[nm]]$trans, inverse=transform.x[[nm]]$inverse, at=ticks.x$at, n=ticks.x$n)
@@ -448,7 +456,7 @@ plot.eff <- function(x, x.var=which.max(levels),
         xlm <- if (nm %in% names(xlim)){
             xlim[[nm]]
         }
-        else range(x.vals)
+        else range.adj(x[nm]) # range(x.vals)
         tickmarks.x <- if ((nm %in% names(transform.x)) && !(is.null(transform.x))){
             trans <- transform.x[[nm]]$trans
             make.ticks(trans(xlm), link=transform.x[[nm]]$trans, inverse=transform.x[[nm]]$inverse, at=ticks.x$at, n=ticks.x$n)
@@ -756,7 +764,7 @@ plot.effpoly <- function(x,
                 xlm <- if (nm %in% names(xlim)){
                     xlim[[nm]]
                 }
-                else range(x.vals)
+                else range.adj(data[nm]) # range(x.vals)
                 tickmarks.x <- if ((nm %in% names(transform.x)) && !(is.null(transform.x))){
                     trans <- transform.x[[nm]]$trans
                     make.ticks(trans(xlm), link=transform.x[[nm]]$trans, inverse=transform.x[[nm]]$inverse, at=ticks.x$at, n=ticks.x$n)
@@ -845,7 +853,7 @@ plot.effpoly <- function(x,
                 xlm <- if (nm %in% names(xlim)){
                     xlim[[nm]]
                 }
-                else range(x.vals)
+                else range.adj(data[nm]) # range(x.vals)
                 tickmarks.x <- if ((nm %in% names(transform.x)) && !(is.null(transform.x))){
                     trans <- transform.x[[nm]]$trans
                     make.ticks(trans(xlm), link=transform.x[[nm]]$trans, inverse=transform.x[[nm]]$inverse, at=ticks.x$at, n=ticks.x$n)
@@ -954,7 +962,7 @@ plot.effpoly <- function(x,
             xlm <- if (nm %in% names(xlim)){
                 xlim[[nm]]
             }
-            else range(x.vals)
+            else range.adj(data[nm]) # range(x.vals)
             tickmarks.x <- if ((nm %in% names(transform.x)) && !(is.null(transform.x))){
                 trans <- transform.x[[nm]]$trans
                 make.ticks(trans(xlm), link=transform.x[[nm]]$trans, inverse=transform.x[[nm]]$inverse, at=ticks.x$at, n=ticks.x$n)
