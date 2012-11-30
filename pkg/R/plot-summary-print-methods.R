@@ -109,7 +109,7 @@ make.ticks <- function(range, link, inverse, at, n) {
     }
     else at
     ticks <- sapply(labels, link)
-    list(at=ticks, labels=as.character(labels))
+    list(at=ticks, labels=format(labels))
 }
 
 range.adj <- function(x){
