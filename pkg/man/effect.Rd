@@ -235,6 +235,8 @@ allEffects(mod, ...)
   Factors cannot have colons in level names (e.g., \code{"level:A"}); the \code{effect} function will confuse the
   colons with interactions; rename levels to remove or replace the colons (e.g., \code{"level.A"}).
   
+  The functions in the \pkg{effects} package do not handle logical predictors; convert logical predictors to factors.
+  
   Offsets in linear and generalized linear models are supported, as are offsets in mixed models fit by 
   \code{lmer} or \code{glmer}, but must be supplied through the \code{offset}
   argument to \code{lm}, \code{glm}, \code{lmer} or \code{glmer}; 

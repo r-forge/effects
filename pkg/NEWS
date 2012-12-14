@@ -1,3 +1,7 @@
+Version 2.2-4
+
+ o Added warning about logical predictors.
+
 Version 2.2-3
 
  o Fixed bugs in axis scaling and xlim specification (reported by Achim Zeileis).
