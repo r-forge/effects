@@ -351,6 +351,50 @@ plot(eff.pres)
 plot(eff.pres[1], 
     transform.x=list(income=list(trans=log10, inverse=function(x) 10^x)),
     ticks.x=list(at=c(1000, 2000, 5000, 10000, 20000)))
+    
+\dontrun{
+# linear model with log-response and log-predictor
+# to illustrate transforming axes and setting tick labels
+mod.pres1 <- lm(log(prestige) ~ log(income) + poly(education, 3) + poly(women, 2),
+    data=Prestige)
+# effect of the log-predictor
+eff.log <- Effect(c("income"), mod.pres1, default.levels=50)
+# effect of the log-predictor transformed to the arithmetic scale
+eff.trans <- Effect(c("income"), mod.pres1, default.levels=50,
+       transformation=list(link=log, inverse=exp))
+#variations:
+# y-axis:  scale is log, tick labels are log
+# x-axis:  scale is airthmetic, tick labels are arithmetic
+plot(eff.log)
+
+# y-axis:  scale is log, tick labels are log
+# x-axis:  scale is log, tick labels are arithmetic
+plot(eff.log, transform.x=list(income=c(trans=log, inverse=exp)),
+       ticks.x=list(at=c(1000, 2000, 5000, 10000, 20000)),
+       xlab="income, log-scale")
+
+# y-axis:  scale is log, tick labels are airthmetic
+# x-axis:  scale is arithmetic, tick labels are arithmetic
+plot(eff.trans, ylab="prestige")
+
+# y-axis:  scale is arithmetic, tick labels are airthmetic
+# x-axis:  scale is arithmetic, tick labels are arithmetic
+plot(eff.trans, rescale.axis=FALSE, ylab="prestige")
+
+# y-axis:  scale is log, tick labels are airthmetic
+# x-axis:  scale is log, tick labels are arithmetic
+plot(eff.trans, transform.x=list(income=c(trans=log, inverse=exp)),
+       ticks.x=list(at=c(1000, 2000, 5000, 10000, 20000)),
+       xlab="income, log-scale", ylab="prestige, log-scale",
+       main="Both effect and X in log-scale")
+
+# y-axis:  scale is airthmetic, tick labels are airthmetic
+# x-axis:  scale is log, tick labels are arithmetic
+plot(eff.trans, transform.x=list(income=c(trans=log, inverse=exp)),
+       ticks.x=list(at=c(1000, 2000, 5000, 10000, 20000)),
+       rescale.axis=FALSE,
+       xlab="income, log-scale", ylab="prestige")
+}
 
 \dontrun{
 	library(nlme) # for gls()
