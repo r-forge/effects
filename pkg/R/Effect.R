@@ -1,9 +1,8 @@
 # Effect generic and methods
 # John Fox and Sanford Weisberg
 # last modified 2012-12-08 by J. Fox
-# 12-2-2012 Allow for empty cells in factor interactions, S. Weisberg
-#  To do:  (1) fix fact1:fact2:notfact
-#          (2) fix graphing - getting limits.
+# 12-21-2012 Allow for empty cells in factor interactions, S. Weisberg
+
 
 Effect <- function(focal.predictors, mod, ...){
 	UseMethod("Effect", mod)

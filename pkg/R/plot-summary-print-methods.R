@@ -3,6 +3,7 @@
 #  last modified 2012-11-30 by J. Fox
 #  29 June 2011 added grid, rotx and roty arguments to the two plot methods
 #   by S. Weisberg
+#  21 Dec 2012 modest modification of empty cells with crossed factors
 
 
 summary.eff <- function(object, type=c("response", "link"), ...){

@@ -2,7 +2,7 @@
 # John Fox, Sanford Weisberg, and Jangman Hong
 #  last modified 2012-12-08 by J. Fox
 #  10/31/2012 modifed effect.lm to use z distn for ses with mer and nlme objects
-# 12-2-2012 Allow for empty cells in factor interactions, S. Weisberg
+# 12-21-2012 Allow for empty cells in factor interactions, S. Weisberg
 
 effect <- function(term, mod, ...){
 	UseMethod("effect", mod)
