@@ -1,5 +1,7 @@
 Version 2.2-4
 
+ o Allow empty cells with crossed factors for lm, glm and multinom.
+
  o Added warning about logical predictors (suggestion of Kazuki Yoshida).
 
 Version 2.2-3

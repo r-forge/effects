@@ -177,7 +177,7 @@ allEffects(mod, ...)
   For example, for the model \code{Y ~ A*B + A*C + B*C}, one could
   compute the effect corresponding to the absent term \code{A:B:C}, which absorbs the constant, the
   \code{A}, \code{B}, and \code{C} main effects, and the three two-way interactions. In either of these
-  cases, a warning is printed.
+  cases, a warning is printed. 
   
   The \code{as.data.frame} methods convert effect objects to data frames to facilitate the construction
   of custom displays. In the case of \code{"eff"} objects, the \code{se} element in the data frame is always
@@ -236,6 +236,12 @@ allEffects(mod, ...)
   colons with interactions; rename levels to remove or replace the colons (e.g., \code{"level.A"}).
   
   The functions in the \pkg{effects} package do not handle logical predictors; convert logical predictors to factors.
+  
+  Empty cells in crossed-factors are now permitted for lm, glm and multinom models.  
+  
+  With multinom models with two or more crossed factors with an empty, the 'plot' command with \code{style="stacked"} 
+  apparently does not work because of a bug in the barchart function in lattice.  However, the
+  \code{stype="lines"}, the default, does work.  
   
   Offsets in linear and generalized linear models are supported, as are offsets in mixed models fit by 
   \code{lmer} or \code{glmer}, but must be supplied through the \code{offset}

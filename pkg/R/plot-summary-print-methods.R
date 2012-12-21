@@ -113,7 +113,7 @@ make.ticks <- function(range, link, inverse, at, n) {
 }
 
 range.adj <- function(x){
-    range <- range(x)
+    range <- range(x, na.rm=TRUE)
     c(range[1] - .025*(range[2] - range[1]),                                              
       range[2] + .025*(range[2] - range[1]))
 }
@@ -158,9 +158,9 @@ plot.eff <- function(x, x.var=which.max(levels),
     trans.link <- x$transformation$link
     trans.inverse <- x$transformation$inverse
     if (!rescale.axis){
-        x$lower <- trans.inverse(x$lower)
-        x$upper <- trans.inverse(x$upper)
-        x$fit <- trans.inverse(x$fit)
+        x$lower[!is.na(x$lower)] <- trans.inverse(x$lower[!is.na(x$lower)])
+        x$upper[!is.na(x$upper)] <- trans.inverse(x$upper[!is.na(x$upper)])
+        x$fit[!is.na(x$fit)] <- trans.inverse(x$fit)[!is.na(x$fit)]
         trans.link <- trans.inverse <- I
     }
     require(lattice)
@@ -177,7 +177,7 @@ plot.eff <- function(x, x.var=which.max(levels),
     has.se <- !is.null(x$se)
     n.predictors <- ncol(x) - 1 - 3*has.se
     if (n.predictors == 1){
-        range <- if (has.se) range(c(x$lower, x$upper)) else range(x$fit)
+        range <- if (has.se) range(c(x$lower, x$upper), na.rm=TRUE) else range(x$fit, na.rm=TRUE)
         ylim <- if (!missing(ylim)) ylim else c(range[1] - .025*(range[2] - range[1]),                                              
             range[2] + .025*(range[2] - range[1]))
         tickmarks <- if (type == "response") make.ticks(ylim, link=trans.link, inverse=trans.inverse, at=ticks$at, n=ticks$n)
@@ -189,10 +189,11 @@ plot.eff <- function(x, x.var=which.max(levels),
                 strip=function(...) strip.default(..., strip.names=c(factor.names, TRUE)),
                 panel=function(x, y, lower, upper, has.se, ...){
                     if (grid) panel.grid()
-                    llines(x, y, lwd=2, col=colors[1], type='b', pch=19, cex=cex, ...)
+                    good <- !is.na(y)
+                    llines(x[good], y[good], lwd=2, col=colors[1], type='b', pch=19, cex=cex, ...)
                     if (has.se){
-                        llines(x, lower, lty=2, col=colors[2])
-                        llines(x, upper, lty=2, col=colors[2])
+                        llines(x[good], lower[good], lty=2, col=colors[2])
+                        llines(x[good], upper[good], lty=2, col=colors[2])
                     }
                     if (has.thresholds){
                         panel.abline(h=thresholds, lty=3)
@@ -244,11 +245,12 @@ plot.eff <- function(x, x.var=which.max(levels),
                 strip=function(...) strip.default(..., strip.names=c(factor.names, TRUE)),
                 panel=function(x, y, x.vals, rug, lower, upper, has.se, ...){
                     if (grid) panel.grid()
-                    llines(x, y, lwd=2, col=colors[1], ...)
+                    good <- !is.na(y)
+                    llines(x[good], y[good], lwd=2, col=colors[1], ...)
                     if (rug) lrug(x.vals)
                     if (has.se){
-                        llines(x, lower, lty=2, col=colors[2])
-                        llines(x, upper, lty=2, col=colors[2])
+                        llines(x[good], lower[good], lty=2, col=colors[2])
+                        llines(x[good], upper[good], lty=2, col=colors[2])
                     }
                     if (has.thresholds){
                         panel.abline(h=thresholds, lty=3)
@@ -288,7 +290,7 @@ plot.eff <- function(x, x.var=which.max(levels),
         z.var <- which.z
     }    
     if (x.var == z.var) z.var <- z.var + 1
-    range <- if (has.se && (!multiline)) range(c(x$lower, x$upper)) else range(x$fit)
+    range <- if (has.se && (!multiline)) range(c(x$lower, x$upper), na.rm=TRUE) else range(x$fit, na.rm=TRUE)
     ylim <- if (!missing(ylim)) ylim else c(range[1] - .025*(range[2] - range[1]),                                              
         range[2] + .025*(range[2] - range[1]))
     tickmarks <- if (type == "response") make.ticks(ylim, link=trans.link, inverse=trans.inverse, at=ticks$at, n=ticks$n)
@@ -313,7 +315,8 @@ plot.eff <- function(x, x.var=which.max(levels),
                     if (grid) panel.grid()
                     for (i in 1:length(zvals)){
                         sub <- z[subscripts] == zvals[i]
-                        llines(x[sub], y[sub], lwd=2, type='b', col=colors[i], 
+                        good <- !is.na(y[sub])
+                        llines(x[sub][good], y[sub][good], lwd=2, type='b', col=colors[i], 
                             pch=symbols[i], lty=lines[i], cex=cex, ...)
                     }
                     if (has.thresholds){
@@ -378,7 +381,8 @@ plot.eff <- function(x, x.var=which.max(levels),
                     if (rug) lrug(x.vals)
                     for (i in 1:length(zvals)){
                         sub <- z[subscripts] == zvals[i]
-                        llines(x[sub], y[sub], lwd=2, type='l', col=colors[i], lty=lines[i], cex=cex, ...)
+                        good <- !is.na(y[sub])
+                        llines(x[sub][good], y[sub][good], lwd=2, type='l', col=colors[i], lty=lines[i], cex=cex, ...)
                     }
                     if (has.thresholds){
                         panel.abline(h=thresholds, lty=3)
@@ -416,10 +420,11 @@ plot.eff <- function(x, x.var=which.max(levels),
             strip=function(...) strip.default(..., strip.names=c(factor.names, TRUE)),
             panel=function(x, y, subscripts, lower, upper, has.se, ...){
                 if (grid) panel.grid()
-                llines(x, y, lwd=2, type='b', col=colors[1], pch=19, cex=cex, ...)
+                good <- !is.na(y)
+                llines(x[good], y[good], lwd=2, type='b', col=colors[1], pch=19, cex=cex, ...)
                 if (has.se){
-                    llines(x, lower[subscripts], lty=2, col=colors[2])
-                    llines(x, upper[subscripts], lty=2, col=colors[2])
+                    llines(x[good], lower[subscripts][good], lty=2, col=colors[2])
+                    llines(x[good], upper[subscripts][good], lty=2, col=colors[2])
                 }
                 if (has.thresholds){
                     panel.abline(h=thresholds, lty=3)
@@ -471,11 +476,12 @@ plot.eff <- function(x, x.var=which.max(levels),
             strip=function(...) strip.default(..., strip.names=c(factor.names, TRUE)),
             panel=function(x, y, subscripts, x.vals, rug, lower, upper, has.se, ...){
                 if (grid) panel.grid()
-                llines(x, y, lwd=2, col=colors[1], ...)
+                good <- !is.na(y)
+                llines(x[good], y[good], lwd=2, col=colors[1], ...)
                 if (rug) lrug(x.vals)
                 if (has.se){
-                    llines(x, lower[subscripts], lty=2, col=colors[2])
-                    llines(x, upper[subscripts], lty=2, col=colors[2])
+                    llines(x[good], lower[subscripts][good], lty=2, col=colors[2])
+                    llines(x[good], upper[subscripts][good], lty=2, col=colors[2])
                 }
                 if (has.thresholds){
                     panel.abline(h=thresholds, lty=3)
@@ -727,7 +733,8 @@ plot.effpoly <- function(x,
                         if (grid) panel.grid()
                         for (i in 1:n.y.lev){
                             sub <- z[subscripts] == y.lev[i]
-                            llines(x[sub], y[sub], lwd=2, type="b", col=colors[i], lty=lines[i], 
+                            good <- !is.na(y[sub])
+                            llines(x[sub][good], y[sub][good], lwd=2, type="b", col=colors[i], lty=lines[i], 
                                 pch=symbols[i], cex=cex, ...)
                         }
                     },
@@ -789,7 +796,8 @@ plot.effpoly <- function(x,
                         if (rug) lrug(x.vals)
                         for (i in 1:n.y.lev){
                             sub <- z[subscripts] == y.lev[i]
-                            llines(x[sub], y[sub], lwd=2, type="l", col=colors[i], lty=lines[i], ...)
+                            good <- !is.na(y[sub])
+                            llines(x[sub][good], y[sub][good], lwd=2, type="l", col=colors[i], lty=lines[i], ...)
                         }
                     },
                     ylab=ylab,
@@ -928,9 +936,10 @@ plot.effpoly <- function(x,
                 strip=function(...) strip.default(..., strip.names=c(factor.names, TRUE)),
                 panel=function(x, y, subscripts, x.vals, rug, lower, upper, ... ){
                     if (grid) panel.grid()
-                    llines(x, y, lwd=2, type="b", pch=19, col=colors[1], cex=cex, ...)
-                    llines(x, lower[subscripts+as.numeric(rownames(data)[1])-1], lty=2, col=colors[2])
-                    llines(x, upper[subscripts+as.numeric(rownames(data)[1])-1], lty=2, col=colors[2])
+                    good <- !is.na(y)
+                    llines(x[good], y[good], lwd=2, type="b", pch=19, col=colors[1], cex=cex, ...)
+                    llines(x[good], lower[subscripts+as.numeric(rownames(data)[1])-1][good], lty=2, col=colors[2])
+                    llines(x[good], upper[subscripts+as.numeric(rownames(data)[1])-1][good], lty=2, col=colors[2])
                 },
                 ylab=ylab,
                 ylim= if (missing(ylim)) c(min(lower), max(upper)) else ylim,
@@ -988,9 +997,10 @@ plot.effpoly <- function(x,
                 panel=function(x, y, subscripts, x.vals, rug, lower, upper, ... ){
                     if (grid) panel.grid()
                     if (rug) lrug(x.vals)
-                    llines(x, y, lwd=2, col=colors[1], ...)
-                    llines(x, lower[subscripts+as.numeric(rownames(data)[1])-1], lty=2, col=colors[2])
-                    llines(x, upper[subscripts+as.numeric(rownames(data)[1])-1], lty=2, col=colors[2])
+                    good <- !is.na(y)
+                    llines(x[good], y[good], lwd=2, col=colors[1], ...)
+                    llines(x[good], lower[subscripts+as.numeric(rownames(data)[1])-1][good], lty=2, col=colors[2])
+                    llines(x[good], upper[subscripts+as.numeric(rownames(data)[1])-1][good], lty=2, col=colors[2])
                 },
                 ylab=ylab,
                 xlim=trans(xlm),
