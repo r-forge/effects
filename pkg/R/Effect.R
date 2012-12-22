@@ -55,8 +55,8 @@ Effect.lm <- function (focal.predictors, mod, xlevels = list(), default.levels =
   zeroes <- NULL
    if(sum(whichFact) > 1){
        nameFact <- names(whichFact)[whichFact]
-       mf <- model.frame(mod)[, nameFact]
-       counts <- xtabs(as.formula( paste("~", paste(colnames(mf), collapse="+"))), mf)
+       counts <- xtabs(as.formula( paste("~", paste(nameFact, collapse="+"))), 
+                   model.frame(mod))
        zeroes <- which(counts == 0)  
        }
   if(length(zeroes) > 0){
@@ -271,8 +271,8 @@ Effect.multinom <- function(focal.predictors, mod,
   zeroes <- NULL
    if(sum(whichFact) > 1){
        nameFact <- names(whichFact)[whichFact]
-       mf <- model.frame(mod)[, nameFact]
-       counts <- xtabs(as.formula( paste("~", paste(colnames(mf), collapse="+"))), mf)
+       counts <- xtabs(as.formula( paste("~", paste(nameFact, collapse="+"))), 
+                   model.frame(mod))
        zeroes <- which(counts == 0)  
        }
   if(length(zeroes) > 0){

@@ -128,8 +128,8 @@ effect.lm <- function (term, mod, xlevels = list(), default.levels = 10, given.v
   zeroes <- NULL
    if(sum(whichFact) > 1){
        nameFact <- names(whichFact)[whichFact]
-       mf <- model.frame(mod)[, nameFact]
-       counts <- xtabs(as.formula( paste("~", paste(colnames(mf), collapse="+"))), mf)
+       counts <- xtabs(as.formula( paste("~", paste(nameFact, collapse="+"))), 
+                   model.frame(mod))
        zeroes <- which(counts == 0)  
        }
   if(length(zeroes) > 0){
@@ -559,8 +559,8 @@ effect.multinom <- function(term, mod,
   zeroes <- NULL
    if(sum(whichFact) > 1){
        nameFact <- names(whichFact)[whichFact]
-       mf <- model.frame(mod)[, nameFact]
-       counts <- xtabs(as.formula( paste("~", paste(colnames(mf), collapse="+"))), mf)
+       counts <- xtabs(as.formula( paste("~", paste(nameFact, collapse="+"))), 
+                   model.frame(mod))
        zeroes <- which(counts == 0)  
        }
   if(length(zeroes) > 0){
