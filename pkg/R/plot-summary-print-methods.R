@@ -4,6 +4,7 @@
 #  29 June 2011 added grid, rotx and roty arguments to the two plot methods
 #   by S. Weisberg
 #  21 Dec 2012 modest modification of empty cells with crossed factors
+#  2013-01-17: Added factor.ci.style arg to plot.eff() and plot.effpoly(). J. Fox
 
 
 summary.eff <- function(object, type=c("response", "link"), ...){
@@ -125,24 +126,13 @@ plot.eff <- function(x, x.var=which.max(levels),
     z.var=which.min(levels), multiline=is.null(x$se), rug=TRUE, xlab,
     ylab, main=paste(effect, "effect plot"),
     colors=palette(), symbols=1:10, lines=1:10, cex=1.5, ylim, xlim=NULL,
-    factor.names=TRUE, type=c("response", "link"), ticks=list(at=NULL, n=5),  
+    factor.names=TRUE, factor.ci.style=c("bars", "lines"), 
+    type=c("response", "link"), ticks=list(at=NULL, n=5),  
     alternating=TRUE, rotx=0, roty=0, grid=FALSE, layout, rescale.axis=TRUE, 
     transform.x=NULL, ticks.x=NULL,
     key.args=NULL, 
     row=1, col=1, nrow=1, ncol=1, more=FALSE, ...){
-#     make.ticks <- function(range, link, inverse, at, n) {
-#         link <- if (is.null(link)) 
-#             function(x) nlm(function(y) (inverse(y) - x)^2, 
-#                 mean(range))$estimate
-#         else link
-#         if (is.null(n)) n <- 5
-#         labels <- if (is.null(at)){
-#             labels <- pretty(sapply(range, inverse), n=n+1)
-#         }
-#         else at
-#         ticks <- sapply(labels, link)
-#         list(at=ticks, labels=format(labels))
-#     }
+    factor.ci.style <- match.arg(factor.ci.style)
     type <- match.arg(type)
     thresholds <- x$thresholds
     has.thresholds <- !is.null(thresholds)
@@ -191,11 +181,17 @@ plot.eff <- function(x, x.var=which.max(levels),
                 panel=function(x, y, lower, upper, has.se, ...){
                     if (grid) panel.grid()
                     good <- !is.na(y)
-                    llines(x[good], y[good], lwd=2, col=colors[1], type='b', pch=19, cex=cex, ...)
                     if (has.se){
-                        llines(x[good], lower[good], lty=2, col=colors[2])
-                        llines(x[good], upper[good], lty=2, col=colors[2])
+                        if (factor.ci.style == "bars"){
+                            larrows(x0=x[good], y0=lower[good], x1=x[good], y1=upper[good], angle=90, 
+                                code=3, col=colors[2], length=0.125)
+                        }
+                        else{
+                            llines(x[good], lower[good], lty=2, col=colors[2])
+                            llines(x[good], upper[good], lty=2, col=colors[2])
+                        }
                     }
+                    llines(x[good], y[good], lwd=2, col=colors[1], type='b', pch=19, cex=cex, ...)
                     if (has.thresholds){
                         panel.abline(h=thresholds, lty=3)
                         panel.text(rep(current.panel.limits()$xlim[1], length(thresholds)), 
@@ -422,11 +418,17 @@ plot.eff <- function(x, x.var=which.max(levels),
             panel=function(x, y, subscripts, lower, upper, has.se, ...){
                 if (grid) panel.grid()
                 good <- !is.na(y)
-                llines(x[good], y[good], lwd=2, type='b', col=colors[1], pch=19, cex=cex, ...)
                 if (has.se){
-                    llines(x[good], lower[subscripts][good], lty=2, col=colors[2])
-                    llines(x[good], upper[subscripts][good], lty=2, col=colors[2])
+                    if (factor.ci.style == "bars"){
+                        larrows(x0=x[good], y0=lower[subscripts][good], x1=x[good], y1=upper[subscripts][good], 
+                            angle=90, code=3, col=colors[2], length=0.125)
+                    }
+                    else{
+                        llines(x[good], lower[subscripts][good], lty=2, col=colors[2])
+                        llines(x[good], upper[subscripts][good], lty=2, col=colors[2])
+                    }
                 }
+                llines(x[good], y[good], lwd=2, type='b', col=colors[1], pch=19, cex=cex, ...)
                 if (has.thresholds){
                     panel.abline(h=thresholds, lty=3)
                     panel.text(rep(current.panel.limits()$xlim[1], length(thresholds)), 
@@ -633,7 +635,8 @@ plot.effpoly <- function(x,
     ylab=paste(x$response, " (", type, ")", sep=""), 
     main=paste(effect, "effect plot"),
     colors, symbols=1:10, lines=1:10, cex=1.5, 
-    factor.names=TRUE, style=c("lines", "stacked"), 
+    factor.names=TRUE, factor.ci.style=c("bars", "lines"),
+    style=c("lines", "stacked"), 
     confint=(style == "lines" && !is.null(x$confidence.level)), 
     transform.x=NULL, ticks.x=NULL, xlim=NULL,
     ylim, rotx=0, alternating=TRUE, roty=0, grid=FALSE,
@@ -642,6 +645,7 @@ plot.effpoly <- function(x,
     require(lattice)
     type <- match.arg(type)
     style <- match.arg(style)
+    factor.ci.style <- match.arg(factor.ci.style)
     has.se <- !is.null(x$confidence.level) 
     if (confint && !has.se) stop("there are no confidence limits to plot")
     if (style == "stacked"){
@@ -679,7 +683,7 @@ plot.effpoly <- function(x,
         if (length(which.x) == 0) stop(paste("x.var = '", x.var, "' is not in the model.", sep=""))
         x.var <- which.x
     }
-    x.vals <- x.frame[, names(x.frame)[x.var]]	
+    x.vals <- x.frame[, names(x.frame)[x.var]]    
     response <-matrix(0, nrow=nrow(x.frame), ncol=n.y.lev)
     for (i in 1:length(x$y.lev)){
         level <- which(colnames(x$prob)[i] == ylevel.names)
@@ -756,7 +760,7 @@ plot.effpoly <- function(x,
                     data=data, ...)
                 result$split <- split
                 result$more <- more
-                class(result) <- c("plot.eff", class(result))			
+                class(result) <- c("plot.eff", class(result))    		
             }
             else { # x-variable numeric
                 nm <- predictors[x.var]
@@ -939,8 +943,15 @@ plot.effpoly <- function(x,
                     if (grid) panel.grid()
                     good <- !is.na(y)
                     llines(x[good], y[good], lwd=2, type="b", pch=19, col=colors[1], cex=cex, ...)
-                    llines(x[good], lower[subscripts+as.numeric(rownames(data)[1])-1][good], lty=2, col=colors[2])
-                    llines(x[good], upper[subscripts+as.numeric(rownames(data)[1])-1][good], lty=2, col=colors[2])
+                    if (factor.ci.style == "bars"){
+                        larrows(x0=x[good], y0=lower[subscripts+as.numeric(rownames(data)[1])-1][good], 
+                            x1=x[good], y1=upper[subscripts+as.numeric(rownames(data)[1])-1][good], 
+                            angle=90, code=3, col=colors[2], length=0.125)
+                    }
+                    else {
+                        llines(x[good], lower[subscripts+as.numeric(rownames(data)[1])-1][good], lty=2, col=colors[2])
+                        llines(x[good], upper[subscripts+as.numeric(rownames(data)[1])-1][good], lty=2, col=colors[2])
+                    }
                 },
                 ylab=ylab,
                 ylim= if (missing(ylim)) c(min(lower), max(upper)) else ylim,
