@@ -8,6 +8,7 @@
 #  2013-01-18: Added CI bars to multiline plots with factor.ci.style="bars"
 #  2013-01-19: Renamed 'factor.ci.style' to 'ci.style'.  Added a 'none' option
 #   extended to variate terms if multiline=TRUE, ci.style="bars"
+#  2013-01-30: scale arrow "heads" for error bars relative to cex
 
 
 summary.eff <- function(object, type=c("response", "link"), ...){
@@ -193,7 +194,7 @@ plot.eff <- function(x, x.var=which.max(levels),
                     if (has.se){ 
                         if (ci.style == "bars"){
                             larrows(x0=x[good], y0=lower[good], x1=x[good], y1=upper[good], angle=90, 
-                                code=3, col=colors[2], length=0.125)
+                                code=3, col=colors[2], length=0.125*cex/1.5)
                         }
                         else{ if(ci.style == "lines") {
                             llines(x[good], lower[good], lty=2, col=colors[2])
@@ -269,7 +270,7 @@ plot.eff <- function(x, x.var=which.max(levels),
                             larrows(x0=x[good], y0=lower[good], 
                                     x1=x[good], y1=upper[good], 
                                     angle=90, code=3, col=eval(colors[2]), 
-                                    length=.125)
+                                    length=.125*cex/1.5)
                         }
                         else{ if(ci.style == "lines") {
                             llines(x[good], lower[good], lty=2, col=colors[2])
@@ -359,7 +360,7 @@ plot.eff <- function(x, x.var=which.max(levels),
                             larrows(x0=x[sub][good]+os, y0=lower[subscripts][sub][good], 
                                     x1=x[sub][good]+os, y1=upper[subscripts][sub][good], 
                                     angle=90, code=3, col=eval(colors[i]), 
-                                    length=.125)
+                                    length=.125*cex/1.5)
                         }
                     } 
                     if (has.thresholds){
@@ -439,7 +440,7 @@ plot.eff <- function(x, x.var=which.max(levels),
                            larrows(x0=x[sub][good]+os, y0=lower[subscripts][sub][good], 
                                     x1=x[sub][good]+os, y1=upper[subscripts][sub][good], 
                                     angle=90, code=3, col=eval(colors[i]), 
-                                    length=.125)
+                                    length=.125*cex/1.5)
                         }
                     }
                     if (has.thresholds){
@@ -496,7 +497,7 @@ plot.eff <- function(x, x.var=which.max(levels),
                 if (has.se){
                     if (ci.style == "bars"){
                         larrows(x0=x[good], y0=lower[subscripts][good], x1=x[good], y1=upper[subscripts][good], 
-                            angle=90, code=3, col=colors[2], length=0.125)
+                            angle=90, code=3, col=colors[2], length=0.125*cex/1.5)
                     }
                     else{ if(ci.style == "lines") {
                         llines(x[good], lower[subscripts][good], lty=2, col=colors[2])
@@ -563,7 +564,7 @@ plot.eff <- function(x, x.var=which.max(levels),
                             larrows(x0=x[good], y0=lower[subscripts][good], 
                                     x1=x[good], y1=upper[subscripts][good], 
                                     angle=90, code=3, col=eval(colors[2]), 
-                                    length=.125)
+                                    length=.125*cex/1.5)
                         }
                         else{ if(ci.style == "lines") {
                             llines(x[good], lower[subscripts][good], lty=2, col=colors[2])
@@ -1037,7 +1038,7 @@ plot.effpoly <- function(x,
                     if (ci.style == "bars"){
                         larrows(x0=x[good], y0=lower[subscripts+as.numeric(rownames(data)[1])-1][good], 
                             x1=x[good], y1=upper[subscripts+as.numeric(rownames(data)[1])-1][good], 
-                            angle=90, code=3, col=colors[2], length=0.125)
+                            angle=90, code=3, col=colors[2], length=0.125*cex/1.5)
                     }
                     else { if(ci.style == "lines"){
                         llines(x[good], lower[subscripts+as.numeric(rownames(data)[1])-1][good], lty=2, col=colors[2])
@@ -1105,7 +1106,7 @@ plot.effpoly <- function(x,
                     if (ci.style == "bars"){
                         larrows(x0=x[good], y0=lower[subscripts+as.numeric(rownames(data)[1])-1][good], 
                             x1=x[good], y1=upper[subscripts+as.numeric(rownames(data)[1])-1][good], 
-                            angle=90, code=3, col=colors[2], length=0.125)
+                            angle=90, code=3, col=colors[2], length=0.125*cex/1.5)
                     }
                     else { if(ci.style == "lines"){
                         llines(x[good], lower[subscripts+as.numeric(rownames(data)[1])-1][good], lty=2, col=colors[2])

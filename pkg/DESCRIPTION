@@ -1,6 +1,6 @@
 Package: effects
 Version: 2.2-4
-Date: 2013/01/20
+Date: 2013/01/30
 Title: Effect Displays for Linear, Generalized Linear, Multinomial-Logit, Proportional-Odds Logit Models and Mixed-Effects Models
 Authors@R: c(person("John", "Fox", role = c("aut", "cre"), email = "jfox@mcmaster.ca"),
 	person("Sanford", "Weisberg", role = "aut", email = "sandy@umn.edu"),
