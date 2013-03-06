@@ -1,6 +1,7 @@
 # effect.mer and effect.lme built from effect.lm by S. Weisberg 29 June 2011
 # last modified 2012-03-08 to require() lme4 or nlme. J. Fox
 # 2012-10-05 effect.lme didn't work with 'weights', now corrected.  S. Weisberg
+# 2013-03-05: introducted merMod methods for development version of lme4. J. Fox
 
 
 # the function lm.wfit fit gets the hessian wrong for mer's.  Get the variance
@@ -47,7 +48,7 @@ mer.to.glm <- function(mod) {
     cl[[1L]] <- as.name("glm")
     cl$formula <- fixmod(as.formula(cl$formula))
     mod2 <- eval(cl)
-    mod2$coefficients <- mod@fixef
+    mod2$coefficients <- fixef(mod) #mod@fixef
     mod2$vcov <- as.matrix(vcov(mod))
     mod2$linear.predictors <- model.matrix(mod2) %*% mod2$coefficients
     mod2$fitted.values <- mod2$family$linkinv(mod2$linear.predictors)
@@ -102,6 +103,14 @@ effect.mer <- function(term, mod, ...) {
 allEffects.mer <- function(mod, ...){
   	if (!require(lme4)) stop("the lme4 package is not installed")
   	allEffects(mer.to.glm(mod), ...)
+}
+
+effect.merMod <- function(term, mod, ...){
+    effect.mer(term, mod, ...)
+}
+
+allEffects.merMod <- function(mod, ...){
+    allEffects.mer(mod, ...)
 }
  
 allEffects.lme <- function(mod, ...){

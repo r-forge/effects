@@ -2,6 +2,7 @@
 # John Fox and Sanford Weisberg
 # last modified 2012-12-08 by J. Fox
 # 12-21-2012 Allow for empty cells in factor interactions, S. Weisberg
+# 2012-03-05: Added .merMod method for development version of lme4
 
 
 Effect <- function(focal.predictors, mod, ...){
@@ -113,6 +114,10 @@ Effect.mer <- function(focal.predictors, mod, ...) {
     result <- Effect(focal.predictors, mer.to.glm(mod), ...)
     result$formula <- as.formula(formula(mod))
     result
+}
+
+Effect.merMod <- function(focal.predictors, mod, ...){
+    Effect.mer(focal.predictors, mod, ...)
 }
 
 Effect.lme <- function(focal.predictors, mod, ...) {

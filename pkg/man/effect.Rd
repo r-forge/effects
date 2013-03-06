@@ -3,6 +3,7 @@
 \alias{Effect}
 \alias{Effect.lm}
 \alias{Effect.mer}
+\alias{Effect.merMod}
 \alias{Effect.lme}
 \alias{Effect.gls}
 \alias{Effect.multinom}
@@ -12,9 +13,11 @@
 \alias{effect.multinom}
 \alias{effect.polr}
 \alias{effect.mer}
+\alias{effect.merMod}
 \alias{effect.lme}
 \alias{allEffects}
 \alias{allEffects.mer}
+\alias{allEffects.merMod}
 \alias{allEffects.lme}
 \alias{as.data.frame.eff}
 \alias{as.data.frame.effpoly}
@@ -60,6 +63,8 @@ effect(term, mod, ...)
 	
 \method{effect}{mer}(term, mod, ...)
 
+\method{effect}{merMod}(term, mod, ...)
+
 \method{effect}{lme}(term, mod, ...)
 
 Effect(focal.predictors, mod, ...)
@@ -83,11 +88,15 @@ Effect(focal.predictors, mod, ...)
     
 \method{Effect}{mer}(focal.predictors, mod, ...)
 
+\method{Effect}{merMod}(focal.predictors, mod, ...)
+
 \method{Effect}{lme}(focal.predictors, mod, ...)
     
 allEffects(mod, ...)
 
 \method{allEffects}{mer}(mod, ...)
+
+\method{allEffects}{merMod}(mod, ...)
 
 \method{allEffects}{lme}(mod, ...)
 
@@ -108,7 +117,7 @@ allEffects(mod, ...)
     for interactions.}
   \item{focal.predictors}{a character vector of one or more predictors in the model.}
   \item{mod}{an object of class \code{"lm"}, \code{"gls"}, \code{"glm"}, 
-    \code{"multinom"}, \code{"polr"} \code{"mer"} or \code{"lme"}. }
+    \code{"multinom"}, \code{"polr"}, \code{"mer"} (or \code{"merMod"}), or \code{"lme"}. }
   \item{xlevels}{an optional list of values at which to set covariates,
     with components of the form \code{covariate.name = vector.of.values}.}
   \item{default.levels}{number of values for covariates that are not
