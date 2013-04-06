@@ -2,7 +2,8 @@
 # John Fox and Sanford Weisberg
 # last modified 2012-12-08 by J. Fox
 # 12-21-2012 Allow for empty cells in factor interactions, S. Weisberg
-# 2012-03-05: Added .merMod method for development version of lme4
+# 2012-03-05: Added .merMod method for development version of lme4, J. Fox
+# 2012-04-06: Added support for lme4.0, J. Fox
 
 
 Effect <- function(focal.predictors, mod, ...){
@@ -110,7 +111,8 @@ Effect.lm <- function (focal.predictors, mod, xlevels = list(), default.levels =
 }
 
 Effect.mer <- function(focal.predictors, mod, ...) {
-    if (!require(lme4)) stop("the lme4 package is not installed")
+#     if ((!require(lme4, quietly=TRUE)) && (!require(lme4.0, quietly=TRUE))) 
+#         stop("the lme4 or lme4.0 package is not installed")
     result <- Effect(focal.predictors, mer.to.glm(mod), ...)
     result$formula <- as.formula(formula(mod))
     result
@@ -121,7 +123,7 @@ Effect.merMod <- function(focal.predictors, mod, ...){
 }
 
 Effect.lme <- function(focal.predictors, mod, ...) {
-    if (!require(nlme)) stop("the nlme package is not installed")
+#    if (!require(nlme)) stop("the nlme package is not installed")
     result <- Effect(focal.predictors, lme.to.glm(mod), ...)
     result$formula <- as.formula(formula(mod))
     result

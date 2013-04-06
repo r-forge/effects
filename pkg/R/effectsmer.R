@@ -1,7 +1,8 @@
 # effect.mer and effect.lme built from effect.lm by S. Weisberg 29 June 2011
 # last modified 2012-03-08 to require() lme4 or nlme. J. Fox
 # 2012-10-05 effect.lme didn't work with 'weights', now corrected.  S. Weisberg
-# 2013-03-05: introducted merMod methods for development version of lme4. J. Fox
+# 2013-03-05: introduced merMod methods for development version of lme4. J. Fox
+# 2013-04-06: added support for lme4.0, J. Fox
 
 
 # the function lm.wfit fit gets the hessian wrong for mer's.  Get the variance
@@ -94,15 +95,17 @@ vcov.fakeglm <- function(object, ...) object$vcov
 
 #The next four functions should be exported
 effect.mer <- function(term, mod, ...) {
-	if (!require(lme4)) stop("the lme4 package is not installed")
+# 	if ((!require(lme4, quietly=TRUE)) && (!require(lme4.0, quietly=TRUE))) 
+#         stop("the lme4 or lme4.0 package is not installed")
     result <- effect(term, mer.to.glm(mod), ...)
     result$formula <- as.formula(formula(mod))
     result
     }
     
 allEffects.mer <- function(mod, ...){
-  	if (!require(lme4)) stop("the lme4 package is not installed")
-  	allEffects(mer.to.glm(mod), ...)
+#     if ((!require(lme4, quietly=TRUE)) && (!require(lme4.0, quietly=TRUE))) 
+#         stop("the lme4 or lme4.0 package is not installed")
+    allEffects(mer.to.glm(mod), ...)
 }
 
 effect.merMod <- function(term, mod, ...){
@@ -114,12 +117,12 @@ allEffects.merMod <- function(mod, ...){
 }
  
 allEffects.lme <- function(mod, ...){
-	if (!require(nlme)) stop("the nlme package is not installed")
+#	if (!require(nlme)) stop("the nlme package is not installed")
   	allEffects(lme.to.glm(mod), ...)
 }
   
 effect.lme <- function(term, mod, ...) {
-	if (!require(nlme)) stop("the nlme package is not installed")
+#	if (!require(nlme)) stop("the nlme package is not installed")
     result <- effect(term, lme.to.glm(mod), ...)
     result$formula <- as.formula(formula(mod))
     result
