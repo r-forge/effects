@@ -47,18 +47,18 @@
 \usage{
 effect(term, mod, ...)
 
-\method{effect}{lm}(term, mod, xlevels=list(), default.levels=10, given.values, 
+\method{effect}{lm}(term, mod, xlevels=list(), default.levels=NULL, given.values, 
 	se=TRUE, confidence.level=.95, 
     transformation=list(link=family(mod)$linkfun, inverse=family(mod)$linkinv), 
     typical=mean, offset=mean, ...)
     
-\method{effect}{gls}(term, mod, xlevels=list(), default.levels=10, given.values,
+\method{effect}{gls}(term, mod, xlevels=list(), default.levels=NULL, given.values,
 	se=TRUE, confidence.level=.95, transformation=NULL, typical=mean, ...)
     
-\method{effect}{multinom}(term, mod, confidence.level=.95, xlevels=list(), default.levels=10, 
+\method{effect}{multinom}(term, mod, confidence.level=.95, xlevels=list(), default.levels=NULL, 
 	given.values, se=TRUE, typical=mean, ...)
 		
-\method{effect}{polr}(term, mod, confidence.level=.95, xlevels=list(), default.levels=10, 
+\method{effect}{polr}(term, mod, confidence.level=.95, xlevels=list(), default.levels=NULL, 
 	given.values, se=TRUE, typical=mean, latent=FALSE, ...)
 	
 \method{effect}{mer}(term, mod, ...)
@@ -69,21 +69,21 @@ effect(term, mod, ...)
 
 Effect(focal.predictors, mod, ...)
 
-\method{Effect}{lm}(focal.predictors, mod, xlevels=list(), default.levels=10, given.values, 
+\method{Effect}{lm}(focal.predictors, mod, xlevels=list(), default.levels=NULL, given.values, 
     se=TRUE, confidence.level=0.95, 
     transformation=list(link=family(mod)$linkfun, inverse=family(mod)$linkinv), 
     typical=mean, offset=mean, ...)
         
-\method{Effect}{gls}(focal.predictors, mod, xlevels = list(), default.levels = 10, 
+\method{Effect}{gls}(focal.predictors, mod, xlevels = list(), default.levels=NULL, 
     given.values, se = TRUE, confidence.level = 0.95, transformation = NULL, 
     typical = mean, ...)
     
 \method{Effect}{multinom}(focal.predictors, mod, 
-    confidence.level=.95, xlevels=list(), default.levels=10, 
+    confidence.level=.95, xlevels=list(), default.levels=NULL, 
     given.values, se=TRUE, typical=mean, ...)
                             
 \method{Effect}{polr}(focal.predictors, mod, 
-    confidence.level=.95, xlevels=list(), default.levels=10, 
+    confidence.level=.95, xlevels=list(), default.levels=NULL, 
     given.values, se=TRUE, typical=mean, latent=FALSE, ...)
     
 \method{Effect}{mer}(focal.predictors, mod, ...)
@@ -118,15 +118,22 @@ allEffects(mod, ...)
   \item{focal.predictors}{a character vector of one or more predictors in the model.}
   \item{mod}{an object of class \code{"lm"}, \code{"gls"}, \code{"glm"}, 
     \code{"multinom"}, \code{"polr"}, \code{"mer"} (or \code{"merMod"}), or \code{"lme"}. }
-  \item{xlevels}{an optional list of values at which to set covariates,
-    with components of the form \code{covariate.name = vector.of.values}.}
-  \item{default.levels}{number of values for covariates that are not
-    specified explicitly via \code{xlevels}; covariate values set by
-    default are evenly spaced between the minimum and maximum values in
-    the data.}
+  \item{xlevels}{this argument is used to set the number of levels for any
+    focal predictor that is not a factor.  If \code{xlevels=NULL}, the default,
+    then the number and values of levels for any
+    numeric predictor is determined by \code{\link{grid.pretty}}.  If \code{xlevels=n}
+    is an integer, then each numeric predictor is represented by \code{n} equally
+    spaced levels.  More generally, \code{xlevels} can be a named list of values
+    at which to set each numeric predictor.  For example, \code{xlevels=list(x1=c(2, 4, 7),
+    x2=5)} would use the values 2, 4 and 7 for the levels of \code{x1}, 5
+    equally spaced levels for the levels of \code{x2}, and use the default for
+    any other numeric predictors.
+    }
+  \item{default.levels}{ignored, but included for compatibility with pre-July 2013
+    versions of this package.  Use \code{xlevels} instead.}
   \item{given.values}{a numeric vector of named elements, setting particular
-  	columns of the model matrix to specific values for terms \emph{not}
-  	appearing in an effect; if specified, this argument takes precedence over the
+  	columns of the model matrix to specific values for predictors that are \emph{not}
+  	focal predictors; if specified, this argument takes precedence over the
   	application of the function given in the \code{typical} argument
   	(below). Care must be taken in specifying these values --- e.g.,
   	for a factor, the values of all contrasts should be given and these
@@ -243,14 +250,15 @@ allEffects(mod, ...)
   
   Factors cannot have colons in level names (e.g., \code{"level:A"}); the \code{effect} function will confuse the
   colons with interactions; rename levels to remove or replace the colons (e.g., \code{"level.A"}).
+  In addition, factors cannont be declared on the fly (e.g., using \code{y ~ a + factor(b}.
   
   The functions in the \pkg{effects} package do not handle logical predictors; convert logical predictors to factors.
   
   Empty cells in crossed-factors are now permitted for lm, glm and multinom models.  
   
-  With multinom models with two or more crossed factors with an empty, the 'plot' command with \code{style="stacked"} 
-  apparently does not work because of a bug in the barchart function in lattice.  However, the
-  \code{stype="lines"}, the default, does work.  
+  With multinom models with two or more crossed factors with an empty cell, the 'plot' command with \code{style="stacked"} 
+  apparently does not work because of a bug in the \code{barchart} function in \code{lattice}.  However, the default
+  \code{stype="lines"} does work.  
   
   Offsets in linear and generalized linear models are supported, as are offsets in mixed models fit by 
   \code{lmer} or \code{glmer}, but must be supplied through the \code{offset}
@@ -260,7 +268,7 @@ allEffects(mod, ...)
   }
 
 \references{
-    Fox, J. (1987)
+    Fox, J. (1987).
     Effect displays for generalized linear models.
     \emph{Sociological Methodology}
     \bold{17}, 347--361.
@@ -270,7 +278,7 @@ allEffects(mod, ...)
     \emph{Journal of Statistical Software}
     \bold{8:15}, 1--27, <\url{http://www.jstatsoft.org/v08/i15/}>.
     
-  	Fox, J. and R. Andersen (2006)
+  	Fox, J. and R. Andersen (2006).
    	Effect displays for multinomial and proportional-odds logit models.
   	\emph{Sociological Methodology} 
   	\bold{36}, 225--255.
@@ -281,16 +289,20 @@ allEffects(mod, ...)
     \emph{Journal of Statistical Software}
     \bold{32:1}, 1--24, <\url{http://www.jstatsoft.org/v32/i01/}>.
     
-    Hastie, T. J. (1992)
+    Hastie, T. J. (1992).
     Generalized additive models.
     In Chambers, J. M., and Hastie, T. J. (eds.)
     \emph{Statistical Models in S}, Wadsworth.
+    
+    Weisberg, S. (2014). 
+    \emph{Applied Linear Regression}, 4th edition, Wiley,
+    \url{http://z.umn.edu/alr4ed}.
     }
     
     
     
-\author{John Fox \email{jfox@mcmaster.ca} and Jangman Hong.  Extension to
-\code{mer} and \code{lme} objects by Sanford Weisberg \email{sandy@umn.edu}.}
+\author{John Fox \email{jfox@mcmaster.ca}, Sanford Weisberg \email{sandy@umn.edu}
+and Jangman Hong.}
 
 
 \seealso{\code{\link{print.eff}}, \code{\link{summary.eff}}, \code{\link{plot.eff}}, 
@@ -361,7 +373,7 @@ plot(effect("country*poly(age, 3)", latent=TRUE, mod.wvs))
 
 mod.pres <- lm(prestige ~ log(income, 10) + poly(education, 3) + poly(women, 2), 
     data=Prestige)
-eff.pres <- allEffects(mod.pres, default.levels=50)
+eff.pres <- allEffects(mod.pres, xlevels=50)
 plot(eff.pres)
 plot(eff.pres[1], 
     transform.x=list(income=list(trans=log10, inverse=function(x) 10^x)),
@@ -373,9 +385,9 @@ plot(eff.pres[1],
 mod.pres1 <- lm(log(prestige) ~ log(income) + poly(education, 3) + poly(women, 2),
     data=Prestige)
 # effect of the log-predictor
-eff.log <- Effect(c("income"), mod.pres1, default.levels=50)
+eff.log <- Effect(c("income"), mod.pres1, xlevels=50)
 # effect of the log-predictor transformed to the arithmetic scale
-eff.trans <- Effect(c("income"), mod.pres1, default.levels=50,
+eff.trans <- Effect(c("income"), mod.pres1, xlevels=50,
        transformation=list(link=log, inverse=exp))
 #variations:
 # y-axis:  scale is log, tick labels are log
@@ -431,7 +443,7 @@ plot(eff.trans, transform.x=list(income=c(trans=log, inverse=exp)),
 	fm2 <- lme(angle ~ recipe * temperature, data=cake,
                random = ~ 1 | rep, method="ML")
 	plot(effect("recipe:temperature", fm2), grid=TRUE)
-    plot(Effect(c("recipe", "temperature"), fm2)) # equivalent
+  plot(Effect(c("recipe", "temperature"), fm2)) # equivalent
 }
 }
 
