@@ -308,12 +308,12 @@ plot.eff <- function(x, x.var=which.max(levels),
     levels <- sapply(apply(x[,predictors], 2, unique), length)
     if (is.character(x.var)) {
         which.x <- which(x.var == predictors)
-        if (length(which.x) == 0) stop(paste("x.var = '", x.var, "' is not in the model.", sep=""))
+        if (length(which.x) == 0) stop(paste("x.var = '", x.var, "' is not in the effect.", sep=""))
         x.var <- which.x
     }
     if (is.character(z.var)) {
         which.z <- which(z.var == predictors)
-        if (length(which.z) == 0) stop(paste("z.var = '", z.var, "' is not in the model.", sep=""))
+        if (length(which.z) == 0) stop(paste("z.var = '", z.var, "' is not in the effect.", sep=""))
         z.var <- which.z
     }    
     if (x.var == z.var) z.var <- z.var + 1
@@ -767,7 +767,7 @@ plot.effpoly <- function(x,
     else sapply(apply(x.frame[,predictors], 2, unique), length)
     if (is.character(x.var)) {
         which.x <- which(x.var == predictors)
-        if (length(which.x) == 0) stop(paste("x.var = '", x.var, "' is not in the model.", sep=""))
+        if (length(which.x) == 0) stop(paste("x.var = '", x.var, "' is not in the effect.", sep=""))
         x.var <- which.x
     }
     x.vals <- x.frame[, names(x.frame)[x.var]]    
