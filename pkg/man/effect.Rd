@@ -281,6 +281,10 @@ and of class \code{effpoly} with more than 2 categories.
   argument to \code{lm}, \code{glm}, \code{lmer} or \code{glmer}; 
   offsets supplied via calls to the \code{offset} function on the right-hand side
   of the model formula are not supported.
+  
+  Calling any of these functions from within a user-written function may result in errors due
+  to R's scoping rules.  See the vignette \code{embedding.pdf} for the \code{\link{car}} package 
+  for a solution to this problem.
   }
 
 \references{
