@@ -1,5 +1,7 @@
 Version 2.2-5
 
+ o Added support for polytomous latent class analysis based on the poLCA package
+ 
  o Modified mixed-model methods to all use in user-functios
 
  o Changed the default method for determining number of levels for a continuous predictor; see help page for 'effect' and discussion of the 'xlevels' argument for details.  Argument 'default.levels', while still included for compatibility, is depricated.

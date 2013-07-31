@@ -8,6 +8,7 @@
 \alias{Effect.gls}
 \alias{Effect.multinom}
 \alias{Effect.polr}
+\alias{Effect.poLCA}
 \alias{effect.lm}
 \alias{effect.gls}
 \alias{effect.multinom}
@@ -15,10 +16,12 @@
 \alias{effect.mer}
 \alias{effect.merMod}
 \alias{effect.lme}
+\alias{effect.poLCA}
 \alias{allEffects}
 \alias{allEffects.mer}
 \alias{allEffects.merMod}
 \alias{allEffects.lme}
+\alias{allEffects.poLCA}
 \alias{as.data.frame.eff}
 \alias{as.data.frame.effpoly}
 \alias{as.data.frame.efflatent}
@@ -67,6 +70,8 @@ effect(term, mod, ...)
 
 \method{effect}{lme}(term, mod, ...)
 
+\method{effect}{poLCA}(term, mod, ...) 
+
 Effect(focal.predictors, mod, ...)
 
 \method{Effect}{lm}(focal.predictors, mod, xlevels=list(), default.levels=NULL, given.values, 
@@ -91,6 +96,8 @@ Effect(focal.predictors, mod, ...)
 \method{Effect}{merMod}(focal.predictors, mod, ...)
 
 \method{Effect}{lme}(focal.predictors, mod, ...)
+
+\method{Effect}{poLCA}(focal.predictors, mod, ...)
     
 allEffects(mod, ...)
 
@@ -99,6 +106,8 @@ allEffects(mod, ...)
 \method{allEffects}{merMod}(mod, ...)
 
 \method{allEffects}{lme}(mod, ...)
+
+\method{allEffects}{poLCA}(mod, ...)
 
 \method{as.data.frame}{eff}(x, row.names=NULL, optional=TRUE, 
     transform=x$transformation$inverse, ...)
@@ -117,7 +126,8 @@ allEffects(mod, ...)
     for interactions.}
   \item{focal.predictors}{a character vector of one or more predictors in the model.}
   \item{mod}{an object of class \code{"lm"}, \code{"gls"}, \code{"glm"}, 
-    \code{"multinom"}, \code{"polr"}, \code{"mer"} (or \code{"merMod"}), or \code{"lme"}. }
+    \code{"multinom"}, \code{"polr"}, \code{"mer"} (or \code{"merMod"}), \code{"lme"}
+    or \code{"poLCA"}. }
   \item{xlevels}{this argument is used to set the number of levels for any
     focal predictor that is not a factor.  If \code{xlevels=NULL}, the default,
     then the number and values of levels for any
@@ -240,6 +250,12 @@ allEffects(mod, ...)
     
   \code{effectList} returns a list of \code{"eff"} or \code{"effpoly"} objects
   corresponding to the high-order terms of the model.
+  
+If \code{mod} is of class \code{poLCA} (from the \code{poLCA} package) to fit a 
+polytomous latent class model, effects are computed for the predictors given the
+estimated latent classes.
+The result is of class \code{eff} if the latent class model has 2 categories
+and of class \code{effpoly} with more than 2 categories.
 }
 
 \section{Warnings and Limitations}{
@@ -445,6 +461,14 @@ plot(eff.trans, transform.x=list(income=c(trans=log, inverse=exp)),
 	plot(effect("recipe:temperature", fm2), grid=TRUE)
   plot(Effect(c("recipe", "temperature"), fm2)) # equivalent
 }
+\dontrun{
+  library(poLCA)
+  data(election)
+  f2a <- cbind(MORALG,CARESG,KNOWG,LEADG,DISHONG,INTELG,
+             MORALB,CARESB,KNOWB,LEADB,DISHONB,INTELB)~PARTY*AGE
+  nes2a <- poLCA(f2a,election,nclass=3,nrep=5)
+  plot(Effect(c("PARTY", "AGE"), nes2a), style="stacked")
+} 
 }
 
 \keyword{hplot}
