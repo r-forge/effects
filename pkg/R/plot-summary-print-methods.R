@@ -10,6 +10,7 @@
 #   extended to variate terms if multiline=TRUE, ci.style="bars"
 #  2013-01-30: scale arrow "heads" for error bars relative to cex
 #  2013-05-31: fixed symbol colors in legends in plot.eff(). J. Fox
+#  2013-08-14: fixed bug in restoring warn option. J. Fox
 
 
 summary.eff <- function(object, type=c("response", "link"), ...){
@@ -105,7 +106,7 @@ summary.efflist <- function(object, ...){
 
 make.ticks <- function(range, link, inverse, at, n) {
     warn <- options(warn=-1)
-    on.exit(warn)
+    on.exit(options(warn))
     link <- if (is.null(link)) 
         function(x) nlm(function(y) (inverse(y) - x)^2, 
             mean(range))$estimate

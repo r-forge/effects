@@ -1,6 +1,6 @@
 # utilities and common functions for effects package
 # John Fox, Jangman Hong, and Sanford Weisberg
-#  last modified 2012-11-19 by J. Fox
+#  last modified 2013-08-14 by J. Fox
 
 # if (getRversion() >= "2.15.1") globalVariables("wt")
 # 7-25-2013 S. Weisberg modified analyze.model and Analyze.model to ignore
@@ -140,8 +140,8 @@ subscripts <- function(index, dims){
 #}
 
 matrix.to.df <- function(matrix, colclasses){
-	on.exit(options(warn = opt[[1]]))
 	opt <- options(warn = -1)
+	on.exit(options(opt))
 	ncol <- ncol(matrix)
 	colnames <- colnames(matrix)
 	colclasses[sapply(colclasses, function(x) "integer" %in% x)] <- "numeric"

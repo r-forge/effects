@@ -10,6 +10,8 @@ Version 2.2-5
 
  o Added support for lme4.0.
 
+ o Fixed bug preventing restoration of warn option (reported by Kenneth Knoblauch).
+
  o Minor fixes.
 
 Version 2.2-4

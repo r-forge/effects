@@ -283,7 +283,7 @@ and of class \code{effpoly} with more than 2 categories.
   of the model formula are not supported.
   
   Calling any of these functions from within a user-written function may result in errors due
-  to R's scoping rules.  See the vignette \code{embedding.pdf} for the \code{\link{car}} package 
+  to R's scoping rules.  See the vignette \code{embedding.pdf} for the \pkg{car} package 
   for a solution to this problem.
   }
 
