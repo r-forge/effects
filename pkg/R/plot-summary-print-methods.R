@@ -11,6 +11,7 @@
 #  2013-01-30: scale arrow "heads" for error bars relative to cex
 #  2013-05-31: fixed symbol colors in legends in plot.eff(). J. Fox
 #  2013-08-14: fixed bug in restoring warn option. J. Fox
+#  2013-08-27: fixed symbols argument for multiline plot in plot.eff(), reported by Ulrike Gromping. J. Fox
 
 
 summary.eff <- function(object, type=c("response", "link"), ...){
