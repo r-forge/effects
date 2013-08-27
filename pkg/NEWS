@@ -1,8 +1,8 @@
 Version 2.2-5
 
- o Added support for polytomous latent class analysis based on the poLCA package
+ o Added support for polytomous latent class analysis based on the poLCA package.
  
- o Modified mixed-model methods to all use in user-functios
+ o Modified mixed-model methods to all use in user-functions.
 
  o Changed the default method for determining number of levels for a continuous predictor; see help page for 'effect' and discussion of the 'xlevels' argument for details.  Argument 'default.levels', while still included for compatibility, is depricated.
                                                                                                 
@@ -11,6 +11,8 @@ Version 2.2-5
  o Added support for lme4.0.
 
  o Fixed bug preventing restoration of warn option (reported by Kenneth Knoblauch).
+
+ o Adjusted package dependencies, imports for CRAN checks.
 
  o Minor fixes.
 

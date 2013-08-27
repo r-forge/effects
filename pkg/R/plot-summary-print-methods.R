@@ -163,7 +163,7 @@ plot.eff <- function(x, x.var=which.max(levels),
         x$fit[!is.na(x$fit)] <- trans.inverse(x$fit)[!is.na(x$fit)]
         trans.link <- trans.inverse <- I
     }
-    require(lattice)
+    # require(lattice)
     split <- c(col, row, ncol, nrow)
     ylab # force evaluation
     x.data <- x$data
@@ -730,7 +730,7 @@ plot.effpoly <- function(x,
     ylim, rotx=0, alternating=TRUE, roty=0, grid=FALSE,
     layout, key.args=NULL,
     row=1, col=1, nrow=1, ncol=1, more=FALSE, ...){     
-    require(lattice)
+    # require(lattice)
     ci.style <- if(missing(ci.style)) NULL else 
        match.arg(ci.style, c("bars", "lines", "none"))
     type <- match.arg(type)

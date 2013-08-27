@@ -238,6 +238,7 @@ plot(eff.cowles, 'neuroticism:extraversion', multiline=TRUE,
 plot(effect('sex:neuroticism:extraversion', mod.cowles,
     xlevels=list(neuroticism=0:24, extraversion=seq(0, 24, 6))), multiline=TRUE)
 
+if (require(nnet)){
 mod.beps <- multinom(vote ~ age + gender + economic.cond.national +
 				economic.cond.household + Blair + Hague + Kennedy +
 				Europe*political.knowledge, data=BEPS)
@@ -248,7 +249,9 @@ plot(effect("Europe*political.knowledge", mod.beps,
 		xlevels=list(Europe=1:11, political.knowledge=0:3),
 		given.values=c(gendermale=0.5)),
 	style="stacked", colors=c("blue", "red", "orange"), rug=FALSE)
+}
 	
+if (require(MASS)){
 mod.wvs <- polr(poverty ~ gender + religion + degree + country*poly(age,3),
 	data=WVS)
 plot(effect("country*poly(age, 3)", mod.wvs))
@@ -257,6 +260,7 @@ plot(effect("country*poly(age, 3)", mod.wvs), style="stacked",
 	colors=c("gray75", "gray50", "gray25"))
 	
 plot(effect("country*poly(age, 3)", latent=TRUE, mod.wvs))
+}
 
 mod.pres <- lm(prestige ~ log(income, 10) + poly(education, 3) + poly(women, 2), 
     data=Prestige)

@@ -368,6 +368,7 @@ plot(Effect(c("income", "type"), mod, transformation=list(link=log, inverse=exp)
 	ylab="prestige")) # works
     
 \donttest{ 
+if (require(nnet)){
 mod.beps <- multinom(vote ~ age + gender + economic.cond.national +
 				economic.cond.household + Blair + Hague + Kennedy +
 				Europe*political.knowledge, data=BEPS)
@@ -382,13 +383,16 @@ plot(Effect(c("Europe","political.knowledge"), mod.beps,  # equivalent
     	xlevels=list(Europe=1:11, political.knowledge=0:3),
 		given.values=c(gendermale=0.5)),
 	style="stacked", colors=c("blue", "red", "orange"), rug=FALSE)
+    }
     
+if (require(MASS)){
 mod.wvs <- polr(poverty ~ gender + religion + degree + country*poly(age,3),
 	data=WVS)
 plot(effect("country*poly(age, 3)", mod.wvs))
 plot(effect("country*poly(age, 3)", mod.wvs), style="stacked")
 plot(Effect(c("country", "age"), mod.wvs), style="stacked") # equivalent
 plot(effect("country*poly(age, 3)", latent=TRUE, mod.wvs))
+}
 }
 
 mod.pres <- lm(prestige ~ log(income, 10) + poly(education, 3) + poly(women, 2), 
