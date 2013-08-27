@@ -338,10 +338,10 @@ plot.eff <- function(x, x.var=which.max(levels),
         ### multiline factor
         if (is.factor(x[,x.var])){
             levs <- levels(x[,x.var])
-            key<-list(title=predictors[z.var], cex.title=1, border=TRUE,
+            key <- list(title=predictors[z.var], cex.title=1, border=TRUE,
                 text=list(as.character(zvals)), 
                 lines=list(col=colors[1:length(zvals)], lty=lines[1:length(zvals)], lwd=2), 
-                points=list(col=colors[1:length(zvals)], pch=1:length(zvals)))
+                points=list(col=colors[1:length(zvals)], pch=symbols[1:length(zvals)]))
             key <- c(key, key.args)
             plot <- xyplot(eval(parse( 
                 text=paste("fit ~ as.numeric(", predictors[x.var], ")",
