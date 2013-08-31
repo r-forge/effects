@@ -138,7 +138,7 @@ and \code{efflist} objects.
     value of \code{n} is ignored.}
   \item{ticks.x}{a named list of two-item lists controlling the placement of tick marks
     on the horizontal axis. Each list element is named for a numeric predictor in the model,
-    and each sublist has elements \code{code} or \code{n} are for the \code{ticks} argument.
+    and each sublist has elements \code{at} or \code{n} are for the \code{ticks} argument.
     If a predictor doesn't appear in the list, or if \code{ticks.x} is \code{NULL} (the default),
     then the tick marks are computed by the function.}
   \item{transform.x}{transformations to be applied to the horizontal axis, in the form of a named list,
@@ -269,7 +269,7 @@ plot(eff.pres)
 plot(eff.pres[1:2])
 plot(eff.pres[1], 
     transform.x=list(income=list(trans=log10, inverse=function(x) 10^x)),
-    ticks.x=list(at=c(1000, 2000, 5000, 10000, 20000)))
+    ticks.x=list(income=list(at=c(1000, 2000, 5000, 10000, 20000))))
 
 }
 

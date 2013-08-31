@@ -12,6 +12,8 @@ Version 2.2-5
 
  o Fixed bug preventing restoration of warn option (reported by Kenneth Knoblauch).
 
+ o Fixed handling of ticks.x argument to plot.eff() and plot.effpoly(), now works as advertized.
+
  o Adjusted package dependencies, imports for CRAN checks.
 
  o Minor fixes.

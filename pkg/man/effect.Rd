@@ -401,7 +401,7 @@ eff.pres <- allEffects(mod.pres, xlevels=50)
 plot(eff.pres)
 plot(eff.pres[1], 
     transform.x=list(income=list(trans=log10, inverse=function(x) 10^x)),
-    ticks.x=list(at=c(1000, 2000, 5000, 10000, 20000)))
+    ticks.x=list(income=list(at=c(1000, 2000, 5000, 10000, 20000))))
     
 \dontrun{
 # linear model with log-response and log-predictor
@@ -421,7 +421,7 @@ plot(eff.log)
 # y-axis:  scale is log, tick labels are log
 # x-axis:  scale is log, tick labels are arithmetic
 plot(eff.log, transform.x=list(income=c(trans=log, inverse=exp)),
-       ticks.x=list(at=c(1000, 2000, 5000, 10000, 20000)),
+       ticks.x=list(income=list(at=c(1000, 2000, 5000, 10000, 20000))),
        xlab="income, log-scale")
 
 # y-axis:  scale is log, tick labels are airthmetic
@@ -435,14 +435,14 @@ plot(eff.trans, rescale.axis=FALSE, ylab="prestige")
 # y-axis:  scale is log, tick labels are arithmetic
 # x-axis:  scale is log, tick labels are arithmetic
 plot(eff.trans, transform.x=list(income=c(trans=log, inverse=exp)),
-       ticks.x=list(at=c(1000, 2000, 5000, 10000, 20000)),
+       ticks.x=list(income=list(at=c(1000, 2000, 5000, 10000, 20000))),
        xlab="income, log-scale", ylab="prestige, log-scale",
        main="Both effect and X in log-scale")
 
 # y-axis:  scale is arithmetic, tick labels are airthmetic
 # x-axis:  scale is log, tick labels are arithmetic
 plot(eff.trans, transform.x=list(income=c(trans=log, inverse=exp)),
-       ticks.x=list(at=c(1000, 2000, 5000, 10000, 20000)),
+       ticks.x=list(income=list(at=c(1000, 2000, 5000, 10000, 20000))),
        rescale.axis=FALSE,
        xlab="income, log-scale", ylab="prestige")
 }
