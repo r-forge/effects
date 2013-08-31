@@ -269,7 +269,7 @@ plot.eff <- function(x, x.var=which.max(levels),
                     good <- !is.na(y)
                     axis.length <- diff(range(x))
                     llines(x[good], y[good], lwd=2, col=colors[1], ...)
-                    if (rug) lrug(x.vals)
+                    if (rug) lrug(trans(x.vals))
                     if (has.se){  
                         if (ci.style == "bars"){
                             larrows(x0=x[good], y0=lower[good], 
@@ -432,7 +432,7 @@ plot.eff <- function(x, x.var=which.max(levels),
                 # old           panel=function(x, y, subscripts, x.vals, rug, z, ...){
                 panel=function(x, y, subscripts, x.vals, rug, z, lower, upper, show.se, ...){
                     if (grid) panel.grid()
-                    if (rug) lrug(x.vals)
+                    if (rug) lrug(trans(x.vals))
                     #new
                     axis.length <- diff(range(x))
                     #end 
@@ -565,7 +565,7 @@ plot.eff <- function(x, x.var=which.max(levels),
                 if (grid) panel.grid()
                 good <- !is.na(y)
                 llines(x[good], y[good], lwd=2, col=colors[1], ...)
-                if (rug) lrug(x.vals)
+                if (rug) lrug(trans(x.vals))
                 if (has.se){  
                     if (ci.style == "bars"){
                         larrows(x0=x[good], y0=lower[subscripts][good], 
@@ -896,7 +896,7 @@ plot.effpoly <- function(x,
                     strip=function(...) strip.default(..., strip.names=c(factor.names, TRUE)),
                     panel=function(x, y, subscripts, rug, z, x.vals, ...){
                         if (grid) panel.grid()
-                        if (rug) lrug(x.vals)
+                        if (rug) lrug(trans(x.vals))
                         for (i in 1:n.y.lev){
                             sub <- z[subscripts] == y.lev[i]
                             good <- !is.na(y[sub])
@@ -992,7 +992,7 @@ plot.effpoly <- function(x,
                         for (i in 2:n){
                             fill(x, Y[,i-1], Y[,i], col=col[i])
                         }
-                        if (rug) lrug(x.vals)
+                        if (rug) lrug(trans(x.vals))
                     },
                     rug=rug,
                     x.vals=x$data[[predictors[x.var]]],
@@ -1110,7 +1110,7 @@ plot.effpoly <- function(x,
                 strip=function(...) strip.default(..., strip.names=c(factor.names, TRUE)),
                 panel=function(x, y, subscripts, x.vals, rug, lower, upper, ... ){
                     if (grid) panel.grid()
-                    if (rug) lrug(x.vals)
+                    if (rug) lrug(trans(x.vals))
                     good <- !is.na(y)
                     llines(x[good], y[good], lwd=2, col=colors[1], ...)
                     if (ci.style == "bars"){
