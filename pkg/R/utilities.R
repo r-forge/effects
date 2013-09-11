@@ -5,6 +5,7 @@
 # if (getRversion() >= "2.15.1") globalVariables("wt")
 # 7-25-2013 S. Weisberg modified analyze.model and Analyze.model to ignore
 #     default.levels, and use xlevels to set default.  Use grid.pretty by default
+# 11-09-2013: fixed error message in Analyze.model(), bug reported by Joris Meys. J. Fox
 
 has.intercept <- function(model, ...) any(names(coefficients(model))=="(Intercept)")
 
@@ -434,9 +435,9 @@ Analyze.model <- function(focal.predictors, mod, xlevels, default.levels=NULL, f
     number.bad <- sum(check.vars)
     if (any(check.vars)) {
         message <- if (number.bad == 1) paste("the following predictor is not in the model:", 
-                                              all.predictors[check.vars])
+                                              focal.predictors[check.vars])
         else paste("the following predictors are not in the model:", 
-                   paste(all.predictors[check.vars], collapse=", "))
+                   paste(focal.predictors[check.vars], collapse=", "))
         stop(message)
     }
     X.mod <- model.matrix(mod)
