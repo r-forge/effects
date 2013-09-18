@@ -16,6 +16,8 @@ Version 2.2-5
 
  o Adjusted package dependencies, imports for CRAN checks.
 
+ o Changed name of Titanic dataset to TitanicSurvival to avoid name clash (request of Michael Friendly).
+
  o Minor fixes.
 
 Version 2.2-4
