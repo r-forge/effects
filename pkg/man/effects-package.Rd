@@ -15,8 +15,8 @@ generalized linear, multinomial-logit, and proportional-odds logit models.
 \details{
 \tabular{ll}{
 Package: \tab effects\cr
-Version: \tab 2.2-5\cr
-Date: \tab 2013/09/11\cr
+Version: \tab 2.2-6\cr
+Date: \tab 2013/09/25\cr
 Depends: \tab R (>= 2.5.0), lattice, grid, MASS, nnet, colorspace\cr
 Suggests: \tab nlme, lme4\cr
 LazyLoad: \tab yes\cr
@@ -35,8 +35,8 @@ See \code{?effect} and \code{?plot.eff} for details.
 }
 
 \author{
-John Fox <jfox@mcmaster.ca>, Sanford Weisberg, and Jangman Hong. We are grateful to Robert Andersen, David Firth, and
-Michael Friendly, for various suggestions.
+John Fox <jfox@mcmaster.ca>, Sanford Weisberg, Michael Friendly, and Jangman Hong. 
+We are grateful to Robert Andersen, David Firth, and for various suggestions.
 
 Maintainer: John Fox <jfox@mcmaster.ca>
 }
