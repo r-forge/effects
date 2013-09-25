@@ -15,6 +15,7 @@ LazyLoad: yes
 LazyData: yes
 Description: 
   Graphical and tabular effect displays, e.g., of interactions, for linear 
-  generalized linear, multinomial-logit, and proportional-odds logit models.
+  generalized linear, multinomial-logit, proportional-odds logit models
+  and mixed-effect models.
 License: GPL (>= 2)
 URL: http://www.r-project.org, http://socserv.socsci.mcmaster.ca/jfox/

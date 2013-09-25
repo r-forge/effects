@@ -4,12 +4,13 @@
 \alias{effects}
 \docType{package}
 \title{
-Effect Displays for Linear, Generalized Linear, Multinomial-Logit, and Proportional-Odds Logit Models
+Effect Displays for Linear, Generalized Linear, Multinomial-Logit, Proportional-Odds Logit Models and Mixed-Effects Models
 }
 \description{
 
 Graphical and tabular effect displays, e.g., of interactions, for linear
-generalized linear, multinomial-logit, and proportional-odds logit models.
+generalized linear, multinomial-logit, proportional-odds logit models
+and mixed-effects models.
 
 }
 \details{
