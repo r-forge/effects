@@ -1,7 +1,7 @@
 # plot.eff method for effects package, moved here from plot-summary-print-methods.R
 # The plot.effpoly method remains there for now.
 
-# the following two functions aren't exported
+# the following functions aren't exported
 
 make.ticks <- function(range, link, inverse, at, n) {
 	warn <- options(warn=-1)
@@ -25,13 +25,31 @@ range.adj <- function(x){
 			range[2] + .025*(range[2] - range[1]))
 }
 
+# added, modified from http://www.r-bloggers.com/confidence-bands-with-lattice-and-r/
+
+panel.bands <- function(x, y, upper, lower, fill, col,
+		subscripts, ..., font, fontface)
+{
+	if(!missing(subscripts)) {
+		upper <- upper[subscripts]
+		lower <- lower[subscripts]
+	}
+	panel.polygon(c(x, rev(x)), c(upper, rev(lower)),
+			col = fill, fill=fill, border = FALSE,
+			...)
+}
+
+
 # modified by Michael Friendly: added key.args:
+# modified by Michael Friendly: added ci.style="bands"
+# modified by Michael Friendly: added lwd= argument for llines (not used elsewhere)
+# modified by Michael Friendly: added alpha= argument for ci.style="bands"
 
 plot.eff <- function(x, x.var=which.max(levels),
 		z.var=which.min(levels), multiline=is.null(x$se), rug=TRUE, xlab,
 		ylab, main=paste(effect, "effect plot"),
-		colors=palette(), symbols=1:10, lines=1:10, cex=1.5, ylim, xlim=NULL,
-		factor.names=TRUE, ci.style, 
+		colors=palette(), symbols=1:10, lines=1:10, cex=1.5, lwd=2, ylim, xlim=NULL,
+		factor.names=TRUE, ci.style, alpha=0.3, 
 		type=c("response", "link"), ticks=list(at=NULL, n=5),  
 		alternating=TRUE, rotx=0, roty=0, grid=FALSE, layout, rescale.axis=TRUE, 
 		transform.x=NULL, ticks.x=NULL,
@@ -39,7 +57,7 @@ plot.eff <- function(x, x.var=which.max(levels),
 		row=1, col=1, nrow=1, ncol=1, more=FALSE, ...)
 {  
 	ci.style <- if(missing(ci.style)) NULL else 
-				match.arg(ci.style, c("bars", "lines", "none")) 
+				match.arg(ci.style, c("bars", "lines", "bands", "none")) 
 	type <- match.arg(type)
 	thresholds <- x$thresholds
 	has.thresholds <- !is.null(thresholds)
@@ -97,12 +115,15 @@ plot.eff <- function(x, x.var=which.max(levels),
 								larrows(x0=x[good], y0=lower[good], x1=x[good], y1=upper[good], angle=90, 
 										code=3, col=colors[2], length=0.125*cex/1.5)
 							}
-							else{ if(ci.style == "lines") {
-									llines(x[good], lower[good], lty=2, col=colors[2])
-									llines(x[good], upper[good], lty=2, col=colors[2])
+							else if(ci.style == "lines") {
+								llines(x[good], lower[good], lty=2, col=colors[2])
+								llines(x[good], upper[good], lty=2, col=colors[2])
+							}
+							else{ if(ci.style == "bands") {
+									panel.bands(x[good], y[good], upper[good], lower[good], fill=colors[2], alpha=alpha)
 								}}
 						}
-						llines(x[good], y[good], lwd=2, col=colors[1], type='b', pch=19, cex=cex, ...)
+						llines(x[good], y[good], lwd=lwd, col=colors[1], type='b', pch=19, cex=cex, ...)
 						if (has.thresholds){
 							panel.abline(h=thresholds, lty=3)
 							panel.text(rep(current.panel.limits()$xlim[1], length(thresholds)), 
@@ -165,7 +186,7 @@ plot.eff <- function(x, x.var=which.max(levels),
 						if (grid) panel.grid()
 						good <- !is.na(y)
 						axis.length <- diff(range(x))
-						llines(x[good], y[good], lwd=2, col=colors[1], ...)
+						llines(x[good], y[good], lwd=lwd, col=colors[1], ...)
 						if (rug) lrug(trans(x.vals))
 						if (has.se){  
 							if (ci.style == "bars"){
@@ -174,9 +195,12 @@ plot.eff <- function(x, x.var=which.max(levels),
 										angle=90, code=3, col=eval(colors[2]), 
 										length=.125*cex/1.5)
 							}
-							else{ if(ci.style == "lines") {
-									llines(x[good], lower[good], lty=2, col=colors[2])
-									llines(x[good], upper[good], lty=2, col=colors[2])
+							else if(ci.style == "lines") {
+								llines(x[good], lower[good], lty=2, col=colors[2])
+								llines(x[good], upper[good], lty=2, col=colors[2])
+							}
+							else{ if(ci.style == "bands") {
+									panel.bands(x[good], y[good], upper[good], lower[good], fill=colors[2], alpha=alpha)
 								}}
 						}
 						if (has.thresholds){
@@ -240,7 +264,7 @@ plot.eff <- function(x, x.var=which.max(levels),
 			levs <- levels(x[,x.var])
 			key <- list(title=predictors[z.var], cex.title=1, border=TRUE,
 					text=list(as.character(zvals)), 
-					lines=list(col=colors[1:length(zvals)], lty=lines[1:length(zvals)], lwd=2), 
+					lines=list(col=colors[1:length(zvals)], lty=lines[1:length(zvals)], lwd=lwd), 
 					points=list(col=colors[1:length(zvals)], pch=symbols[1:length(zvals)]))
 			key <- c(key, key.args)
 			plot <- xyplot(eval(parse( 
@@ -256,7 +280,7 @@ plot.eff <- function(x, x.var=which.max(levels),
 							os <- if(show.se)
 										(i - (length(zvals) + 1)/2) * (2/(length(zvals)-1)) * 
 												.01 * (length(zvals) - 1) else 0
-							llines(x[sub][good]+os, y[sub][good], lwd=2, type='b', col=colors[i], 
+							llines(x[sub][good]+os, y[sub][good], lwd=lwd, type='b', col=colors[i], 
 									pch=symbols[i], lty=lines[i], cex=cex, ...)
 							if (show.se){
 								larrows(x0=x[sub][good]+os, y0=lower[subscripts][sub][good], 
@@ -319,7 +343,7 @@ plot.eff <- function(x, x.var=which.max(levels),
 					}
 			key<-list(title=predictors[z.var], cex.title=1, border=TRUE,
 					text=list(as.character(zvals)), 
-					lines=list(col=colors[1:length(zvals)], lty=lines[1:length(zvals)], lwd=2))
+					lines=list(col=colors[1:length(zvals)], lty=lines[1:length(zvals)], lwd=lwd))
 			key <- c(key, key.args) 
 			plot <- xyplot(eval(parse( 
 									text=paste("fit ~trans(", predictors[x.var], ")", 
@@ -336,7 +360,7 @@ plot.eff <- function(x, x.var=which.max(levels),
 						for (i in 1:length(zvals)){
 							sub <- z[subscripts] == zvals[i]
 							good <- !is.na(y[sub])
-							llines(x[sub][good], y[sub][good], lwd=2, type='l', col=colors[i], lty=lines[i], cex=cex, ...)
+							llines(x[sub][good], y[sub][good], lwd=lwd, type='l', col=colors[i], lty=lines[i], cex=cex, ...)
 							if(show.se){
 								os <- (i - (length(zvals) + 1)/2) * (2/(length(zvals)-1)) * 
 										.01 * axis.length
@@ -402,12 +426,15 @@ plot.eff <- function(x, x.var=which.max(levels),
 							larrows(x0=x[good], y0=lower[subscripts][good], x1=x[good], y1=upper[subscripts][good], 
 									angle=90, code=3, col=colors[2], length=0.125*cex/1.5)
 						}
-						else{ if(ci.style == "lines") {
-								llines(x[good], lower[subscripts][good], lty=2, col=colors[2])
-								llines(x[good], upper[subscripts][good], lty=2, col=colors[2])
+						else if(ci.style == "lines") {
+							llines(x[good], lower[subscripts][good], lty=2, col=colors[2])
+							llines(x[good], upper[subscripts][good], lty=2, col=colors[2])
+						}
+						else{ if(ci.style == "bands") {
+								panel.bands(x[good], y[good], upper[subscripts][good], lower[subscripts][good], fill=colors[2], alpha=alpha)
 							}}
 					}
-					llines(x[good], y[good], lwd=2, type='b', col=colors[1], pch=19, cex=cex, ...)
+					llines(x[good], y[good], lwd=lwd, type='b', col=colors[1], pch=19, cex=cex, ...)
 					if (has.thresholds){
 						panel.abline(h=thresholds, lty=3)
 						panel.text(rep(current.panel.limits()$xlim[1], length(thresholds)), 
@@ -461,7 +488,7 @@ plot.eff <- function(x, x.var=which.max(levels),
 				panel=function(x, y, subscripts, x.vals, rug, lower, upper, has.se, ...){
 					if (grid) panel.grid()
 					good <- !is.na(y)
-					llines(x[good], y[good], lwd=2, col=colors[1], ...)
+					llines(x[good], y[good], lwd=lwd, col=colors[1], ...)
 					if (rug) lrug(trans(x.vals))
 					if (has.se){  
 						if (ci.style == "bars"){
@@ -470,9 +497,12 @@ plot.eff <- function(x, x.var=which.max(levels),
 									angle=90, code=3, col=eval(colors[2]), 
 									length=.125*cex/1.5)
 						}
-						else{ if(ci.style == "lines") {
-								llines(x[good], lower[subscripts][good], lty=2, col=colors[2])
-								llines(x[good], upper[subscripts][good], lty=2, col=colors[2])
+						else if(ci.style == "lines") {
+							llines(x[good], lower[subscripts][good], lty=2, col=colors[2])
+							llines(x[good], upper[subscripts][good], lty=2, col=colors[2])
+						}
+						else{ if(ci.style == "bands") {
+								panel.bands(x[good], y[good], upper[subscripts][good], lower[subscripts][good], fill=colors[2], alpha=alpha)
 							}}
 					}
 					if (has.thresholds){
