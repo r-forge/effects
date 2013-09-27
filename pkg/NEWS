@@ -1,5 +1,7 @@
 Version 2.2-6
 
+ o bug fixes in effects.mer and effects.lme
+
  o plot.eff() gains an lwd= option to control the width of fitted lines (rev 132).
  
  o Added ci.style='bands' and alpha= to plot.eff() for non-multiline plots to give filled confidence bands (rev 132).
