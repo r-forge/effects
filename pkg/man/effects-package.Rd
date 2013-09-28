@@ -17,7 +17,7 @@ and mixed-effects models.
 \tabular{ll}{
 Package: \tab effects\cr
 Version: \tab 2.2-6\cr
-Date: \tab 2013/09/25\cr
+Date: \tab 2013/09/27\cr
 Depends: \tab R (>= 2.5.0), lattice, grid, MASS, nnet, colorspace\cr
 Suggests: \tab nlme, lme4\cr
 LazyLoad: \tab yes\cr
