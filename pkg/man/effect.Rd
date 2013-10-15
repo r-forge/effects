@@ -1,6 +1,7 @@
 \name{effect}
 \alias{effect}
 \alias{Effect}
+\alias{Effect.default}
 \alias{Effect.lm}
 \alias{Effect.mer}
 \alias{Effect.merMod}
@@ -34,14 +35,18 @@
    multinomial or proportional-odds logit model (fit respectively by \code{multinom} or \code{polr}), 
   absorbing the lower-order terms marginal
   to the term in question, and averaging over other terms in the model.  The function can
-  also be used with mixed-effects models fit with \code{lmer} from the \code{lme4} package,
-  or fit with \code{lme} from the \code{nlme} package.  In mixed effects models the
-  analysis is for the fixed effects only, not for random effects. 
+  also be used with mixed-effects models fit with \code{lmer} from the \pkg{lme4} package,
+  or fit with \code{lme} from the \pkg{nlme} package, and for polytomous latent-class models
+  fit by the \code{poLCA} function in the \pkg{poLCA} package.  In mixed effects models the
+  analysis is for the fixed effects only, not for random effects. The \code{effect} function
+  works by constructing a call to \code{Effect}.
   
   \code{Effect} also constructs an an \code{"eff"} object, but rather than focusing on a term in the model,
   it focuses on a subset of the predictors. \code{Effect} is consequently more flexible and robust than 
   \code{effect}, and will work with some models for which \code{effect} fails, such as models with
-  nested terms (see the examples). The \code{effect} function calls \code{Effect}.
+  nested terms (see the examples). The \code{effect} function calls \code{Effect}. There is a default
+  method for \code{Effect} that should work with any model object that has a linear predictor and responds
+  to the \code{\link{coef}}, \code{\link{model.frame}}, \code{\link{formula}}, and \code{\link{vcov}} functions.
   
   \code{allEffects} identifies all of the high-order terms in a model and returns
   a list of \code{"eff"} or \code{"effpoly"} objects (i.e., an object of type \code{"efflist"}).
@@ -98,6 +103,12 @@ Effect(focal.predictors, mod, ...)
 \method{Effect}{lme}(focal.predictors, mod, ...)
 
 \method{Effect}{poLCA}(focal.predictors, mod, ...)
+
+\method{Effect}{default}(focal.predictors, mod, xlevels = list(), 
+    default.levels = NULL, given.values,
+    se = TRUE, confidence.level = 0.95, 
+    transformation = list(link = I, inverse = I), 
+    typical = mean, offset = mean, ...)
     
 allEffects(mod, ...)
 
