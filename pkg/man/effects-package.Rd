@@ -8,9 +8,9 @@ Effect Displays for Linear, Generalized Linear, Multinomial-Logit, Proportional-
 }
 \description{
 
-Graphical and tabular effect displays, e.g., of interactions, for linear
-generalized linear, multinomial-logit, proportional-odds logit models
-and mixed-effects models.
+Graphical and tabular effect displays, e.g., of interactions, for linear 
+generalized linear, multinomial-logit, proportional-odds logit models,
+mixed-effect models, and polytomous latent-class models.
 
 }
 \details{
@@ -18,8 +18,8 @@ and mixed-effects models.
 Package: \tab effects\cr
 Version: \tab 2.3-0\cr
 Date: \tab 2013/10/12\cr
-Depends: \tab R (>= 2.5.0), lattice, grid, MASS, nnet, colorspace\cr
-Suggests: \tab nlme, lme4\cr
+Depends: \tab lattice, grid, colorspace\cr
+Suggests: \tab nlme, lme4, MASS, nnet, poLCA\cr
 LazyLoad: \tab yes\cr
 LazyData: \tab yes\cr
 License: \tab GPL (>= 2)\cr
@@ -27,12 +27,13 @@ URL: \tab http://www.r-project.org, http://socserv.socsci.mcmaster.ca/jfox/\cr
 }
 
 This package creates effect displays for various kinds of models, as explained in the references.
-Typical usage is \code{plot(allEffects(model))} or \code{plot(allEffects(model), ask=FALSE)},
+Typical usage is \code{plot(allEffects(model))} or \code{plot(allEffects(model))},
 where \code{model} is an appropriate fitted-model object.
 Additional arguments to \code{allEffects} and \code{plot} can be used to customize the resulting
 displays. The function \code{effect} can be employed to produce an effect display for a 
-particular term in the model, or to which terms in the model are marginal.
-See \code{?effect} and \code{?plot.eff} for details.
+particular term in the model, or to which terms in the model are marginal. The function \code{Effect}
+may similarly be used to produce an effect display for any combination of predictors.
+See \code{?effect}, \code{?Effect}, and \code{?plot.eff} for details.
 }
 
 \author{

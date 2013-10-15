@@ -9,14 +9,14 @@
 \alias{Effect.multinom}
 \alias{Effect.polr}
 \alias{Effect.poLCA}
-\alias{effect.lm}
-\alias{effect.gls}
-\alias{effect.multinom}
-\alias{effect.polr}
-\alias{effect.mer}
-\alias{effect.merMod}
-\alias{effect.lme}
-\alias{effect.poLCA}
+%%\alias{effect.lm}
+%%\alias{effect.gls}
+%%\alias{effect.multinom}
+%%\alias{effect.polr}
+%%\alias{effect.mer}
+%%\alias{effect.merMod}
+%%\alias{effect.lme}
+%%\alias{effect.poLCA}
 \alias{allEffects}
 \alias{allEffects.mer}
 \alias{allEffects.merMod}
@@ -41,7 +41,7 @@
   \code{Effect} also constructs an an \code{"eff"} object, but rather than focusing on a term in the model,
   it focuses on a subset of the predictors. \code{Effect} is consequently more flexible and robust than 
   \code{effect}, and will work with some models for which \code{effect} fails, such as models with
-  nested terms (see the examples).
+  nested terms (see the examples). The \code{effect} function calls \code{Effect}.
   
   \code{allEffects} identifies all of the high-order terms in a model and returns
   a list of \code{"eff"} or \code{"effpoly"} objects (i.e., an object of type \code{"efflist"}).
@@ -50,27 +50,27 @@
 \usage{
 effect(term, mod, ...)
 
-\method{effect}{lm}(term, mod, xlevels=list(), default.levels=NULL, given.values, 
-	se=TRUE, confidence.level=.95, 
-    transformation=list(link=family(mod)$linkfun, inverse=family(mod)$linkinv), 
-    typical=mean, offset=mean, ...)
-    
-\method{effect}{gls}(term, mod, xlevels=list(), default.levels=NULL, given.values,
-	se=TRUE, confidence.level=.95, transformation=NULL, typical=mean, ...)
-    
-\method{effect}{multinom}(term, mod, confidence.level=.95, xlevels=list(), default.levels=NULL, 
-	given.values, se=TRUE, typical=mean, ...)
-		
-\method{effect}{polr}(term, mod, confidence.level=.95, xlevels=list(), default.levels=NULL, 
-	given.values, se=TRUE, typical=mean, latent=FALSE, ...)
-	
-\method{effect}{mer}(term, mod, ...)
-
-\method{effect}{merMod}(term, mod, ...)
-
-\method{effect}{lme}(term, mod, ...)
-
-\method{effect}{poLCA}(term, mod, ...) 
+%%\method{effect}{lm}(term, mod, xlevels=list(), default.levels=NULL, given.values, 
+%%	se=TRUE, confidence.level=.95, 
+%%    transformation=list(link=family(mod)$linkfun, inverse=family(mod)$linkinv), 
+%%    typical=mean, offset=mean, ...)
+%%    
+%%\method{effect}{gls}(term, mod, xlevels=list(), default.levels=NULL, given.values,
+%%	se=TRUE, confidence.level=.95, transformation=NULL, typical=mean, ...)
+%%    
+%%\method{effect}{multinom}(term, mod, confidence.level=.95, xlevels=list(), default.levels=NULL, 
+%%	given.values, se=TRUE, typical=mean, ...)
+%%		
+%%\method{effect}{polr}(term, mod, confidence.level=.95, xlevels=list(), default.levels=NULL, 
+%%	given.values, se=TRUE, typical=mean, latent=FALSE, ...)
+%%	
+%%\method{effect}{mer}(term, mod, ...)
+%%
+%%\method{effect}{merMod}(term, mod, ...)
+%%
+%%\method{effect}{lme}(term, mod, ...)
+%%
+%%\method{effect}{poLCA}(term, mod, ...) 
 
 Effect(focal.predictors, mod, ...)
 
@@ -447,36 +447,42 @@ plot(eff.trans, transform.x=list(income=c(trans=log, inverse=exp)),
        xlab="income, log-scale", ylab="prestige")
 }
 
-\dontrun{
-	library(nlme) # for gls()
-	mod.hart <- gls(fconvict ~ mconvict + tfr + partic + degrees, data=Hartnagel, 
-	    correlation=corARMA(p=2, q=0), method="ML")
-	plot(allEffects(mod.hart))
-
-	library(lme4)
+%%\dontrun{
+	if (require(nlme)){ # for gls()
+    	mod.hart <- gls(fconvict ~ mconvict + tfr + partic + degrees, data=Hartnagel, 
+    	    correlation=corARMA(p=2, q=0), method="ML")
+    	plot(allEffects(mod.hart))
+        detach(package:nlme)
+    }
+    
+	if (require(lme4)){
 	data(cake, package="lme4")
 	fm1 <- lmer(angle ~ recipe * temperature + (1|recipe:replicate), cake,
                    REML = FALSE)
 	plot(effect("recipe:temperature", fm1), grid=TRUE)
     plot(Effect(c("recipe", "temperature"), fm1)) # equivalent
-
-	detach(package:lme4) # if previously attached
-	library(nlme)
+	detach(package:lme4)
+    }
+    
+	if (require(nlme) && length(find.package("lme4", quiet=TRUE)) > 0){
 	data(cake, package="lme4")
 	cake$rep <- with(cake, paste( as.character(recipe), as.character(replicate), sep=""))
 	fm2 <- lme(angle ~ recipe * temperature, data=cake,
                random = ~ 1 | rep, method="ML")
 	plot(effect("recipe:temperature", fm2), grid=TRUE)
-  plot(Effect(c("recipe", "temperature"), fm2)) # equivalent
-}
-\dontrun{
-  library(poLCA)
-  data(election)
-  f2a <- cbind(MORALG,CARESG,KNOWG,LEADG,DISHONG,INTELG,
-             MORALB,CARESB,KNOWB,LEADB,DISHONB,INTELB)~PARTY*AGE
-  nes2a <- poLCA(f2a,election,nclass=3,nrep=5)
-  plot(Effect(c("PARTY", "AGE"), nes2a), style="stacked")
-} 
+    plot(Effect(c("recipe", "temperature"), fm2)) # equivalent
+    detach(package:nlme)
+    }
+%%}
+%%\dontrun{
+  if (require(poLCA)){
+      data(election)
+      f2a <- cbind(MORALG,CARESG,KNOWG,LEADG,DISHONG,INTELG,
+                 MORALB,CARESB,KNOWB,LEADB,DISHONB,INTELB)~PARTY*AGE
+      nes2a <- poLCA(f2a,election,nclass=3,nrep=5)
+      plot(Effect(c("PARTY", "AGE"), nes2a), style="stacked")
+  }
+%%} 
 }
 
 \keyword{hplot}

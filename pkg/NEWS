@@ -1,6 +1,6 @@
 Version 2.3-0
 
- o Nothing yet!
+ o effect() now calls Effect(); all effect() methods are removed.
 
 Version 2.2-6
 
