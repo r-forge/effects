@@ -1,5 +1,7 @@
 Version 2.3-0
 
+ o Interpolating splines are now used by default when drawing lines in effects plots unless the argument use.splines=FALSE
+ 
  o effect() now calls Effect(); all effect() methods are removed.
 
 Version 2.2-6

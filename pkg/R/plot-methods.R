@@ -1,5 +1,6 @@
 # plot.eff method for effects package, moved here from plot-summary-print-methods.R
 # The plot.effpoly method remains there for now.
+# 2013-10-17:  Added use.splines keyword to plot.eff. Sandy
 
 # the following functions aren't exported
 
@@ -28,12 +29,21 @@ range.adj <- function(x){
 # added, modified from http://www.r-bloggers.com/confidence-bands-with-lattice-and-r/
 
 panel.bands <- function(x, y, upper, lower, fill, col,
-		subscripts, ..., font, fontface)
+		subscripts, ..., font, fontface, use.splines=FALSE)
 {
 	if(!missing(subscripts)) {
 		upper <- upper[subscripts]
 		lower <- lower[subscripts]
 	}
+#### Added 10/17/2013
+  if (use.splines){
+     up <- spline(x, upper)
+     down <- spline(x, lower)
+     x <- up$x
+     upper <- up$y
+     lower <- down$y
+     }
+#### end addition
 	panel.polygon(c(x, rev(x)), c(upper, rev(lower)),
 			col = fill, fill=fill, border = FALSE,
 			...)
@@ -45,6 +55,10 @@ panel.bands <- function(x, y, upper, lower, fill, col,
 # modified by Michael Friendly: added lwd= argument for llines (not used elsewhere)
 # modified by Michael Friendly: added alpha= argument for ci.style="bands"
 
+#### Added 10/15/2013
+spline.llines <- function(x, y, ...) llines(spline(x, y), ...)
+#### End addition
+
 plot.eff <- function(x, x.var=which.max(levels),
 		z.var=which.min(levels), multiline=is.null(x$se), rug=TRUE, xlab,
 		ylab, main=paste(effect, "effect plot"),
@@ -54,13 +68,16 @@ plot.eff <- function(x, x.var=which.max(levels),
 		alternating=TRUE, rotx=0, roty=0, grid=FALSE, layout, rescale.axis=TRUE, 
 		transform.x=NULL, ticks.x=NULL,
 		key.args=NULL, 
-		row=1, col=1, nrow=1, ncol=1, more=FALSE, ...)
+		row=1, col=1, nrow=1, ncol=1, more=FALSE, use.splines=TRUE, ...)
 {  
 	ci.style <- if(missing(ci.style)) NULL else 
 				match.arg(ci.style, c("bars", "lines", "bands", "none")) 
 	type <- match.arg(type)
 	thresholds <- x$thresholds
 	has.thresholds <- !is.null(thresholds)
+#### Added 10/15/2013
+	effect.llines <- llines
+#### End addition  
 	if (missing(ylab)){
 		ylab <- if (has.thresholds) paste(x$response, ": ", paste(x$y.levels, collapse=", "), sep="")
 				else x$response
@@ -116,14 +133,15 @@ plot.eff <- function(x, x.var=which.max(levels),
 										code=3, col=colors[2], length=0.125*cex/1.5)
 							}
 							else if(ci.style == "lines") {
-								llines(x[good], lower[good], lty=2, col=colors[2])
-								llines(x[good], upper[good], lty=2, col=colors[2])
+								effect.llines(x[good], lower[good], lty=2, col=colors[2])
+								effect.llines(x[good], upper[good], lty=2, col=colors[2])
 							}
-							else{ if(ci.style == "bands") {
-									panel.bands(x[good], y[good], upper[good], lower[good], fill=colors[2], alpha=alpha)
+							else{ if(ci.style == "bands") { 
+									panel.bands(x[good], y[good], upper[good], lower[good], fill=colors[2], 
+                      alpha=alpha, use.splines=FALSE)
 								}}
 						}
-						llines(x[good], y[good], lwd=lwd, col=colors[1], type='b', pch=19, cex=cex, ...)
+						effect.llines(x[good], y[good], lwd=lwd, col=colors[1], type='b', pch=19, cex=cex, ...)
 						if (has.thresholds){
 							panel.abline(h=thresholds, lty=3)
 							panel.text(rep(current.panel.limits()$xlim[1], length(thresholds)), 
@@ -148,6 +166,9 @@ plot.eff <- function(x, x.var=which.max(levels),
 		}  
 		### variate, no other predictors      
 		else {
+#### Added 10/15/2013:
+		  effect.llines <- if(use.splines) spline.llines else effect.llines
+#### End addition
 			ci.style <- if(is.null(ci.style)) "lines" else ci.style
 			range <- if(has.se & ci.style!="none")
 						range(c(x$lower, x$upper), na.rm=TRUE) else range(x$fit, na.rm=TRUE)
@@ -186,7 +207,7 @@ plot.eff <- function(x, x.var=which.max(levels),
 						if (grid) panel.grid()
 						good <- !is.na(y)
 						axis.length <- diff(range(x))
-						llines(x[good], y[good], lwd=lwd, col=colors[1], ...)
+						effect.llines(x[good], y[good], lwd=lwd, col=colors[1], ...)
 						if (rug) lrug(trans(x.vals))
 						if (has.se){  
 							if (ci.style == "bars"){
@@ -196,11 +217,12 @@ plot.eff <- function(x, x.var=which.max(levels),
 										length=.125*cex/1.5)
 							}
 							else if(ci.style == "lines") {
-								llines(x[good], lower[good], lty=2, col=colors[2])
-								llines(x[good], upper[good], lty=2, col=colors[2])
+								effect.llines(x[good], lower[good], lty=2, col=colors[2])
+								effect.llines(x[good], upper[good], lty=2, col=colors[2])
 							}
 							else{ if(ci.style == "bands") {
-									panel.bands(x[good], y[good], upper[good], lower[good], fill=colors[2], alpha=alpha)
+									panel.bands(x[good], y[good], upper[good], lower[good], fill=colors[2], 
+                      alpha=alpha, use.splines=use.splines)
 								}}
 						}
 						if (has.thresholds){
@@ -280,7 +302,7 @@ plot.eff <- function(x, x.var=which.max(levels),
 							os <- if(show.se)
 										(i - (length(zvals) + 1)/2) * (2/(length(zvals)-1)) * 
 												.01 * (length(zvals) - 1) else 0
-							llines(x[sub][good]+os, y[sub][good], lwd=lwd, type='b', col=colors[i], 
+							effect.llines(x[sub][good]+os, y[sub][good], lwd=lwd, type='b', col=colors[i], 
 									pch=symbols[i], lty=lines[i], cex=cex, ...)
 							if (show.se){
 								larrows(x0=x[sub][good]+os, y0=lower[subscripts][sub][good], 
@@ -318,6 +340,9 @@ plot.eff <- function(x, x.var=which.max(levels),
 		} 
 		### multiline variate   
 		else{
+#### Begin addition 10/15/2013
+    effect.llines <- if(use.splines) spline.llines else effect.llines
+#### End addition
 			nm <- names(x)[x.var]
 			x.vals <- x.data[, nm]   
 			if (nm %in% names(ticks.x)){
@@ -360,7 +385,7 @@ plot.eff <- function(x, x.var=which.max(levels),
 						for (i in 1:length(zvals)){
 							sub <- z[subscripts] == zvals[i]
 							good <- !is.na(y[sub])
-							llines(x[sub][good], y[sub][good], lwd=lwd, type='l', col=colors[i], lty=lines[i], cex=cex, ...)
+							effect.llines(x[sub][good], y[sub][good], lwd=lwd, type='l', col=colors[i], lty=lines[i], cex=cex, ...)
 							if(show.se){
 								os <- (i - (length(zvals) + 1)/2) * (2/(length(zvals)-1)) * 
 										.01 * axis.length
@@ -427,14 +452,15 @@ plot.eff <- function(x, x.var=which.max(levels),
 									angle=90, code=3, col=colors[2], length=0.125*cex/1.5)
 						}
 						else if(ci.style == "lines") {
-							llines(x[good], lower[subscripts][good], lty=2, col=colors[2])
-							llines(x[good], upper[subscripts][good], lty=2, col=colors[2])
+							effect.llines(x[good], lower[subscripts][good], lty=2, col=colors[2])
+							effect.llines(x[good], upper[subscripts][good], lty=2, col=colors[2])
 						}
-						else{ if(ci.style == "bands") {
-								panel.bands(x[good], y[good], upper[subscripts][good], lower[subscripts][good], fill=colors[2], alpha=alpha)
+						else{ if(ci.style == "bands") { 
+								panel.bands(x[good], y[good], upper[subscripts][good], lower[subscripts][good], 
+                    fill=colors[2], alpha=alpha, use.splines=FALSE)
 							}}
 					}
-					llines(x[good], y[good], lwd=lwd, type='b', col=colors[1], pch=19, cex=cex, ...)
+					effect.llines(x[good], y[good], lwd=lwd, type='b', col=colors[1], pch=19, cex=cex, ...)
 					if (has.thresholds){
 						panel.abline(h=thresholds, lty=3)
 						panel.text(rep(current.panel.limits()$xlim[1], length(thresholds)), 
@@ -458,6 +484,9 @@ plot.eff <- function(x, x.var=which.max(levels),
 	} 
 	### multiplot variate   
 	else{
+#### Begin addition 10/15/2013
+    effect.llines <- if(use.splines) spline.llines else effect.llines
+#### End addition
 		nm <- names(x)[x.var]
 		x.vals <- x.data[, nm]   
 		if (nm %in% names(ticks.x)){
@@ -488,7 +517,7 @@ plot.eff <- function(x, x.var=which.max(levels),
 				panel=function(x, y, subscripts, x.vals, rug, lower, upper, has.se, ...){
 					if (grid) panel.grid()
 					good <- !is.na(y)
-					llines(x[good], y[good], lwd=lwd, col=colors[1], ...)
+					effect.llines(x[good], y[good], lwd=lwd, col=colors[1], ...)
 					if (rug) lrug(trans(x.vals))
 					if (has.se){  
 						if (ci.style == "bars"){
@@ -498,11 +527,12 @@ plot.eff <- function(x, x.var=which.max(levels),
 									length=.125*cex/1.5)
 						}
 						else if(ci.style == "lines") {
-							llines(x[good], lower[subscripts][good], lty=2, col=colors[2])
-							llines(x[good], upper[subscripts][good], lty=2, col=colors[2])
+							effect.llines(x[good], lower[subscripts][good], lty=2, col=colors[2])
+							effect.llines(x[good], upper[subscripts][good], lty=2, col=colors[2])
 						}
 						else{ if(ci.style == "bands") {
-								panel.bands(x[good], y[good], upper[subscripts][good], lower[subscripts][good], fill=colors[2], alpha=alpha)
+								panel.bands(x[good], y[good], upper[subscripts][good], lower[subscripts][good], 
+                     fill=colors[2], alpha=alpha, use.splines=use.splines)
 							}}
 					}
 					if (has.thresholds){

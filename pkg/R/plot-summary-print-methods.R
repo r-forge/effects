@@ -14,6 +14,7 @@
 #  2013-08-27: fixed symbols argument for multiline plot in plot.eff(), reported by Ulrike Gromping. J. Fox
 #  2013-08-31: fixed handling of ticks.x argument. John
 #  2013-09-25: moved plot.eff methods to plot.methods.R for easier work. Michael
+#  2013-10-17: added use.splines argument to plot.effpoly.  Sandy
 
 
 summary.eff <- function(object, type=c("response", "link"), ...){
@@ -199,12 +200,15 @@ plot.effpoly <- function(x,
     transform.x=NULL, ticks.x=NULL, xlim=NULL,
     ylim, rotx=0, alternating=TRUE, roty=0, grid=FALSE,
     layout, key.args=NULL,
-    row=1, col=1, nrow=1, ncol=1, more=FALSE, ...){     
+    row=1, col=1, nrow=1, ncol=1, more=FALSE, use.splines=TRUE, ...){     
     # require(lattice)
     ci.style <- if(missing(ci.style)) NULL else 
        match.arg(ci.style, c("bars", "lines", "none"))
     type <- match.arg(type)
     style <- match.arg(style)
+#### Added 10/17/2013
+	  effect.llines <- llines
+#### End addition
     has.se <- !is.null(x$confidence.level) 
     if (confint && !has.se) stop("there are no confidence limits to plot")
     if (style == "stacked"){
@@ -302,7 +306,7 @@ plot.effpoly <- function(x,
                         for (i in 1:n.y.lev){
                             sub <- z[subscripts] == y.lev[i]
                             good <- !is.na(y[sub])
-                            llines(x[sub][good], y[sub][good], lwd=2, type="b", col=colors[i], lty=lines[i], 
+                            effect.llines(x[sub][good], y[sub][good], lwd=2, type="b", col=colors[i], lty=lines[i], 
                                 pch=symbols[i], cex=cex, ...)
                         }
                     },
@@ -326,6 +330,7 @@ plot.effpoly <- function(x,
                 class(result) <- c("plot.eff", class(result))    		
             }
             else { # x-variable numeric
+                if(use.splines) effect.llines <- spline.llines # added 10/17/13
                 nm <- predictors[x.var]
                 x.vals <- x$data[[nm]]   
                 if (nm %in% names(ticks.x)){
@@ -366,7 +371,7 @@ plot.effpoly <- function(x,
                         for (i in 1:n.y.lev){
                             sub <- z[subscripts] == y.lev[i]
                             good <- !is.na(y[sub])
-                            llines(x[sub][good], y[sub][good], lwd=2, type="l", col=colors[i], lty=lines[i], ...)
+                            effect.llines(x[sub][good], y[sub][good], lwd=2, type="l", col=colors[i], lty=lines[i], ...)
                         }
                     },
                     ylab=ylab,
@@ -417,6 +422,7 @@ plot.effpoly <- function(x,
                 class(result) <- c("plot.eff", class(result))			
             }
             else { # x-variable numeric
+                if(use.splines) effect.llines <- spline.llines # added 10/17/13
                 nm <- predictors[x.var]
                 x.vals <- x$data[[nm]]   
                 if (nm %in% names(ticks.x)){
@@ -478,7 +484,7 @@ plot.effpoly <- function(x,
             }
         }
     }
-### with confidence banks
+### with confidence bands
     else{ # plot with confidence bands
         layout <- if(missing(layout)) c(prod(n.predictor.cats), length(levels(response)), 1) 
         else layout
@@ -509,15 +515,15 @@ plot.effpoly <- function(x,
                 panel=function(x, y, subscripts, x.vals, rug, lower, upper, ... ){
                     if (grid) panel.grid()
                     good <- !is.na(y)
-                    llines(x[good], y[good], lwd=2, type="b", pch=19, col=colors[1], cex=cex, ...)
+                    effect.llines(x[good], y[good], lwd=2, type="b", pch=19, col=colors[1], cex=cex, ...)
                     if (ci.style == "bars"){
                         larrows(x0=x[good], y0=lower[subscripts+as.numeric(rownames(data)[1])-1][good], 
                             x1=x[good], y1=upper[subscripts+as.numeric(rownames(data)[1])-1][good], 
                             angle=90, code=3, col=colors[2], length=0.125*cex/1.5)
                     }
                     else { if(ci.style == "lines"){
-                        llines(x[good], lower[subscripts+as.numeric(rownames(data)[1])-1][good], lty=2, col=colors[2])
-                        llines(x[good], upper[subscripts+as.numeric(rownames(data)[1])-1][good], lty=2, col=colors[2])
+                        effect.llines(x[good], lower[subscripts+as.numeric(rownames(data)[1])-1][good], lty=2, col=colors[2])
+                        effect.llines(x[good], upper[subscripts+as.numeric(rownames(data)[1])-1][good], lty=2, col=colors[2])
                     } }
                 },
                 ylab=ylab,
@@ -537,6 +543,7 @@ plot.effpoly <- function(x,
             class(result) <- c("plot.eff", class(result))
         }
         else { # x-variable numeric
+            if(use.splines) effect.llines <- spline.llines # added 10/17/13
             nm <- predictors[x.var]
             x.vals <- x$data[[nm]]   
             if (nm %in% names(ticks.x)){
@@ -578,15 +585,15 @@ plot.effpoly <- function(x,
                     if (grid) panel.grid()
                     if (rug) lrug(trans(x.vals))
                     good <- !is.na(y)
-                    llines(x[good], y[good], lwd=2, col=colors[1], ...)
+                    effect.llines(x[good], y[good], lwd=2, col=colors[1], ...)
                     if (ci.style == "bars"){
                         larrows(x0=x[good], y0=lower[subscripts+as.numeric(rownames(data)[1])-1][good], 
                             x1=x[good], y1=upper[subscripts+as.numeric(rownames(data)[1])-1][good], 
                             angle=90, code=3, col=colors[2], length=0.125*cex/1.5)
                     }
                     else { if(ci.style == "lines"){
-                        llines(x[good], lower[subscripts+as.numeric(rownames(data)[1])-1][good], lty=2, col=colors[2])
-                        llines(x[good], upper[subscripts+as.numeric(rownames(data)[1])-1][good], lty=2, col=colors[2])
+                        effect.llines(x[good], lower[subscripts+as.numeric(rownames(data)[1])-1][good], lty=2, col=colors[2])
+                        effect.llines(x[good], upper[subscripts+as.numeric(rownames(data)[1])-1][good], lty=2, col=colors[2])
                     } }
                 },
                 ylab=ylab,

@@ -38,7 +38,7 @@ and \code{efflist} objects.
     type = c("response", "link"), ticks = list(at = NULL, n = 5), alternating = TRUE, 
     rotx = 0, roty = 0, grid = FALSE, layout, rescale.axis = TRUE, 
     transform.x = NULL, ticks.x = NULL, key.args = NULL, row = 1, 
-    col = 1, nrow = 1, ncol = 1, more = FALSE, ...) 
+    col = 1, nrow = 1, ncol = 1, more = FALSE, use.splines=TRUE, ...) 
 \method{plot}{effpoly}(x, type = c("probability", "logit"), x.var = which.max(levels), 
     rug = TRUE, xlab, ylab = paste(x$response, " (", type, ")", 
         sep = ""), main = paste(effect, "effect plot"), colors, 
@@ -48,7 +48,7 @@ and \code{efflist} objects.
         !is.null(x$confidence.level)), transform.x = NULL, ticks.x = NULL, 
     xlim = NULL, ylim, rotx = 0, alternating = TRUE, roty = 0, 
     grid = FALSE, layout, key.args = NULL, row = 1, col = 1, 
-    nrow = 1, ncol = 1, more = FALSE, ...)
+    nrow = 1, ncol = 1, more = FALSE, use.splines=TRUE, ...)
 \method{plot}{efflist}(x, selection, rows, cols, ask=FALSE, graphics=TRUE, ...)
 \method{[}{efflist}(x, ...)
 }
@@ -183,6 +183,10 @@ and \code{efflist} objects.
     high-order terms are plotted in an array.}
   \item{graphics}{if \code{TRUE} (the default), then the menu of terms to plot is presented
     in a dialog box rather than as a text menu.}
+  \item{use.splines}{If \code{TRUE}, the default, then any lines drawn when the horizontal
+    axis is not a factor use interpolating splines computed by the \code{\link{spline}} 
+    function.  If FALSE, then linear interpoliation is used.  This argument is ignored if
+    the horizontal axis is a factor.}
   \item{...}{arguments to be passed down.}
 }
 
