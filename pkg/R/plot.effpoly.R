@@ -1,3 +1,8 @@
+#' Plot method for effpoly objects
+
+# modified by Michael Friendly: added ci.style="bands" & alpha= arg
+# modified by Michael Friendly: added lwd= argument for llines (was lwd=2)
+
 plot.effpoly <- function(x,
 		type=c("probability", "logit"),
 		x.var=which.max(levels),
@@ -5,8 +10,8 @@ plot.effpoly <- function(x,
 		xlab,
 		ylab=paste(x$response, " (", type, ")", sep=""), 
 		main=paste(effect, "effect plot"),
-		colors, symbols=1:10, lines=1:10, cex=1.5, 
-		factor.names=TRUE, ci.style,
+		colors, symbols=1:10, lines=1:10, cex=1.5, lwd=2,
+		factor.names=TRUE, ci.style, alpha=0.3,
 		style=c("lines", "stacked"), 
 		confint=(style == "lines" && !is.null(x$confidence.level)), 
 		transform.x=NULL, ticks.x=NULL, xlim=NULL,
@@ -15,7 +20,7 @@ plot.effpoly <- function(x,
 		row=1, col=1, nrow=1, ncol=1, more=FALSE, use.splines=TRUE, ...){     
 	# require(lattice)
 	ci.style <- if(missing(ci.style)) NULL else 
-				match.arg(ci.style, c("bars", "lines", "none"))
+				match.arg(ci.style, c("bars", "lines", "bands", "none"))	# mod MF 10-18-13
 	type <- match.arg(type)
 	style <- match.arg(style)
 	#### Added 10/17/2013
@@ -101,7 +106,7 @@ plot.effpoly <- function(x,
 			if (is.factor(x$data[[predictors[x.var]]])){ # x-variable a factor
 				key <- list(title=x$response, cex.title=1, border=TRUE,
 						text=list(as.character(unique(response))),
-						lines=list(col=colors[1:n.y.lev], lty=lines[1:n.y.lev], lwd=2),
+						lines=list(col=colors[1:n.y.lev], lty=lines[1:n.y.lev], lwd=lwd),
 						points=list(pch=symbols[1:n.y.lev], col=colors[1:n.y.lev]))
 				result <- xyplot(eval(if (type=="probability") 
 											parse(text=if (n.predictors==1) 
@@ -118,7 +123,7 @@ plot.effpoly <- function(x,
 							for (i in 1:n.y.lev){
 								sub <- z[subscripts] == y.lev[i]
 								good <- !is.na(y[sub])
-								effect.llines(x[sub][good], y[sub][good], lwd=2, type="b", col=colors[i], lty=lines[i], 
+								effect.llines(x[sub][good], y[sub][good], lwd=lwd, type="b", col=colors[i], lty=lines[i], 
 										pch=symbols[i], cex=cex, ...)
 							}
 						},
@@ -168,7 +173,7 @@ plot.effpoly <- function(x,
 						}
 				key <- list(title=x$response, cex.title=1, border=TRUE,
 						text=list(as.character(unique(response))), 
-						lines=list(col=colors[1:n.y.lev], lty=lines[1:n.y.lev], lwd=2))
+						lines=list(col=colors[1:n.y.lev], lty=lines[1:n.y.lev], lwd=lwd))
 				result <- xyplot(eval(if (type=="probability") 
 											parse(text=if (n.predictors==1) paste("prob ~ trans(", predictors[x.var], ")")
 															else paste("prob ~ trans(", predictors[x.var],") |", 
@@ -183,7 +188,7 @@ plot.effpoly <- function(x,
 							for (i in 1:n.y.lev){
 								sub <- z[subscripts] == y.lev[i]
 								good <- !is.na(y[sub])
-								effect.llines(x[sub][good], y[sub][good], lwd=2, type="l", col=colors[i], lty=lines[i], ...)
+								effect.llines(x[sub][good], y[sub][good], lwd=lwd, type="l", col=colors[i], lty=lines[i], ...)
 							}
 						},
 						ylab=ylab,
@@ -327,17 +332,25 @@ plot.effpoly <- function(x,
 					panel=function(x, y, subscripts, x.vals, rug, lower, upper, ... ){
 						if (grid) panel.grid()
 						good <- !is.na(y)
-						effect.llines(x[good], y[good], lwd=2, type="b", pch=19, col=colors[1], cex=cex, ...)
+						effect.llines(x[good], y[good], lwd=lwd, type="b", pch=19, col=colors[1], cex=cex, ...)
+						subs <- subscripts+as.numeric(rownames(data)[1])-1		# added MF 10-18-13
 						if (ci.style == "bars"){
-							larrows(x0=x[good], y0=lower[subscripts+as.numeric(rownames(data)[1])-1][good], 
-									x1=x[good], y1=upper[subscripts+as.numeric(rownames(data)[1])-1][good], 
+							larrows(x0=x[good], y0=lower[subs][good], 
+									x1=x[good], y1=upper[subs][good], 
 									angle=90, code=3, col=colors[2], length=0.125*cex/1.5)
 						}
-						else { if(ci.style == "lines"){
-								effect.llines(x[good], lower[subscripts+as.numeric(rownames(data)[1])-1][good], lty=2, col=colors[2])
-								effect.llines(x[good], upper[subscripts+as.numeric(rownames(data)[1])-1][good], lty=2, col=colors[2])
-							} }
+						else  if(ci.style == "lines"){
+								effect.llines(x[good], lower[subs][good], lty=2, col=colors[2])
+								effect.llines(x[good], upper[subs][good], lty=2, col=colors[2])
+							}
+						else { if(ci.style == "bands") {		## added MF 10-18-13
+								panel.bands(x[good], y[good],
+										lower[subs][good], upper[subs][good],
+										fill=colors[2], alpha=alpha)
+							}}
 					},
+
+
 					ylab=ylab,
 					ylim= if (missing(ylim)) c(min(lower), max(upper)) else ylim,
 					xlab=if (missing(xlab)) predictors[x.var] else xlab,
@@ -397,16 +410,22 @@ plot.effpoly <- function(x,
 						if (grid) panel.grid()
 						if (rug) lrug(trans(x.vals))
 						good <- !is.na(y)
-						effect.llines(x[good], y[good], lwd=2, col=colors[1], ...)
+						effect.llines(x[good], y[good], lwd=lwd, col=colors[1], ...)
+						subs <- subscripts+as.numeric(rownames(data)[1])-1		# added MF 10-18-13
 						if (ci.style == "bars"){
-							larrows(x0=x[good], y0=lower[subscripts+as.numeric(rownames(data)[1])-1][good], 
-									x1=x[good], y1=upper[subscripts+as.numeric(rownames(data)[1])-1][good], 
+							larrows(x0=x[good], y0=lower[subs][good], 
+									x1=x[good], y1=upper[subs][good], 
 									angle=90, code=3, col=colors[2], length=0.125*cex/1.5)
 						}
-						else { if(ci.style == "lines"){
-								effect.llines(x[good], lower[subscripts+as.numeric(rownames(data)[1])-1][good], lty=2, col=colors[2])
-								effect.llines(x[good], upper[subscripts+as.numeric(rownames(data)[1])-1][good], lty=2, col=colors[2])
-							} }
+						else  if(ci.style == "lines"){
+								effect.llines(x[good], lower[subs][good], lty=2, col=colors[2])
+								effect.llines(x[good], upper[subs][good], lty=2, col=colors[2])
+							} 
+						else { if(ci.style == "bands") {		## added MF 10-18-13
+								panel.bands(x[good], y[good],
+										lower[subs][good], upper[subs][good],
+										fill=colors[2], alpha=alpha)
+							}}
 					},
 					ylab=ylab,
 					xlim=suppressWarnings(trans(xlm)),

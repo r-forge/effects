@@ -42,8 +42,8 @@ and \code{efflist} objects.
 \method{plot}{effpoly}(x, type = c("probability", "logit"), x.var = which.max(levels), 
     rug = TRUE, xlab, ylab = paste(x$response, " (", type, ")", 
         sep = ""), main = paste(effect, "effect plot"), colors, 
-    symbols = 1:10, lines = 1:10, cex = 1.5, factor.names = TRUE,
-    ci.style, 
+    symbols = 1:10, lines = 1:10, cex=1.5, lwd=2, factor.names = TRUE,
+    ci.style,  alpha=0.3,
     style = c("lines", "stacked"), confint = (style == "lines" && 
         !is.null(x$confidence.level)), transform.x = NULL, ticks.x = NULL, 
     xlim = NULL, ylim, rotx = 0, alternating = TRUE, roty = 0, 
@@ -112,7 +112,7 @@ and \code{efflist} objects.
     or for polytomous logit models where the effects are plotted without confidence bands;
     in these cases a legend is drawn at the top of the display.}
   \item{cex}{character expansion for plotted symbols; default is \code{1.5}.}
-  \item{lwd}{line width for fitted lined}
+  \item{lwd}{line width for fitted lines}
   \item{ylim}{2-element vector containing the lower and upper limits of the vertical axes;
     if \code{NULL}, the default, then the vertical axes are scaled from the data.}
   \item{xlim}{a named list of 2-element vectors, with the names corresponding to numeric
@@ -130,7 +130,8 @@ and \code{efflist} objects.
     confidence bounds, but style \code{"bars"} can also be used.  For a variate
     the option \code{"bars"} displays the error bars at
     each of the \code{levels} points for which the horizontal variable was evaluated.}
-  \item{alpha}{For \code{ci.style="bands"}, the alpha transparency of the fill color.}
+  \item{alpha}{For \code{ci.style="bands"}, the alpha transparency of the fill color. Note that not all
+    graphic devices support transparency.}
   \item{style}{(for multinomial or proportional-odds logit models) \code{"lines"} (the default
     for a line plot, or \code{"stacked"} for a stacked-bar or stacked-area plot. In the latter
     case only fitted probabilities may be plotted and confidence envelopes cannot be shown.}
