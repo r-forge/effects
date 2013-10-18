@@ -10,6 +10,7 @@
 \alias{Effect.multinom}
 \alias{Effect.polr}
 \alias{Effect.poLCA}
+\alias{Effect.mlm}
 %%\alias{effect.lm}
 %%\alias{effect.gls}
 %%\alias{effect.multinom}
@@ -34,7 +35,11 @@
   in a linear (fit by \code{lm} or \code{gls}) or generalized linear model (fit by \code{glm}), or an \code{"effpoly"} object for a term in a
    multinomial or proportional-odds logit model (fit respectively by \code{multinom} or \code{polr}), 
   absorbing the lower-order terms marginal
-  to the term in question, and averaging over other terms in the model.  The function can
+  to the term in question, and averaging over other terms in the model.  For multivariate linear models
+  (\code{mlm}), the function constructs a list of \code{"eff"} objects separately for the various
+  response variables.
+  
+  The function can
   also be used with mixed-effects models fit with \code{lmer} from the \pkg{lme4} package,
   or fit with \code{lme} from the \pkg{nlme} package, and for polytomous latent-class models
   fit by the \code{poLCA} function in the \pkg{poLCA} package.  In mixed effects models the
@@ -103,6 +108,8 @@ Effect(focal.predictors, mod, ...)
 \method{Effect}{lme}(focal.predictors, mod, ...)
 
 \method{Effect}{poLCA}(focal.predictors, mod, ...)
+
+\method{Effect}{mlm}(focal.predictors, mod, response, ...)
 
 \method{Effect}{default}(focal.predictors, mod, xlevels = list(), 
     default.levels = NULL, given.values,
@@ -191,6 +198,8 @@ allEffects(mod, ...)
   \item{transform}{a transformation to be applied to the effects and confidence limits,
     by default taken from the inverse link function saved in the \code{"eff"} object.}
   \item{row.names, optional}{not used.}
+  \item{response}{for an \code{mlm}, a vector containing the name(s) or indices of one or more response variable(s).  
+    The default is to use all responses in the model.}
   \item{object}{an object of class \code{"eff"} for which the covariance matrix of the effects is desired.}
   \item{...}{arguments to be passed down.}
 }
@@ -225,7 +234,9 @@ allEffects(mod, ...)
 \value{
   For \code{lm}, \code{glm}, \code{mer} and \code{lme}, \code{effect} and \code{Effect} return 
   an \code{"eff"} object, and for \code{multinom}
-  and \code{polr}, an \code{"effpoly"} object, with the following components:
+  and \code{polr}, an \code{"effpoly"} object, with the components listed below.
+  For \code{mlm} with one response specified, an \code{"eff"} object, otherwise a class \code{"efflist"} object, 
+  containing one \code{"eff"} object for each \code{response}.
   \item{term}{the term to which the effect pertains.}
   \item{formula}{the complete model formula.}
   \item{response}{a character string giving the name of the response variable.}
@@ -270,14 +281,14 @@ and of class \code{effpoly} with more than 2 categories.
 }
 
 \section{Warnings and Limitations}{
-  The \code{effect} function handles factors and covariates differently, and becomes confused if one is changed to the other
+  The \code{Effect} function handles factors and covariates differently, and becomes confused if one is changed to the other
   in a model formula. Consequently, formulas that include calls to \code{as.factor}, \code{factor}, or \code{numeric}
-  (as, e.g., in \code{as.factor(income)}) will cause errors. Instead, create the modified variables outside of the model
+  (as, e.g., in \code{y ~ as.factor(income)}) will cause errors. Instead, create the modified variables outside of the model
   formula (e.g., \code{fincome <- as.factor(income)}) and use these in the model formula.
   
   Factors cannot have colons in level names (e.g., \code{"level:A"}); the \code{effect} function will confuse the
   colons with interactions; rename levels to remove or replace the colons (e.g., \code{"level.A"}).
-  In addition, factors cannont be declared on the fly (e.g., using \code{y ~ a + factor(b}.
+  In addition, factors cannont be declared on the fly (e.g., using \code{y ~ a + factor(b)}.
   
   The functions in the \pkg{effects} package do not handle logical predictors; convert logical predictors to factors.
   
@@ -493,7 +504,19 @@ plot(eff.trans, transform.x=list(income=c(trans=log, inverse=exp)),
       nes2a <- poLCA(f2a,election,nclass=3,nrep=5)
       plot(Effect(c("PARTY", "AGE"), nes2a), style="stacked")
   }
-%%} 
+%%}
+
+# mlm example
+if (require(heplots)) {
+	data(NLSY, package="heplots")
+	mod <- lm(cbind(read,math) ~ income+educ, data=NLSY)
+	eff.inc <- Effect("income", mod)
+	plot(eff.inc, ci.style="bands")
+	eff.edu <- Effect("educ", mod)
+	plot(eff.edu, ci.style="bands")
+    detach(package:heplots)
+}
+ 
 }
 
 \keyword{hplot}

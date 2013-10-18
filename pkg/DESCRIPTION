@@ -12,7 +12,7 @@ Authors@R: c(person("John", "Fox", role = c("aut", "cre"), email = "jfox@mcmaste
 Author:  John Fox and Michael Friendly and Sanford Weisberg
 Maintainer:  John Fox <jfox@mcmaster.ca>, Sanford Weisberg <sandy@umn.edu>, Michael Friendly <friendly@yorku.ca>
 Depends: lattice, grid, colorspace
-Suggests: nlme, lme4, MASS, nnet, poLCA
+Suggests: nlme, lme4, MASS, nnet, poLCA, heplots
 LazyLoad: yes
 LazyData: yes
 Description: 
