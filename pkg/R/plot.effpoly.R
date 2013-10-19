@@ -1,6 +1,6 @@
 #' Plot method for effpoly objects
 
-# modified by Michael Friendly: added ci.style="bands" & alpha= arg
+# modified by Michael Friendly: added ci.style="bands" & alpha.band= arg
 # modified by Michael Friendly: added lwd= argument for llines (was lwd=2)
 
 plot.effpoly <- function(x,
@@ -11,7 +11,7 @@ plot.effpoly <- function(x,
 		ylab=paste(x$response, " (", type, ")", sep=""), 
 		main=paste(effect, "effect plot"),
 		colors, symbols=1:10, lines=1:10, cex=1.5, lwd=2,
-		factor.names=TRUE, ci.style, alpha=0.3,
+		factor.names=TRUE, ci.style, alpha.band=0.3,
 		style=c("lines", "stacked"), 
 		confint=(style == "lines" && !is.null(x$confidence.level)), 
 		transform.x=NULL, ticks.x=NULL, xlim=NULL,
@@ -90,7 +90,7 @@ plot.effpoly <- function(x,
 			function(x) length(unique(x)))
 	if (length(n.predictor.cats) == 0) n.predictor.cats <- 1
 	ci.style <- if(is.null(ci.style)) {
-				if(is.factor(x$data[[predictors[x.var]]])) "bars" else "lines"} else ci.style
+				if(is.factor(x$data[[predictors[x.var]]])) "bars" else "bands"} else ci.style
 	if( ci.style=="none" ) confint <- FALSE
 	### no confidence intervals if confint == FALSE or ci.style=="none"
 	if (!confint){ # plot without confidence bands
@@ -346,7 +346,7 @@ plot.effpoly <- function(x,
 						else { if(ci.style == "bands") {		## added MF 10-18-13
 								panel.bands(x[good], y[good],
 										lower[subs][good], upper[subs][good],
-										fill=colors[2], alpha=alpha)
+										fill=colors[2], alpha=alpha.band)
 							}}
 					},
 
@@ -424,7 +424,7 @@ plot.effpoly <- function(x,
 						else { if(ci.style == "bands") {		## added MF 10-18-13
 								panel.bands(x[good], y[good],
 										lower[subs][good], upper[subs][good],
-										fill=colors[2], alpha=alpha)
+										fill=colors[2], alpha=alpha.band)
 							}}
 					},
 					ylab=ylab,

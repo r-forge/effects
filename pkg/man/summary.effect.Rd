@@ -34,7 +34,7 @@ and \code{efflist} objects.
     multiline = is.null(x$se), rug = TRUE, xlab, ylab, main = paste(effect, 
         "effect plot"), colors = palette(), symbols = 1:10, lines = 1:10, 
     cex = 1.5, lwd=2, ylim, xlim = NULL, factor.names = TRUE, 
-    ci.style,  alpha=0.3,
+    ci.style,  alpha.band=0.3,
     type = c("response", "link"), ticks = list(at = NULL, n = 5), alternating = TRUE, 
     rotx = 0, roty = 0, grid = FALSE, layout, rescale.axis = TRUE, 
     transform.x = NULL, ticks.x = NULL, key.args = NULL, row = 1, 
@@ -43,7 +43,7 @@ and \code{efflist} objects.
     rug = TRUE, xlab, ylab = paste(x$response, " (", type, ")", 
         sep = ""), main = paste(effect, "effect plot"), colors, 
     symbols = 1:10, lines = 1:10, cex=1.5, lwd=2, factor.names = TRUE,
-    ci.style,  alpha=0.3,
+    ci.style,  alpha.band=0.3,
     style = c("lines", "stacked"), confint = (style == "lines" && 
         !is.null(x$confidence.level)), transform.x = NULL, ticks.x = NULL, 
     xlim = NULL, ylim, rotx = 0, alternating = TRUE, roty = 0, 
@@ -124,13 +124,13 @@ and \code{efflist} objects.
     factor names in conditioning-variable labels.}
   \item{ci.style}{confidence bounds can be indicated using error bars, using lines or confidence bands,
     depending on the plot type.
-    For single line plots the default is \code{"bars"} for factors and \code{"lines"}
-    for variates, but style \code{"bands"} can also be used.  
+    For single line plots the default is \code{"bars"} for factors and \code{"bands"}
+    for variates.  Style \code{"lines"} can also be used for either of these.  
     For multiline plots, the default is \code{"none"} for no 
-    confidence bounds, but style \code{"bars"} can also be used.  For a variate
+    confidence bounds, but style \code{"bars"} or \code{"bands"} can also be used.  For a variate
     the option \code{"bars"} displays the error bars at
     each of the \code{levels} points for which the horizontal variable was evaluated.}
-  \item{alpha}{For \code{ci.style="bands"}, the alpha transparency of the fill color. Note that not all
+  \item{alpha.band}{For \code{ci.style="bands"}, the alpha transparency of the fill color. Not all
     graphic devices support transparency.}
   \item{style}{(for multinomial or proportional-odds logit models) \code{"lines"} (the default
     for a line plot, or \code{"stacked"} for a stacked-bar or stacked-area plot. In the latter
@@ -232,25 +232,23 @@ and \code{efflist} objects.
 \examples{
 mod.cowles <- glm(volunteer ~ sex + neuroticism*extraversion, 
     data=Cowles, family=binomial)
-eff.cowles <- allEffects(mod.cowles, xlevels=list(neuroticism=0:24, 
-    extraversion=seq(0, 24, 6)))
+eff.cowles <- allEffects(mod.cowles, xlevels=list(extraversion=seq(0, 24, 6)))
 eff.cowles
 
 plot(eff.cowles, 'sex', ylab="Prob(Volunteer)", grid=TRUE, rotx=90)
 
 plot(eff.cowles, 'neuroticism:extraversion', ylab="Prob(Volunteer)",
     ticks=list(at=c(.1,.25,.5,.75,.9)))
-
-# new options: lwd, ci.style='bands', alpha
+    
+# change color of the confidence bands to 'gray50' with .2 transparency
 plot(eff.cowles, 'neuroticism:extraversion', ylab="Prob(Volunteer)",
-     ticks=list(at=c(.1,.25,.5,.75,.9)), lwd=4, ci.style='bands', alpha=0.2)
+    ticks=list(at=c(.1,.25,.5,.75,.9)), colors=c("black", "gray50"), alpha.band=.2)
 
 plot(eff.cowles, 'neuroticism:extraversion', multiline=TRUE, 
     ylab="Prob(Volunteer)", key.args = list(x = 0.75, y = 0.75, corner = c(0, 0)))
     
 plot(effect('sex:neuroticism:extraversion', mod.cowles,
     xlevels=list(neuroticism=0:24, extraversion=seq(0, 24, 6))), multiline=TRUE)
-
 
 if (require(nnet)){
 mod.beps <- multinom(vote ~ age + gender + economic.cond.national +
