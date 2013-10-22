@@ -11,14 +11,6 @@
 \alias{Effect.polr}
 \alias{Effect.poLCA}
 \alias{Effect.mlm}
-%%\alias{effect.lm}
-%%\alias{effect.gls}
-%%\alias{effect.multinom}
-%%\alias{effect.polr}
-%%\alias{effect.mer}
-%%\alias{effect.merMod}
-%%\alias{effect.lme}
-%%\alias{effect.poLCA}
 \alias{allEffects}
 \alias{allEffects.mer}
 \alias{allEffects.merMod}
@@ -59,28 +51,6 @@
 
 \usage{
 effect(term, mod, ...)
-
-%%\method{effect}{lm}(term, mod, xlevels=list(), default.levels=NULL, given.values,
-%%	se=TRUE, confidence.level=.95,
-%%    transformation=list(link=family(mod)$linkfun, inverse=family(mod)$linkinv),
-%%    typical=mean, offset=mean, ...)
-%%
-%%\method{effect}{gls}(term, mod, xlevels=list(), default.levels=NULL, given.values,
-%%	se=TRUE, confidence.level=.95, transformation=NULL, typical=mean, ...)
-%%
-%%\method{effect}{multinom}(term, mod, confidence.level=.95, xlevels=list(), default.levels=NULL,
-%%	given.values, se=TRUE, typical=mean, ...)
-%%
-%%\method{effect}{polr}(term, mod, confidence.level=.95, xlevels=list(), default.levels=NULL,
-%%	given.values, se=TRUE, typical=mean, latent=FALSE, ...)
-%%
-%%\method{effect}{mer}(term, mod, ...)
-%%
-%%\method{effect}{merMod}(term, mod, ...)
-%%
-%%\method{effect}{lme}(term, mod, ...)
-%%
-%%\method{effect}{poLCA}(term, mod, ...)
 
 Effect(focal.predictors, mod, ...)
 
@@ -425,7 +395,6 @@ plot(eff.pres[1],
     transform.x=list(income=list(trans=log10, inverse=function(x) 10^x)),
     ticks.x=list(income=list(at=c(1000, 2000, 5000, 10000, 20000))))
 
-## Not run:
 # linear model with log-response and log-predictor
 # to illustrate transforming axes and setting tick labels
 mod.pres1 <- lm(log(prestige) ~ log(income) + poly(education, 3) + poly(women, 2),
@@ -467,9 +436,6 @@ plot(eff.trans, transform.x=list(income=c(trans=log, inverse=exp)),
        rescale.axis=FALSE,
        xlab="income, log-scale", ylab="prestige")
 
-## End(Not run)
-
-
 	if (require(nlme)){ # for gls()
     	mod.hart <- gls(fconvict ~ mconvict + tfr + partic + degrees, data=Hartnagel,
     	    correlation=corARMA(p=2, q=0), method="ML")
@@ -482,7 +448,7 @@ plot(eff.trans, transform.x=list(income=c(trans=log, inverse=exp)),
 	fm1 <- lmer(angle ~ recipe * temperature + (1|recipe:replicate), cake,
                    REML = FALSE)
 	plot(effect("recipe:temperature", fm1), grid=TRUE)
-  plot(Effect(c("recipe", "temperature"), fm1)) # equivalent
+    plot(Effect(c("recipe", "temperature"), fm1)) # equivalent
 	detach(package:lme4)
     }
 
