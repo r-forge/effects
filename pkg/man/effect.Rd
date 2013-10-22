@@ -60,27 +60,27 @@
 \usage{
 effect(term, mod, ...)
 
-%%\method{effect}{lm}(term, mod, xlevels=list(), default.levels=NULL, given.values, 
-%%	se=TRUE, confidence.level=.95, 
-%%    transformation=list(link=family(mod)$linkfun, inverse=family(mod)$linkinv), 
+%%\method{effect}{lm}(term, mod, xlevels=list(), default.levels=NULL, given.values,
+%%	se=TRUE, confidence.level=.95,
+%%    transformation=list(link=family(mod)$linkfun, inverse=family(mod)$linkinv),
 %%    typical=mean, offset=mean, ...)
-%%    
+%%
 %%\method{effect}{gls}(term, mod, xlevels=list(), default.levels=NULL, given.values,
 %%	se=TRUE, confidence.level=.95, transformation=NULL, typical=mean, ...)
-%%    
-%%\method{effect}{multinom}(term, mod, confidence.level=.95, xlevels=list(), default.levels=NULL, 
+%%
+%%\method{effect}{multinom}(term, mod, confidence.level=.95, xlevels=list(), default.levels=NULL,
 %%	given.values, se=TRUE, typical=mean, ...)
-%%		
-%%\method{effect}{polr}(term, mod, confidence.level=.95, xlevels=list(), default.levels=NULL, 
+%%
+%%\method{effect}{polr}(term, mod, confidence.level=.95, xlevels=list(), default.levels=NULL,
 %%	given.values, se=TRUE, typical=mean, latent=FALSE, ...)
-%%	
+%%
 %%\method{effect}{mer}(term, mod, ...)
 %%
 %%\method{effect}{merMod}(term, mod, ...)
 %%
 %%\method{effect}{lme}(term, mod, ...)
 %%
-%%\method{effect}{poLCA}(term, mod, ...) 
+%%\method{effect}{poLCA}(term, mod, ...)
 
 Effect(focal.predictors, mod, ...)
 
@@ -355,10 +355,10 @@ and Jangman Hong.}
     \code{\link{densityplot}}}
 
 \examples{
-mod.cowles <- glm(volunteer ~ sex + neuroticism*extraversion, 
+mod.cowles <- glm(volunteer ~ sex + neuroticism*extraversion,
     data=Cowles, family=binomial)
-eff.cowles <- allEffects(mod.cowles, xlevels=list(neuroticism=0:24, 
-    extraversion=seq(0, 24, 6)), given.values=c(sexmale=0.5))
+eff.cowles <- allEffects(mod.cowles, xlevels=list(extraversion=seq(0, 24, 6)),
+    given.values=c(sexmale=0.5))
 eff.cowles
 
 	# the following are equivalent:
@@ -372,41 +372,41 @@ plot(eff.cowles, 'sex', ylab="Prob(Volunteer)")
 plot(eff.cowles, 'neuroticism:extraversion', ylab="Prob(Volunteer)",
     ticks=list(at=c(.1,.25,.5,.75,.9)))
 
-plot(eff.cowles, 'neuroticism:extraversion', multiline=TRUE, 
+plot(eff.cowles, 'neuroticism:extraversion', multiline=TRUE,
     ylab="Prob(Volunteer)")
-    
+
 plot(effect('sex:neuroticism:extraversion', mod.cowles,
-    xlevels=list(neuroticism=0:24, extraversion=seq(0, 24, 6))), multiline=TRUE)
-    
+    xlevels=list(extraversion=seq(0, 24, 6))), multiline=TRUE)
+
 as.data.frame(eff.cowles[[2]])
-    
+
 # a nested model:
 
 mod <- lm(log(prestige) ~ income:type + education, data=Prestige)
 
-# does not work: effect("income:type", mod, transformation=list(link=log, inverse=exp)) 
+# does not work: effect("income:type", mod, transformation=list(link=log, inverse=exp))
 
-plot(Effect(c("income", "type"), mod, transformation=list(link=log, inverse=exp), 
+plot(Effect(c("income", "type"), mod, transformation=list(link=log, inverse=exp),
 	ylab="prestige")) # works
-    
-\donttest{ 
+
+
 if (require(nnet)){
 mod.beps <- multinom(vote ~ age + gender + economic.cond.national +
 				economic.cond.household + Blair + Hague + Kennedy +
 				Europe*political.knowledge, data=BEPS)
-plot(effect("Europe*political.knowledge", mod.beps, 
-	xlevels=list(Europe=1:11, political.knowledge=0:3)))  
-plot(effect("Europe*political.knowledge", mod.beps, 
-		xlevels=list(Europe=1:11, political.knowledge=0:3),
+plot(effect("Europe*political.knowledge", mod.beps,
+	xlevels=list(political.knowledge=0:3)))
+plot(effect("Europe*political.knowledge", mod.beps,
+		xlevels=list(political.knowledge=0:3),
 		given.values=c(gendermale=0.5)),
 	style="stacked", colors=c("blue", "red", "orange"), rug=FALSE)
-    
+
 plot(Effect(c("Europe","political.knowledge"), mod.beps,  # equivalent
     	xlevels=list(Europe=1:11, political.knowledge=0:3),
 		given.values=c(gendermale=0.5)),
 	style="stacked", colors=c("blue", "red", "orange"), rug=FALSE)
     }
-    
+
 if (require(MASS)){
 mod.wvs <- polr(poverty ~ gender + religion + degree + country*poly(age,3),
 	data=WVS)
@@ -415,26 +415,25 @@ plot(effect("country*poly(age, 3)", mod.wvs), style="stacked")
 plot(Effect(c("country", "age"), mod.wvs), style="stacked") # equivalent
 plot(effect("country*poly(age, 3)", latent=TRUE, mod.wvs))
 }
-}
 
-mod.pres <- lm(prestige ~ log(income, 10) + poly(education, 3) + poly(women, 2), 
+
+mod.pres <- lm(prestige ~ log(income, 10) + poly(education, 3) + poly(women, 2),
     data=Prestige)
 eff.pres <- allEffects(mod.pres, xlevels=50)
 plot(eff.pres)
-plot(eff.pres[1], 
+plot(eff.pres[1],
     transform.x=list(income=list(trans=log10, inverse=function(x) 10^x)),
     ticks.x=list(income=list(at=c(1000, 2000, 5000, 10000, 20000))))
-    
-\dontrun{
+
+## Not run:
 # linear model with log-response and log-predictor
 # to illustrate transforming axes and setting tick labels
 mod.pres1 <- lm(log(prestige) ~ log(income) + poly(education, 3) + poly(women, 2),
     data=Prestige)
 # effect of the log-predictor
-eff.log <- Effect(c("income"), mod.pres1, xlevels=50)
+eff.log <- Effect(c("income"), mod.pres1)
 # effect of the log-predictor transformed to the arithmetic scale
-eff.trans <- Effect(c("income"), mod.pres1, xlevels=50,
-       transformation=list(link=log, inverse=exp))
+eff.trans <- Effect(c("income"), mod.pres1, transformation=list(link=log, inverse=exp))
 #variations:
 # y-axis:  scale is log, tick labels are log
 # x-axis:  scale is arithmetic, tick labels are arithmetic
@@ -467,36 +466,37 @@ plot(eff.trans, transform.x=list(income=c(trans=log, inverse=exp)),
        ticks.x=list(income=list(at=c(1000, 2000, 5000, 10000, 20000))),
        rescale.axis=FALSE,
        xlab="income, log-scale", ylab="prestige")
-}
 
-%%\dontrun{
+## End(Not run)
+
+
 	if (require(nlme)){ # for gls()
-    	mod.hart <- gls(fconvict ~ mconvict + tfr + partic + degrees, data=Hartnagel, 
+    	mod.hart <- gls(fconvict ~ mconvict + tfr + partic + degrees, data=Hartnagel,
     	    correlation=corARMA(p=2, q=0), method="ML")
     	plot(allEffects(mod.hart))
         detach(package:nlme)
     }
-    
+
 	if (require(lme4)){
 	data(cake, package="lme4")
 	fm1 <- lmer(angle ~ recipe * temperature + (1|recipe:replicate), cake,
                    REML = FALSE)
 	plot(effect("recipe:temperature", fm1), grid=TRUE)
-    plot(Effect(c("recipe", "temperature"), fm1)) # equivalent
+  plot(Effect(c("recipe", "temperature"), fm1)) # equivalent
 	detach(package:lme4)
     }
-    
+
 	if (require(nlme) && length(find.package("lme4", quiet=TRUE)) > 0){
 	data(cake, package="lme4")
 	cake$rep <- with(cake, paste( as.character(recipe), as.character(replicate), sep=""))
 	fm2 <- lme(angle ~ recipe * temperature, data=cake,
                random = ~ 1 | rep, method="ML")
 	plot(effect("recipe:temperature", fm2), grid=TRUE)
-    plot(Effect(c("recipe", "temperature"), fm2)) # equivalent
-    detach(package:nlme)
-    }
-%%}
-%%\dontrun{
+  plot(Effect(c("recipe", "temperature"), fm2)) # equivalent
+  detach(package:nlme)
+  }
+
+
   if (require(poLCA)){
       data(election)
       f2a <- cbind(MORALG,CARESG,KNOWG,LEADG,DISHONG,INTELG,
@@ -504,17 +504,18 @@ plot(eff.trans, transform.x=list(income=c(trans=log, inverse=exp)),
       nes2a <- poLCA(f2a,election,nclass=3,nrep=5)
       plot(Effect(c("PARTY", "AGE"), nes2a), style="stacked")
   }
-%%}
+
 
 # mlm example
 if (require(heplots)) {
 	data(NLSY, package="heplots")
 	mod <- lm(cbind(read,math) ~ income+educ, data=NLSY)
 	eff.inc <- Effect("income", mod)
-	plot(eff.inc, ci.style="bands")
+	plot(eff.inc)
 	eff.edu <- Effect("educ", mod)
-	plot(eff.edu, ci.style="bands")
-    detach(package:heplots)
+	plot(eff.edu, rug=FALSE, grid=TRUE)
+	plot(Effect("educ", mod, response="read"))
+  detach(package:heplots)
 }
  
 }
