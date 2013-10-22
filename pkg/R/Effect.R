@@ -6,6 +6,7 @@
 # 2012-04-06: Added support for lme4.0, J. Fox
 # 2013-07-15:  Changed default xlevels and default.levels
 # 2013-10-15: Added Effect.default(). J. Fox
+# 2013-10-22: fixed bug in Effect.lm() when na.action=na.exclude. J. Fox
 
 
 Effect <- function(focal.predictors, mod, ...){
@@ -41,7 +42,7 @@ Effect.lm <- function (focal.predictors, mod, xlevels = list(), default.levels =
     Terms <- delete.response(terms(mod))
     mf <- model.frame(Terms, predict.data, xlev = factor.levels)
     mod.matrix <- model.matrix(formula.rhs, data = mf, contrasts.arg = mod$contrasts)
-    wts <- mod$weights
+    wts <- weights(mod) # mod$weights
     if (is.null(wts)) 
         wts <- rep(1, length(residuals(mod)))
     mod.matrix <- Fixup.model.matrix(mod, mod.matrix, model.matrix(mod), 
@@ -79,7 +80,7 @@ Effect.lm <- function (focal.predictors, mod, xlevels = list(), default.levels =
             z <- qnorm(1 - (1 - confidence.level)/2)
         }
         else {
-            dispersion <- sum(wts * mod$residuals^2)/mod$df.residual
+            dispersion <- sum(wts * (residuals(mod))^2, na.rm=TRUE)/mod$df.residual # sum(wts * mod$residuals^2)/mod$df.residual
             z <- qt(1 - (1 - confidence.level)/2, df = mod$df.residual)
         }
         V2 <- dispersion * summary.lm(mod)$cov
