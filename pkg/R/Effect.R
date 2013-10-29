@@ -7,6 +7,7 @@
 # 2013-07-15:  Changed default xlevels and default.levels
 # 2013-10-15: Added Effect.default(). J. Fox
 # 2013-10-22: fixed bug in Effect.lm() when na.action=na.exclude. J. Fox
+# 2013-10-29: code to handle "valid" NAs in factors. J. Fox
 
 
 Effect <- function(focal.predictors, mod, ...){
@@ -40,7 +41,7 @@ Effect.lm <- function (focal.predictors, mod, xlevels = list(), default.levels =
     X <- model.components$X
     formula.rhs <- formula(mod)[c(1, 3)]
     Terms <- delete.response(terms(mod))
-    mf <- model.frame(Terms, predict.data, xlev = factor.levels)
+    mf <- model.frame(Terms, predict.data, xlev = factor.levels, na.action=NULL)
     mod.matrix <- model.matrix(formula.rhs, data = mf, contrasts.arg = mod$contrasts)
     wts <- weights(mod) # mod$weights
     if (is.null(wts)) 
@@ -325,7 +326,7 @@ Effect.polr <- function(focal.predictors, mod,
     cnames <- model.components$cnames
     X <- model.components$X
     Terms <- delete.response(terms(mod))
-    mf <- model.frame(Terms, predict.data, xlev = factor.levels)
+    mf <- model.frame(Terms, predict.data, xlev = factor.levels, na.action=NULL)
     mod.matrix <- model.matrix(formula.rhs, data = mf, contrasts.arg = mod$contrasts)
     X0 <- Fixup.model.matrix(mod, mod.matrix, model.matrix(mod), 
         X.mod, factor.cols, cnames, focal.predictors, excluded.predictors, typical, given.values)
@@ -427,7 +428,7 @@ Effect.default <- function(focal.predictors, mod, xlevels = list(), default.leve
     X <- model.components$X
     formula.rhs <- formula(mod)[c(1, 3)]
     Terms <- delete.response(terms(mod))
-    mf <- model.frame(Terms, predict.data, xlev = factor.levels)
+    mf <- model.frame(Terms, predict.data, xlev = factor.levels, na.action=NULL)
     mod.matrix <- model.matrix(formula.rhs, data = mf, contrasts.arg = mod$contrasts)
     mod.matrix <- Fixup.model.matrix(mod, mod.matrix, model.matrix(mod), 
         X.mod, factor.cols, cnames, focal.predictors, excluded.predictors, typical, given.values)

@@ -2,6 +2,7 @@
 # The plot.effpoly method remains there for now.
 # 2013-10-17:  Added use.splines keyword to plot.eff. Sandy
 # 2013-10-17:  Made ci.style="bands" default for variates; allow "bands" if multiline=TRUE
+# 2013-10-29: fixed plot.eff() to handle factors with "valid" NA level. J. Fox
 
 # the following functions aren't exported
 
@@ -112,7 +113,7 @@ plot.eff <- function(x, x.var=which.max(levels),
 	x <- as.data.frame(x, transform=I)
 	for (i in 1:length(vars)){
 		if (!(vars[[i]]$is.factor)) next
-		x[,i] <- factor(x[,i], levels=vars[[i]]$levels)
+		x[,i] <- factor(x[,i], levels=vars[[i]]$levels, exclude=NULL)
 	}
 	has.se <- !is.null(x$se)
 	n.predictors <- ncol(x) - 1 - 3*has.se

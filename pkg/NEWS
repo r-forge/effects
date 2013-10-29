@@ -12,6 +12,8 @@ Version 2.3-0
  
  o effect() now calls Effect(); all effect() methods are removed, but effect() will continue to work as before.
 
+ o Various methods for effect objects now handle factors with a "valid" NA level (fixing bug reported by Joseph Larmarange).
+
 Version 2.2-6
 
  o bug fixes in effects.mer and effects.lme.

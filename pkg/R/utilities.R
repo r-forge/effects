@@ -7,6 +7,7 @@
 #     default.levels, and use xlevels to set default.  Use grid.pretty by default
 # 11-09-2013: fixed error message in Analyze.model(), bug reported by Joris Meys. J. Fox
 # 2013-10-15: eliminated functions not needed after effect() methods removed. J. Fox
+# 2013-10-29: fixed as.data.frame.*() to handle NA levels. J. Fox
 
 has.intercept <- function(model, ...) any(names(coefficients(model))=="(Intercept)")
 
@@ -336,6 +337,13 @@ setXlevels <- function(m, xlevels=list(), default.levels=NULL) {
 # the following function is a modification of code contributed by Steve Taylor
 
 as.data.frame.eff <- function(x, row.names=NULL, optional=TRUE, transform=x$transformation$inverse, ...){
+    xx <- x$x
+    for (var in names(xx)){
+        if (is.factor(xx[[var]])){
+            xx[[var]] <- addNA(xx[[var]]) # handle factors with "valid" NA level
+        }
+    }
+    x$x <- xx
 	result <- if (is.null(x$se)) data.frame(x$x, fit=transform(x$fit))
 	else data.frame(x$x, fit=transform(x$fit), se=x$se, lower=transform(x$lower), upper=transform(x$upper))
     attr(result, "transformation") <- transform
@@ -348,7 +356,7 @@ as.data.frame.effpoly <- function(x, row.names=NULL, optional=TRUE, ...){
 	if (!length(factor.levels) == 0){
 		factor.names <- names(factor.levels)
 		for (fac in factor.names){
-			x$x[[fac]] <- factor(x$x[[fac]], levels=factor.levels[[fac]])
+			x$x[[fac]] <- factor(x$x[[fac]], levels=factor.levels[[fac]], exclude=NULL)
 		}
 	}
 	result <- data.frame(x$x, x$prob, x$logit)
@@ -358,6 +366,13 @@ as.data.frame.effpoly <- function(x, row.names=NULL, optional=TRUE, ...){
 }
 
 as.data.frame.efflatent <- function(x, row.names=NULL, optional=TRUE, ...){
+    xx <- x$x
+    for (var in names(xx)){
+        if (is.factor(xx$var)){
+            xx$var <- addNA(xx$var) # handle factors with "valid" NA level
+        }
+    }
+    x$x <- xx
 	if (is.null(x$se)) data.frame(x$x, fit=x$fit)
 	else data.frame(x$x, fit=x$fit, se=x$se, lower=x$lower, upper=x$upper)
 }
