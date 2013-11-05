@@ -103,7 +103,7 @@ mer.to.glm <- function(mod) {
     class(mod2) <- c("fakeglm", class(mod2))
     mod2
     }
-                                              ?
+                                              
 #method for 'fakeglm' objects. Do not export   
 vcov.fakeglm <- function(object, ...) object$vcov
 

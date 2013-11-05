@@ -1,5 +1,7 @@
 Version 2.3-0
 
+ o removed stray character in a the mixed models file
+ 
  o ci.style="bands" is now the default for variates on the horizontal axis and can also be used with multiline=TRUE
  
  o argument "alpha" renamed "band.transparency".  Argument "band.colors" added to select the band colors.
