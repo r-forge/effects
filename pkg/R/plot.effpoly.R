@@ -2,6 +2,7 @@
 
 # modified by Michael Friendly: added ci.style="bands" & alpha.band= arg
 # modified by Michael Friendly: added lwd= argument for llines (was lwd=2)
+# 2013-11-06: fixed drop dimension when only one focal predictor. John
 
 plot.effpoly <- function(x,
     type=c("probability", "logit"),
@@ -61,7 +62,7 @@ plot.effpoly <- function(x,
     x.frame <-as.data.frame(x)
     predictors <- names(x.frame)[1:n.predictors]
     levels <- if (n.predictors==1) length (x.frame[,predictors])
-    else sapply(apply(x.frame[,predictors], 2, unique), length)
+    else sapply(apply(x.frame[, predictors, drop=FALSE], 2, unique), length)
     if (is.character(x.var)) {
         which.x <- which(x.var == predictors)
         if (length(which.x) == 0) stop(paste("x.var = '", x.var, "' is not in the effect.", sep=""))

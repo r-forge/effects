@@ -8,6 +8,8 @@
 # 2013-10-15: Added Effect.default(). J. Fox
 # 2013-10-22: fixed bug in Effect.lm() when na.action=na.exclude. J. Fox
 # 2013-10-29: code to handle "valid" NAs in factors. J. Fox
+# 2013-11-06: fixed bug in Effect.multinom() in construction of effect object
+#             when there is only one focal predictor; caused as.data.frame.effpoly() to fail
 
 
 Effect <- function(focal.predictors, mod, ...){
@@ -270,7 +272,7 @@ Effect.multinom <- function(focal.predictors, mod,
         SE.logit <- SE.logit[, resp.levs]
     }
     result <- list(term=paste(focal.predictors, collapse="*"), formula=formula(mod), response=response.name(mod),
-        y.levels=mod$lev, variables=x, x=predict.data[, focal.predictors],
+        y.levels=mod$lev, variables=x, x=predict.data[, focal.predictors, drop=FALSE],
         model.matrix=X0, data=X, discrepancy=0, model="multinom",
         prob=P, logit=Logit)
     if (se) result <- c(result, list(se.prob=SE.P, se.logit=SE.logit,
