@@ -8,16 +8,16 @@ Effect Displays for Linear, Generalized Linear, Multinomial-Logit, Proportional-
 }
 \description{
 
-Graphical and tabular effect displays, e.g., of interactions, for linear 
-generalized linear, multinomial-logit, proportional-odds logit models,
-mixed-effect models, and polytomous latent-class models.
+Graphical and tabular effect displays, e.g., of interactions, for linear (including fit via \code{\link[nlme]{gls}}), multivariate-linear, 
+generalized linear, multinomial-logit, proportional-odds logit,
+mixed-effect, polytomous latent-class, and some other models.
 
 }
 \details{
 \tabular{ll}{
 Package: \tab effects\cr
 Version: \tab 2.3-0\cr
-Date: \tab 2013/10/29\cr
+Date: \tab 2013/11/05\cr
 Depends: \tab lattice, grid, colorspace\cr
 Suggests: \tab nlme, lme4, MASS, nnet, poLCA\cr
 LazyLoad: \tab yes\cr
@@ -26,8 +26,8 @@ License: \tab GPL (>= 2)\cr
 URL: \tab http://www.r-project.org, http://socserv.socsci.mcmaster.ca/jfox/\cr
 }
 
-This package creates effect displays for various kinds of models, as explained in the references.
-Typical usage is \code{plot(allEffects(model))} or \code{plot(allEffects(model))},
+This package creates effect displays for various kinds of models, as partly explained in the references.
+Typical usage is \code{plot(allEffects(model))},
 where \code{model} is an appropriate fitted-model object.
 Additional arguments to \code{allEffects} and \code{plot} can be used to customize the resulting
 displays. The function \code{effect} can be employed to produce an effect display for a 

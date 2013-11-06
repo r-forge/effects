@@ -2,14 +2,7 @@
 
 import(grid, lattice, colorspace)
 export(effect, allEffects, all.effects, Effect)
-## S3method(effect, lm)
-## S3method(effect, gls)
-## S3method(effect, multinom)
-## S3method(effect, mer)
-## S3method(effect, merMod)
-## S3method(effect, lme)
-## S3method(effect, polr)
-## S3method(effect, poLCA)
+
 S3method(Effect, default)
 S3method(Effect, lm)
 S3method(Effect, mer)

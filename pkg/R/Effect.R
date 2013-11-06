@@ -302,7 +302,6 @@ Effect.multinom <- function(focal.predictors, mod,
             result$upper.prob[!good, ] <- NA
         }
     } 
-    # end of change
     class(result) <-'effpoly'
     result
 }

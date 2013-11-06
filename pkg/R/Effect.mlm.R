@@ -36,7 +36,6 @@ Effect.mlm <- function(focal.predictors, mod, response, ...) {
 		result <- as.list(NULL)
 		for (resp in response) {
 			mod.1 <- update(mod, as.formula(paste(resp, " ~ .")))
-#			lab <- paste(resp, paste(focal.predictors, sep=":"), sep="@")
 			lab <- resp
 			result[[lab]] <- Effect(focal.predictors, mod.1,  ...)
 		}
