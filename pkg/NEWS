@@ -1,6 +1,6 @@
-Version 2.3-1
+Version 3.0-0
 
- o Nothing yet!
+ o Added partial residuals for multidimensional component+residual plots to Effect.lm() for (multidimensional) component+residual plots.
 
 Version 2.3-0
 

@@ -54,10 +54,11 @@ effect(term, mod, ...)
 
 Effect(focal.predictors, mod, ...)
 
-\method{Effect}{lm}(focal.predictors, mod, xlevels=list(), default.levels=NULL, given.values, 
-    se=TRUE, confidence.level=0.95, 
-    transformation=list(link=family(mod)$linkfun, inverse=family(mod)$linkinv), 
-    typical=mean, offset=mean, ...)
+\method{Effect}{lm}(focal.predictors, mod, xlevels = list(), default.levels = NULL, given.values,
+    se = TRUE, confidence.level = 0.95, 
+    transformation = list(link = family(mod)$linkfun, inverse = family(mod)$linkinv), 
+    typical = mean, offset = mean, partial.residuals=FALSE,
+    x.var=NULL,  ...)
         
 \method{Effect}{gls}(focal.predictors, mod, xlevels = list(), default.levels=NULL, 
     given.values, se = TRUE, confidence.level = 0.95, transformation = NULL, 
@@ -125,7 +126,9 @@ allEffects(mod, ...)
     at which to set each numeric predictor.  For example, \code{xlevels=list(x1=c(2, 4, 7),
     x2=5)} would use the values 2, 4 and 7 for the levels of \code{x1}, 5
     equally spaced levels for the levels of \code{x2}, and use the default for
-    any other numeric predictors.
+    any other numeric predictors. If partial residuals are computed, then the focal
+    predictor that is to appear on the horizontal axis of an effect plot is
+    evaluated at 100 equally spaced values along its full range.
     }
   \item{default.levels}{ignored, but included for compatibility with pre-July 2013
     versions of this package.  Use \code{xlevels} instead.}
@@ -160,6 +163,13 @@ allEffects(mod, ...)
     by the \code{offset} argument to \code{lm}, \code{glm}, \code{lmer}, or \code{glmer} will be handled
     correctly; use of the \code{offset} function in the model formula is
     not supported.}
+  \item{partial.residuals}{if \code{TRUE} (the default is \code{FALSE}), partial residuals will be computed
+    for a linear or generalized linear model.}
+  \item{x.var}{the name or index of the numeric predictor to define the horizontal axis of an effect
+    plot for a linear or generalized linear model; the default is \code{NULL}, in which case the first
+    numeric predictor in the effect will be used \emph{if} partial residuals are to be computed. This argument
+    is intended to be used when \code{partial.residuals=TRUE}; otherwise, the variable on the horizontal
+    axis can be chosen when the effect object is plotted: see \code{\link{plot.eff}}.}
   \item{latent}{if \code{TRUE}, effects in a proportional-odds logit model
   	are computed on the scale of the latent response; if \code{FALSE} 
   	(the default) effects are computed as individual-level probabilities
@@ -239,6 +249,15 @@ allEffects(mod, ...)
   \item{confidence.level}{for the confidence limits.}
   \item{transformation}{(for \code{"eff"} objects) a two-element list, with element \code{link} giving the
     link function, and element \code{inverse} giving the inverse-link (mean) function.}
+  \item{fitted.rounded}{partial fitted values at the observed values of the predictor \code{x.var} and the values of the
+    other predictors that appear in the effect display; predictors not in the effect are held constant to typical values.
+    This and the following two elements are \code{NULL} if partial residuals aren't computed and pertain only to linear
+    or generalized linear models.}
+  \item{fitted}{partial fitted values for the observed values of all predictors that appear in the effect display; 
+    predictors not in the effect are held constant to typical values.}
+  \item{partial.residuals}{partial residuals for the effect.}
+  \item{x.var}{the name of the predictor to appear on the horizontal axis of an effect plot made from the
+    returned object; will usually be \code{NULL} if partial residuals aren't computed.}
     
   \code{effectList} returns a list of \code{"eff"} or \code{"effpoly"} objects
   corresponding to the high-order terms of the model.
@@ -483,7 +502,36 @@ if (require(heplots)) {
 	plot(Effect("educ", mod, response="read"))
   detach(package:heplots)
 }
- 
+
+# component + residual plot examples
+
+Prestige$type <- factor(Prestige$type, levels=c("bc", "wc", "prof"))
+
+mod.prestige.1 <- lm(prestige ~ income + education, data=Prestige)
+plot(allEffects(mod.prestige.1, partial.residuals=TRUE)) # standard C+R plots
+
+mod.prestige.2 <- lm(prestige ~ type*(income + education), data=Prestige)
+plot(allEffects(mod.prestige.2, partial.residuals=TRUE))
+
+mod.prestige.3 <- lm(prestige ~ type + income*education, data=Prestige)
+plot(Effect(c("income", "education"), mod.prestige.3, partial.residuals=TRUE),
+  span=1)
+
+  #  artificial data
+  
+set.seed(12345)
+x1 <- runif(500, -75, 100)
+x2 <- runif(500, -75, 100)
+y <- 10 + 5*x1 + 5*x2 + x1^2 + x2^2 + x1*x2 + rnorm(500, 0, 1e3)
+Data <- data.frame(y, x1, x2)
+mod.1 <- lm(y ~ poly(x1, x2, degree=2, raw=TRUE), data=Data)
+mod.2 <- lm(y ~ x1*x2, data=Data)
+mod.3 <- lm(y ~ x1 + x2, data=Data)
+
+plot(Effect(c("x1", "x2"), mod.1, partial.residuals=TRUE)) # correct model
+plot(Effect(c("x1", "x2"), mod.2, partial.residuals=TRUE)) # wrong model
+plot(Effect(c("x1", "x2"), mod.3, partial.residuals=TRUE)) # wrong model
+
 }
 
 \keyword{hplot}
