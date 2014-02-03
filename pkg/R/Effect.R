@@ -10,7 +10,7 @@
 # 2013-10-29: code to handle "valid" NAs in factors. J. Fox
 # 2013-11-06: fixed bug in Effect.multinom() in construction of effect object
 #             when there is only one focal predictor; caused as.data.frame.effpoly() to fail
-# 2014-01-31: modified Effect.lm() to compute partial residuals. J. Fox
+# 2014-02-03: modified Effect.lm() to compute partial residuals. J. Fox
 
 
 Effect <- function(focal.predictors, mod, ...){
@@ -87,8 +87,8 @@ Effect.lm <- function (focal.predictors, mod, xlevels = list(), default.levels =
         fitted <- as.vector(off + mod.matrix.cases %*% mod$coefficients[!is.na(mod$coefficients)])
         mod.matrix.cases.rounded <- na.omit(mod.matrix.cases.rounded[, !is.na(mod$coefficients)])
         fitted.rounded <- as.vector(off + mod.matrix.cases.rounded %*% mod$coefficients[!is.na(mod$coefficients)])
-        ## ***  correction goes here
-        fitted.rounded + na.omit(residuals(mod, type="working"))
+        ## corrected partial residuals
+        fitted + na.omit(residuals(mod, type="working"))
     }
     else NULL
     result <- list(term = paste(focal.predictors, collapse="*"), 
