@@ -1,13 +1,12 @@
 # utilities and common functions for effects package
 # John Fox, Jangman Hong, and Sanford Weisberg
-#  last modified 2013-08-14 by J. Fox
 
 # 7-25-2013 S. Weisberg modified analyze.model and Analyze.model to ignore
 #     default.levels, and use xlevels to set default.  Use grid.pretty by default
 # 11-09-2013: fixed error message in Analyze.model(), bug reported by Joris Meys. J. Fox
 # 2013-10-15: eliminated functions not needed after effect() methods removed. J. Fox
 # 2013-10-29: fixed as.data.frame.*() to handle NA levels. J. Fox
-# 2014-01-31: modified Fixup.model.matrix() and Analyze.model() to handle partial residuals; 
+# 2014-02-04: modified Fixup.model.matrix() and Analyze.model() to handle partial residuals; 
 #     added is.factor.predictor() and is.numeric.predictor(). J. Fox
 
 has.intercept <- function(model, ...) any(names(coefficients(model))=="(Intercept)")
@@ -200,7 +199,7 @@ vcov.eff <- function(object, ...) object$vcov
 ### the following functions are for use by Effect() methods
 
 Analyze.model <- function(focal.predictors, mod, xlevels, default.levels=NULL, formula.rhs, 
-    partial.residuals=FALSE, x.var=NULL, data=NULL){
+    partial.residuals="none", x.var=NULL, data=NULL){
     if ((!is.null(mod$na.action)) && class(mod$na.action) == "exclude") 
         class(mod$na.action) <- "omit"
     all.predictors <- all.vars(formula.rhs)
@@ -244,7 +243,7 @@ Analyze.model <- function(focal.predictors, mod, xlevels, default.levels=NULL, f
         else factor.levels[[name]] <- levels
         x[[name]] <- list(name=name, is.factor=fac, levels=levels)
     }
-    if (partial.residuals){
+    if (partial.residuals != "none"){
         numeric.predictors <- sapply(focal.predictors, function(predictor) is.numeric.predictor(predictor, mod))
         if (!any(numeric.predictors)) stop("there are no numeric focal predictors", "\n  partial residuals unavailable")
         x.var <- which(numeric.predictors)[1]
@@ -373,7 +372,7 @@ Analyze.model <- function(focal.predictors, mod, xlevels, default.levels=NULL, f
 Fixup.model.matrix <- function(mod, mod.matrix, mod.matrix.all, X.mod,
     factor.cols, cnames, focal.predictors, excluded.predictors, 
     typical, given.values,
-    partial.residuals=FALSE, mod.matrix.all.rounded){
+    partial.residuals="none", mod.matrix.all.rounded){
     vars <- as.character(attr(terms(mod), "variables"))[-(1:2)]
     attr(mod.matrix, "assign") <- attr(mod.matrix.all, "assign")
     if (length(excluded.predictors) > 0){
@@ -390,7 +389,7 @@ Fixup.model.matrix <- function(mod, mod.matrix, mod.matrix.all, X.mod,
         if (any(facs)){ 
             mod.matrix[,facs] <-  matrix(apply(as.matrix(X.mod[,facs]), 2, mean), 
                 nrow=nrow(mod.matrix), ncol=sum(facs), byrow=TRUE)
-            if (partial.residuals) {
+            if (partial.residuals != "none") {
                 mod.matrix.all.rounded[,facs] <- mod.matrix.all[,facs] <-  
                     matrix(apply(as.matrix(X.mod[,facs]), 2, mean), nrow=nrow(mod.matrix.all), ncol=sum(facs), byrow=TRUE)
             }
@@ -398,7 +397,7 @@ Fixup.model.matrix <- function(mod, mod.matrix, mod.matrix.all, X.mod,
         if (any(covs)){ 
             mod.matrix[,covs] <- matrix(apply(as.matrix(X.mod[,covs]), 2, typical), 
                 nrow=nrow(mod.matrix), ncol=sum(covs), byrow=TRUE)
-            if (partial.residuals) {
+            if (partial.residuals != "none") {
                 mod.matrix.all.rounded[,covs] <- mod.matrix.all[,covs] <- 
                     matrix(apply(as.matrix(X.mod[,covs]), 2, typical), nrow=nrow(mod.matrix.all), ncol=sum(covs), byrow=TRUE)
             }
@@ -409,7 +408,7 @@ Fixup.model.matrix <- function(mod, mod.matrix, mod.matrix.all, X.mod,
             if (any(given)) {
                 mod.matrix[,stranger.names[given]] <- matrix(given.values[stranger.names[given]], nrow=nrow(mod.matrix), 
                     ncol=length(stranger.names[given]), byrow=TRUE)
-                if (partial.residuals) {
+                if (partial.residuals != "none") {
                     mod.matrix.all.rounded[,stranger.names[given]] <- mod.matrix.all[,stranger.names[given]] <- 
                         matrix(given.values[stranger.names[given]], nrow=nrow(mod.matrix.all), ncol=length(stranger.names[given]), byrow=TRUE)
                 }
@@ -420,14 +419,14 @@ Fixup.model.matrix <- function(mod, mod.matrix, mod.matrix.all, X.mod,
             components <- components[components %in% cnames]
             if (length(components) > 1) {
                 mod.matrix[,name] <- apply(mod.matrix[,components], 1, prod)
-                if (partial.residuals) {
+                if (partial.residuals != "none") {
                     mod.matrix.all[,name] <- apply(mod.matrix.all[,components], 1, prod)
                     mod.matrix.all.rounded[,name] <- apply(mod.matrix.all.rounded[,components], 1, prod)
                 }
             }
         }
     }
-    if (partial.residuals) list(mod.matrix=mod.matrix, mod.matrix.all=mod.matrix.all, mod.matrix.all.rounded=mod.matrix.all.rounded) else mod.matrix
+    if (partial.residuals != "none") list(mod.matrix=mod.matrix, mod.matrix.all=mod.matrix.all, mod.matrix.all.rounded=mod.matrix.all.rounded) else mod.matrix
 }
 
 # Fixup.model.matrix <- function(mod, mod.matrix, mod.matrix.all, X.mod,
