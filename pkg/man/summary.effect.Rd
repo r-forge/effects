@@ -31,7 +31,7 @@ and \code{efflist} objects.
 \method{summary}{efflatent}(object, ...)
 \method{summary}{efflist}(object, ...)
 \method{plot}{eff}(x, x.var,
-    z.var=which.min(levels), multiline=is.null(x$se), rug=TRUE, span=2/3,
+    z.var=which.min(levels), multiline=is.null(x$se), rug=TRUE, 
     xlab, ylab, main=paste(effect, "effect plot"),
     colors=palette(), symbols=1:length(colors), lines=1:length(colors),
     cex=1.5, lwd=2, ylim, xlim=NULL,
@@ -40,7 +40,9 @@ and \code{efflist} objects.
     alternating=TRUE, rotx=0, roty=0, grid=FALSE, layout, rescale.axis=TRUE, 
     transform.x=NULL, ticks.x=NULL,
     key.args=NULL, 
-    row=1, col=1, nrow=1, ncol=1, more=FALSE, use.splines=TRUE, show.fitted=FALSE, ...)
+    row=1, col=1, nrow=1, ncol=1, more=FALSE, 
+    use.splines=TRUE, show.fitted=FALSE,
+    residuals.color="blue", residuals.pch=1, span=2/3, ...)
 \method{plot}{effpoly}(x,
 		type=c("probability", "logit"),
 		x.var=which.max(levels),
@@ -92,8 +94,6 @@ and \code{efflist} objects.
   \item{rug}{if \code{TRUE}, the default, a rug plot is shown giving the \emph{marginal}
     distribution of the predictor on the horizontal axis, if this predictor is
     a covariate. The rug plot is suppressed if partial residuals are plotted.}
-  \item{span}{of the \emph{loess} smoother to be applied to partial residuals, if present;
-    the default is \code{2/3}.}
   \item{xlab}{the label for the horizontal axis of the effect plot; if missing, the
     function will use the name of the predictor on the horizontal axis.}
   \item{ylab}{the label for the vertical axis of the effect plot; the default is 
@@ -208,8 +208,12 @@ and \code{efflist} objects.
     axis is not a factor use interpolating splines computed by the \code{\link{spline}} 
     function.  If FALSE, then linear interpoliation is used.  This argument is ignored if
     the horizontal axis is a factor.}
+  \item{span}{of the \emph{loess} smoother to be applied to partial residuals, if present;
+    the default is \code{2/3}.}
   \item{show.fitted}{if partial residuals are present in the effect object, also plot the partial
     fitted values (which will be shown as filled circles).}
+  \item{residuals.color}{color for plotting partial residuals (default \code{"blue"}).}
+  \item{residuals.pch}{plotting symbol for partial residuals (default \code{1}, open circles).}
   \item{...}{arguments to be passed down.}
 }
 

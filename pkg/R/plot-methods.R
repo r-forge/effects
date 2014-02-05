@@ -3,7 +3,7 @@
 # 2013-10-17: Added use.splines keyword to plot.eff. Sandy
 # 2013-10-17: Made ci.style="bands" default for variates; allow "bands" if multiline=TRUE
 # 2013-10-29: fixed plot.eff() to handle factors with "valid" NA level. J. Fox
-# 2014-01-31: modified plot.eff() to handle partial residuals. J. Fox
+# 2014-02-05: modified plot.eff() to handle partial residuals. J. Fox
 
 # the following functions aren't exported
 
@@ -61,7 +61,7 @@ spline.llines <- function(x, y, ...) llines(spline(x, y), ...)
 #### End addition
 
 plot.eff <- function(x, x.var,
-    z.var=which.min(levels), multiline=is.null(x$se), rug=TRUE, span=2/3,
+    z.var=which.min(levels), multiline=is.null(x$se), rug=TRUE, 
     xlab, ylab, main=paste(effect, "effect plot"),
     colors=palette(), symbols=1:length(colors), lines=1:length(colors),
     cex=1.5, lwd=2, ylim, xlim=NULL,
@@ -70,7 +70,9 @@ plot.eff <- function(x, x.var,
     alternating=TRUE, rotx=0, roty=0, grid=FALSE, layout, rescale.axis=TRUE, 
     transform.x=NULL, ticks.x=NULL,
     key.args=NULL, 
-    row=1, col=1, nrow=1, ncol=1, more=FALSE, use.splines=TRUE, show.fitted=FALSE, ...)
+    row=1, col=1, nrow=1, ncol=1, more=FALSE, 
+    use.splines=TRUE, show.fitted=FALSE,
+    residuals.color="blue", residuals.pch=1, span=2/3, ...)
 {  
     .mod <- function(a, b) ifelse( (d <- a %% b) == 0, b, d)
     .modc <- function(a) .mod(a, length(colors))
@@ -256,9 +258,9 @@ plot.eff <- function(x, x.var,
                             thresholds, threshold.labels, adj=c(1,0), cex=0.75)
                     }
                     if (!is.null(residuals)){
-                        lpoints(trans(x.fit), residuals)
-                        if (show.fitted) lpoints(trans(x.fit), fitted, pch=16)  # REMOVE ME
-                        llines(loess.smooth(trans(x.fit), residuals, span=span), lwd=2, lty=2)
+                        lpoints(trans(x.fit), residuals, col=residuals.color, pch=residuals.pch)
+                        if (show.fitted) lpoints(trans(x.fit), fitted, pch=16, col=residuals.color)  # REMOVE ME
+                        llines(loess.smooth(trans(x.fit), residuals, span=span), lwd=2, lty=2, col=residuals.color)
                     }
                     
                 },
@@ -589,11 +591,11 @@ plot.eff <- function(x, x.var,
                             else x.all[, predictor] == xx[subscripts[1], predictor]
                         }
                         n.in.panel <- sum(use)
-                        #       browser()
                         if (n.in.panel > 0){
-                            lpoints(trans(x.fit[use]), residuals[use])
-                            if (show.fitted) lpoints(trans(x.fit[use]), fitted[use], pch=16)  # REMOVE ME
-                            if (n.in.panel >= 10) llines(loess.smooth(x.fit[use], residuals[use], span=span), lwd=2, lty=2)
+                            lpoints(trans(x.fit[use]), residuals[use], col=residuals.color, pch=residuals.pch)
+                            if (show.fitted) lpoints(trans(x.fit[use]), fitted[use], pch=16, col=residuals.color)  # REMOVE ME
+                            if (n.in.panel >= 10) llines(loess.smooth(x.fit[use], residuals[use], span=span), 
+                                                         lwd=2, lty=2, col=residuals.color)
                         }
                     }
                 }
