@@ -57,7 +57,7 @@ Effect(focal.predictors, mod, ...)
 \method{Effect}{lm}(focal.predictors, mod, xlevels = list(), default.levels = NULL, given.values,
     se = TRUE, confidence.level = 0.95, 
     transformation = list(link = family(mod)$linkfun, inverse = family(mod)$linkinv), 
-    typical = mean, offset = mean, partial.residuals=c("none", "raw", "adjusted"),
+    typical = mean, offset = mean, partial.residuals=FALSE,
     x.var=NULL,  ...)
         
 \method{Effect}{gls}(focal.predictors, mod, xlevels = list(), default.levels=NULL, 
@@ -163,14 +163,13 @@ allEffects(mod, ...)
     by the \code{offset} argument to \code{lm}, \code{glm}, \code{lmer}, or \code{glmer} will be handled
     correctly; use of the \code{offset} function in the model formula is
     not supported.}
-  \item{partial.residuals}{if \code{"raw"}, partial residuals will be computed
-    for a linear or generalized linear model at the panel-rounded values of the predictors defining the panels
-    of the display; if \code{"adjusted"}, the partial residuals will be adjusted for bias; if \code{"none"}
+  \item{partial.residuals}{if \code{TRUE}, partial residuals will be computed
+    for an effect in a linear or generalized linear model; if \code{FALSE}
     (the default), partial residuals are suppressed.}
   \item{x.var}{the name or index of the numeric predictor to define the horizontal axis of an effect
     plot for a linear or generalized linear model; the default is \code{NULL}, in which case the first
     numeric predictor in the effect will be used \emph{if} partial residuals are to be computed. This argument
-    is intended to be used when \code{partial.residuals} is \code{"raw"} or \code{"adjusted"}; otherwise, the variable on the horizontal
+    is intended to be used when \code{partial.residuals} is \code{TRUE}; otherwise, the variable on the horizontal
     axis can be chosen when the effect object is plotted: see \code{\link{plot.eff}}.}
   \item{latent}{if \code{TRUE}, effects in a proportional-odds logit model
   	are computed on the scale of the latent response; if \code{FALSE} 
@@ -257,7 +256,9 @@ allEffects(mod, ...)
     or generalized linear models.}
   \item{fitted}{partial fitted values for the observed values of all predictors that appear in the effect display; 
     predictors not in the effect are held constant to typical values.}
-  \item{partial.residuals}{partial residuals for the effect.}
+  \item{partial.residuals.raw}{partial residuals for the effect computed at the actual values of all focal predictors.}
+  \item{partial.residuals.adjusted}{partial residuals for the effect computed at the panel-rounded values of focal predictors,
+    except for the predictor corresponding to \code{xvar}, which will appear on the horizontal axis of the plotted effect.}
   \item{x.var}{the name of the predictor to appear on the horizontal axis of an effect plot made from the
     returned object; will usually be \code{NULL} if partial residuals aren't computed.}
     
@@ -510,13 +511,13 @@ if (require(heplots)) {
 Prestige$type <- factor(Prestige$type, levels=c("bc", "wc", "prof"))
 
 mod.prestige.1 <- lm(prestige ~ income + education, data=Prestige)
-plot(allEffects(mod.prestige.1, partial.residuals="adjusted")) # standard C+R plots
+plot(allEffects(mod.prestige.1, partial.residuals=TRUE)) # standard C+R plots
 
 mod.prestige.2 <- lm(prestige ~ type*(income + education), data=Prestige)
-plot(allEffects(mod.prestige.2, partial.residuals="adjusted"))
+plot(allEffects(mod.prestige.2, partial.residuals=TRUE))
 
 mod.prestige.3 <- lm(prestige ~ type + income*education, data=Prestige)
-plot(Effect(c("income", "education"), mod.prestige.3, partial.residuals="adjusted"),
+plot(Effect(c("income", "education"), mod.prestige.3, partial.residuals=TRUE),
   span=1)
 
   #  artificial data
@@ -530,9 +531,9 @@ mod.1 <- lm(y ~ poly(x1, x2, degree=2, raw=TRUE), data=Data) # raw=TRUE necessar
 mod.2 <- lm(y ~ x1*x2, data=Data)
 mod.3 <- lm(y ~ x1 + x2, data=Data)
 
-plot(Effect(c("x1", "x2"), mod.1, partial.residuals="adjusted")) # correct model
-plot(Effect(c("x1", "x2"), mod.2, partial.residuals="adjusted")) # wrong model
-plot(Effect(c("x1", "x2"), mod.3, partial.residuals="adjusted")) # wrong model
+plot(Effect(c("x1", "x2"), mod.1, partial.residuals=TRUE)) # correct model
+plot(Effect(c("x1", "x2"), mod.2, partial.residuals=TRUE)) # wrong model
+plot(Effect(c("x1", "x2"), mod.3, partial.residuals=TRUE)) # wrong model
 
 }
 

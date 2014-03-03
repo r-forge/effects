@@ -9,7 +9,7 @@
 # 2013-10-29: code to handle "valid" NAs in factors. J. Fox
 # 2013-11-06: fixed bug in Effect.multinom() in construction of effect object
 #             when there is only one focal predictor; caused as.data.frame.effpoly() to fail
-# 2014-02-04: modified Effect.lm() to compute partial residuals. J. Fox
+# 2014-03-03: modified Effect.lm() to compute partial residuals. J. Fox
 
 
 Effect <- function(focal.predictors, mod, ...){
@@ -18,10 +18,9 @@ Effect <- function(focal.predictors, mod, ...){
 Effect.lm <- function (focal.predictors, mod, xlevels = list(), default.levels = NULL, given.values,
     se = TRUE, confidence.level = 0.95, 
     transformation = list(link = family(mod)$linkfun, inverse = family(mod)$linkinv), 
-    typical = mean, offset = mean, partial.residuals=c("none", "raw", "adjusted"),
+    typical = mean, offset = mean, partial.residuals=FALSE,
     x.var=NULL,  ...){
-    partial.residuals <- match.arg(partial.residuals)
-    data <- if (partial.residuals != "none"){
+    data <- if (partial.residuals){
         all.vars <- all.vars(formula(mod))
         expand.model.frame(mod, all.vars)[, all.vars]
     }
@@ -41,7 +40,7 @@ Effect.lm <- function (focal.predictors, mod, xlevels = list(), default.levels =
         partial.residuals=partial.residuals, x.var=x.var, data=data)
     excluded.predictors <- model.components$excluded.predictors
     predict.data <- model.components$predict.data
-    predict.data.all.rounded <- predict.data.all <- if (partial.residuals != "none") na.omit(data[, all.vars(formula(mod))]) else NULL
+    predict.data.all.rounded <- predict.data.all <- if (partial.residuals) na.omit(data[, all.vars(formula(mod))]) else NULL
     factor.levels <- model.components$factor.levels
     factor.cols <- model.components$factor.cols
     n.focal <- model.components$n.focal
@@ -55,7 +54,7 @@ Effect.lm <- function (focal.predictors, mod, xlevels = list(), default.levels =
     mf <- model.frame(Terms, predict.data, xlev = factor.levels, na.action=NULL)
     mod.matrix <- model.matrix(formula.rhs, data = mf, contrasts.arg = mod$contrasts)
     factors <- sapply(predict.data, is.factor)
-    if (partial.residuals != "none"){
+    if (partial.residuals){
         for (predictor in focal.predictors[-x.var]){
             if (!factors[predictor]){
                 values <- unique(predict.data[, predictor])
@@ -75,29 +74,31 @@ Effect.lm <- function (focal.predictors, mod, xlevels = list(), default.levels =
         X.mod, factor.cols, cnames, focal.predictors, excluded.predictors, 
         typical, given.values,
         partial.residuals=partial.residuals, mod.matrix.all.rounded)
-    mod.matrix <- if (partial.residuals != "none") res$mod.matrix else res
-    mod.matrix.cases <- if (partial.residuals != "none") res$mod.matrix.all else NULL
-    mod.matrix.cases.rounded <- if (partial.residuals != "none") res$mod.matrix.all.rounded else NULL
+    mod.matrix <- if (partial.residuals) res$mod.matrix else res
+    mod.matrix.cases <- if (partial.residuals) res$mod.matrix.all else NULL
+    mod.matrix.cases.rounded <- if (partial.residuals) res$mod.matrix.all.rounded else NULL
     # look for aliased coefficients and remove those columns from mod.matrix
     mod.matrix <- mod.matrix[, !is.na(mod$coefficients)]
     effect <- off + mod.matrix %*% mod$coefficients[!is.na(mod$coefficients)]
-    fitted.rounded <- fitted <- NULL  # REMOVE ME
-    part.residuals <- if (partial.residuals != "none"){
+    if (partial.residuals){
         mod.matrix.cases <- na.omit(mod.matrix.cases[, !is.na(mod$coefficients)])
         fitted <- as.vector(off + mod.matrix.cases %*% mod$coefficients[!is.na(mod$coefficients)])
         mod.matrix.cases.rounded <- na.omit(mod.matrix.cases.rounded[, !is.na(mod$coefficients)])
         fitted.rounded <- as.vector(off + mod.matrix.cases.rounded %*% mod$coefficients[!is.na(mod$coefficients)])
-        ## corrected partial residuals
-        if (partial.residuals == "adjusted") fitted + na.omit(residuals(mod, type="working"))
-        else fitted.rounded + na.omit(residuals(mod, type="working"))
+        res <- na.omit(residuals(mod, type="working"))
+        partial.residuals.raw <- fitted + res
+        partial.residuals.adjusted <- fitted.rounded + res
     }
-    else NULL
+    else {
+        partial.residuals.raw <- partial.residuals.adjusted <- fitted.rounded <- fitted <- NULL
+    }
     result <- list(term = paste(focal.predictors, collapse="*"), 
         formula = formula(mod), response = response.name(mod), 
         variables = x, fit = effect, x = predict.data[, 1:n.focal, drop=FALSE], x.all=predict.data.all.rounded, #[, 1:n.focal, drop=FALSE],
         model.matrix = mod.matrix, mod.matrix.all=mod.matrix.cases, data = X, 
         discrepancy = 0, offset=off, fitted.rounded=fitted.rounded, fitted=fitted,
-        partial.residuals=part.residuals, x.var=x.var)  # REMOVE ME fitted, fitted.rounded
+        partial.residuals.raw=partial.residuals.raw, partial.residuals.adjusted=partial.residuals.adjusted, 
+        x.var=x.var)
     # find empty cells, if any, and correct
     whichFact <- unlist(lapply(result$variables, function(x) x$is.factor))
     zeroes <- NULL

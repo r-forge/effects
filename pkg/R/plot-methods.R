@@ -3,7 +3,7 @@
 # 2013-10-17: Added use.splines keyword to plot.eff. Sandy
 # 2013-10-17: Made ci.style="bands" default for variates; allow "bands" if multiline=TRUE
 # 2013-10-29: fixed plot.eff() to handle factors with "valid" NA level. J. Fox
-# 2014-02-05: modified plot.eff() to handle partial residuals. J. Fox
+# 2014-03-03: modified plot.eff() to handle partial residuals. J. Fox
 
 # the following functions aren't exported
 
@@ -71,7 +71,7 @@ plot.eff <- function(x, x.var,
     transform.x=NULL, ticks.x=NULL,
     key.args=NULL, 
     row=1, col=1, nrow=1, ncol=1, more=FALSE, 
-    use.splines=TRUE, show.fitted=FALSE,
+    use.splines=TRUE, partial.residuals=c("adjusted", "raw"), show.fitted=FALSE,
     residuals.color="blue", residuals.pch=1, span=2/3, ...)
 {  
     .mod <- function(a, b) ifelse( (d <- a %% b) == 0, b, d)
@@ -82,6 +82,7 @@ plot.eff <- function(x, x.var,
     ci.style <- if(missing(ci.style)) NULL else
         match.arg(ci.style, c("bars", "lines", "bands", "none")) 
     type <- match.arg(type)
+    partial.residuals <- match.arg(partial.residuals)
     levels <- sapply(x$variables, function(z) length(as.vector(z[["levels"]])))
     thresholds <- x$thresholds
     has.thresholds <- !is.null(thresholds)
@@ -105,8 +106,8 @@ plot.eff <- function(x, x.var,
         trans.link <- trans.inverse <- I
     }
     x.all <- x$x.all
-    residuals <- x$partial.residuals
-    fitted <- x$fitted.rounded  # REMOVE ME
+    residuals <- if (partial.residuals == "adjusted") x$partial.residuals.adjusted else x$partial.residuals.raw
+    fitted <- x$fitted.rounded
     mod.matrix.all <- x$mod.matrix.all
     split <- c(col, row, ncol, nrow)
     ylab # force evaluation
