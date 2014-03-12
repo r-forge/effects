@@ -527,7 +527,8 @@ x1 <- runif(500, -75, 100)
 x2 <- runif(500, -75, 100)
 y <- 10 + 5*x1 + 5*x2 + x1^2 + x2^2 + x1*x2 + rnorm(500, 0, 1e3)
 Data <- data.frame(y, x1, x2)
-mod.1 <- lm(y ~ poly(x1, x2, degree=2, raw=TRUE), data=Data) # raw=TRUE necessary for safe prediction
+mod.1 <- lm(y ~ poly(x1, x2, degree=2, raw=TRUE), data=Data) 
+                         # raw=TRUE necessary for safe prediction
 mod.2 <- lm(y ~ x1*x2, data=Data)
 mod.3 <- lm(y ~ x1 + x2, data=Data)
 

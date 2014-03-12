@@ -3,21 +3,24 @@
 \alias{print.effpoly}
 \alias{print.efflatent}
 \alias{print.efflist}
+\alias{print.mlm.efflist}
 \alias{print.summary.eff}
 \alias{summary.eff}
 \alias{summary.effpoly}
 \alias{summary.efflatent}
 \alias{summary.efflist}
+\alias{summary.mlm.efflist}
 \alias{plot.eff}
 \alias{plot.effpoly}
 \alias{plot.efflist}
+\alias{plot.mlm.efflist}
 \alias{[.efflist}
 
 \title{Summarizing, Printing, and Plotting Effects}
 
 \description{
 \code{summary}, \code{print}, \code{plot}, and \code{[} methods for \code{eff}, \code{effpoly},
-and \code{efflist} objects.
+\code{efflist}, and \code{mlm.efflist} objects.
 }
 
 \usage{
@@ -25,11 +28,13 @@ and \code{efflist} objects.
 \method{print}{effpoly}(x, type=c("probability", "logits"), ...)
 \method{print}{efflatent}(x, ...)
 \method{print}{efflist}(x, ...)
+\method{print}{mlm.efflist}(x, ...)
 \method{print}{summary.eff}(x, ...)
 \method{summary}{eff}(object, type=c("response", "link"), ...)
 \method{summary}{effpoly}(object, type=c("probability", "logits"), ...)
 \method{summary}{efflatent}(object, ...)
 \method{summary}{efflist}(object, ...)
+\method{summary}{mlm.efflist}(object, ...)
 \method{plot}{eff}(x, x.var,
     z.var=which.min(levels), multiline=is.null(x$se), rug=TRUE, 
     xlab, ylab, main=paste(effect, "effect plot"),
@@ -59,13 +64,14 @@ and \code{efflist} objects.
 		layout, key.args=NULL,
 		row=1, col=1, nrow=1, ncol=1, more=FALSE, use.splines=TRUE, ...)
 \method{plot}{efflist}(x, selection, rows, cols, ask=FALSE, graphics=TRUE, ...)
+\method{plot}{mlm.efflist}(x, ...)
 \method{[}{efflist}(x, ...)
 }
 
 \arguments{
-  \item{x}{an object of class \code{"eff"}, \code{"effpoly"}, \code{"efflist"}, 
+  \item{x}{an object of class \code{"eff"}, \code{"effpoly"}, \code{"efflist"}, \code{"mlm.efflist"},
   	or \code{"summary.eff"}, as appropriate.}
-  \item{object}{an object of class \code{"eff"}, \code{"effpoly"}, or \code{"efflist"},
+  \item{object}{an object of class \code{"eff"}, \code{"effpoly"}, \code{"efflist"}, or \code{"mlm.efflist"},
     as appropriate.}
   \item{type}{for linear and generalized linear models, 
   	if \code{"response"} (the default), effects are printed 
