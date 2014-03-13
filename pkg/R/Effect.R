@@ -9,16 +9,17 @@
 # 2013-10-29: code to handle "valid" NAs in factors. J. Fox
 # 2013-11-06: fixed bug in Effect.multinom() in construction of effect object
 #             when there is only one focal predictor; caused as.data.frame.effpoly() to fail
-# 2014-03-03: modified Effect.lm() to compute partial residuals. J. Fox
+# 2014-03-13: modified Effect.lm() to compute partial residuals. J. Fox
 
 
 Effect <- function(focal.predictors, mod, ...){
     UseMethod("Effect", mod)
 }
-Effect.lm <- function (focal.predictors, mod, xlevels = list(), default.levels = NULL, given.values,
+Effect.lm <- function (focal.predictors, mod, xlevels = list(), 
+    default.levels = NULL, given.values,
     se = TRUE, confidence.level = 0.95, 
     transformation = list(link = family(mod)$linkfun, inverse = family(mod)$linkinv), 
-    typical = mean, offset = mean, partial.residuals=FALSE,
+    typical = mean, offset = mean, partial.residuals=FALSE, quantiles=seq(0.2, 0.8, by=0.2),
     x.var=NULL,  ...){
     data <- if (partial.residuals){
         all.vars <- all.vars(formula(mod))
@@ -37,7 +38,7 @@ Effect.lm <- function (focal.predictors, mod, xlevels = list(), default.levels =
     else stop("offset must be a function or a number")
     formula.rhs <- formula(mod)[[3]]
     model.components <- Analyze.model(focal.predictors, mod, xlevels, default.levels, formula.rhs, 
-        partial.residuals=partial.residuals, x.var=x.var, data=data)
+        partial.residuals=partial.residuals, quantiles=quantiles, x.var=x.var, data=data)
     excluded.predictors <- model.components$excluded.predictors
     predict.data <- model.components$predict.data
     predict.data.all.rounded <- predict.data.all <- if (partial.residuals) na.omit(data[, all.vars(formula(mod))]) else NULL

@@ -57,7 +57,8 @@ Effect(focal.predictors, mod, ...)
 \method{Effect}{lm}(focal.predictors, mod, xlevels = list(), default.levels = NULL, given.values,
     se = TRUE, confidence.level = 0.95, 
     transformation = list(link = family(mod)$linkfun, inverse = family(mod)$linkinv), 
-    typical = mean, offset = mean, partial.residuals=FALSE,
+    typical = mean, offset = mean, 
+    partial.residuals=FALSE, quantiles=seq(0.2, 0.8, by=0.2),
     x.var=NULL,  ...)
         
 \method{Effect}{gls}(focal.predictors, mod, xlevels = list(), default.levels=NULL, 
@@ -128,8 +129,10 @@ allEffects(mod, ...)
     equally spaced levels for the levels of \code{x2}, and use the default for
     any other numeric predictors. If partial residuals are computed, then the focal
     predictor that is to appear on the horizontal axis of an effect plot is
-    evaluated at 100 equally spaced values along its full range.
-    }
+    evaluated at 100 equally spaced values along its full range, and, by default,
+    other numeric predictors are evaluated at the quantiles specified in the
+    \code{quantiles} argument, unless their values are given explicitly in
+    \code{xlevels}.}
   \item{default.levels}{ignored, but included for compatibility with pre-July 2013
     versions of this package.  Use \code{xlevels} instead.}
   \item{given.values}{a numeric vector of named elements, setting particular
@@ -166,6 +169,9 @@ allEffects(mod, ...)
   \item{partial.residuals}{if \code{TRUE}, partial residuals will be computed
     for an effect in a linear or generalized linear model; if \code{FALSE}
     (the default), partial residuals are suppressed.}
+  \item{quantiles}{quantiles at which to evaluate numeric focal predictors \emph{not} on the
+    horizontal axis when partial residuals are displayed; superceded if the \code{xlevels} argument
+    gives specific values for a predictor.}
   \item{x.var}{the name or index of the numeric predictor to define the horizontal axis of an effect
     plot for a linear or generalized linear model; the default is \code{NULL}, in which case the first
     numeric predictor in the effect will be used \emph{if} partial residuals are to be computed. This argument

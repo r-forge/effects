@@ -6,7 +6,7 @@
 # 11-09-2013: fixed error message in Analyze.model(), bug reported by Joris Meys. J. Fox
 # 2013-10-15: eliminated functions not needed after effect() methods removed. J. Fox
 # 2013-10-29: fixed as.data.frame.*() to handle NA levels. J. Fox
-# 2014-03-03: modified Fixup.model.matrix() and Analyze.model() to handle partial residuals; 
+# 2014-03-13: modified Fixup.model.matrix() and Analyze.model() to handle partial residuals; 
 #     added is.factor.predictor() and is.numeric.predictor(). J. Fox
 
 has.intercept <- function(model, ...) any(names(coefficients(model))=="(Intercept)")
@@ -199,7 +199,7 @@ vcov.eff <- function(object, ...) object$vcov
 ### the following functions are for use by Effect() methods
 
 Analyze.model <- function(focal.predictors, mod, xlevels, default.levels=NULL, formula.rhs, 
-    partial.residuals=FALSE, x.var=NULL, data=NULL){
+    partial.residuals=FALSE, quantiles, x.var=NULL, data=NULL){
     if ((!is.null(mod$na.action)) && class(mod$na.action) == "exclude") 
         class(mod$na.action) <- "omit"
     all.predictors <- all.vars(formula.rhs)
@@ -235,10 +235,17 @@ Analyze.model <- function(focal.predictors, mod, xlevels, default.levels=NULL, f
         fac <- !is.null(levels)
         if (!fac) {    
             levels <- if (is.null(xlevels[[name]])){
-                grid.pretty(range(X[, name]))} else {
-                    if(length(xlevels[[name]]) == 1L) { 
-                        seq(min(X[, name]), max(X[,name]), length=xlevels[[name]])} else
-                            xlevels[[name]]}
+                if (partial.residuals){
+                    quantile(X[, name], quantiles)
+                }
+                else{
+                    grid.pretty(range(X[, name]))
+                }
+            }
+            else {
+                if(length(xlevels[[name]]) == 1L) { 
+                    seq(min(X[, name]), max(X[,name]), length=xlevels[[name]])} else
+                        xlevels[[name]]}
         }
         else factor.levels[[name]] <- levels
         x[[name]] <- list(name=name, is.factor=fac, levels=levels)
