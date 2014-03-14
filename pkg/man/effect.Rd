@@ -288,7 +288,8 @@ and of class \code{effpoly} with more than 2 categories.
   colons with interactions; rename levels to remove or replace the colons (e.g., \code{"level.A"}).
   In addition, factors cannont be declared on the fly (e.g., using \code{y ~ a + factor(b)}.
   
-  The functions in the \pkg{effects} package do not handle logical predictors; convert logical predictors to factors.
+  The functions in the \pkg{effects} package work properly with predictors that are numeric or factors; 
+  consequently, e.g., convert logical predictors to factors, and dates to numeric.
   
   Empty cells in crossed-factors are now permitted for lm, glm and multinom models.  
   
