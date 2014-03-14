@@ -170,7 +170,7 @@ allEffects(mod, ...)
     for an effect in a linear or generalized linear model; if \code{FALSE}
     (the default), partial residuals are suppressed.}
   \item{quantiles}{quantiles at which to evaluate numeric focal predictors \emph{not} on the
-    horizontal axis when partial residuals are displayed; superceded if the \code{xlevels} argument
+    horizontal axis, used only when partial residuals are displayed; superceded if the \code{xlevels} argument
     gives specific values for a predictor.}
   \item{x.var}{the name or index of the numeric predictor to define the horizontal axis of an effect
     plot for a linear or generalized linear model; the default is \code{NULL}, in which case the first

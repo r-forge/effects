@@ -8,6 +8,7 @@
 # 2013-10-29: fixed as.data.frame.*() to handle NA levels. J. Fox
 # 2014-03-13: modified Fixup.model.matrix() and Analyze.model() to handle partial residuals; 
 #     added is.factor.predictor() and is.numeric.predictor(). J. Fox
+# 2014-03-14: error message for non-factor, non-numeric predictor
 
 has.intercept <- function(model, ...) any(names(coefficients(model))=="(Intercept)")
 
@@ -222,6 +223,14 @@ Analyze.model <- function(focal.predictors, mod, xlevels, default.levels=NULL, f
     }
     factor.cols[grep(":", cnames)] <- FALSE   
     X <- na.omit(expand.model.frame(mod, all.predictors))
+    bad <- sapply(X[, all.predictors, drop=FALSE], function(x) !(is.factor(x) || is.numeric(x)))
+    if (any(bad)){
+        message <- if (sum(bad) == 1) paste("the following predictor isn't a factor or numeric:", 
+            all.predictors[bad])
+        else paste("the following predictors aren't factors or numeric:", 
+            paste(all.predictors[bad], collapse=", "))
+        stop(message)
+    }
     x <- list()
     factor.levels <- list()
     if(length(xlevels)==0 & length(default.levels) == 1L) xlevels <- default.levels
