@@ -362,6 +362,7 @@ eff.cowles
 
 	# the following are equivalent:
 
+\dontrun{
 eff.ne <- effect("neuroticism*extraversion", mod.cowles)
 Eff.ne <- Effect(c("neuroticism", "extraversion"), mod.cowles)
 all.equal(eff.ne$fit, Eff.ne$fit)
@@ -378,6 +379,7 @@ plot(effect('sex:neuroticism:extraversion', mod.cowles,
     xlevels=list(extraversion=seq(0, 24, 6))), multiline=TRUE)
 
 as.data.frame(eff.cowles[[2]])
+}
 
 # a nested model:
 
@@ -395,11 +397,12 @@ mod.beps <- multinom(vote ~ age + gender + economic.cond.national +
 				Europe*political.knowledge, data=BEPS)
 plot(effect("Europe*political.knowledge", mod.beps,
 	xlevels=list(political.knowledge=0:3)))
+\dontrun{
 plot(effect("Europe*political.knowledge", mod.beps,
 		xlevels=list(political.knowledge=0:3),
 		given.values=c(gendermale=0.5)),
 	style="stacked", colors=c("blue", "red", "orange"), rug=FALSE)
-
+}
 plot(Effect(c("Europe","political.knowledge"), mod.beps,  # equivalent
     	xlevels=list(Europe=1:11, political.knowledge=0:3),
 		given.values=c(gendermale=0.5)),
@@ -411,8 +414,10 @@ mod.wvs <- polr(poverty ~ gender + religion + degree + country*poly(age,3),
 	data=WVS)
 plot(effect("country*poly(age, 3)", mod.wvs))
 plot(effect("country*poly(age, 3)", mod.wvs), style="stacked")
+\dontrun{
 plot(Effect(c("country", "age"), mod.wvs), style="stacked") # equivalent
 plot(effect("country*poly(age, 3)", latent=TRUE, mod.wvs))
+}
 }
 
 
@@ -423,7 +428,7 @@ plot(eff.pres)
 plot(eff.pres[1],
     transform.x=list(income=list(trans=log10, inverse=function(x) 10^x)),
     ticks.x=list(income=list(at=c(1000, 2000, 5000, 10000, 20000))))
-
+\dontrun{
 # linear model with log-response and log-predictor
 # to illustrate transforming axes and setting tick labels
 mod.pres1 <- lm(log(prestige) ~ log(income) + poly(education, 3) + poly(women, 2),
@@ -464,41 +469,46 @@ plot(eff.trans, transform.x=list(income=c(trans=log, inverse=exp)),
        ticks.x=list(income=list(at=c(1000, 2000, 5000, 10000, 20000))),
        rescale.axis=FALSE,
        xlab="income, log-scale", ylab="prestige")
+}
 
-	if (require(nlme)){ # for gls()
-    	mod.hart <- gls(fconvict ~ mconvict + tfr + partic + degrees, data=Hartnagel,
-    	    correlation=corARMA(p=2, q=0), method="ML")
-    	plot(allEffects(mod.hart))
-        detach(package:nlme)
-    }
+if (require(nlme)){ # for gls()
+	mod.hart <- gls(fconvict ~ mconvict + tfr + partic + degrees, data=Hartnagel,
+	    correlation=corARMA(p=2, q=0), method="ML")
+	plot(allEffects(mod.hart))
+    detach(package:nlme)
+}
 
-	if (require(lme4)){
-	data(cake, package="lme4")
-	fm1 <- lmer(angle ~ recipe * temperature + (1|recipe:replicate), cake,
-                   REML = FALSE)
-	plot(effect("recipe:temperature", fm1), grid=TRUE)
-    plot(Effect(c("recipe", "temperature"), fm1)) # equivalent
-	detach(package:lme4)
-    }
+if (require(lme4)){
+data(cake, package="lme4")
+fm1 <- lmer(angle ~ recipe * temperature + (1|recipe:replicate), cake,
+               REML = FALSE)
+plot(effect("recipe:temperature", fm1), grid=TRUE)
+\dontrun{
+plot(Effect(c("recipe", "temperature"), fm1)) # equivalent
+}
+detach(package:lme4)
+}
 
-	if (require(nlme) && length(find.package("lme4", quiet=TRUE)) > 0){
-	data(cake, package="lme4")
-	cake$rep <- with(cake, paste( as.character(recipe), as.character(replicate), sep=""))
-	fm2 <- lme(angle ~ recipe * temperature, data=cake,
-               random = ~ 1 | rep, method="ML")
-	plot(effect("recipe:temperature", fm2), grid=TRUE)
-  plot(Effect(c("recipe", "temperature"), fm2)) # equivalent
-  detach(package:nlme)
-  }
+if (require(nlme) && length(find.package("lme4", quiet=TRUE)) > 0){
+data(cake, package="lme4")
+cake$rep <- with(cake, paste( as.character(recipe), as.character(replicate), sep=""))
+fm2 <- lme(angle ~ recipe * temperature, data=cake,
+           random = ~ 1 | rep, method="ML")
+plot(effect("recipe:temperature", fm2), grid=TRUE)
+\dontrun{
+plot(Effect(c("recipe", "temperature"), fm2)) # equivalent
+}
+detach(package:nlme)
+}
 
 
-  if (require(poLCA)){
-      data(election)
-      f2a <- cbind(MORALG,CARESG,KNOWG,LEADG,DISHONG,INTELG,
-                 MORALB,CARESB,KNOWB,LEADB,DISHONB,INTELB)~PARTY*AGE
-      nes2a <- poLCA(f2a,election,nclass=3,nrep=5)
-      plot(Effect(c("PARTY", "AGE"), nes2a), style="stacked")
-  }
+if (require(poLCA)){
+  data(election)
+  f2a <- cbind(MORALG,CARESG,KNOWG,LEADG,DISHONG,INTELG,
+             MORALB,CARESB,KNOWB,LEADB,DISHONB,INTELB)~PARTY*AGE
+  nes2a <- poLCA(f2a,election,nclass=3,nrep=5)
+  plot(Effect(c("PARTY", "AGE"), nes2a), style="stacked")
+}
 
 
 # mlm example
@@ -509,7 +519,9 @@ if (require(heplots)) {
 	plot(eff.inc)
 	eff.edu <- Effect("educ", mod)
 	plot(eff.edu, rug=FALSE, grid=TRUE)
+    \dontrun{
 	plot(Effect("educ", mod, response="read"))
+    }
   detach(package:heplots)
 }
 

@@ -267,6 +267,8 @@
 	\code{\link[colorspace]{rainbow_hcl}}, \code{\link[colorspace:rainbow_hcl]{sequential_hcl}}}
 
 \examples{
+# also see examples in ?effect
+
 mod.cowles <- glm(volunteer ~ sex + neuroticism*extraversion,
     data=Cowles, family=binomial)
 eff.cowles <- allEffects(mod.cowles, xlevels=list(extraversion=seq(0, 24, 6)))
@@ -278,6 +280,7 @@ plot(eff.cowles, 'sex', ylab="Prob(Volunteer)", grid=TRUE, rotx=90)
 plot(eff.cowles, 'neuroticism:extraversion', ylab="Prob(Volunteer)",
     ticks=list(at=c(.1,.25,.5,.75,.9)))
 
+\dontrun{
 # change color of the confidence bands to 'black' with .15 transparency
 plot(eff.cowles, 'neuroticism:extraversion', ylab="Prob(Volunteer)",
     ticks=list(at=c(.1,.25,.5,.75,.9)), band.colors="red", band.transparency=.3)
@@ -297,13 +300,16 @@ plot(effect('sex:neuroticism:extraversion', mod.cowles,
 plot(effect('sex:neuroticism:extraversion', mod.cowles,
     xlevels=list(extraversion=seq(0, 24, 6))), multiline=TRUE,
     rescale.axis=FALSE, ci.style="bands")
+}
 
 if (require(nnet)){
 mod.beps <- multinom(vote ~ age + gender + economic.cond.national +
 				economic.cond.household + Blair + Hague + Kennedy +
 				Europe*political.knowledge, data=BEPS)
+\dontrun{
 plot(effect("Europe*political.knowledge", mod.beps,
 	xlevels=list(political.knowledge=0:3)))
+}
 
 plot(effect("Europe*political.knowledge", mod.beps,
 		xlevels=list(political.knowledge=0:3),
@@ -316,17 +322,21 @@ mod.wvs <- polr(poverty ~ gender + religion + degree + country*poly(age,3),
 	data=WVS)
 plot(effect("country*poly(age, 3)", mod.wvs))
 
+\dontrun{
 plot(effect("country*poly(age, 3)", mod.wvs), style="stacked",
 	colors=c("gray75", "gray50", "gray25"))
 
 plot(effect("country*poly(age, 3)", latent=TRUE, mod.wvs))
 }
+}
 
 mod.pres <- lm(prestige ~ log(income, 10) + poly(education, 3) + poly(women, 2),
     data=Prestige)
 eff.pres <- allEffects(mod.pres, default.levels=50)
+\dontrun{
 plot(eff.pres)
 plot(eff.pres[1:2])
+}
 plot(eff.pres[1],
     transform.x=list(income=list(trans=log10, inverse=function(x) 10^x)),
     ticks.x=list(income=list(at=c(1000, 2000, 5000, 10000, 20000))))
