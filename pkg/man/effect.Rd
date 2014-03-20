@@ -354,15 +354,18 @@ and Jangman Hong.}
     \code{\link{densityplot}}}
 
 \examples{
+# Note: Some of these examples are marked as "don't run"
+#       to reduce the execution times of the examples.
+
 mod.cowles <- glm(volunteer ~ sex + neuroticism*extraversion,
     data=Cowles, family=binomial)
 eff.cowles <- allEffects(mod.cowles, xlevels=list(extraversion=seq(0, 24, 6)),
     given.values=c(sexmale=0.5))
 eff.cowles
-
-	# the following are equivalent:
+as.data.frame(eff.cowles[[2]])
 
 \dontrun{
+# the following are equivalent:
 eff.ne <- effect("neuroticism*extraversion", mod.cowles)
 Eff.ne <- Effect(c("neuroticism", "extraversion"), mod.cowles)
 all.equal(eff.ne$fit, Eff.ne$fit)
@@ -377,8 +380,6 @@ plot(eff.cowles, 'neuroticism:extraversion', multiline=TRUE,
 
 plot(effect('sex:neuroticism:extraversion', mod.cowles,
     xlevels=list(extraversion=seq(0, 24, 6))), multiline=TRUE)
-
-as.data.frame(eff.cowles[[2]])
 }
 
 # a nested model:
@@ -395,27 +396,36 @@ if (require(nnet)){
 mod.beps <- multinom(vote ~ age + gender + economic.cond.national +
 				economic.cond.household + Blair + Hague + Kennedy +
 				Europe*political.knowledge, data=BEPS)
-plot(effect("Europe*political.knowledge", mod.beps,
-	xlevels=list(political.knowledge=0:3)))
 \dontrun{
 plot(effect("Europe*political.knowledge", mod.beps,
-		xlevels=list(political.knowledge=0:3),
+	xlevels=list(political.knowledge=0:3)))
+}
+
+plot(Effect(c("Europe", "political.knowledge"), mod.beps,  
+        xlevels=list(Europe=1:11, political.knowledge=0:3),
+		given.values=c(gendermale=0.5)),
+	style="stacked", colors=c("blue", "red", "orange"), rug=FALSE)
+    
+\dontrun{ 
+plot(effect("Europe*political.knowledge", mod.beps, # equivalent
+    	xlevels=list(political.knowledge=0:3),
 		given.values=c(gendermale=0.5)),
 	style="stacked", colors=c("blue", "red", "orange"), rug=FALSE)
 }
-plot(Effect(c("Europe","political.knowledge"), mod.beps,  # equivalent
-    	xlevels=list(Europe=1:11, political.knowledge=0:3),
-		given.values=c(gendermale=0.5)),
-	style="stacked", colors=c("blue", "red", "orange"), rug=FALSE)
-    }
+}
 
 if (require(MASS)){
 mod.wvs <- polr(poverty ~ gender + religion + degree + country*poly(age,3),
 	data=WVS)
-plot(effect("country*poly(age, 3)", mod.wvs))
-plot(effect("country*poly(age, 3)", mod.wvs), style="stacked")
 \dontrun{
-plot(Effect(c("country", "age"), mod.wvs), style="stacked") # equivalent
+plot(effect("country*poly(age, 3)", mod.wvs))
+}
+
+plot(Effect(c("country", "age"), mod.wvs), style="stacked") 
+
+\dontrun{
+plot(effect("country*poly(age, 3)", mod.wvs), style="stacked") # equivalent
+
 plot(effect("country*poly(age, 3)", latent=TRUE, mod.wvs))
 }
 }
@@ -482,26 +492,26 @@ if (require(lme4)){
 data(cake, package="lme4")
 fm1 <- lmer(angle ~ recipe * temperature + (1|recipe:replicate), cake,
                REML = FALSE)
-plot(effect("recipe:temperature", fm1), grid=TRUE)
+plot(Effect(c("recipe", "temperature"), fm1))
 \dontrun{
-plot(Effect(c("recipe", "temperature"), fm1)) # equivalent
+plot(effect("recipe:temperature", fm1), grid=TRUE) # equivalent
 }
 detach(package:lme4)
 }
 
+\dontrun{
 if (require(nlme) && length(find.package("lme4", quiet=TRUE)) > 0){
 data(cake, package="lme4")
 cake$rep <- with(cake, paste( as.character(recipe), as.character(replicate), sep=""))
 fm2 <- lme(angle ~ recipe * temperature, data=cake,
            random = ~ 1 | rep, method="ML")
-plot(effect("recipe:temperature", fm2), grid=TRUE)
-\dontrun{
-plot(Effect(c("recipe", "temperature"), fm2)) # equivalent
+plot(Effect(c("recipe", "temperature"), fm2))
+plot(effect("recipe:temperature", fm2), grid=TRUE)  # equivalent
 }
 detach(package:nlme)
 }
 
-
+\dontrun{
 if (require(poLCA)){
   data(election)
   f2a <- cbind(MORALG,CARESG,KNOWG,LEADG,DISHONG,INTELG,
@@ -509,7 +519,7 @@ if (require(poLCA)){
   nes2a <- poLCA(f2a,election,nclass=3,nrep=5)
   plot(Effect(c("PARTY", "AGE"), nes2a), style="stacked")
 }
-
+}
 
 # mlm example
 if (require(heplots)) {
@@ -527,6 +537,7 @@ if (require(heplots)) {
 
 # component + residual plot examples
 
+\dontrun{
 Prestige$type <- factor(Prestige$type, levels=c("bc", "wc", "prof"))
 
 mod.prestige.1 <- lm(prestige ~ income + education, data=Prestige)
@@ -538,6 +549,7 @@ plot(allEffects(mod.prestige.2, partial.residuals=TRUE))
 mod.prestige.3 <- lm(prestige ~ type + income*education, data=Prestige)
 plot(Effect(c("income", "education"), mod.prestige.3, partial.residuals=TRUE),
   span=1)
+}
 
   #  artificial data
   
