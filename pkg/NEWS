@@ -1,6 +1,6 @@
 Version 3.0-1
 
- o Nothing yet!
+ o Fixed bug in Effect.gls() when var or cor function depends on variables in the data set (reported by Felipe Albornoz).
 
 Version 3.0-0
 
