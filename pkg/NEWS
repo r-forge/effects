@@ -1,5 +1,7 @@
 Version 3.0-1
 
+ o Added a warning to the documentation for effect for using predictors of class "dates" or "times".
+
  o Fixed bug in Effect.gls() when var or cor function depends on variables in the data set (reported by Felipe Albornoz).
 
 Version 3.0-0

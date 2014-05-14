@@ -279,23 +279,23 @@ and of class \code{effpoly} with more than 2 categories.
 }
 
 \section{Warnings and Limitations}{
-  The \code{Effect} function handles factors and covariates differently, and becomes confused if one is changed to the other
+  The \code{Effect} function handles factors and covariates differently, and is likely to be confused if one is changed to the other
   in a model formula. Consequently, formulas that include calls to \code{as.factor}, \code{factor}, or \code{numeric}
   (as, e.g., in \code{y ~ as.factor(income)}) will cause errors. Instead, create the modified variables outside of the model
-  formula (e.g., \code{fincome <- as.factor(income)}) and use these in the model formula.
+  formula (e.g., \code{fincome <- as.factor(income)}) and use these in the model formula.  Similarly variables of class \code{date} or \code{"times"}, which are usually differences between \code{"dates"} variables, should be converted to numeric variables outside the model formula.
   
   Factors cannot have colons in level names (e.g., \code{"level:A"}); the \code{effect} function will confuse the
   colons with interactions; rename levels to remove or replace the colons (e.g., \code{"level.A"}).
   In addition, factors cannont be declared on the fly (e.g., using \code{y ~ a + factor(b)}.
   
   The functions in the \pkg{effects} package work properly with predictors that are numeric or factors; 
-  consequently, e.g., convert logical predictors to factors, and dates to numeric.
+  consequently, e.g., convert logical predictors to factors, and dates to numeric.  
   
   Empty cells in crossed-factors are now permitted for lm, glm and multinom models.  
   
   With multinom models with two or more crossed factors with an empty cell, the 'plot' command with \code{style="stacked"} 
   apparently does not work because of a bug in the \code{barchart} function in \code{lattice}.  However, the default
-  \code{stype="lines"} does work.  
+  \code{style="lines"} does work.  
   
   Offsets in linear and generalized linear models are supported, as are offsets in mixed models fit by 
   \code{lmer} or \code{glmer}, but must be supplied through the \code{offset}
