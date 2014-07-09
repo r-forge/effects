@@ -4,6 +4,8 @@ Version 3.0-1
 
  o Fixed bug in Effect.gls() when var or cor function depends on variables in the data set (reported by Felipe Albornoz).
 
+ o Small fixes/improvements.
+
 Version 3.0-0
 
  o Added partial residuals for multidimensional component+residual plots to Effect.lm().

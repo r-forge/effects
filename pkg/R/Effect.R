@@ -16,6 +16,7 @@
 Effect <- function(focal.predictors, mod, ...){
     UseMethod("Effect", mod)
 }
+
 Effect.lm <- function (focal.predictors, mod, xlevels = list(), 
     default.levels = NULL, given.values,
     se = TRUE, confidence.level = 0.95, 
@@ -55,6 +56,7 @@ Effect.lm <- function (focal.predictors, mod, xlevels = list(),
     Terms <- delete.response(terms(mod))
     mf <- model.frame(Terms, predict.data, xlev = factor.levels, na.action=NULL)
     mod.matrix <- model.matrix(formula.rhs, data = mf, contrasts.arg = mod$contrasts)
+    if (is.null(x.var)) partial.residuals <- FALSE
     factors <- sapply(predict.data, is.factor)
     if (partial.residuals){
         for (predictor in focal.predictors[-x.var]){
