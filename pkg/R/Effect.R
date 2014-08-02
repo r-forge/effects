@@ -11,7 +11,7 @@
 #             when there is only one focal predictor; caused as.data.frame.effpoly() to fail
 # 2014-03-13: modified Effect.lm() to compute partial residuals. J. Fox
 # 2014-05-06: fixed bug in Effect.gls() when cor or var structure depends on variables in the data set. J. Fox
-
+# 2014-08-02: added vcov.=vcov argument to allow other methods of estimating var(coef.estimates)
 
 Effect <- function(focal.predictors, mod, ...){
     UseMethod("Effect", mod)
@@ -19,7 +19,7 @@ Effect <- function(focal.predictors, mod, ...){
 
 Effect.lm <- function (focal.predictors, mod, xlevels = list(), 
     default.levels = NULL, given.values,
-    se = TRUE, confidence.level = 0.95, 
+    vcov. = vcov, se = TRUE, confidence.level = 0.95, 
     transformation = list(link = family(mod)$linkfun, inverse = family(mod)$linkinv), 
     typical = mean, offset = mean, partial.residuals=FALSE, quantiles=seq(0.2, 0.8, by=0.2),
     x.var=NULL,  ...){
@@ -130,15 +130,19 @@ Effect.lm <- function (focal.predictors, mod, xlevels = list(),
             dispersion <- sum(wts * (residuals(mod))^2, na.rm=TRUE)/mod$df.residual # sum(wts * mod$residuals^2)/mod$df.residual
             z <- qt(1 - (1 - confidence.level)/2, df = mod$df.residual)
         }
+# old
         V2 <- dispersion * summary.lm(mod)$cov
         V1 <- vcov(mod)
         V <- if (inherits(mod, "fakeglm")) 
             V1
         else V2
-        vcov <- mod.matrix %*% V %*% t(mod.matrix)
-        rownames(vcov) <- colnames(vcov) <- NULL
-        var <- diag(vcov)
-        result$vcov <- vcov        
+# end old, begin new July 2, 2014
+        V <- vcov.(mod)  # I can see no reason to use dispersion * summary.lm(mod)$cov
+# end new
+        eff.vcov <- mod.matrix %*% V %*% t(mod.matrix)
+        rownames(eff.vcov) <- colnames(eff.vcov) <- NULL
+        var <- diag(eff.vcov)
+        result$vcov <- eff.vcov        
         result$se <- sqrt(var)
         result$lower <- effect - z * result$se
         result$upper <- effect + z * result$se
@@ -346,7 +350,7 @@ Effect.lme <- function(focal.predictors, mod, ...) {
 # }
 
 Effect.gls <- function (focal.predictors, mod, xlevels = list(), default.levels = NULL, given.values,
-                        se = TRUE, confidence.level = 0.95, 
+                        vcov. = vcov, se = TRUE, confidence.level = 0.95, 
                         transformation = NULL, 
                         typical = mean, ...){
   if (missing(given.values)) 
@@ -394,11 +398,11 @@ Effect.gls <- function (focal.predictors, mod, xlevels = list(), default.levels 
     df.res <- mod$dims[["N"]] - mod$dims[["p"]]
     z <- qt(1 - (1 - confidence.level)/2, df=df.res)
     mod.2$terms <- terms(mod)
-    V <- vcov(mod.3)
-    vcov <- mod.matrix %*% V %*% t(mod.matrix)
-    rownames(vcov) <- colnames(vcov) <- NULL
-    var <- diag(vcov)
-    result$vcov <- vcov
+    V <- vcov.(mod.3)
+    eff.vcov <- mod.matrix %*% V %*% t(mod.matrix)
+    rownames(eff.vcov) <- colnames(eff.vcov) <- NULL
+    var <- diag(eff.vcov)
+    result$vcov <- eff.vcov
     result$se <- sqrt(var)        
     result$lower <- effect - z*result$se
     result$upper <- effect + z*result$se
@@ -415,7 +419,7 @@ Effect.gls <- function (focal.predictors, mod, xlevels = list(), default.levels 
 
 Effect.multinom <- function(focal.predictors, mod, 
     confidence.level=.95, xlevels=list(), default.levels=NULL,
-    given.values, se=TRUE, typical=mean, ...){    
+    given.values, vcov. = vcov, se=TRUE, typical=mean, ...){    
     if (length(mod$lev) < 3) stop("effects for multinomial logit model only available for response levels > 2")
     if (missing(given.values)) given.values <- NULL
     else if (!all(which <- colnames(given.values) %in% names(coef(mod)))) 
@@ -440,7 +444,7 @@ Effect.multinom <- function(focal.predictors, mod,
     resp.names <- make.names(mod$lev, unique=TRUE)
     resp.names <- c(resp.names[-1], resp.names[1]) # make the last level the reference level
     B <- t(coef(mod))
-    V <- vcov(mod)
+    V <- vcov.(mod)
     m <- ncol(B) + 1
     p <- nrow(B)
     r <- p*(m - 1)	
@@ -521,7 +525,7 @@ Effect.multinom <- function(focal.predictors, mod,
 
 Effect.polr <- function(focal.predictors, mod, 
     confidence.level=.95, xlevels=list(), default.levels=NULL,
-    given.values, se=TRUE, typical=mean, latent=FALSE, ...){
+    given.values, vcov.=vcov, se=TRUE, typical=mean, latent=FALSE, ...){
     if (mod$method != "logistic") stop('method argument to polr must be "logistic"')    
     if (missing(given.values)) given.values <- NULL
     else if (!all(which <- names(given.values) %in% names(coef(mod)))) 
@@ -553,7 +557,7 @@ Effect.polr <- function(focal.predictors, mod,
         x=predict.data[, focal.predictors, drop=FALSE],
         model.matrix=X0, data=X, discrepancy=0, model="polr")
     if (latent){
-        res <- eff.latent(X0, b, vcov(mod)[1:p, 1:p], se)
+        res <- eff.latent(X0, b, vcov.(mod)[1:p, 1:p], se)
         result$fit <- res$fit
         if (se){
             result$se <- res$se
@@ -572,7 +576,7 @@ Effect.polr <- function(focal.predictors, mod,
     m <- length(alpha) + 1
     r <- m + p - 1
     indices <- c((p+1):r, 1:p)
-    V <- vcov(mod)[indices, indices]
+    V <- vcov.(mod)[indices, indices]
     for (j in 1:(m-1)){  # fix up the signs of the covariances
         V[j,] <- -V[j,]  #  for the intercepts
         V[,j] <- -V[,j]}	
@@ -614,7 +618,7 @@ Effect.polr <- function(focal.predictors, mod,
 }
 
 Effect.default <- function(focal.predictors, mod, xlevels = list(), default.levels = NULL, given.values,
-    se = TRUE, confidence.level = 0.95, 
+    vcov. = vcov, se = TRUE, confidence.level = 0.95, 
     transformation = list(link = I, inverse = I), 
     typical = mean, offset = mean, ...){
     if (missing(given.values)) 
@@ -669,11 +673,11 @@ Effect.default <- function(focal.predictors, mod, xlevels = list(), default.leve
     } 
     if (se) {
         z <- qnorm(1 - (1 - confidence.level)/2)
-        V <- vcov(mod)
-        vcov <- mod.matrix %*% V %*% t(mod.matrix)
-        rownames(vcov) <- colnames(vcov) <- NULL
-        var <- diag(vcov)
-        result$vcov <- vcov    	
+        V <- vcov.(mod)
+        eff.vcov <- mod.matrix %*% V %*% t(mod.matrix)
+        rownames(eff.vcov) <- colnames(eff.vcov) <- NULL
+        var <- diag(eff.vcov)
+        result$vcov <- eff.vcov    	
         result$se <- sqrt(var)
         result$lower <- effect - z * result$se
         result$upper <- effect + z * result$se
