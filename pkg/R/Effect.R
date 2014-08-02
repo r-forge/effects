@@ -136,7 +136,7 @@ Effect.lm <- function (focal.predictors, mod, xlevels = list(),
         V <- if (inherits(mod, "fakeglm")) 
             V1
         else V2
-# end old, begin new July 2, 2014
+# end old, begin new August 2, 2014
         V <- vcov.(mod)  # I can see no reason to use dispersion * summary.lm(mod)$cov
 # end new
         eff.vcov <- mod.matrix %*% V %*% t(mod.matrix)
