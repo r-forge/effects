@@ -146,8 +146,8 @@ allEffects(mod, ...)
     covariance matrix of the estimated coefficients.  This will ordinarily be the default,
     \code{vcov}, which will result in the function call \code{vcov(mod)} to get the variance
     covariance matrix.  You can use the name of any function with \code{mod} as the value of
-    its first argument that returns an estimated sample covariance matrix, such as the \code{\link{hccm}}
-    function in the \code{car} package that returns a heteroscedasticity corrected estimate with
+    its first argument that returns an estimated sample covariance matrix, such as the \code{hccm}
+    function in the \pkg{car} package that returns a heteroscedasticity corrected estimate with
     linear models.}
   \item{se}{if \code{TRUE}, the default, calculate standard errors and
     confidence limits for the effects.  For mer and lme objects, the
