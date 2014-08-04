@@ -123,19 +123,19 @@ Effect.lm <- function (focal.predictors, mod, xlevels = list(),
     } 
     if (se) {
         if (any(family(mod)$family == c("binomial", "poisson"))) {
-            dispersion <- 1
+#            dispersion <- 1
             z <- qnorm(1 - (1 - confidence.level)/2)
         }
         else {
-            dispersion <- sum(wts * (residuals(mod))^2, na.rm=TRUE)/mod$df.residual # sum(wts * mod$residuals^2)/mod$df.residual
+#            dispersion <- sum(wts * (residuals(mod))^2, na.rm=TRUE)/mod$df.residual 
             z <- qt(1 - (1 - confidence.level)/2, df = mod$df.residual)
         }
 # old
-        V2 <- dispersion * summary.lm(mod)$cov
-        V1 <- vcov(mod)
-        V <- if (inherits(mod, "fakeglm")) 
-            V1
-        else V2
+#        V2 <- dispersion * summary.lm(mod)$cov
+#        V1 <- vcov(mod)
+#        V <- if (inherits(mod, "fakeglm")) 
+#            V1
+#        else V2
 # end old, begin new August 2, 2014
         V <- vcov.(mod)  # I can see no reason to use dispersion * summary.lm(mod)$cov
 # end new

@@ -142,7 +142,7 @@ allEffects(mod, ...)
   	(below). Care must be taken in specifying these values --- e.g.,
   	for a factor, the values of all contrasts should be given and these
   	should be consistent with each other.}
-  \item{vcov.}{The name of a function that will be used to get the estimated variance
+  \item{vcov.}{A function or the name of a function that will be used to get the estimated variance
     covariance matrix of the estimated coefficients.  This will ordinarily be the default,
     \code{vcov}, which will result in the function call \code{vcov(mod)} to get the variance
     covariance matrix.  You can use the name of any function with \code{mod} as the value of
