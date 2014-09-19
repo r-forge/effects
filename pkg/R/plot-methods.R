@@ -99,6 +99,12 @@ plot.eff <- function(x, x.var,
     }
     trans.link <- x$transformation$link
     trans.inverse <- x$transformation$inverse
+    residuals <- if (partial.residuals == "adjusted") x$partial.residuals.adjusted else x$partial.residuals.raw
+    fitted <- x$fitted.rounded
+    if (!is.null(residuals) && !rescale.axis) {
+        residuals <- trans.inverse(residuals)
+        fitted <- trans.inverse(fitted)
+    }
     if (!rescale.axis){
         x$lower[!is.na(x$lower)] <- trans.inverse(x$lower[!is.na(x$lower)])
         x$upper[!is.na(x$upper)] <- trans.inverse(x$upper[!is.na(x$upper)])
@@ -106,8 +112,6 @@ plot.eff <- function(x, x.var,
         trans.link <- trans.inverse <- I
     }
     x.all <- x$x.all
-    residuals <- if (partial.residuals == "adjusted") x$partial.residuals.adjusted else x$partial.residuals.raw
-    fitted <- x$fitted.rounded
     mod.matrix.all <- x$mod.matrix.all
     split <- c(col, row, ncol, nrow)
     ylab # force evaluation
