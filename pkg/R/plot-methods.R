@@ -4,6 +4,8 @@
 # 2013-10-17: Made ci.style="bands" default for variates; allow "bands" if multiline=TRUE
 # 2013-10-29: fixed plot.eff() to handle factors with "valid" NA level. J. Fox
 # 2014-03-03: modified plot.eff() to handle partial residuals. J. Fox
+# 2014-09-20: fixed plot.eff() to work with partial residuals when rescale.axis=FALSE;
+#             added smooth.residuals argument. J. Fox
 
 # the following functions aren't exported
 
@@ -72,7 +74,7 @@ plot.eff <- function(x, x.var,
     key.args=NULL, 
     row=1, col=1, nrow=1, ncol=1, more=FALSE, 
     use.splines=TRUE, partial.residuals=c("adjusted", "raw"), show.fitted=FALSE,
-    residuals.color="blue", residuals.pch=1, span=2/3, ...)
+    residuals.color="blue", residuals.pch=1, smooth.residuals=TRUE, span=2/3, ...)
 {  
     .mod <- function(a, b) ifelse( (d <- a %% b) == 0, b, d)
     .modc <- function(a) .mod(a, length(colors))
@@ -265,7 +267,9 @@ plot.eff <- function(x, x.var,
                     if (!is.null(residuals)){
                         lpoints(trans(x.fit), residuals, col=residuals.color, pch=residuals.pch)
                         if (show.fitted) lpoints(trans(x.fit), fitted, pch=16, col=residuals.color)  # REMOVE ME
-                        llines(loess.smooth(trans(x.fit), residuals, span=span), lwd=2, lty=2, col=residuals.color)
+                        if (smooth.residuals){
+                          llines(loess.smooth(trans(x.fit), residuals, span=span), lwd=2, lty=2, col=residuals.color)
+                        }
                     }
                     
                 },
@@ -599,8 +603,10 @@ plot.eff <- function(x, x.var,
                         if (n.in.panel > 0){
                             lpoints(trans(x.fit[use]), residuals[use], col=residuals.color, pch=residuals.pch)
                             if (show.fitted) lpoints(trans(x.fit[use]), fitted[use], pch=16, col=residuals.color)  # REMOVE ME
-                            if (n.in.panel >= 10) llines(loess.smooth(x.fit[use], residuals[use], span=span), 
+                            if (smooth.residuals && n.in.panel >= 10) {
+                              llines(loess.smooth(x.fit[use], residuals[use], span=span), 
                                                          lwd=2, lty=2, col=residuals.color)
+                            }
                         }
                     }
                 }
