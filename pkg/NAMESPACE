@@ -1,6 +1,7 @@
-# last modified 2014-03-12 by J. Fox
+# last modified 2014-09-24 by J. Fox
 
 import(grid, lattice, colorspace)
+importFrom(pbkrtest, vcovAdj, vcovAdj.lmerMod, vcovAdj.mer)
 export(effect, allEffects, all.effects, Effect)
 
 S3method(Effect, default)
