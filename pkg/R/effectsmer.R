@@ -92,7 +92,7 @@ mer.to.glm <- function(mod, KR=TRUE) {
     cl[[1L]] <- as.name("glm")
     cl$formula <- fixmod(as.formula(cl$formula))
     mod2 <- eval(cl)
-    mod2$coefficients <- fixef(mod) #mod@fixef
+    mod2$coefficients <- lme4::fixef(mod) #mod@fixef
     mod2$vcov <- if (family == "gaussian" && link == "identity" && KR) as.matrix(pbkrtest::vcovAdj(mod)) else as.matrix(vcov(mod))
     mod2$linear.predictors <- model.matrix(mod2) %*% mod2$coefficients
     mod2$fitted.values <- mod2$family$linkinv(mod2$linear.predictors)
