@@ -176,7 +176,7 @@ p2logit <- function(p) log(p/(1 - p))
 
 lrug <- function(x) {
 	if (length(unique(x)) < 0.8 * length(x)) x <- jitter(x)
-	grid::grid.segments(x, unit(0, "npc"), x, unit(0.5, "lines"),
+	grid.segments(x, unit(0, "npc"), x, unit(0.5, "lines"),
 		default.units="native")
 }
 
@@ -250,7 +250,7 @@ Analyze.model <- function(focal.predictors, mod, xlevels, default.levels=NULL, f
                     quantile(X[, name], quantiles)
                 }
                 else{
-                    grid::grid.pretty(range(X[, name]))
+                    grid.pretty(range(X[, name]))
                 }
             }
             else {
