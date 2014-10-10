@@ -6,6 +6,7 @@
 # 2014-03-03: modified plot.eff() to handle partial residuals. J. Fox
 # 2014-09-20: fixed plot.eff() to work with partial residuals when rescale.axis=FALSE;
 #             added smooth.residuals argument. J. Fox
+# 2014-10-10: namespace fixes. J. Fox
 
 # the following functions aren't exported
 
@@ -47,7 +48,7 @@ panel.bands <- function(x, y, upper, lower, fill, col,
         upper <- up$y
         lower <- down$y
     }
-    panel.polygon(c(x, rev(x)), c(upper, rev(lower)),
+    lattice::panel.polygon(c(x, rev(x)), c(upper, rev(lower)),
         col = fill, fill=fill, border = FALSE,
         ...)
 }
@@ -59,7 +60,7 @@ panel.bands <- function(x, y, upper, lower, fill, col,
 # modified by Michael Friendly: added alpha.band= argument for ci.style="bands"
 
 #### Added 10/15/2013
-spline.llines <- function(x, y, ...) llines(spline(x, y), ...)
+spline.llines <- function(x, y, ...) lattice::llines(spline(x, y), ...)
 #### End addition
 
 plot.eff <- function(x, x.var,
@@ -88,7 +89,7 @@ plot.eff <- function(x, x.var,
     levels <- sapply(x$variables, function(z) length(as.vector(z[["levels"]])))
     thresholds <- x$thresholds
     has.thresholds <- !is.null(thresholds)
-    effect.llines <- llines
+    effect.llines <- lattice::llines
     if (missing(ylab)){
         ylab <- if (has.thresholds) paste(x$response, ": ", paste(x$y.levels, collapse=", "), sep="")
         else x$response
@@ -142,15 +143,15 @@ plot.eff <- function(x, x.var,
                 link=trans.link, inverse=trans.inverse, at=ticks$at, n=ticks$n)
             else make.ticks(ylim, link=I, inverse=I, at=ticks$at, n=ticks$n)
             levs <- levels(x[,1])  
-            plot <- xyplot(eval(parse(
+            plot <- lattice::xyplot(eval(parse(
                 text=paste("fit ~ as.numeric(", names(x)[1], ")"))), 
-                strip=function(...) strip.default(..., strip.names=c(factor.names, TRUE)),
+                strip=function(...) lattice::strip.default(..., strip.names=c(factor.names, TRUE)),
                 panel=function(x, y, lower, upper, has.se, ...){
-                    if (grid) panel.grid()
+                    if (grid) lattice::panel.grid()
                     good <- !is.na(y)
                     if (has.se){ 
                         if (ci.style == "bars"){
-                            larrows(x0=x[good], y0=lower[good], x1=x[good], y1=upper[good], angle=90, 
+                            lattice::larrows(x0=x[good], y0=lower[good], x1=x[good], y1=upper[good], angle=90, 
                                 code=3, col=colors[.modc(2)], length=0.125*cex/1.5)
                         }
                         else if(ci.style == "lines") {
@@ -164,10 +165,10 @@ plot.eff <- function(x, x.var,
                     }
                     effect.llines(x[good], y[good], lwd=lwd, col=colors[1], type='b', pch=19, cex=cex, ...)
                     if (has.thresholds){
-                        panel.abline(h=thresholds, lty=3)
-                        panel.text(rep(current.panel.limits()$xlim[1], length(thresholds)), 
+                        lattice::panel.abline(h=thresholds, lty=3)
+                        lattice::panel.text(rep(lattice::current.panel.limits()$xlim[1], length(thresholds)), 
                             thresholds, threshold.labels, adj=c(0,0), cex=0.75)
-                        panel.text(rep(current.panel.limits()$xlim[2], length(thresholds)), 
+                        lattice::panel.text(rep(lattice::current.panel.limits()$xlim[2], length(thresholds)), 
                             thresholds, threshold.labels, adj=c(1,0), cex=0.75)
                     }
                 },
@@ -232,18 +233,18 @@ plot.eff <- function(x, x.var,
             if (!is.null(residuals)) x.fit <- x.data[, predictor]
             if (is.numeric(x.var)) x.var <- predictor
             
-            plot <- xyplot(eval(parse(
+            plot <- lattice::xyplot(eval(parse(
                 text=paste("fit ~ trans(", x.var, ")"))),
-                strip=function(...) strip.default(..., strip.names=c(factor.names, TRUE)),
+                strip=function(...) lattice::strip.default(..., strip.names=c(factor.names, TRUE)),
                 panel=function(x, y, x.vals, rug, lower, upper, has.se, ...){
-                    if (grid) panel.grid()
+                    if (grid) lattice::panel.grid()
                     good <- !is.na(y)
                     axis.length <- diff(range(x))
                     effect.llines(x[good], y[good], lwd=lwd, col=colors[1], ...)
                     if (rug && is.null(residuals)) lrug(trans(x.vals))
                     if (has.se){  
                         if (ci.style == "bars"){
-                            larrows(x0=x[good], y0=lower[good], 
+                            lattice::larrows(x0=x[good], y0=lower[good], 
                                 x1=x[good], y1=upper[good], 
                                 angle=90, code=3, col=eval(colors[.modc(2)]),
                                 length=.125*cex/1.5)
@@ -258,17 +259,17 @@ plot.eff <- function(x, x.var,
                         }}
                     }
                     if (has.thresholds){
-                        panel.abline(h=thresholds, lty=3)
-                        panel.text(rep(current.panel.limits()$xlim[1], length(thresholds)), 
+                        lattice::panel.abline(h=thresholds, lty=3)
+                        lattice::panel.text(rep(lattice::current.panel.limits()$xlim[1], length(thresholds)), 
                             thresholds, threshold.labels, adj=c(0,0), cex=0.75)
-                        panel.text(rep(current.panel.limits()$xlim[2], length(thresholds)), 
+                        lattice::panel.text(rep(lattice::current.panel.limits()$xlim[2], length(thresholds)), 
                             thresholds, threshold.labels, adj=c(1,0), cex=0.75)
                     }
                     if (!is.null(residuals)){
-                        lpoints(trans(x.fit), residuals, col=residuals.color, pch=residuals.pch)
-                        if (show.fitted) lpoints(trans(x.fit), fitted, pch=16, col=residuals.color)  # REMOVE ME
+                        lattice::lpoints(trans(x.fit), residuals, col=residuals.color, pch=residuals.pch)
+                        if (show.fitted) lattice::lpoints(trans(x.fit), fitted, pch=16, col=residuals.color)  # REMOVE ME
                         if (smooth.residuals){
-                          llines(loess.smooth(trans(x.fit), residuals, span=span), lwd=2, lty=2, col=residuals.color)
+                          lattice::llines(loess.smooth(trans(x.fit), residuals, span=span), lwd=2, lty=2, col=residuals.color)
                         }
                     }
                     
@@ -333,13 +334,13 @@ plot.eff <- function(x, x.var,
                 lines=list(col=colors[.modc(1:length(zvals))], lty=lines[.modl(1:length(zvals))], lwd=lwd),
                 points=list(col=colors[.modc(1:length(zvals))], pch=symbols[.mods(1:length(zvals))]))
             key <- c(key, key.args)
-            plot <- xyplot(eval(parse( 
+            plot <- lattice::xyplot(eval(parse( 
                 text=paste("fit ~ as.numeric(", predictors[x.var], ")",
                     if (n.predictors > 2) paste(" |", 
                         paste(predictors[-c(x.var, z.var)])), collapse="*"))),
-                strip=function(...) strip.default(..., strip.names=c(factor.names, TRUE)),
+                strip=function(...) lattice::strip.default(..., strip.names=c(factor.names, TRUE)),
                 panel=function(x, y, subscripts, z, lower, upper, show.se, ...){
-                    if (grid) panel.grid()
+                    if (grid) lattice::panel.grid()
                     for (i in 1:length(zvals)){
                         sub <- z[subscripts] == zvals[i]
                         good <- !is.na(y[sub])
@@ -349,17 +350,17 @@ plot.eff <- function(x, x.var,
                         effect.llines(x[sub][good]+os, y[sub][good], lwd=lwd, type='b', col=colors[.modc(i)],
                             pch=symbols[.mods(i)], lty=lines[.modl(i)], cex=cex, ...)
                         if (show.se){
-                            larrows(x0=x[sub][good]+os, y0=lower[subscripts][sub][good], 
+                            lattice::larrows(x0=x[sub][good]+os, y0=lower[subscripts][sub][good], 
                                 x1=x[sub][good]+os, y1=upper[subscripts][sub][good], 
                                 angle=90, code=3, col=eval(colors[.modc(i)]),
                                 length=.125*cex/1.5)
                         }
                     } 
                     if (has.thresholds){
-                        panel.abline(h=thresholds, lty=3)
-                        panel.text(rep(current.panel.limits()$xlim[1], length(thresholds)), 
+                        lattice::panel.abline(h=thresholds, lty=3)
+                        lattice::panel.text(rep(lattice::current.panel.limits()$xlim[1], length(thresholds)), 
                             thresholds, threshold.labels, adj=c(0,0), cex=0.75)
-                        panel.text(rep(current.panel.limits()$xlim[2], length(thresholds)), 
+                        lattice::panel.text(rep(lattice::current.panel.limits()$xlim[2], length(thresholds)), 
                             thresholds, threshold.labels, adj=c(1,0), cex=0.75)
                     }
                 },        
@@ -412,13 +413,13 @@ plot.eff <- function(x, x.var,
                 text=list(as.character(zvals)), 
                 lines=list(col=colors[.modc(1:length(zvals))], lty=lines[.modl(1:length(zvals))], lwd=lwd))
             key <- c(key, key.args) 
-            plot <- xyplot(eval(parse( 
+            plot <- lattice::xyplot(eval(parse( 
                 text=paste("fit ~trans(", predictors[x.var], ")", 
                     if (n.predictors > 2) paste(" |", 
                         paste(predictors[-c(x.var, z.var)])), collapse="*"))),
-                strip=function(...) strip.default(..., strip.names=c(factor.names, TRUE)),
+                strip=function(...) lattice::strip.default(..., strip.names=c(factor.names, TRUE)),
                 panel=function(x, y, subscripts, x.vals, rug, z, lower, upper, show.se, ...){
-                    if (grid) panel.grid()
+                    if (grid) lattice::panel.grid()
                     if (rug && is.null(residuals)) lrug(trans(x.vals))
                     axis.length <- diff(range(x))
                     for (i in 1:length(zvals)){
@@ -430,7 +431,7 @@ plot.eff <- function(x, x.var,
                             if(ci.style == "bars"){
                                 os <- (i - (length(zvals) + 1)/2) * (2/(length(zvals)-1)) * 
                                     .01 * axis.length
-                                larrows(x0=x[sub][good]+os, y0=lower[subscripts][sub][good], 
+                                lattice::larrows(x0=x[sub][good]+os, y0=lower[subscripts][sub][good], 
                                     x1=x[sub][good]+os, y1=upper[subscripts][sub][good], 
                                     angle=90, code=3, col=eval(colors[.modc(i)]),
                                     length=.125*cex/1.5)
@@ -444,10 +445,10 @@ plot.eff <- function(x, x.var,
                         }
                     }
                     if (has.thresholds){
-                        panel.abline(h=thresholds, lty=3)
-                        panel.text(rep(current.panel.limits()$xlim[1], length(thresholds)), 
+                        lattice::panel.abline(h=thresholds, lty=3)
+                        lattice::panel.text(rep(lattice::current.panel.limits()$xlim[1], length(thresholds)), 
                             thresholds, threshold.labels, adj=c(0,0), cex=0.75)
-                        panel.text(rep(current.panel.limits()$xlim[2], length(thresholds)), 
+                        lattice::panel.text(rep(lattice::current.panel.limits()$xlim[2], length(thresholds)), 
                             thresholds, threshold.labels, adj=c(1,0), cex=0.75)
                     }
                 },
@@ -490,16 +491,16 @@ plot.eff <- function(x, x.var,
         else make.ticks(ylim, link=I, inverse=I, at=ticks$at, n=ticks$n)  
         
         levs <- levels(x[,x.var])
-        plot <- xyplot(eval(parse( 
+        plot <- lattice::xyplot(eval(parse( 
             text=paste("fit ~ as.numeric(", predictors[x.var], ") |", 
                 paste(predictors[-x.var], collapse="*")))),
-            strip=function(...) strip.default(..., strip.names=c(factor.names, TRUE)),
+            strip=function(...) lattice::strip.default(..., strip.names=c(factor.names, TRUE)),
             panel=function(x, y, subscripts, lower, upper, has.se, ...){  
-                if (grid) panel.grid()
+                if (grid) lattice::panel.grid()
                 good <- !is.na(y)
                 if (has.se){
                     if (ci.style == "bars"){
-                        larrows(x0=x[good], y0=lower[subscripts][good], x1=x[good], y1=upper[subscripts][good], 
+                        lattice::larrows(x0=x[good], y0=lower[subscripts][good], x1=x[good], y1=upper[subscripts][good], 
                             angle=90, code=3, col=colors[.modc(2)], length=0.125*cex/1.5)
                     }
                     else if(ci.style == "lines") {
@@ -513,10 +514,10 @@ plot.eff <- function(x, x.var,
                 }
                 effect.llines(x[good], y[good], lwd=lwd, type='b', col=colors[1], pch=19, cex=cex, ...)
                 if (has.thresholds){
-                    panel.abline(h=thresholds, lty=3)
-                    panel.text(rep(current.panel.limits()$xlim[1], length(thresholds)), 
+                    lattice::panel.abline(h=thresholds, lty=3)
+                    lattice::panel.text(rep(lattice::current.panel.limits()$xlim[1], length(thresholds)), 
                         thresholds, threshold.labels, adj=c(0,0), cex=0.75)
-                    panel.text(rep(current.panel.limits()$xlim[2], length(thresholds)), 
+                    lattice::panel.text(rep(lattice::current.panel.limits()$xlim[2], length(thresholds)), 
                         thresholds, threshold.labels, adj=c(1,0), cex=0.75)
                 }
             },
@@ -568,18 +569,18 @@ plot.eff <- function(x, x.var,
         x.fit <- x.data[, predictors[x.var]]
         use <- rep(TRUE, length(residuals))
         xx <- x[, predictors[-x.var], drop=FALSE]
-        plot <- xyplot(eval(parse( 
+        plot <- lattice::xyplot(eval(parse( 
             text=paste("fit ~ trans(", predictors[x.var], ") |", 
                 paste(predictors[-x.var], collapse="*")))),
-            strip=function(...) strip.default(..., strip.names=c(factor.names, TRUE)),
+            strip=function(...) lattice::strip.default(..., strip.names=c(factor.names, TRUE)),
             panel=function(x, y, subscripts, x.vals, rug, lower, upper, has.se, ...){
-                if (grid) panel.grid()
+                if (grid) lattice::panel.grid()
                 good <- !is.na(y)
                 effect.llines(x[good], y[good], lwd=lwd, col=colors[1], ...)
                 if (rug && is.null(residuals)) lrug(trans(x.vals))
                 if (has.se){  
                     if (ci.style == "bars"){ 
-                        larrows(x0=x[good], y0=lower[subscripts][good], 
+                        lattice::larrows(x0=x[good], y0=lower[subscripts][good], 
                             x1=x[good], y1=upper[subscripts][good], 
                             angle=90, code=3, col=eval(colors[.modc(2)]),
                             length=.125*cex/1.5)
@@ -601,20 +602,20 @@ plot.eff <- function(x, x.var,
                         }
                         n.in.panel <- sum(use)
                         if (n.in.panel > 0){
-                            lpoints(trans(x.fit[use]), residuals[use], col=residuals.color, pch=residuals.pch)
-                            if (show.fitted) lpoints(trans(x.fit[use]), fitted[use], pch=16, col=residuals.color)  # REMOVE ME
+                            lattice::lpoints(trans(x.fit[use]), residuals[use], col=residuals.color, pch=residuals.pch)
+                            if (show.fitted) lattice::lpoints(trans(x.fit[use]), fitted[use], pch=16, col=residuals.color)  # REMOVE ME
                             if (smooth.residuals && n.in.panel >= 10) {
-                              llines(loess.smooth(x.fit[use], residuals[use], span=span), 
+                              lattice::llines(loess.smooth(x.fit[use], residuals[use], span=span), 
                                                          lwd=2, lty=2, col=residuals.color)
                             }
                         }
                     }
                 }
                 if (has.thresholds){
-                    panel.abline(h=thresholds, lty=3)
-                    panel.text(rep(current.panel.limits()$xlim[1], length(thresholds)), 
+                    lattice::panel.abline(h=thresholds, lty=3)
+                    lattice::panel.text(rep(lattice::current.panel.limits()$xlim[1], length(thresholds)), 
                         thresholds, threshold.labels, adj=c(0,0), cex=0.75)
-                    panel.text(rep(current.panel.limits()$xlim[2], length(thresholds)), 
+                    lattice::panel.text(rep(lattice::current.panel.limits()$xlim[2], length(thresholds)), 
                         thresholds, threshold.labels, adj=c(1,0), cex=0.75)
                 }
             },
@@ -702,15 +703,15 @@ plot.eff <- function(x, x.var,
 #                 link=trans.link, inverse=trans.inverse, at=ticks$at, n=ticks$n)
 #             else make.ticks(ylim, link=I, inverse=I, at=ticks$at, n=ticks$n)
 #             levs <- levels(x[,1])  
-#             plot <- xyplot(eval(parse(
+#             plot <- lattice::xyplot(eval(parse(
 #                 text=paste("fit ~ as.numeric(", names(x)[1], ")"))), 
-#                 strip=function(...) strip.default(..., strip.names=c(factor.names, TRUE)),
+#                 strip=function(...) lattice::strip.default(..., strip.names=c(factor.names, TRUE)),
 #                 panel=function(x, y, lower, upper, has.se, ...){
-#                     if (grid) panel.grid()
+#                     if (grid) lattice::panel.grid()
 #                     good <- !is.na(y)
 #                     if (has.se){ 
 #                         if (ci.style == "bars"){
-#                             larrows(x0=x[good], y0=lower[good], x1=x[good], y1=upper[good], angle=90, 
+#                             lattice::larrows(x0=x[good], y0=lower[good], x1=x[good], y1=upper[good], angle=90, 
 #                                 code=3, col=colors[.modc(2)], length=0.125*cex/1.5)
 #                         }
 #                         else if(ci.style == "lines") {
@@ -724,10 +725,10 @@ plot.eff <- function(x, x.var,
 #                     }
 #                     effect.llines(x[good], y[good], lwd=lwd, col=colors[1], type='b', pch=19, cex=cex, ...)
 #                     if (has.thresholds){
-#                         panel.abline(h=thresholds, lty=3)
-#                         panel.text(rep(current.panel.limits()$xlim[1], length(thresholds)), 
+#                         lattice::panel.abline(h=thresholds, lty=3)
+#                         lattice::panel.text(rep(lattice::current.panel.limits()$xlim[1], length(thresholds)), 
 #                             thresholds, threshold.labels, adj=c(0,0), cex=0.75)
-#                         panel.text(rep(current.panel.limits()$xlim[2], length(thresholds)), 
+#                         lattice::panel.text(rep(lattice::current.panel.limits()$xlim[2], length(thresholds)), 
 #                             thresholds, threshold.labels, adj=c(1,0), cex=0.75)
 #                     }
 #                 },
@@ -778,18 +779,18 @@ plot.eff <- function(x, x.var,
 #                 trans <- I
 #                 make.ticks(xlm, link=I, inverse=I, at=at, n=n)
 #             }
-#             plot <- xyplot(eval(parse(
+#             plot <- lattice::xyplot(eval(parse(
 #                 text=paste("fit ~ trans(", names(x)[1], ")"))),
-#                 strip=function(...) strip.default(..., strip.names=c(factor.names, TRUE)),
+#                 strip=function(...) lattice::strip.default(..., strip.names=c(factor.names, TRUE)),
 #                 panel=function(x, y, x.vals, rug, lower, upper, has.se, ...){
-#                     if (grid) panel.grid()
+#                     if (grid) lattice::panel.grid()
 #                     good <- !is.na(y)
 #                     axis.length <- diff(range(x))
 #                     effect.llines(x[good], y[good], lwd=lwd, col=colors[1], ...)
 #                     if (rug) lrug(trans(x.vals))
 #                     if (has.se){  
 #                         if (ci.style == "bars"){
-#                             larrows(x0=x[good], y0=lower[good], 
+#                             lattice::larrows(x0=x[good], y0=lower[good], 
 #                                 x1=x[good], y1=upper[good], 
 #                                 angle=90, code=3, col=eval(colors[.modc(2)]),
 #                                 length=.125*cex/1.5)
@@ -804,10 +805,10 @@ plot.eff <- function(x, x.var,
 #                         }}
 #                     }
 #                     if (has.thresholds){
-#                         panel.abline(h=thresholds, lty=3)
-#                         panel.text(rep(current.panel.limits()$xlim[1], length(thresholds)), 
+#                         lattice::panel.abline(h=thresholds, lty=3)
+#                         lattice::panel.text(rep(lattice::current.panel.limits()$xlim[1], length(thresholds)), 
 #                             thresholds, threshold.labels, adj=c(0,0), cex=0.75)
-#                         panel.text(rep(current.panel.limits()$xlim[2], length(thresholds)), 
+#                         lattice::panel.text(rep(lattice::current.panel.limits()$xlim[2], length(thresholds)), 
 #                             thresholds, threshold.labels, adj=c(1,0), cex=0.75)
 #                     }
 #                 },
@@ -864,13 +865,13 @@ plot.eff <- function(x, x.var,
 #                 lines=list(col=colors[.modc(1:length(zvals))], lty=lines[.modl(1:length(zvals))], lwd=lwd),
 #                 points=list(col=colors[.modc(1:length(zvals))], pch=symbols[.mods(1:length(zvals))]))
 #             key <- c(key, key.args)
-#             plot <- xyplot(eval(parse( 
+#             plot <- lattice::xyplot(eval(parse( 
 #                 text=paste("fit ~ as.numeric(", predictors[x.var], ")",
 #                     if (n.predictors > 2) paste(" |", 
 #                         paste(predictors[-c(x.var, z.var)])), collapse="*"))),
-#                 strip=function(...) strip.default(..., strip.names=c(factor.names, TRUE)),
+#                 strip=function(...) lattice::strip.default(..., strip.names=c(factor.names, TRUE)),
 #                 panel=function(x, y, subscripts, z, lower, upper, show.se, ...){
-#                     if (grid) panel.grid()
+#                     if (grid) lattice::panel.grid()
 #                     for (i in 1:length(zvals)){
 #                         sub <- z[subscripts] == zvals[i]
 #                         good <- !is.na(y[sub])
@@ -880,17 +881,17 @@ plot.eff <- function(x, x.var,
 #                         effect.llines(x[sub][good]+os, y[sub][good], lwd=lwd, type='b', col=colors[.modc(i)],
 #                             pch=symbols[.mods(i)], lty=lines[.modl(i)], cex=cex, ...)
 #                         if (show.se){
-#                             larrows(x0=x[sub][good]+os, y0=lower[subscripts][sub][good], 
+#                             lattice::larrows(x0=x[sub][good]+os, y0=lower[subscripts][sub][good], 
 #                                 x1=x[sub][good]+os, y1=upper[subscripts][sub][good], 
 #                                 angle=90, code=3, col=eval(colors[.modc(i)]),
 #                                 length=.125*cex/1.5)
 #                         }
 #                     } 
 #                     if (has.thresholds){
-#                         panel.abline(h=thresholds, lty=3)
-#                         panel.text(rep(current.panel.limits()$xlim[1], length(thresholds)), 
+#                         lattice::panel.abline(h=thresholds, lty=3)
+#                         lattice::panel.text(rep(lattice::current.panel.limits()$xlim[1], length(thresholds)), 
 #                             thresholds, threshold.labels, adj=c(0,0), cex=0.75)
-#                         panel.text(rep(current.panel.limits()$xlim[2], length(thresholds)), 
+#                         lattice::panel.text(rep(lattice::current.panel.limits()$xlim[2], length(thresholds)), 
 #                             thresholds, threshold.labels, adj=c(1,0), cex=0.75)
 #                     }
 #                 },        
@@ -943,13 +944,13 @@ plot.eff <- function(x, x.var,
 #                 text=list(as.character(zvals)), 
 #                 lines=list(col=colors[.modc(1:length(zvals))], lty=lines[.modl(1:length(zvals))], lwd=lwd))
 #             key <- c(key, key.args) 
-#             plot <- xyplot(eval(parse( 
+#             plot <- lattice::xyplot(eval(parse( 
 #                 text=paste("fit ~trans(", predictors[x.var], ")", 
 #                     if (n.predictors > 2) paste(" |", 
 #                         paste(predictors[-c(x.var, z.var)])), collapse="*"))),
-#                 strip=function(...) strip.default(..., strip.names=c(factor.names, TRUE)),
+#                 strip=function(...) lattice::strip.default(..., strip.names=c(factor.names, TRUE)),
 #                 panel=function(x, y, subscripts, x.vals, rug, z, lower, upper, show.se, ...){
-#                     if (grid) panel.grid()
+#                     if (grid) lattice::panel.grid()
 #                     if (rug) lrug(trans(x.vals))
 #                     axis.length <- diff(range(x))
 #                     for (i in 1:length(zvals)){
@@ -961,7 +962,7 @@ plot.eff <- function(x, x.var,
 #                             if(ci.style == "bars"){
 #                                 os <- (i - (length(zvals) + 1)/2) * (2/(length(zvals)-1)) * 
 #                                     .01 * axis.length
-#                                 larrows(x0=x[sub][good]+os, y0=lower[subscripts][sub][good], 
+#                                 lattice::larrows(x0=x[sub][good]+os, y0=lower[subscripts][sub][good], 
 #                                     x1=x[sub][good]+os, y1=upper[subscripts][sub][good], 
 #                                     angle=90, code=3, col=eval(colors[.modc(i)]),
 #                                     length=.125*cex/1.5)
@@ -975,10 +976,10 @@ plot.eff <- function(x, x.var,
 #                         }
 #                     }
 #                     if (has.thresholds){
-#                         panel.abline(h=thresholds, lty=3)
-#                         panel.text(rep(current.panel.limits()$xlim[1], length(thresholds)), 
+#                         lattice::panel.abline(h=thresholds, lty=3)
+#                         lattice::panel.text(rep(lattice::current.panel.limits()$xlim[1], length(thresholds)), 
 #                             thresholds, threshold.labels, adj=c(0,0), cex=0.75)
-#                         panel.text(rep(current.panel.limits()$xlim[2], length(thresholds)), 
+#                         lattice::panel.text(rep(lattice::current.panel.limits()$xlim[2], length(thresholds)), 
 #                             thresholds, threshold.labels, adj=c(1,0), cex=0.75)
 #                     }
 #                 },
@@ -1018,16 +1019,16 @@ plot.eff <- function(x, x.var,
 #     else make.ticks(ylim, link=I, inverse=I, at=ticks$at, n=ticks$n)  
 #     if (is.factor(x[,x.var])){
 #         levs <- levels(x[,x.var])
-#         plot <- xyplot(eval(parse( 
+#         plot <- lattice::xyplot(eval(parse( 
 #             text=paste("fit ~ as.numeric(", predictors[x.var], ") |", 
 #                 paste(predictors[-x.var], collapse="*")))),
-#             strip=function(...) strip.default(..., strip.names=c(factor.names, TRUE)),
+#             strip=function(...) lattice::strip.default(..., strip.names=c(factor.names, TRUE)),
 #             panel=function(x, y, subscripts, lower, upper, has.se, ...){  
-#                 if (grid) panel.grid()
+#                 if (grid) lattice::panel.grid()
 #                 good <- !is.na(y)
 #                 if (has.se){
 #                     if (ci.style == "bars"){
-#                         larrows(x0=x[good], y0=lower[subscripts][good], x1=x[good], y1=upper[subscripts][good], 
+#                         lattice::larrows(x0=x[good], y0=lower[subscripts][good], x1=x[good], y1=upper[subscripts][good], 
 #                             angle=90, code=3, col=colors[.modc(2)], length=0.125*cex/1.5)
 #                     }
 #                     else if(ci.style == "lines") {
@@ -1041,10 +1042,10 @@ plot.eff <- function(x, x.var,
 #                 }
 #                 effect.llines(x[good], y[good], lwd=lwd, type='b', col=colors[1], pch=19, cex=cex, ...)
 #                 if (has.thresholds){
-#                     panel.abline(h=thresholds, lty=3)
-#                     panel.text(rep(current.panel.limits()$xlim[1], length(thresholds)), 
+#                     lattice::panel.abline(h=thresholds, lty=3)
+#                     lattice::panel.text(rep(lattice::current.panel.limits()$xlim[1], length(thresholds)), 
 #                         thresholds, threshold.labels, adj=c(0,0), cex=0.75)
-#                     panel.text(rep(current.panel.limits()$xlim[2], length(thresholds)), 
+#                     lattice::panel.text(rep(lattice::current.panel.limits()$xlim[2], length(thresholds)), 
 #                         thresholds, threshold.labels, adj=c(1,0), cex=0.75)
 #                 }
 #             },
@@ -1086,18 +1087,18 @@ plot.eff <- function(x, x.var,
 #             trans <- I
 #             make.ticks(xlm, link=I, inverse=I, at=at, n=n)
 #         }
-#         plot <- xyplot(eval(parse( 
+#         plot <- lattice::xyplot(eval(parse( 
 #             text=paste("fit ~ trans(", predictors[x.var], ") |", 
 #                 paste(predictors[-x.var], collapse="*")))),
-#             strip=function(...) strip.default(..., strip.names=c(factor.names, TRUE)),
+#             strip=function(...) lattice::strip.default(..., strip.names=c(factor.names, TRUE)),
 #             panel=function(x, y, subscripts, x.vals, rug, lower, upper, has.se, ...){
-#                 if (grid) panel.grid()
+#                 if (grid) lattice::panel.grid()
 #                 good <- !is.na(y)
 #                 effect.llines(x[good], y[good], lwd=lwd, col=colors[1], ...)
 #                 if (rug) lrug(trans(x.vals))
 #                 if (has.se){  
 #                     if (ci.style == "bars"){ 
-#                         larrows(x0=x[good], y0=lower[subscripts][good], 
+#                         lattice::larrows(x0=x[good], y0=lower[subscripts][good], 
 #                             x1=x[good], y1=upper[subscripts][good], 
 #                             angle=90, code=3, col=eval(colors[.modc(2)]),
 #                             length=.125*cex/1.5)
@@ -1112,10 +1113,10 @@ plot.eff <- function(x, x.var,
 #                     }}
 #                 }
 #                 if (has.thresholds){
-#                     panel.abline(h=thresholds, lty=3)
-#                     panel.text(rep(current.panel.limits()$xlim[1], length(thresholds)), 
+#                     lattice::panel.abline(h=thresholds, lty=3)
+#                     lattice::panel.text(rep(lattice::current.panel.limits()$xlim[1], length(thresholds)), 
 #                         thresholds, threshold.labels, adj=c(0,0), cex=0.75)
-#                     panel.text(rep(current.panel.limits()$xlim[2], length(thresholds)), 
+#                     lattice::panel.text(rep(lattice::current.panel.limits()$xlim[2], length(thresholds)), 
 #                         thresholds, threshold.labels, adj=c(1,0), cex=0.75)
 #                 }
 #             },

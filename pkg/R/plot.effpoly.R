@@ -3,6 +3,7 @@
 # modified by Michael Friendly: added ci.style="bands" & alpha.band= arg
 # modified by Michael Friendly: added lwd= argument for llines (was lwd=2)
 # 2013-11-06: fixed drop dimension when only one focal predictor. John
+# 2014-10-10: namespace fixes. John
 
 plot.effpoly <- function(x,
     type=c("probability", "logit"),
@@ -23,7 +24,7 @@ plot.effpoly <- function(x,
         match.arg(ci.style, c("bars", "lines", "bands", "none"))
     type <- match.arg(type)
     style <- match.arg(style)
-    effect.llines <- llines
+    effect.llines <- lattice::llines
     has.se <- !is.null(x$confidence.level) 
     if (confint && !has.se) stop("there are no confidence limits to plot")
     if (style == "stacked"){
@@ -38,8 +39,8 @@ plot.effpoly <- function(x,
     }
     if (missing(colors)){
         if (style == "stacked"){
-            colors <- if (x$model == "multinom") rainbow_hcl(length(x$y.levels))
-            else sequential_hcl(length(x$y.levels))
+            colors <- if (x$model == "multinom") colorspace::rainbow_hcl(length(x$y.levels))
+            else colorspace::sequential_hcl(length(x$y.levels))
         }
         else colors <- palette()
     }
@@ -113,7 +114,7 @@ plot.effpoly <- function(x,
                     text=list(as.character(unique(response))),
                     lines=list(col=colors[.modc(1:n.y.lev)], lty=lines[.modl(1:n.y.lev)], lwd=lwd),
                     points=list(pch=symbols[.mods(1:n.y.lev)], col=colors[.modc(1:n.y.lev)]))
-                result <- xyplot(eval(if (type=="probability") 
+                result <- lattice::xyplot(eval(if (type=="probability") 
                     parse(text=if (n.predictors==1) 
                         paste("prob ~ as.numeric(", predictors[x.var], ")")
                         else paste("prob ~ as.numeric(", predictors[x.var],") | ", 
@@ -122,9 +123,9 @@ plot.effpoly <- function(x,
                         paste("logit ~ as.numeric(", predictors[x.var], ")")
                         else paste("logit ~ as.numeric(", predictors[x.var],") | ", 
                             paste(predictors[-x.var], collapse="*")))), 
-                    strip=function(...) strip.default(..., strip.names=c(factor.names, TRUE)),
+                    strip=function(...) lattice::strip.default(..., strip.names=c(factor.names, TRUE)),
                     panel=function(x, y, subscripts, rug, z, x.vals, ...){
-                        if (grid) panel.grid()
+                        if (grid) lattice::panel.grid()
                         for (i in 1:n.y.lev){
                             sub <- z[subscripts] == y.lev[i]
                             good <- !is.na(y[sub])
@@ -178,16 +179,16 @@ plot.effpoly <- function(x,
                 key <- list(title=x$response, cex.title=1, border=TRUE,
                     text=list(as.character(unique(response))), 
                     lines=list(col=colors[.modc(1:n.y.lev)], lty=lines[.modl(1:n.y.lev)], lwd=lwd))
-                result <- xyplot(eval(if (type=="probability") 
+                result <- lattice::xyplot(eval(if (type=="probability") 
                     parse(text=if (n.predictors==1) paste("prob ~ trans(", predictors[x.var], ")")
                         else paste("prob ~ trans(", predictors[x.var],") |", 
                             paste(predictors[-x.var], collapse="*")))
                     else parse(text=if (n.predictors==1) paste("logit ~ trans(", predictors[x.var], ")")
                         else paste("logit ~ trans(", predictors[x.var],") | ", 
                             paste(predictors[-x.var], collapse="*")))), 
-                    strip=function(...) strip.default(..., strip.names=c(factor.names, TRUE)),
+                    strip=function(...) lattice::strip.default(..., strip.names=c(factor.names, TRUE)),
                     panel=function(x, y, subscripts, rug, z, x.vals, ...){
-                        if (grid) panel.grid()
+                        if (grid) lattice::panel.grid()
                         if (rug) lrug(trans(x.vals))
                         for (i in 1:n.y.lev){
                             sub <- z[subscripts] == y.lev[i]
@@ -220,11 +221,11 @@ plot.effpoly <- function(x,
                 stop(paste('Not enough colors to plot', n.y.lev, 'regions'))
             key <- list(text=list(lab=rev(y.lev)), rectangle=list(col=rev(colors[1:n.y.lev])))
             if (is.factor(x$data[[predictors[x.var]]])){ # x-variable a factor
-                result <- barchart(eval(parse(text=if (n.predictors == 1) 
+                result <- lattice::barchart(eval(parse(text=if (n.predictors == 1) 
                     paste("prob ~ ", predictors[x.var], sep="")
                     else paste("prob ~ ", predictors[x.var]," | ", 
                         paste(predictors[-x.var], collapse="*")))), 
-                    strip=function(...) strip.default(..., strip.names=c(factor.names, TRUE)),
+                    strip=function(...) lattice::strip.default(..., strip.names=c(factor.names, TRUE)),
                     groups = response,
                     col=colors,
                     horizontal=FALSE, 
@@ -266,17 +267,17 @@ plot.effpoly <- function(x,
                     trans <- I
                     make.ticks(xlm, link=I, inverse=I, at=at, n=n)
                 }
-                result <- densityplot(eval(parse(text=if (n.predictors == 1)
+                result <- lattice::densityplot(eval(parse(text=if (n.predictors == 1)
                     paste("~ trans(", predictors[x.var], ")", sep="")
                     else paste("~ trans(", predictors[x.var], ") | ",
                         paste(predictors[-x.var], collapse="*")))),
                     probs=x$prob,
-                    strip=function(...) strip.default(..., strip.names=c(factor.names, TRUE)),
+                    strip=function(...) lattice::strip.default(..., strip.names=c(factor.names, TRUE)),
                     panel =  function(x, subscripts, rug, x.vals, probs=probs, col=colors, ...){
                         fill <- function(x, y1, y2, col){
                             if (length(y2) == 1) y2 <- rep(y2, length(y1))
                             if (length(y1) == 1) y1 <- rep(y1, length(y2))
-                            panel.polygon(c(x, rev(x)), c(y1, rev(y2)), col=col)
+                            lattice::panel.polygon(c(x, rev(x)), c(y1, rev(y2)), col=col)
                         }
                         n <- ncol(probs)
                         Y <- t(apply(probs[subscripts,], 1, cumsum))
@@ -319,7 +320,7 @@ plot.effpoly <- function(x,
         ### factor
         if (is.factor(x$data[[predictors[x.var]]])){ # x-variable a factor
             levs <- levels(x$data[[predictors[x.var]]])
-            result <- xyplot(eval(if (type=="probability") 
+            result <- lattice::xyplot(eval(if (type=="probability") 
                 parse(text=if (n.predictors==1) 
                     paste("prob ~ as.numeric(", predictors[x.var],") |", x$response)
                     else paste("prob ~ as.numeric(", predictors[x.var],") |", 
@@ -331,14 +332,14 @@ plot.effpoly <- function(x,
                         paste(predictors[-x.var], collapse="*"), 
                         paste("*", x$response)))),
                 par.strip.text=list(cex=0.8),							
-                strip=function(...) strip.default(..., strip.names=c(factor.names, TRUE)),
+                strip=function(...) lattice::strip.default(..., strip.names=c(factor.names, TRUE)),
                 panel=function(x, y, subscripts, x.vals, rug, lower, upper, ... ){
-                    if (grid) panel.grid()
+                    if (grid) lattice::panel.grid()
                     good <- !is.na(y)
                     effect.llines(x[good], y[good], lwd=lwd, type="b", pch=19, col=colors[1], cex=cex, ...)
                     subs <- subscripts+as.numeric(rownames(data)[1])-1		
                     if (ci.style == "bars"){
-                        larrows(x0=x[good], y0=lower[subs][good], 
+                        lattice::larrows(x0=x[good], y0=lower[subs][good], 
                             x1=x[good], y1=upper[subs][good], 
                             angle=90, code=3, col=colors[.modc(2)], length=0.125*cex/1.5)
                     }
@@ -394,7 +395,7 @@ plot.effpoly <- function(x,
                 trans <- I
                 make.ticks(xlm, link=I, inverse=I, at=at, n=n)
             }
-            result <- xyplot(eval(if (type=="probability") 
+            result <- lattice::xyplot(eval(if (type=="probability") 
                 parse(text=if (n.predictors==1) 
                     paste("prob ~ trans(", predictors[x.var],") |", x$response)
                     else paste("prob ~ trans(", predictors[x.var],") |", 
@@ -407,15 +408,15 @@ plot.effpoly <- function(x,
                         paste("*", x$response)))
             ),
                 par.strip.text=list(cex=0.8),							
-                strip=function(...) strip.default(..., strip.names=c(factor.names, TRUE)),
+                strip=function(...) lattice::strip.default(..., strip.names=c(factor.names, TRUE)),
                 panel=function(x, y, subscripts, x.vals, rug, lower, upper, ... ){
-                    if (grid) panel.grid()
+                    if (grid) lattice::panel.grid()
                     if (rug) lrug(trans(x.vals))
                     good <- !is.na(y)
                     effect.llines(x[good], y[good], lwd=lwd, col=colors[1], ...)
                     subs <- subscripts+as.numeric(rownames(data)[1])-1	
                     if (ci.style == "bars"){
-                        larrows(x0=x[good], y0=lower[subs][good], 
+                        lattice::larrows(x0=x[good], y0=lower[subs][good], 
                             x1=x[good], y1=upper[subs][good], 
                             angle=90, code=3, col=colors[.modc(2)], length=0.125*cex/1.5)
                     }

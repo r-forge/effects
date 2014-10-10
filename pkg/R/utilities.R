@@ -10,6 +10,7 @@
 #     added is.factor.predictor() and is.numeric.predictor(). J. Fox
 # 2014-03-14: error message for non-factor, non-numeric predictor
 # 2014-07-08: if no numeric predictor, partial residuals suppressed with warning rather than an error
+# 2014-10-09: namespace fixes. J. Fox
 
 has.intercept <- function(model, ...) any(names(coefficients(model))=="(Intercept)")
 
@@ -175,7 +176,7 @@ p2logit <- function(p) log(p/(1 - p))
 
 lrug <- function(x) {
 	if (length(unique(x)) < 0.8 * length(x)) x <- jitter(x)
-	grid.segments(x, unit(0, "npc"), x, unit(0.5, "lines"),
+	grid::grid.segments(x, unit(0, "npc"), x, unit(0.5, "lines"),
 		default.units="native")
 }
 
@@ -249,7 +250,7 @@ Analyze.model <- function(focal.predictors, mod, xlevels, default.levels=NULL, f
                     quantile(X[, name], quantiles)
                 }
                 else{
-                    grid.pretty(range(X[, name]))
+                    grid::grid.pretty(range(X[, name]))
                 }
             }
             else {
