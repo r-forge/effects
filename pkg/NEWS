@@ -1,3 +1,8 @@
+Version 3.0-3
+
+ o Nothing yet!
+
+
 Version 3.0-2
 
  o plot.eff() honors rescale.axis=FALSE when plotting partial residuals (bug reported by Alexander Wietzke).
