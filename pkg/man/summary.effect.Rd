@@ -289,13 +289,13 @@ plot(eff.cowles, 'neuroticism:extraversion', ylab="Prob(Volunteer)",
     ticks=list(at=c(.1,.25,.5,.75,.9)), band.colors="red", band.transparency=.3)
 
 plot(eff.cowles, 'neuroticism:extraversion', multiline=TRUE,
-    ylab="Prob(Volunteer)", key.args = list(x = 0.75, y = 0.75, corner = c(0, 0)))
+     ylab="Prob(Volunteer)", key.args = list(x = 0.25, y = 0.90, corner = c(0, 0)))
 
 # use probability scale in place of logit scale, all lines are black.
 plot(eff.cowles, 'neuroticism:extraversion', multiline=TRUE,
-    ylab="Prob(Volunteer)", key.args = list(x = 0.75, y = 0.75, corner = c(0, 0)),
-    colors="black", lines=1:8,
-    ci.style="bands", rescale.axis=FALSE, band.colors=palette())
+     ylab="Prob(Volunteer)", key.args = list(x = 0.25, y = 0.90, corner = c(0, 0)),
+     colors="black", lines=1:8,
+     ci.style="bands", rescale.axis=FALSE, band.colors=palette())
 
 plot(effect('sex:neuroticism:extraversion', mod.cowles,
     xlevels=list(extraversion=seq(0, 24, 6))), multiline=TRUE)
