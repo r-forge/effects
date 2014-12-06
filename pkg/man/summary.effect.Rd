@@ -193,7 +193,8 @@
     the logit scale for a binomial GLM).}
   \item{key.args}{additional arguments to be passed to the \code{key} trellis argument to 
     \code{\link{xyplot}} or \code{\link{densityplot}}, 
-    e.g., to position the key (legend) in the plotting region.}
+    e.g., to position the key (legend) in the plotting region; may also be used to modify
+    the default behavior of the key.}
   \item{row, col, nrow, ncol, more}{These arguments are used to graph an effect as part of an
     array of plots; \code{row}, \code{col}, \code{nrow}, and \code{ncol} are used to compose
     the \code{split} argument and \code{more} the \code{more} argument to \code{\link{print.trellis}}.

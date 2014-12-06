@@ -1,6 +1,6 @@
 Version 3.0-3
 
- o Nothing yet!
+ o Made key.args argument to plot.eff() and plot.effpoly() more flexible (suggestion of Ian Kyle).
 
 
 Version 3.0-2
