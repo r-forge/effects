@@ -73,9 +73,11 @@ Effect(focal.predictors, mod, ...)
     confidence.level=.95, xlevels=list(), default.levels=NULL, 
     given.values, vcov.=vcov, se=TRUE, typical=mean, latent=FALSE, ...)
     
-\method{Effect}{mer}(focal.predictors, mod, KR=TRUE, ...)
+\method{Effect}{mer}(focal.predictors, mod, 
+    KR=require("pbkrtest", quietly=TRUE), ...)
 
-\method{Effect}{merMod}(focal.predictors, mod, KR=TRUE, ...)
+\method{Effect}{merMod}(focal.predictors, mod, 
+    KR=require("pbkrtest", quietly=TRUE), ...)
 
 \method{Effect}{lme}(focal.predictors, mod, ...)
 
@@ -154,7 +156,8 @@ allEffects(mod, ...)
     normal distribution is used to get confidence limits.}
   \item{confidence.level}{level at which to compute confidence limits
     based on the standard-normal distribution; the default is \code{0.95}.}
-  \item{KR}{if \code{TRUE}, the default, use the Kenward-Roger coefficient covariance
+  \item{KR}{if \code{TRUE}, the default if the \pkg{pbkrtest} package is installed, 
+    use the Kenward-Roger coefficient covariance
     matrix to compute effect standard errors for linear mixed models fit with \code{lmer}
     in the \pkg{lme4} package.}
   \item{transformation}{a two-element list with elements \code{link} and
@@ -506,6 +509,7 @@ plot(Effect(c("recipe", "temperature"), fm1))
 \dontrun{
 plot(effect("recipe:temperature", fm1), grid=TRUE) # equivalent
 }
+if (any(grepl("pbkrtest", search()))) detach(package:pbkrtest)
 detach(package:lme4)
 }
 
