@@ -1,6 +1,6 @@
 Package: effects
 Version: 3.0-4
-Date: 2014/12/09
+Date: 2014/12/10
 Title: Effect Displays for Linear, Generalized Linear, and Other Models
 Authors@R: c(person("John", "Fox", role = c("aut", "cre"), email = "jfox@mcmaster.ca"),
 	person("Sanford", "Weisberg", role = "aut", email = "sandy@umn.edu"),
@@ -9,8 +9,8 @@ Authors@R: c(person("John", "Fox", role = c("aut", "cre"), email = "jfox@mcmaste
     person("Robert", "Andersen", role = "ctb"),
     person("David", "Firth", role = "ctb"),
     person("Steve", "Taylor", role = "ctb"))
-Suggests: nlme, MASS, poLCA, heplots, splines
-Imports: pbkrtest, lme4, nnet, lattice, grid, colorspace
+Suggests: pbkrtest, nlme, MASS, poLCA, heplots, splines
+Imports: lme4, nnet, lattice, grid, colorspace
 LazyLoad: yes
 LazyData: yes
 Description: 
