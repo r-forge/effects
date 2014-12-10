@@ -14,7 +14,7 @@ mixed-effect, polytomous latent-class, and some other models; (multidimensional)
 \details{
 \tabular{ll}{
 Package: \tab effects\cr
-Version: \tab 3.0-3\cr
+Version: \tab 3.0-4\cr
 Date: \tab 2014/12/09\cr
 Depends: \tab lattice, grid, colorspace\cr
 Suggests: \tab nlme, lme4, MASS, nnet, poLCA\cr
