@@ -111,18 +111,25 @@ vcov.fakeglm <- function(object, ...) object$vcov
 
 #The next four functions should be exported
 
-effect.mer <- function(term, mod, KR=require("pbkrtest", quietly=TRUE), ...) {
-    result <- effect(term, mer.to.glm(mod, KR=KR), ...)
+effect.mer <- function(term, mod, vcov.=vcov, KR=require("pbkrtest", quietly=TRUE), ...) {
+    result <- effect(term, mer.to.glm(mod, KR=KR), vcov., ...)
     result$formula <- as.formula(formula(mod))
     result
     }
     
-allEffects.mer <- function(mod, ...){
-    allEffects(mer.to.glm(mod), ...)
+effect.merMod <- function(term, mod, vcov.=vcov, KR=require("pbkrtest", quietly=TRUE), ...){
+    effect.mer(term, mod, vcov.=vcov, KR=KR, ...)
 }
 
-effect.merMod <- function(term, mod, KR=require("pbkrtest", quietly=TRUE), ...){
-    effect.mer(term, mod, KR=KR, ...)
+effect.lme <- function(term, mod, ...) {
+  mod1 <- lme.to.glm(mod)
+  result <- effect(term, mod1)
+  result$formula <- as.formula(formula(mod))
+  result
+}
+
+allEffects.mer <- function(mod, ...){
+  allEffects(mer.to.glm(mod), ...)
 }
 
 allEffects.merMod <- function(mod, ...){
@@ -133,10 +140,5 @@ allEffects.lme <- function(mod, ...){
   	allEffects(lme.to.glm(mod), ...)
 }
   
-effect.lme <- function(term, mod, ...) {
-    mod1 <- lme.to.glm(mod)
-    result <- effect(term, mod1)
-    result$formula <- as.formula(formula(mod))
-    result
-    }
+
    

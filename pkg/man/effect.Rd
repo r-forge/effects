@@ -10,12 +10,9 @@
 \alias{Effect.multinom}
 \alias{Effect.polr}
 \alias{Effect.poLCA}
+\alias{Effect.clm2}
 \alias{Effect.mlm}
 \alias{allEffects}
-\alias{allEffects.mer}
-\alias{allEffects.merMod}
-\alias{allEffects.lme}
-\alias{allEffects.poLCA}
 \alias{as.data.frame.eff}
 \alias{as.data.frame.effpoly}
 \alias{as.data.frame.efflatent}
@@ -23,25 +20,30 @@
 
 \title{Functions For Constructing Effect Plots}
 \description{
-  \code{effect} constructs an \code{"eff"} object for a term (usually a high-order term) 
-  in a linear (fit by \code{lm} or \code{gls}) or generalized linear model (fit by \code{glm}), or an \code{"effpoly"} object for a term in a
-   multinomial or proportional-odds logit model (fit respectively by \code{multinom} or \code{polr}), 
+  \code{effect} and \code{Effect} construct an \code{"eff"} object for a term (usually a high-order term) 
+  in a linear (fit by \code{lm} or \code{gls}) or generalized linear model (fit by \code{glm}), or an 
+  \code{"effpoly"} object for a term in a
+  multinomial or proportional-odds logit model (fit respectively by \code{multinom} or \code{polr}), 
   absorbing the lower-order terms marginal
   to the term in question, and averaging over other terms in the model.  For multivariate linear models
   (\code{mlm}), the function constructs a list of \code{"eff"} objects separately for the various
-  response variables.
+  response variables.  
   
-  The function can
-  also be used with mixed-effects models fit with \code{lmer} from the \pkg{lme4} package,
-  or fit with \code{lme} from the \pkg{nlme} package, and for polytomous latent-class models
-  fit by the \code{poLCA} function in the \pkg{poLCA} package.  In mixed effects models the
-  analysis is for the fixed effects only, not for random effects. The \code{effect} function
+  \code{effect} builds the required object by specifying explicity a focal term like \code{"a:b"} 
+  for an \code{a} by \code{b} interaction.  \code{Effect} requires specifying a the components of 
+  the term, for example \code{c("a", "b")} rather than the term itself.  \code{Effect} is consequently 
+  more flexible and robust than 
+  \code{effect}, and will work with some models for which \code{effect} fails, such as models with
+  nested terms (see the examples).  The \code{effect} function
   works by constructing a call to \code{Effect}.
   
-  \code{Effect} also constructs an an \code{"eff"} object, but rather than focusing on a term in the model,
-  it focuses on a subset of the predictors. \code{Effect} is consequently more flexible and robust than 
-  \code{effect}, and will work with some models for which \code{effect} fails, such as models with
-  nested terms (see the examples). The \code{effect} function calls \code{Effect}. There is a default
+  The function can also be used with some mixed-effects models, including linear and generalized linear model
+  fits from \code{lmer} and \code{glmer} from the \pkg{lme4} package 
+  and \code{lme} from the \pkg{nlme} package; ordinal logistic mixed effects fit with \code{clmm2} from the
+  \pkg{ordinal} package, and polytomous latent-class models fit by the \code{poLCA} function in 
+  the \pkg{poLCA} package.  The analysis in mixed effects is for the fixed effects only, not for random effects. 
+  
+  There is a default
   method for \code{Effect} that should work with any model object that has a linear predictor and responds
   to the \code{\link{coef}}, \code{\link{model.frame}}, \code{\link{formula}}, and \code{\link{vcov}} functions.
   
@@ -73,6 +75,8 @@ Effect(focal.predictors, mod, ...)
     confidence.level=.95, xlevels=list(), default.levels=NULL, 
     given.values, vcov.=vcov, se=TRUE, typical=mean, latent=FALSE, ...)
     
+\method{Effect}{clm2}(focal.predictors, mod, ...)
+    
 \method{Effect}{mer}(focal.predictors, mod, 
     KR=require("pbkrtest", quietly=TRUE), ...)
 
@@ -93,13 +97,6 @@ Effect(focal.predictors, mod, ...)
     
 allEffects(mod, ...)
 
-\method{allEffects}{mer}(mod, ...)
-
-\method{allEffects}{merMod}(mod, ...)
-
-\method{allEffects}{lme}(mod, ...)
-
-\method{allEffects}{poLCA}(mod, ...)
 
 \method{as.data.frame}{eff}(x, row.names=NULL, optional=TRUE, 
     transform=x$transformation$inverse, ...)
@@ -233,8 +230,8 @@ allEffects(mod, ...)
 
 \value{
   For \code{lm}, \code{glm}, \code{mer} and \code{lme}, \code{effect} and \code{Effect} return 
-  an \code{"eff"} object, and for \code{multinom}
-  and \code{polr}, an \code{"effpoly"} object, with the components listed below.
+  an \code{"eff"} object, and for \code{multinom},
+  \code{polr} and \code{clmm2}, an \code{"effpoly"} object, with the components listed below.
   For \code{mlm} with one response specified, an \code{"eff"} object, otherwise a class \code{"efflist"} object, 
   containing one \code{"eff"} object for each \code{response}.
   \item{term}{the term to which the effect pertains.}
@@ -315,6 +312,13 @@ and of class \code{effpoly} with more than 2 categories.
   argument to \code{lm}, \code{glm}, \code{lmer} or \code{glmer}; 
   offsets supplied via calls to the \code{offset} function on the right-hand side
   of the model formula are not supported.
+  
+  Fitting ordinal mixed-models using \code{clmm2} permits many options, including a variety of link functions,
+  scale functions, nominal regressors, and various methods for setting thresholds.  Effects are currently generated 
+  only for the default values of the arguments \code{scale}, \code{nominal}, \code{link} and \code{threshold}, which is 
+  equivalent to fitting an ordinal response mixed effects model with a logistic link.  The effect methods can also be   
+  used with objects created using \code{clm2} fitting ordinal response logistic models with no random effects, with 
+  results similar to those from \code{polr} in the \pkg{MASS} package.
   
   Calling any of these functions from within a user-written function may result in errors due
   to R's scoping rules.  See the vignette \code{embedding.pdf} for the \pkg{car} package 

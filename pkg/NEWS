@@ -1,5 +1,7 @@
 Version 3.0-4
 
+ o Added methods for ordinal mixed models using 'clmm2' for the ordinal package
+
  o Moved pbkrtest to Suggests (wasn't done properly previously).
 
 Version 3.0-3
