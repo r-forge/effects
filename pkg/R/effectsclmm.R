@@ -2,6 +2,7 @@
 # 2014-12-11 effect.clm built from effect.mer as modified 2014-12-07,  by S. Weisberg
 
 clm2.to.polr <- function(mod) {
+  if(!require(MASS)) stop("The MASS package is needed for this function")
   cl <- mod$call 
   present <- match(c("scale", "nominal", "link", "threshold"), names(cl), 0L)
   if(any(present != 0)) {
