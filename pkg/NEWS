@@ -1,5 +1,7 @@
 Version 3.0-4
 
+ o RK argument now works correctly with allEffect
+
  o Mixed models with negative binomial did not work and now they do.
 
  o Added methods for ordinal mixed models using 'clmm2' for the ordinal package
