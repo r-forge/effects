@@ -78,10 +78,10 @@ Effect(focal.predictors, mod, ...)
 \method{Effect}{clm2}(focal.predictors, mod, ...)
     
 \method{Effect}{mer}(focal.predictors, mod, 
-    KR=require("pbkrtest", quietly=TRUE), ...)
+    KR=FALSE, ...)
 
 \method{Effect}{merMod}(focal.predictors, mod, 
-    KR=require("pbkrtest", quietly=TRUE), ...)
+    KR=FALSE, ...)
 
 \method{Effect}{lme}(focal.predictors, mod, ...)
 
@@ -153,10 +153,11 @@ allEffects(mod, ...)
     normal distribution is used to get confidence limits.}
   \item{confidence.level}{level at which to compute confidence limits
     based on the standard-normal distribution; the default is \code{0.95}.}
-  \item{KR}{if \code{TRUE}, the default if the \pkg{pbkrtest} package is installed, 
+  \item{KR}{if \code{TRUE} and the \pkg{pbkrtest} package is installed, 
     use the Kenward-Roger coefficient covariance
     matrix to compute effect standard errors for linear mixed models fit with \code{lmer}
-    in the \pkg{lme4} package.}
+    in the \pkg{lme4} package.  The default is \code{FALSE} because the computation can be
+    very slow.}
   \item{transformation}{a two-element list with elements \code{link} and
     \code{inverse}. For a generalized linear model, these are by default
     the link function and inverse-link (mean) function. For a linear model,

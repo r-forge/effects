@@ -164,13 +164,13 @@ Effect.lm <- function (focal.predictors, mod, xlevels = list(),
     result
 }
 
-Effect.mer <- function(focal.predictors, mod, KR=require("pbkrtest", quietly=TRUE), ...) {
+Effect.mer <- function(focal.predictors, mod, KR=FALSE, ...) {
     result <- Effect(focal.predictors, mer.to.glm(mod, KR=KR), ...)
     result$formula <- as.formula(formula(mod))
     result
 }
 
-Effect.merMod <- function(focal.predictors, mod, KR=require("pbkrtest", quietly=TRUE), ...){
+Effect.merMod <- function(focal.predictors, mod, KR=FALSE, ...){
     Effect.mer(focal.predictors, mod, KR=KR, ...)
 }
 

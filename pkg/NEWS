@@ -1,5 +1,7 @@
 Version 3.0-4
 
+ o New default of RK=FALSE because RK=TRUE can be very slow
+
  o RK argument now works correctly with allEffect
 
  o Mixed models with negative binomial did not work and now they do.
