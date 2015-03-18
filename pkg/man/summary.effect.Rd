@@ -244,6 +244,11 @@
   This approach may also be used with linear models, for example to display effects on the scale of the
   response even if the data are analyzed on a transformed scale, such as log or square-root.
   
+  When a factor is on the x-axis, the \code{plot} method for \code{eff} objects
+  connects the points representing the effect by line segments, creating a
+  response ``profile.'' If you wish to suppress these lines, add the argument
+  \code{lty=0} to the call to \code{plot} (see the examples).
+  
   In a polytomous (multinomial or proportional-odds) logit model, by default effects are plotted on the
   probability scale; they may be alternatively plotted on the scale of the individual-level logits.
 }
@@ -278,7 +283,7 @@ eff.cowles <- allEffects(mod.cowles, xlevels=list(extraversion=seq(0, 24, 6)))
 eff.cowles
 as.data.frame(eff.cowles[[2]]) # neuroticism*extraversion interaction
 
-plot(eff.cowles, 'sex', ylab="Prob(Volunteer)", grid=TRUE, rotx=90)
+plot(eff.cowles, 'sex', ylab="Prob(Volunteer)", grid=TRUE, rotx=90, lty=0)
 
 plot(eff.cowles, 'neuroticism:extraversion', ylab="Prob(Volunteer)",
     ticks=list(at=c(.1,.25,.5,.75,.9)))
