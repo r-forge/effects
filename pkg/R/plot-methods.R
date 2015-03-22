@@ -8,6 +8,7 @@
 #             added smooth.residuals argument. J. Fox
 # 2014-10-10: namespace fixes. J. Fox
 # 2014-12-05: made key.args more flexible. J. Fox
+# 2015-03-22: use wide columns by default only when x for legend not set. J. Fox
 
 # the following functions aren't exported
 
@@ -341,8 +342,7 @@ plot.eff <- function(x, x.var,
                 text=list(as.character(zvals)), 
                 lines=list(col=colors[.modc(1:length(zvals))], lty=lines[.modl(1:length(zvals))], lwd=lwd),
                 points=list(col=colors[.modc(1:length(zvals))], pch=symbols[.mods(1:length(zvals))]),
-                columns = find.legend.columns(length(zvals)))
-#            key <- c(key, key.args)
+                columns = if ("x" %in% names(key.args)) 1 else find.legend.columns(length(zvals)))
             for (k in names(key.args)) key[k] <- key.args[k]
             plot <- xyplot(eval(parse( 
                 text=paste("fit ~ as.numeric(", predictors[x.var], ")",
@@ -422,8 +422,7 @@ plot.eff <- function(x, x.var,
             key <- list(title=predictors[z.var], cex.title=1, border=TRUE,
                 text=list(as.character(zvals)), 
                 lines=list(col=colors[.modc(1:length(zvals))], lty=lines[.modl(1:length(zvals))], lwd=lwd),
-                columns = find.legend.columns(length(zvals)))
-#            key <- c(key, key.args)
+                columns = if ("x" %in% names(key.args)) 1 else find.legend.columns(length(zvals)))
             for (k in names(key.args)) key[k] <- key.args[k]
             plot <- xyplot(eval(parse( 
                 text=paste("fit ~trans(", predictors[x.var], ")", 
