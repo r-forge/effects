@@ -278,6 +278,9 @@ allEffects(mod, ...)
     except for the predictor corresponding to \code{xvar}, which will appear on the horizontal axis of the plotted effect.}
   \item{x.var}{the name of the predictor to appear on the horizontal axis of an effect plot made from the
     returned object; will usually be \code{NULL} if partial residuals aren't computed.}
+  \item{family}{for a \code{"glm"} model, the name of the distributional family of the model;
+    for an \code{"lm"} model, this is \code{"gaussian"}; otherwise \code{NULL}. The \code{family} controls
+    how partial residuals are smoothed in plots.}
     
   \code{effectList} returns a list of \code{"eff"} or \code{"effpoly"} objects
   corresponding to the high-order terms of the model.
@@ -460,11 +463,11 @@ plot(eff.pres[1],
 # linear model with log-response and log-predictor
 # to illustrate transforming axes and setting tick labels
 mod.pres1 <- lm(log(prestige) ~ log(income) + poly(education, 3) + poly(women, 2),
-    data=Prestige)
+                data=Prestige)
 # effect of the log-predictor
-eff.log <- Effect(c("income"), mod.pres1)
+eff.log <- Effect("income", mod.pres1)
 # effect of the log-predictor transformed to the arithmetic scale
-eff.trans <- Effect(c("income"), mod.pres1, transformation=list(link=log, inverse=exp))
+eff.trans <- Effect("income", mod.pres1, transformation=list(link=log, inverse=exp))
 #variations:
 # y-axis:  scale is log, tick labels are log
 # x-axis:  scale is arithmetic, tick labels are arithmetic
@@ -473,30 +476,30 @@ plot(eff.log)
 # y-axis:  scale is log, tick labels are log
 # x-axis:  scale is log, tick labels are arithmetic
 plot(eff.log, transform.x=list(income=c(trans=log, inverse=exp)),
-       ticks.x=list(income=list(at=c(1000, 2000, 5000, 10000, 20000))),
-       xlab="income, log-scale")
+     ticks.x=list(income=list(at=c(1000, 2000, 5000, 10000, 20000))),
+     xlab="income, log-scale")
 
-# y-axis:  scale is log, tick labels are airthmetic
+# y-axis:  scale is log, tick labels are arithmetic
 # x-axis:  scale is arithmetic, tick labels are arithmetic
 plot(eff.trans, ylab="prestige")
 
-# y-axis:  scale is arithmetic, tick labels are airthmetic
+# y-axis:  scale is arithmetic, tick labels are arithmetic
 # x-axis:  scale is arithmetic, tick labels are arithmetic
-plot(eff.trans, rescale.axis=FALSE, ylab="prestige")
+plot(eff.trans, type="response", ylab="prestige")
 
 # y-axis:  scale is log, tick labels are arithmetic
 # x-axis:  scale is log, tick labels are arithmetic
 plot(eff.trans, transform.x=list(income=c(trans=log, inverse=exp)),
-       ticks.x=list(income=list(at=c(1000, 2000, 5000, 10000, 20000))),
-       xlab="income, log-scale", ylab="prestige, log-scale",
-       main="Both effect and X in log-scale")
+     ticks.x=list(income=list(at=c(1000, 2000, 5000, 10000, 20000))),
+     xlab="income, log-scale", ylab="prestige, log-scale",
+     main="Both effect and X in log-scale")
 
 # y-axis:  scale is arithmetic, tick labels are airthmetic
 # x-axis:  scale is log, tick labels are arithmetic
 plot(eff.trans, transform.x=list(income=c(trans=log, inverse=exp)),
-       ticks.x=list(income=list(at=c(1000, 2000, 5000, 10000, 20000))),
-       rescale.axis=FALSE,
-       xlab="income, log-scale", ylab="prestige")
+     ticks.x=list(income=list(at=c(1000, 2000, 5000, 10000, 20000))),
+     type="link",
+     xlab="income, log-scale", ylab="prestige")
 }
 
 if (require(nlme)){ # for gls()

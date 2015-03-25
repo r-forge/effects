@@ -14,6 +14,7 @@
 # 2014-08-02: added vcov.=vcov argument to allow other methods of estimating var(coef.estimates)
 # 2014-09-25: added KR argument to Effect.mer() and Effect.merMod(). J. Fox
 # 2014-12-07: don't assume that pbkrtest is installed. J. Fox
+# 2015-03-25: added "family" element to eff objects returned by Effect.lm(). J. Fox
 
 Effect <- function(focal.predictors, mod, ...){
     UseMethod("Effect", mod)
@@ -160,6 +161,7 @@ Effect.lm <- function (focal.predictors, mod, xlevels = list(),
         transformation$inverse <- I
     }
     result$transformation <- transformation
+    result$family <- family(mod)$family
     class(result) <- "eff"
     result
 }

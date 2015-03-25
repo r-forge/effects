@@ -41,8 +41,8 @@
     colors=palette(), symbols=1:length(colors), lines=1:length(colors),
     cex=1.5, lwd=2, ylim, xlim=NULL,
     factor.names=TRUE, ci.style, band.transparency=0.15, band.colors=colors,
-    type=c("response", "link"), ticks=list(at=NULL, n=5),  
-    alternating=TRUE, rotx=0, roty=0, grid=FALSE, layout, rescale.axis=TRUE, 
+    type=c("rescale", "response", "link"), ticks=list(at=NULL, n=5),  
+    alternating=TRUE, rotx=0, roty=0, grid=FALSE, layout, rescale.axis, 
     transform.x=NULL, ticks.x=NULL,
     key.args=NULL, 
     row=1, col=1, nrow=1, ncol=1, more=FALSE, 
@@ -73,13 +73,23 @@
   	or \code{"summary.eff"}, as appropriate.}
   \item{object}{an object of class \code{"eff"}, \code{"effpoly"}, \code{"efflist"}, or \code{"mlm.efflist"},
     as appropriate.}
-  \item{type}{for linear and generalized linear models, 
-  	if \code{"response"} (the default), effects are printed 
-    or the vertical axis is labelled on the scale of the response
-    variable; if \code{"link"}, effects are printed 
-    or the vertical axis labelled on the scale of the linear predictor.
+  \item{type}{for printing or summarizing linear and generalized linear models, 
+  	if \code{"response"} (the default), effects are printed on the scale of the response
+    variable; if \code{"link"}, effects are printed  on the scale of the linear predictor.
+    
+    For plotting linear or genealized linearized models, \code{"rescale"} (the default) plots the vertical
+    axis on the link scale (e.g., the logit scale for a logit model) but labels the axis on the response
+    scale (e.g., the probability scale for a logit model); 
+    \code{"response"} plots and labels the vertical axis on the scale of the response (e.g., the
+    probability scale for a logit model); and
+    \code{"link"} plots and labels the vertical axis
+    on the scale of the link (e.g., the logit scale for a logit model).
+
     For polytomous logit models, this argument takes either \code{"probability"}
     or \code{"logit"}, with the former as the default.}
+  \item{rescale.axis}{this argument is deprecated --- use the \code{type} argument instead. Setting 
+    \code{rescale.axis=TRUE} is equivalent to \code{type="rescale"}; setting \code{rescale.axis=FALSE}
+    is equivalent to \code{type="response"}. If specified, \code{rescale.axis} will override \code{type}.}
   \item{x.var}{the index (number) or quoted name of the covariate or factor to place on the 
     horizontal axis of each panel of the effect plot. The default is the 
     predictor with the largest number of levels or values.}
@@ -188,9 +198,6 @@
   	(or, in some cases \code{\link{densityplot}}), which
   	is used to draw the effect display; if not specified, the plot will be formatted so that
   	it appears on a single page.}
-  \item{rescale.axis}{if \code{TRUE} (the default), the tick marks on the vertical axis
-    are labelled on the response scale (e.g., the probability scale for effects computed on
-    the logit scale for a binomial GLM).}
   \item{key.args}{additional arguments to be passed to the \code{key} trellis argument to 
     \code{\link{xyplot}} or \code{\link{densityplot}}, 
     e.g., to position the key (legend) in the plotting region; may also be used to modify
@@ -221,7 +228,9 @@
     \code{"adjusted"}, and this argument is effective only when partial residuals are included
     in the effect object to be plotted --- see \code{\link{Effect}}.}
   \item{smooth.residuals}{whether to show a \code{\link{loess}} smooth of the partial residuals, if
-    they are present; the default is \code{TRUE}.}
+    they are present; the default is \code{TRUE}. For a non-Gaussian \code{glm} model,
+    a non-robust \code{loess} smooth is used; for a \code{lm} model or a Gaussian \code{glm} model,
+    a robust smooth is employed.}
   \item{span}{of the \code{\link{xyplot}} smoother to be applied to partial residuals;
     the default is \code{2/3}.}
   \item{show.fitted}{if partial residuals are present in the effect object, also plot the partial
@@ -294,20 +303,20 @@ plot(eff.cowles, 'neuroticism:extraversion', ylab="Prob(Volunteer)",
     ticks=list(at=c(.1,.25,.5,.75,.9)), band.colors="red", band.transparency=.3)
 
 plot(eff.cowles, 'neuroticism:extraversion', multiline=TRUE,
-     ylab="Prob(Volunteer)", key.args = list(x = 0.25, y = 0.90, corner = c(0, 0)))
+     ylab="Prob(Volunteer)", key.args = list(x = 0.75, y = 0.75, corner = c(0, 0)))
 
 # use probability scale in place of logit scale, all lines are black.
 plot(eff.cowles, 'neuroticism:extraversion', multiline=TRUE,
-     ylab="Prob(Volunteer)", key.args = list(x = 0.25, y = 0.90, corner = c(0, 0)),
+     ylab="Prob(Volunteer)", key.args = list(x = 0.75, y = 0.75, corner = c(0, 0)),
      colors="black", lines=1:8,
-     ci.style="bands", rescale.axis=FALSE, band.colors=palette())
+     ci.style="bands", type="response", band.colors=palette())
 
 plot(effect('sex:neuroticism:extraversion', mod.cowles,
     xlevels=list(extraversion=seq(0, 24, 6))), multiline=TRUE)
 
 plot(effect('sex:neuroticism:extraversion', mod.cowles,
     xlevels=list(extraversion=seq(0, 24, 6))), multiline=TRUE,
-    rescale.axis=FALSE, ci.style="bands")
+    type="response", ci.style="bands")
 }
 
 if (require(nnet)){
