@@ -375,8 +375,9 @@ and Jangman Hong.}
     \code{\link{densityplot}}}
 
 \examples{
-# Note: Some of these examples are marked as "don't run"
-#       to reduce the execution times of the examples.
+# Note: Some of these examples are marked as "don't test"
+#       to reduce the execution times of the examples
+#       when the package is checked.
 
 mod.cowles <- glm(volunteer ~ sex + neuroticism*extraversion,
     data=Cowles, family=binomial)
@@ -585,10 +586,12 @@ mod.1 <- lm(y ~ poly(x1, x2, degree=2, raw=TRUE), data=Data)
 mod.2 <- lm(y ~ x1*x2, data=Data)
 mod.3 <- lm(y ~ x1 + x2, data=Data)
 
+.save.strip <- setStrip() # change color of lattice strips
 plot(Effect(c("x1", "x2"), mod.1, partial.residuals=TRUE)) # correct model
 plot(Effect(c("x1", "x2"), mod.2, partial.residuals=TRUE)) # wrong model
 plot(Effect(c("x1", "x2"), mod.3, partial.residuals=TRUE)) # wrong model
-
+restoreStrip(.save.strip)
+remove(.save.strip)
 }
 
 \keyword{hplot}

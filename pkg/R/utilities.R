@@ -591,3 +591,28 @@ is.factor.predictor <- function(predictor, model) {
 is.numeric.predictor <- function(predictor, model) {
     is.null(model$xlevels[[predictor]])
 }
+
+# manage lattice strips
+
+setStrip <- function(bg=3, fg="black"){
+    bg.save <- strip.background <- trellis.par.get("strip.background")
+    if (is.numeric(bg) && length(bg) == 1){
+        if (bg <= 0) stop("bg should be a positive integer or vector of colors")
+        bg <- gray(seq(.95, .5, length=round(bg)))
+    }
+    strip.background$col <- bg
+    fg.save <- strip.shingle <- trellis.par.get("strip.shingle")
+    trellis.par.set("strip.background", strip.background)
+    if (length(fg) != 1 && length(fg) != length(bg)) 
+        stop("lengths of fg and bg incompatible")
+    strip.shingle$col <- fg
+    trellis.par.set("strip.shingle", strip.shingle)
+    invisible(list(strip.background=bg.save, strip.shingle=fg.save))
+}
+
+restoreStrip <- function(saved){
+    if (!identical(names(saved), c("strip.background", "strip.shingle")))
+        stop("argument saved does not contain strip parameters")
+    trellis.par.set("strip.background", saved$strip.background)
+    trellis.par.set("strip.shingle", saved$strip.shingle)
+}

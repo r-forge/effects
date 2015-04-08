@@ -1,13 +1,14 @@
-# last modified 2014-12-07 by J. Fox
+# last modified 2015-04-08 by J. Fox
 
 importFrom(lattice, barchart, current.panel.limits, densityplot, larrows, llines, lpoints,
-           panel.abline, panel.grid, panel.polygon, panel.text, strip.default, xyplot)
+           panel.abline, panel.grid, panel.polygon, panel.text, strip.default, trellis.par.get,
+           trellis.par.set, xyplot)
 importFrom(colorspace, rainbow_hcl, sequential_hcl)
 importFrom(grid, grid.pretty, grid.segments, unit)
 # importFrom(pbkrtest, vcovAdj, vcovAdj.lmerMod, vcovAdj.mer)
 importFrom(lme4, fixef)
 importFrom(nnet, multinom)
-export(effect, allEffects, all.effects, Effect)
+export(effect, allEffects, all.effects, Effect, setStrip, restoreStrip)
 
 S3method(Effect, default)
 S3method(Effect, lm)

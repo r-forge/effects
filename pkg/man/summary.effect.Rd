@@ -14,6 +14,8 @@
 \alias{plot.effpoly}
 \alias{plot.efflist}
 \alias{plot.mlm.efflist}
+\alias{setStrip}
+\alias{restoreStrip}
 \alias{[.efflist}
 
 \title{Summarizing, Printing, and Plotting Effects}
@@ -65,6 +67,8 @@
 		row=1, col=1, nrow=1, ncol=1, more=FALSE, use.splines=TRUE, ...)
 \method{plot}{efflist}(x, selection, rows, cols, ask=FALSE, graphics=TRUE, ...)
 \method{plot}{mlm.efflist}(x, ...)
+setStrip(bg=3, fg)
+restoreStrip(saved)
 \method{[}{efflist}(x, ...)
 }
 
@@ -237,6 +241,13 @@
     fitted values (which will be shown as filled circles).}
   \item{residuals.color}{color for plotting partial residuals (default \code{"blue"}).}
   \item{residuals.pch}{plotting symbol for partial residuals (default \code{1}, open circles).}
+  \item{bg}{if a single numeric value (the default is \code{3}), the color of the strips at the tops
+    of lattice panels are set to gray scale, with the number of graditions, if there is more than one
+    conditioning variable, corresponding to the value given (which will be rounded to a whole number).
+    This argument can also be a vector of colors, specified in any manner recognized in R (e.g, by name).}
+  \item{fg}{foreground color or colors for the strips at the top of lattice panels (the default is
+    \code{"black"}); can be a single value or a vector of values of the same length as \code{bg}.}
+  \item{saved}{a set of lattice strip specifications returned by \code{setStrip}.}
   \item{...}{arguments to be passed down.}
 }
 
@@ -260,6 +271,12 @@
   
   In a polytomous (multinomial or proportional-odds) logit model, by default effects are plotted on the
   probability scale; they may be alternatively plotted on the scale of the individual-level logits.
+  
+  The \code{setStrip} and \code{restoreStrip} functions modify the strips that appear in subsequent 
+  lattice plots, including those produced by functions in the \pkg{effects} package. The default call
+  \code{setStrip()} provides monochrome (rather than the lattice-default colored) strips with up to 3
+  gray-scale values corresponding to 3 conditioning variables. \code{restoreStrip} may be used to reset
+  lattice strips to previously saved parameters returned by \code{setStrip}.
 }
 
 \value{
@@ -271,6 +288,9 @@
   \item{lower}{an array containing the lower confidence limits.}
   \item{upper.header}{a character string to label the upper confidence limits.}
   \item{upper}{an array containing the upper confidence limits.}
+  
+  The \code{setStrip} function invisibly returns a list that can supply the argument of the 
+\code{restoreStrip} function to restore the previous lattice strip specification.
   
   The \code{[} method for \code{"efflist"} objects is used to subset an \code{"efflist"} object and returns an object of the same class.
 }
@@ -293,6 +313,8 @@ eff.cowles
 as.data.frame(eff.cowles[[2]]) # neuroticism*extraversion interaction
 
 plot(eff.cowles, 'sex', ylab="Prob(Volunteer)", grid=TRUE, rotx=90, lty=0)
+
+.save.strip <- setStrip()
 
 plot(eff.cowles, 'neuroticism:extraversion', ylab="Prob(Volunteer)",
     ticks=list(at=c(.1,.25,.5,.75,.9)))
@@ -357,6 +379,8 @@ plot(eff.pres[1:2])
 plot(eff.pres[1],
     transform.x=list(income=list(trans=log10, inverse=function(x) 10^x)),
     ticks.x=list(income=list(at=c(1000, 2000, 5000, 10000, 20000))))
+restoreStrip(.save.strip)
+remove(.save.strip)
 }
 
 \keyword{hplot}
