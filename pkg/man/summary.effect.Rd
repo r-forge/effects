@@ -67,7 +67,7 @@
 		row=1, col=1, nrow=1, ncol=1, more=FALSE, use.splines=TRUE, ...)
 \method{plot}{efflist}(x, selection, rows, cols, ask=FALSE, graphics=TRUE, ...)
 \method{plot}{mlm.efflist}(x, ...)
-setStrip(bg=3, fg)
+setStrip(bg=3, fg="black", clip=c("off", "on"))
 restoreStrip(saved)
 \method{[}{efflist}(x, ...)
 }
@@ -247,6 +247,10 @@ restoreStrip(saved)
     This argument can also be a vector of colors, specified in any manner recognized in R (e.g, by name).}
   \item{fg}{foreground color or colors for the strips at the top of lattice panels (the default is
     \code{"black"}); can be a single value or a vector of values of the same length as \code{bg}.}
+  \item{clip}{\code{"off"} or \code{"on"}, determines whether or not conditioning values in the strips
+    at the top of lattice panels are clipped on the left and right. The normal lattice default is
+    \code{"on"}; the default in \code{setStrip} is \code{"off"}, allowing the lines representing numeric
+    conditioning values to be displayed more clearly at the extreme left and right of strips.}
   \item{saved}{a set of lattice strip specifications returned by \code{setStrip}.}
   \item{...}{arguments to be passed down.}
 }
@@ -275,7 +279,8 @@ restoreStrip(saved)
   The \code{setStrip} and \code{restoreStrip} functions modify the strips that appear in subsequent 
   lattice plots, including those produced by functions in the \pkg{effects} package. The default call
   \code{setStrip()} provides monochrome (rather than the lattice-default colored) strips with up to 3
-  gray-scale values corresponding to 3 conditioning variables. \code{restoreStrip} may be used to reset
+  gray-scale values corresponding to 3 conditioning variables; clipping at the left and right of strips
+  is also turned off by default by \code{setStrip}. \code{restoreStrip} may be used to reset
   lattice strips to previously saved parameters returned by \code{setStrip}.
 }
 

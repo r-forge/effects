@@ -11,6 +11,7 @@
 # 2014-03-14: error message for non-factor, non-numeric predictor
 # 2014-07-08: if no numeric predictor, partial residuals suppressed with warning rather than an error
 # 2014-10-09: namespace fixes. J. Fox
+# 2015-04-08: added setStrip(), restoreStrip(). J. Fox
 
 has.intercept <- function(model, ...) any(names(coefficients(model))=="(Intercept)")
 
@@ -594,7 +595,8 @@ is.numeric.predictor <- function(predictor, model) {
 
 # manage lattice strips
 
-setStrip <- function(bg=3, fg="black"){
+setStrip <- function(bg=3, fg="black", clip=c("off", "on")){
+    clip <- match.arg(clip)
     bg.save <- strip.background <- trellis.par.get("strip.background")
     if (is.numeric(bg) && length(bg) == 1){
         if (bg <= 0) stop("bg should be a positive integer or vector of colors")
@@ -607,12 +609,16 @@ setStrip <- function(bg=3, fg="black"){
         stop("lengths of fg and bg incompatible")
     strip.shingle$col <- fg
     trellis.par.set("strip.shingle", strip.shingle)
-    invisible(list(strip.background=bg.save, strip.shingle=fg.save))
+    clip.save <- .clip <- trellis.par.get("clip")
+    .clip$strip <- clip
+    trellis.par.set("clip", .clip)
+    invisible(list(strip.background=bg.save, strip.shingle=fg.save, clip=clip.save))
 }
 
 restoreStrip <- function(saved){
-    if (!identical(names(saved), c("strip.background", "strip.shingle")))
+    if (!identical(names(saved), c("strip.background", "strip.shingle", "clip")))
         stop("argument saved does not contain strip parameters")
     trellis.par.set("strip.background", saved$strip.background)
     trellis.par.set("strip.shingle", saved$strip.shingle)
+    trellis.par.set("clip", saved$clip)
 }
