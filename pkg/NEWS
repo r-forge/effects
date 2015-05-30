@@ -17,6 +17,8 @@ Version 3.0-4
  o Rationalized type and rescale.axis arguments to plot.eff(); scale.axis argument is deprecated.
 
  o Added setStrip() and restoreStrip() to control colors of lattice strips.
+ 
+ o Added residuals.smooth.color argument to plot.eff().
 
 Version 3.0-3
 

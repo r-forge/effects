@@ -11,6 +11,7 @@
 # 2015-03-22: use wide columns by default only when x for legend not set. J. Fox
 # 2015-03-25: use non-robust loess smooth for partial residuals for non-Gaussian families. J. Fox
 # 2015-03-25: rationalized type and rescale.axis args to plot.eff(); deprecated rescale.axis arg. J. Fox
+# 2015-05-28: added residuals.smooth.color argument. J. Fox
 
 # the following functions aren't exported
 
@@ -664,7 +665,8 @@ plot.eff <- function(x, x.var,
                      key.args=NULL, 
                      row=1, col=1, nrow=1, ncol=1, more=FALSE, 
                      use.splines=TRUE, partial.residuals=c("adjusted", "raw"), show.fitted=FALSE,
-                     residuals.color="blue", residuals.pch=1, smooth.residuals=TRUE, span=2/3, ...)
+                     residuals.color="blue", residuals.pch=1, 
+                     smooth.residuals=TRUE, residuals.smooth.color=residuals.color, span=2/3, ...)
 {  
     .mod <- function(a, b) ifelse( (d <- a %% b) == 0, b, d)
     .modc <- function(a) .mod(a, length(colors))
@@ -879,7 +881,7 @@ plot.eff <- function(x, x.var,
                         lpoints(trans(x.fit), residuals, col=residuals.color, pch=residuals.pch)
                         if (show.fitted) lpoints(trans(x.fit), fitted, pch=16, col=residuals.color)  # REMOVE ME
                         if (smooth.residuals){
-                            llines(loess.smooth(trans(x.fit), residuals, span=span, family=loess.family), lwd=2, lty=2, col=residuals.color)
+                            llines(loess.smooth(trans(x.fit), residuals, span=span, family=loess.family), lwd=lwd, lty=2, col=residuals.smooth.color)
                         }
                     }
                     
@@ -1218,7 +1220,7 @@ plot.eff <- function(x, x.var,
                             if (show.fitted) lpoints(trans(x.fit[use]), fitted[use], pch=16, col=residuals.color)  # REMOVE ME
                             if (smooth.residuals && n.in.panel >= 10) {
                                 llines(loess.smooth(x.fit[use], residuals[use], span=span, family=loess.family), 
-                                       lwd=2, lty=2, col=residuals.color)
+                                       lwd=lwd, lty=2, col=residuals.smooth.color)
                             }
                         }
                     }

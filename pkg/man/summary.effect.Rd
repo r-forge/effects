@@ -49,7 +49,8 @@
     key.args=NULL, 
     row=1, col=1, nrow=1, ncol=1, more=FALSE, 
     use.splines=TRUE, partial.residuals=c("adjusted", "raw"), show.fitted=FALSE,
-    residuals.color="blue", residuals.pch=1, smooth.residuals=TRUE, span=2/3, ...)
+    residuals.color="blue", residuals.pch=1, 
+    smooth.residuals=TRUE, residuals.smooth.color=residuals.color, span=2/3, ...)
 \method{plot}{effpoly}(x,
 		type=c("probability", "logit"),
 		x.var=which.max(levels),
@@ -148,7 +149,7 @@ restoreStrip(saved)
     in these cases a legend is drawn at the top of the display.  If these arguments are
     too short they are recycled.}
   \item{cex}{character expansion for plotted symbols; default is \code{1.5}.}
-  \item{lwd}{line width for fitted lines}
+  \item{lwd}{line width for fitted lines.}
   \item{ylim}{2-element vector containing the lower and upper limits of the vertical axes;
     if \code{NULL}, the default, then the vertical axes are scaled from the data.}
   \item{xlim}{a named list of 2-element vectors, with the names corresponding to numeric
@@ -240,6 +241,7 @@ restoreStrip(saved)
   \item{show.fitted}{if partial residuals are present in the effect object, also plot the partial
     fitted values (which will be shown as filled circles).}
   \item{residuals.color}{color for plotting partial residuals (default \code{"blue"}).}
+  \item{residuals.smooth.color}{color for plotting the smooth of the partial residuals; the default is the \code{residuals.color}.}
   \item{residuals.pch}{plotting symbol for partial residuals (default \code{1}, open circles).}
   \item{bg}{if a single numeric value (the default is \code{3}), the color of the strips at the tops
     of lattice panels are set to gray scale, with the number of graditions, if there is more than one
