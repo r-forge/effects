@@ -1,12 +1,12 @@
 Version 3.0-4
 
- o New default of KR=FALSE because KR=TRUE can be very slow
+ o New default of KR=FALSE because KR=TRUE can be very slow.
 
- o KR argument now works correctly with allEffect
+ o KR argument now works correctly with allEffects().
 
  o Mixed models with negative binomial did not work and now they do.
 
- o Added methods for ordinal mixed models using 'clmm2' for the ordinal package
+ o Added methods for ordinal mixed models using 'clmm2' for the ordinal package.
 
  o Moved pbkrtest to Suggests (wasn't done properly previously).
 
@@ -16,7 +16,7 @@ Version 3.0-4
 
  o Rationalized type and rescale.axis arguments to plot.eff(); scale.axis argument is deprecated.
 
- o Added setStrip() and restoreStrip() to control colors of lattice strips.
+ o Added setStrip() and restoreStrip() to control colors of lattice strips and make beginning and ending conditioning lines clearer.
  
  o Added residuals.smooth.color argument to plot.eff().
  
