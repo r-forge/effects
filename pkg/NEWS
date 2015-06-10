@@ -19,6 +19,8 @@ Version 3.0-4
  o Added setStrip() and restoreStrip() to control colors of lattice strips.
  
  o Added residuals.smooth.color argument to plot.eff().
+ 
+ o Cleaned up sources to conform to CRAN requirements.
 
 Version 3.0-3
 

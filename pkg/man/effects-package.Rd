@@ -15,7 +15,7 @@ mixed-effect, polytomous latent-class, and some other models; (multidimensional)
 \tabular{ll}{
 Package: \tab effects\cr
 Version: \tab 3.0-4\cr
-Date: \tab 2015/05/29\cr
+Date: \tab 2015/06/10\cr
 Suggests: \tab pbkrtest, nlme, MASS, poLCA, heplots, splines\cr
 Imports: \tab lme4, nnet, lattice, grid, colorspace\cr
 LazyLoad: \tab yes\cr
@@ -52,7 +52,7 @@ Maintainer: John Fox <jfox@mcmaster.ca>
     Fox, J. (2003)
     Effect displays in R for generalised linear models.
     \emph{Journal of Statistical Software}
-    \bold{8:15}, 1--27, <\url{http://www.jstatsoft.org/counter.php?id=75&url=v08/i15/effect-displays-revised.pdf&ct=1}>.
+    \bold{8:15}, 1--27, <\url{http://www.jstatsoft.org/v08/i15/}>.
     
     Fox, J. and R. Andersen (2006)
     Effect displays  for multinomial and proportional-odds logit models.
