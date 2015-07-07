@@ -1,6 +1,12 @@
+Version 3.0-5
+
+ o Fixed bug when the name of the data frame is the name of function like "sort" in mixed-effects models with lme4 (problem originally reported by Saudi Sadiq).
+ 
+ o Fixed bug in predictor-name matching that could occur in names with periods (reported by Trevor Avery).
+
 Version 3.0-4
 
- o Fixed bug when the name of the data frame is the name of function like "sort" in mixed-effects models with lme4
+ o 
 
  o New default of KR=FALSE because KR=TRUE can be very slow.
 

@@ -12,6 +12,7 @@
 # 2014-07-08: if no numeric predictor, partial residuals suppressed with warning rather than an error
 # 2014-10-09: namespace fixes. J. Fox
 # 2015-04-08: added setStrip(), restoreStrip(). J. Fox
+# 2015-07-07: fixed matchVarName() so that it handles periods in names properly. J. Fox
 
 has.intercept <- function(model, ...) any(names(coefficients(model))=="(Intercept)")
 
@@ -488,11 +489,21 @@ Fixup.model.matrix <- function(mod, mod.matrix, mod.matrix.all, X.mod,
 # 	mod.matrix
 # }
 
+# matchVarName <- function(name, expressions){
+# 	a <- !grepl(paste("[.]+", name, sep=""), expressions)
+# 	b <- !grepl(paste(name, "[.]+", sep=""), expressions)
+# 	c <- grepl(paste("\\b", name, "\\b", sep=""), expressions)
+# 	a & b & c
+# }
+
 matchVarName <- function(name, expressions){
-	a <- !grepl(paste("[.]+", name, sep=""), expressions)
-	b <- !grepl(paste(name, "[.]+", sep=""), expressions)
-	c <- grepl(paste("\\b", name, "\\b", sep=""), expressions)
-	a & b & c
+    scratch <- "zAMIjw4RN3" # randomly generated string
+    name <- gsub("\\.", scratch, name)
+    expressions <- gsub("\\.", scratch, as.character(expressions))
+    a <- !grepl(paste("[.]+", name, sep=""), expressions)
+    b <- !grepl(paste(name, "[.]+", sep=""), expressions)
+    c <- grepl(paste("\\b", name, "\\b", sep=""), expressions)
+    a & b & c
 }
 
 Strangers <- function(mod, focal.predictors, excluded.predictors){
