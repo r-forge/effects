@@ -13,6 +13,7 @@
 #   that was handled incorrectly by the family.glmResp function.  This function is no longer
 #   used by mer.to.glm.  The same error will recur in any link with an argument.
 # 2015-06-10: requireNamespace("pbkrtest") rather than require("pbkrtest)
+# 2015-07-02: fixed bug when the name of the data frame was the name of a function (e.g., sort, or lm)
 
 
 # the function lm.wfit fit gets the hessian wrong for mer's.  Get the variance
@@ -126,6 +127,7 @@ mer.to.glm <- function(mod, KR=FALSE) {
     cl <- cl[c(1L, m)]
     cl[[1L]] <- as.name("glm")
     cl$formula <- fixmod(as.formula(cl$formula))
+    cl$data <- mod@frame
     mod2 <- eval(cl)
     mod2$coefficients <- lme4::fixef(mod) #mod@fixef
     mod2$vcov <- if (family == "gaussian" && link == "identity" && KR) as.matrix(vcovAdj(mod)) else as.matrix(vcov(mod))
