@@ -5,10 +5,10 @@ Version 3.0-5
  o Fixed bug in predictor-name matching that could occur in names with periods (reported by Trevor Avery).
  
  o Fixed package imports to conform to new CRAN rules.
+ 
+ o added residuals.cex argument to plot.eff().
 
 Version 3.0-4
-
- o 
 
  o New default of KR=FALSE because KR=TRUE can be very slow.
 
