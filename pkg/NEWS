@@ -8,7 +8,9 @@ Version 3.0-5
  
  o Fixed package imports to conform to new CRAN rules.
  
- o added residuals.cex argument to plot.eff().
+ o Added residuals.cex argument to plot.eff().
+ 
+ o Changes to work with pbkrtest 0.4-4.
 
 Version 3.0-4
 

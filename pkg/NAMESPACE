@@ -5,7 +5,6 @@ importFrom(lattice, barchart, current.panel.limits, densityplot, larrows, llines
            trellis.par.set, xyplot)
 importFrom(colorspace, rainbow_hcl, sequential_hcl)
 importFrom(grid, grid.pretty, grid.segments, unit)
-# importFrom(pbkrtest, vcovAdj, vcovAdj.lmerMod, vcovAdj.mer)
 importFrom(lme4, fixef)
 importFrom(nnet, multinom)
 importFrom(graphics, plot)
