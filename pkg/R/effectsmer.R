@@ -15,20 +15,19 @@
 # 2015-06-10: requireNamespace("pbkrtest") rather than require("pbkrtest)
 # 2015-07-02: fixed bug when the name of the data frame was the name of a function (e.g., sort, or lm)
 # 2015-12-13: make it work with pbkrtest 0.4-3. J. Fox
+# 2016-01-07: modified 'fixmod' to allow "||" in variance formulae
 
 # the function lm.wfit fit gets the hessian wrong for mer's.  Get the variance
 # from the vcov method applied to the mer object.
 
-# 'fixmod' is a copy of the 'nobars' function in the lme4 package, 
-# renamed so it doesn't cause any conflicts.  This is a utility function
-# that should not be exported
 
 fixmod <- function (term) 
 {
-    if (!("|" %in% all.names(term))) 
-        return(term)
-    if (is.call(term) && term[[1]] == as.name("|")) 
-        return(NULL)
+  if (!("|" %in% all.names(term)) && !("||" %in% all.names(term)))
+    return(term)
+  if ((is.call(term) && term[[1]] == as.name("|")) ||
+      (is.call(term) && term[[1]] == as.name("||")))
+    return(NULL)
     if (length(term) == 2) {
         nb <- fixmod(term[[2]])
         if (is.null(nb)) 
