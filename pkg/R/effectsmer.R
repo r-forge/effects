@@ -16,6 +16,7 @@
 # 2015-07-02: fixed bug when the name of the data frame was the name of a function (e.g., sort, or lm)
 # 2015-12-13: make it work with pbkrtest 0.4-3. J. Fox
 # 2016-01-07: modified 'fixmod' to allow "||" in variance formulae
+# 2016-01-19: Fixed bug in glm.to.mer when 'poly' is used in a model.
 
 # the function lm.wfit fit gets the hessian wrong for mer's.  Get the variance
 # from the vcov method applied to the mer object.
@@ -121,7 +122,7 @@ mer.to.glm <- function(mod, KR=FALSE) {
     cl <- cl[c(1L, m)]
     cl[[1L]] <- as.name("glm")
     cl$formula <- fixmod(as.formula(cl$formula))
-    cl$data <- mod@frame
+#    cl$data <- mod@frame # caused bug with a 'poly' in the formula
     mod2 <- eval(cl)
     mod2$coefficients <- lme4::fixef(mod) #mod@fixef
     mod2$vcov <- if (family == "gaussian" && link == "identity" && KR) as.matrix(pbkrtest::vcovAdj(mod)) else as.matrix(vcov(mod))

@@ -1,5 +1,7 @@
 Version 3.0-5
 
+ o Fix bug in Effect for mer objects with 'poly' in the formula
+ 
  o Allow "||" in variance formulae in lmer4 models
  
  o Minor bug in handling class=="array" in the Effect() method.
