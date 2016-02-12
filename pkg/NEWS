@@ -1,6 +1,6 @@
 Version 3.0-7
 
- o Nothing yet!
+ o Extends to logistic ordinal response models fit using 'clm' and 'clmm' in the 'ordinal package
 
 Version 3.0-6
 
