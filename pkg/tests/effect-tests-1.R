@@ -17,7 +17,7 @@ if (requireNamespace("car") && require("effects")){
               nrow=3, ncol=5, byrow=TRUE)
   if (!isTRUE(all.equal(as.vector(matrix(X %*% coef(mod.1))), as.vector(Effect("type", mod.1)$fit)))) 
     stop("failed Test 1-1")
-  
+ 
   
   # (2) focal: polynomial, constant: factor
   
@@ -28,6 +28,20 @@ if (requireNamespace("car") && require("effects")){
   if (!isTRUE(all.equal(as.vector(Effect("income", mod.1, xlevels=list(income=c(10, 40, 70)))$fit), 
             as.vector(matrix(X %*% coef(mod.1))))))
     stop("failed test 1-2")
+  
+  # (2a) As in (2), but without specifying xlevels
+  X <- matrix(c(1, 0.4, 2/15, 10, 10^2,
+                1, 0.4, 2/15, 20, 20^2,
+                1, 0.4, 2/15, 30, 30^2,
+                1, 0.4, 2/15, 40, 40^2,
+                1, 0.4, 2/15, 50, 50^2,
+                1, 0.4, 2/15, 60, 60^2,
+                1, 0.4, 2/15, 70, 70^2,
+                1, 0.4, 2/15, 80, 80^2),
+              nrow=8, ncol=5, byrow=TRUE)
+  if (!isTRUE(all.equal(as.vector(Effect("income", mod.1)$fit), 
+                        as.vector(matrix(X %*% coef(mod.1)))))) 
+    stop("failed test 1-2a")
   
   # (3) focal: factor*polynomial, constant: polynomial
   
