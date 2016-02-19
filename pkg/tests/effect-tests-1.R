@@ -111,4 +111,19 @@ if (requireNamespace("car") && require("effects")){
             as.vector(predict(mod.5, newdata=data.frame(type=c("bc", "prof", "wc"), 
                                     income=rep(mi, 3), education=rep(me, 3)))))))
     stop("failed test 1-8")
+  
+  # (9) focal: covariate, constant: 2 factors and 1 covariate, 3-way interaction
+  
+  data(Mroz, package="car")
+  mod.6 <- lm(lwg ~ inc + age*hc*wc, data=Mroz)
+  mage <- with(Mroz, mean(age))
+  mhc <- with(Mroz, mean(hc == "yes"))
+  mwc <- with(Mroz, mean(wc == "yes"))
+  hc <- rep(mhc, 3)
+  wc <- rep(mwc, 3)
+  age <- rep(mage, 3)
+  X <- cbind(1, c(10, 40, 80), age, hc, wc, age*hc, age*wc, hc*wc, age*hc*wc)
+  if (!isTRUE(all.equal(as.vector(Effect("inc", mod.6, xlevels=list(inc=c(10, 40, 80)))$fit),
+                        as.vector(X %*% coef(mod.6)))))
+      stop("failed test 1-8")
 }
