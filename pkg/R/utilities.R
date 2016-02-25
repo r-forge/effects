@@ -410,7 +410,8 @@ Fixup.model.matrix <- function(mod, mod.matrix, mod.matrix.all, X.mod,
     if (has.intercept(mod)) stranger.cols[1] <- TRUE
     if (any(stranger.cols)) {
         facs <- factor.cols & stranger.cols
-#        covs <- (!factor.cols) & stranger.cols
+        covs <- (!factor.cols) & stranger.cols
+        if (has.intercept(mod)) covs[1] <- FALSE
         if (any(facs)){ 
             mod.matrix[,facs] <-  matrix(apply(as.matrix(X.mod[,facs]), 2, mean), 
                 nrow=nrow(mod.matrix), ncol=sum(facs), byrow=TRUE)
@@ -419,14 +420,15 @@ Fixup.model.matrix <- function(mod, mod.matrix, mod.matrix.all, X.mod,
                     matrix(apply(as.matrix(X.mod[,facs]), 2, mean), nrow=nrow(mod.matrix.all), ncol=sum(facs), byrow=TRUE)
             }
         }
-        # if (any(covs)){ 
-        #     mod.matrix[,covs] <- matrix(apply(as.matrix(X.mod[,covs]), 2, typical), 
-        #         nrow=nrow(mod.matrix), ncol=sum(covs), byrow=TRUE)
-        #     if (partial.residuals) {
-        #         mod.matrix.all.rounded[,covs] <- mod.matrix.all[,covs] <- 
-        #             matrix(apply(as.matrix(X.mod[,covs]), 2, typical), nrow=nrow(mod.matrix.all), ncol=sum(covs), byrow=TRUE)
-        #     }
-        # }
+        ## the following block of code can produce an approximation to the effect
+        ## when there are multiple columns for a covariate, as, e.g., produced by poly() or bs()
+        if (partial.residuals && any(covs)){
+            mod.matrix[, covs] <- matrix(apply(as.matrix(X.mod[,covs]), 2, typical),
+                                        nrow=nrow(mod.matrix), ncol=sum(covs), byrow=TRUE)
+            mod.matrix.all.rounded[, covs] <- mod.matrix.all[, covs] <-
+                matrix(apply(as.matrix(X.mod[,covs]), 2, typical), nrow=nrow(mod.matrix.all), ncol=sum(covs), byrow=TRUE)
+        }
+        ##
         if (!is.null(given.values)){
             stranger.names <- cnames[stranger.cols]
             given <- stranger.names %in% names(given.values)
