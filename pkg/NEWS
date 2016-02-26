@@ -1,6 +1,6 @@
 Version 3.0-8
 
- o Restored previous (approximate) behavior for non-focal covariates when partial residuals are plotted -- necessary because of the way in which values of covariates are moved to the closest covariate value.
+ o Corrected computation of partial residuals, fixing bug introduced by bug fix in 3.0-7.
 
 Version 3.0-7
 
