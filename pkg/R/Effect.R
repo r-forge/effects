@@ -73,12 +73,9 @@ Effect.lm <- function (focal.predictors, mod, xlevels = list(),
         mod.matrix.all <- model.matrix(formula.rhs, data = mf.all, contrasts.arg = mod$contrasts)
         mf.all.rounded <- model.frame(Terms, predict.data.all.rounded, xlev = factor.levels, na.action=NULL)
         mod.matrix.all.rounded <- model.matrix(formula.rhs, data = mf.all.rounded, contrasts.arg = mod$contrasts)
-        x0 <- x[[x.var]]$levels # x in effect
-        x1 <- predict.data.all[, names(x.var)] # x in data
     }
     else {
       mod.matrix.all <- model.matrix(mod)
-      x0 <- x1 <- NULL
     }
     wts <- weights(mod) 
     if (is.null(wts)) 
@@ -86,8 +83,8 @@ Effect.lm <- function (focal.predictors, mod, xlevels = list(),
     res <- Fixup.model.matrix(mod, mod.matrix, mod.matrix.all, 
         X.mod, factor.cols, cnames, focal.predictors, excluded.predictors, 
         typical, given.values,
-        partial.residuals=partial.residuals, mod.matrix.all.rounded,
-        x0, x1)
+        partial.residuals=partial.residuals, mod.matrix.all.rounded)
+        # x0, x1)
     mod.matrix <- if (partial.residuals) res$mod.matrix else res
     mod.matrix.cases <- if (partial.residuals) res$mod.matrix.all else NULL
     mod.matrix.cases.rounded <- if (partial.residuals) res$mod.matrix.all.rounded else NULL

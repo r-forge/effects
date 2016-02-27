@@ -15,7 +15,7 @@
 # 2015-07-07: fixed matchVarName() so that it handles periods in names properly. J. Fox
 # 2015-09-10: added a fix for class = 'array' in Analyze.model.  S. Weisberg
 # 2016-02-16: fix Analyze.model(), Fixup.model.matrix() to handle non-focal terms like polynomials correctly; clean up code. J. Fox
-# 2016-02-26: correct computation of partial residuals
+# 2016-02-27: correct computation of partial residuals
 
 has.intercept <- function(model, ...) any(names(coefficients(model))=="(Intercept)")
 
@@ -318,7 +318,7 @@ Analyze.model <- function(focal.predictors, mod, xlevels, default.levels=NULL, f
 Fixup.model.matrix <- function(mod, mod.matrix, mod.matrix.all, X.mod,
     factor.cols, cnames, focal.predictors, excluded.predictors, 
     typical, given.values,
-    partial.residuals=FALSE, mod.matrix.all.rounded, x0=NULL, x1=NULL){
+    partial.residuals=FALSE, mod.matrix.all.rounded){
     attr(mod.matrix, "assign") <- attr(mod.matrix.all, "assign")
     if (length(excluded.predictors) > 0){
         strangers <- Strangers(mod, focal.predictors, excluded.predictors)
@@ -340,10 +340,10 @@ Fixup.model.matrix <- function(mod, mod.matrix, mod.matrix.all, X.mod,
             }
         }
         if (partial.residuals && any(covs)){
-            closest <- apply(outer(x1, x0, function(x1, x0) abs(x1 - x0)), 1, which.min)
             mod.matrix[, covs] <- matrix(apply(as.matrix(X.mod[,covs]), 2, typical),
                                         nrow=nrow(mod.matrix), ncol=sum(covs), byrow=TRUE)
-            mod.matrix.all.rounded[, covs] <- mod.matrix.all[, covs] <- mod.matrix[closest, covs]
+            mod.matrix.all.rounded[, covs] <- mod.matrix.all[, covs] <- 
+              matrix(mod.matrix[1, covs], nrow=nrow(mod.matrix.all), ncol=sum(covs), byrow=TRUE)
         }
         if (!is.null(given.values)){
             stranger.names <- cnames[stranger.cols]
