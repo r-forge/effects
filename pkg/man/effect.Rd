@@ -183,9 +183,10 @@ allEffects(mod, ...)
     by the \code{offset} argument to \code{lm}, \code{glm}, \code{lmer}, or \code{glmer} will be handled
     correctly; use of the \code{offset} function in the model formula is
     not supported.}
-  \item{partial.residuals}{if \code{TRUE}, partial residuals will be computed
-    for an effect in a linear or generalized linear model; if \code{FALSE}
-    (the default), partial residuals are suppressed.}
+  \item{partial.residuals}{if \code{TRUE}, residuals for a linear or generalized linear model 
+    will be computed and saved; if \code{FALSE}
+    (the default), residuals are suppressed. If residuals are saved, partial residuals are computed when the
+    the effect is plotted: see \code{link{plot.eff}}.}
   \item{quantiles}{quantiles at which to evaluate numeric focal predictors \emph{not} on the
     horizontal axis, used only when partial residuals are displayed; superceded if the \code{xlevels} argument
     gives specific values for a predictor.}

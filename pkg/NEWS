@@ -1,6 +1,6 @@
-Version 3.0-8
+Version 3.1-0
 
- o Corrected computation of partial residuals, fixing bug introduced by bug fix in 3.0-7.
+ o Corrected and improved computation of partial residuals, fixing bug introduced by bug fix in 3.0-7.
 
 Version 3.0-7
 

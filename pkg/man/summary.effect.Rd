@@ -48,7 +48,7 @@
     transform.x=NULL, ticks.x=NULL,
     key.args=NULL, 
     row=1, col=1, nrow=1, ncol=1, more=FALSE, 
-    use.splines=TRUE, partial.residuals=c("adjusted", "raw"), show.fitted=FALSE,
+    use.splines=TRUE, partial.residuals=TRUE, show.fitted=FALSE,
     residuals.color="blue", residuals.pch=1, residuals.cex=1,
     smooth.residuals=TRUE, residuals.smooth.color=residuals.color, span=2/3, ...)
 \method{plot}{effpoly}(x,
@@ -227,11 +227,7 @@ restoreStrip(saved)
     axis is not a factor use interpolating splines computed by the \code{\link{spline}} 
     function.  If FALSE, then linear interpoliation is used.  This argument is ignored if
     the horizontal axis is a factor.}
-  \item{partial.residuals}{use \code{"adjusted"} partial residuals, computed at the panel-rounded
-    values of the focal predictors not on the horizontal axis of each panel, or \code{"raw"}
-    partial residuals, computed at the actual values of all focal predictors; the default is
-    \code{"adjusted"}, and this argument is effective only when partial residuals are included
-    in the effect object to be plotted --- see \code{\link{Effect}}.}
+  \item{partial.residuals}{If \code{TRUE}, the default, plot partial residuals if residuals are saved in the effect object --- see \code{\link{Effect}}.}
   \item{smooth.residuals}{whether to show a \code{\link{loess}} smooth of the partial residuals, if
     they are present; the default is \code{TRUE}. For a non-Gaussian \code{glm} model,
     a non-robust \code{loess} smooth is used; for a \code{lm} model or a Gaussian \code{glm} model,
