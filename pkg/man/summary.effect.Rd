@@ -191,8 +191,10 @@ restoreStrip(saved)
     value of \code{n} is ignored.
     
     \bold{Warning:} For a generalized linear model, by default the vertical axis is on the
-    scale of the linear predictor, and this scale should be used for tick placement; see the
-    documentation for the \code{ylim} argument.}
+    scale of the linear predictor (e.g., the logit scale for a logit model), 
+    but labels for tick marks are displayed on the scale of
+    the response (e.g., the probability scale for a logit model); \code{at} should be given
+    on the \emph{response} scale (e.g., the probability scale for a logit model).}
   \item{ticks.x}{a named list of two-item lists controlling the placement of tick marks
     on the horizontal axis. Each list element is named for a numeric predictor in the model,
     and each sublist has elements \code{at} or \code{n} are for the \code{ticks} argument.
