@@ -1,3 +1,7 @@
+Version 2.1-2
+
+ o Modified internal function make.ticks() so that it doesn't fail due to floating-point inaccuracy (following error reported by Joe Clayton Ford).
+
 Version 3.1-1
 
  o Requires R >= 3.2.0 (requested by CRAN).

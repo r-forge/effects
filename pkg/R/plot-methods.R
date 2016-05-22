@@ -1,3 +1,4 @@
+
 # plot.eff method for effects package, moved here from plot-summary-print-methods.R
 # The plot.effpoly method remains there for now.
 # 2013-10-17: Added use.splines keyword to plot.eff. Sandy
@@ -14,6 +15,7 @@
 # 2015-05-28: added residuals.smooth.color argument. J. Fox
 # 2015-08-28: added residuals.cex argument. J. Fox
 # 2016-03-01: move computation of partial residuals to the plot.eff() method. J. Fox
+# 2016-05-22: modified make.ticks() to avoid possible failure due to floating-point inaccuracy. J. Fox
 
 # the following functions aren't exported
 
@@ -36,7 +38,10 @@ make.ticks <- function(range, link, inverse, at, n) {
     labels <- pretty(sapply(range, inverse), n=n+1)
   }
   else at
-  ticks <- sapply(labels, link)
+  ticks <- try(sapply(labels, link), silent=TRUE)
+  if (inherits(ticks, "try-error")){
+      ticks <- seq(range[1], range[2], length=5)
+  }
   list(at=ticks, labels=format(labels))
 }
 
