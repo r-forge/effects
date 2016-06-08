@@ -1,5 +1,7 @@
-Version 2.1-2
+Version 3.1-2
 
+ o Fixed bug handling 'start' argument in glmm's.  Reported by Mariano Devoto; fix by Ben Bolker
+ 
  o Modified internal function make.ticks() so that it doesn't fail due to floating-point inaccuracy (following error reported by Joe Clayton Ford).
 
 Version 3.1-1
