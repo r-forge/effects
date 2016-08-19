@@ -185,7 +185,7 @@ allEffects(mod, ...)
     not supported.}
   \item{partial.residuals}{if \code{TRUE}, residuals for a linear or generalized linear model 
     will be computed and saved; if \code{FALSE}
-    (the default), residuals are suppressed. If residuals are saved, partial residuals are computed when the
+    (the default), residuals are suppressed. If residuals are saved, partial residuals are computed when
     the effect is plotted: see \code{\link{plot.eff}}.}
   \item{quantiles}{quantiles at which to evaluate numeric focal predictors \emph{not} on the
     horizontal axis, used only when partial residuals are displayed; superceded if the \code{xlevels} argument
