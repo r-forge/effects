@@ -240,7 +240,8 @@ restoreStrip(saved)
     axis is not a factor use interpolating splines computed by the \code{\link{spline}} 
     function.  If FALSE, then linear interpoliation is used.  This argument is ignored if
     the horizontal axis is a factor.}
-  \item{partial.residuals}{If \code{TRUE}, the default, plot partial residuals if residuals are saved in the effect object --- see \code{\link{Effect}}.}
+  \item{partial.residuals}{If \code{TRUE}, the default, plot partial residuals if residuals are saved in the effect object --- see \code{\link{Effect}};
+    partial residuals are suppressed (with a warning) in multiline displays.}
   \item{smooth.residuals}{whether to show a \code{\link{loess}} smooth of the partial residuals, if
     they are present; the default is \code{TRUE}. For a non-Gaussian \code{glm} model,
     a non-robust \code{loess} smooth is used; for a \code{lm} model or a Gaussian \code{glm} model,
