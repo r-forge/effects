@@ -7,6 +7,8 @@ Version 3.1-2
  o Check formula for presence of factor(), etc. (suggestion of Ulrike Gromping).
  
  o Fixed bug in Effect.clm() and some other methods (reported by David Barron), which didn't pass ... argument.
+ 
+ o A warning is now printed if partial residuals are requested in a multiline plot.
 
 Version 3.1-1
 

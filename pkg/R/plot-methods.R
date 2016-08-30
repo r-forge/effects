@@ -358,7 +358,8 @@ plot.eff <- function(x, x.var,
   }    
   if (x.var == z.var) z.var <- z.var + 1
   ### multiline
-  if (multiline){ 
+  if (multiline){
+    if (!is.null(residuals)) warning("partial residuals are not displayed in a multiline plot")
     ci.style <- if(is.null(ci.style)) "none" else ci.style
     if(ci.style == "lines") { 
       cat("Confidence interval style 'lines' changed to 'bars'\n")
