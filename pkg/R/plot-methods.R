@@ -16,7 +16,7 @@
 # 2015-08-28: added residuals.cex argument. J. Fox
 # 2016-03-01: move computation of partial residuals to the plot.eff() method. J. Fox
 # 2016-05-22: modified make.ticks() to avoid possible failure due to floating-point inaccuracy. J. Fox
-# 2016-08-31: fixed plotting with partial residuals with various scalings of *y-axis*. J. Fox
+# 2016-08-31: fixed plotting with partial residuals with various scalings of y-axis and x-axis. J. Fox
 
 # the following functions aren't exported
 
@@ -311,7 +311,7 @@ plot.eff <- function(x, x.var,
                        thresholds, threshold.labels, adj=c(1,0), cex=0.75)
           }
           if (!is.null(residuals)){ 
-            fitted <- y[good][closest(x.fit, x[good])]
+            fitted <- y[good][closest(trans(x.fit), x[good])]
             partial.res <- if (!rescale.axis) original.inverse(original.link(fitted) + residuals)
               else fitted + residuals
             lpoints(trans(x.fit), partial.res, col=residuals.color, pch=residuals.pch, cex=residuals.cex)
@@ -654,7 +654,7 @@ plot.eff <- function(x, x.var,
             }
             n.in.panel <- sum(use)
             if (n.in.panel > 0){
-              fitted <- y[good][closest(x.fit[use], x[good])]
+              fitted <- y[good][closest(trans(x.fit[use]), x[good])]
               partial.res <- if (!rescale.axis) original.inverse(original.link(fitted) + residuals[use])
               else fitted + residuals[use]
               lpoints(trans(x.fit[use]), partial.res, col=residuals.color, pch=residuals.pch, cex=residuals.cex)
