@@ -16,6 +16,7 @@
 # 2015-08-28: added residuals.cex argument. J. Fox
 # 2016-03-01: move computation of partial residuals to the plot.eff() method. J. Fox
 # 2016-05-22: modified make.ticks() to avoid possible failure due to floating-point inaccuracy. J. Fox
+# 2016-08-31: fixed plotting with partial residuals with various scalings of *y-axis*. J. Fox
 
 # the following functions aren't exported
 
@@ -146,13 +147,13 @@ plot.eff <- function(x, x.var,
                               paste(threshold.labels[-length(threshold.labels)], threshold.labels[-1], sep=" - "),
                               " ", sep="")
   }
-  trans.link <- x$transformation$link
-  trans.inverse <- x$transformation$inverse
+  original.link <- trans.link <- x$transformation$link
+  original.inverse <- trans.inverse <- x$transformation$inverse
   residuals <- if (partial.residuals) x$residuals else NULL
   partial.residuals.range <- x$partial.residuals.range
-  if (!is.null(residuals) && !rescale.axis) {
-    residuals <- trans.inverse(residuals)
-  }
+  # if (!is.null(residuals) && !rescale.axis) {  # BUG
+  #   residuals <- trans.inverse(residuals)
+  # }
   if (!rescale.axis){
     x$lower[!is.na(x$lower)] <- trans.inverse(x$lower[!is.na(x$lower)])
     x$upper[!is.na(x$upper)] <- trans.inverse(x$upper[!is.na(x$upper)])
@@ -183,7 +184,7 @@ plot.eff <- function(x, x.var,
         range(c(x$lower, x$upper), na.rm=TRUE) else range(x$fit, na.rm=TRUE)
       ylim <- if (!missing(ylim)) ylim else c(range[1] - .025*(range[2] - range[1]),                                              
                                               range[2] + .025*(range[2] - range[1]))
-      tickmarks <- if (type == "response") make.ticks(ylim, 
+      tickmarks <- if (type == "response" && rescale.axis) make.ticks(ylim, 
                                                       link=trans.link, inverse=trans.inverse, at=ticks$at, n=ticks$n)
       else make.ticks(ylim, link=I, inverse=I, at=ticks$at, n=ticks$n)
       levs <- levels(x[,1])  
@@ -239,10 +240,11 @@ plot.eff <- function(x, x.var,
       
       ylim <- if (!missing(ylim)) ylim
       else if (is.null(residuals)) c(range[1] - .025*(range[2] - range[1]), range[2] + .025*(range[2] - range[1]))
-      else c(min(partial.residuals.range[1], range[1] - .025*(range[2] - range[1])), 
+      else if (rescale.axis) c(min(partial.residuals.range[1], range[1] - .025*(range[2] - range[1])), 
              max(partial.residuals.range[2], range[2] + .025*(range[2] - range[1])))
-      
-      tickmarks <- if (type == "response") make.ticks(ylim, 
+      else c(min(original.inverse(partial.residuals.range[1]), range[1] - .025*(range[2] - range[1])), 
+             max(original.inverse(partial.residuals.range[2]), range[2] + .025*(range[2] - range[1])))
+      tickmarks <- if (type == "response" && rescale.axis) make.ticks(ylim, 
                                                       link=trans.link, inverse=trans.inverse, at=ticks$at, n=ticks$n)
       else make.ticks(ylim, link=I, inverse=I, at=ticks$at, n=ticks$n)
       nm <- names(x)[1]
@@ -310,7 +312,8 @@ plot.eff <- function(x, x.var,
           }
           if (!is.null(residuals)){ 
             fitted <- y[good][closest(x.fit, x[good])]
-            partial.res <- fitted + residuals
+            partial.res <- if (!rescale.axis) original.inverse(original.link(fitted) + residuals)
+              else fitted + residuals
             lpoints(trans(x.fit), partial.res, col=residuals.color, pch=residuals.pch, cex=residuals.cex)
             if (show.fitted) lpoints(trans(x.fit), fitted, pch=16, col=residuals.color)  # REMOVE ME
             if (smooth.residuals){
@@ -368,7 +371,7 @@ plot.eff <- function(x, x.var,
       range(c(x$lower, x$upper), na.rm=TRUE) else range(x$fit, na.rm=TRUE)
     ylim <- if (!missing(ylim)) ylim else c(range[1] - .025*(range[2] - range[1]),                                              
                                             range[2] + .025*(range[2] - range[1]))
-    tickmarks <- if (type == "response") make.ticks(ylim, link=trans.link, 
+    tickmarks <- if (type == "response" && rescale.axis) make.ticks(ylim, link=trans.link, 
                                                     inverse=trans.inverse, at=ticks$at, n=ticks$n)
     else make.ticks(ylim, link=I, inverse=I, at=ticks$at, n=ticks$n)
     zvals <- unique(x[, z.var])
@@ -533,7 +536,7 @@ plot.eff <- function(x, x.var,
     
     ylim <- if (!missing(ylim)) ylim else c(range[1] - .025*(range[2] - range[1]),                                              
                                             range[2] + .025*(range[2] - range[1]))
-    tickmarks <- if (type == "response") make.ticks(ylim, link=trans.link, 
+    tickmarks <- if (type == "response" && rescale.axis) make.ticks(ylim, link=trans.link, 
                                                     inverse=trans.inverse, at=ticks$at, n=ticks$n)
     else make.ticks(ylim, link=I, inverse=I, at=ticks$at, n=ticks$n)  
     
@@ -608,9 +611,11 @@ plot.eff <- function(x, x.var,
     }
     ylim <- if (!missing(ylim)) ylim
     else if (is.null(residuals)) c(range[1] - .025*(range[2] - range[1]), range[2] + .025*(range[2] - range[1]))
-    else c(min(partial.residuals.range[1], range[1] - .025*(range[2] - range[1])), 
-           max(partial.residuals.range[2], range[2] + .025*(range[2] - range[1])))
-    tickmarks <- if (type == "response") make.ticks(ylim, link=trans.link, 
+    else if (rescale.axis) c(min(partial.residuals.range[1], range[1] - .025*(range[2] - range[1])), 
+                             max(partial.residuals.range[2], range[2] + .025*(range[2] - range[1])))
+    else c(min(original.inverse(partial.residuals.range[1]), range[1] - .025*(range[2] - range[1])), 
+           max(original.inverse(partial.residuals.range[2]), range[2] + .025*(range[2] - range[1])))
+    tickmarks <- if (type == "response" && rescale.axis) make.ticks(ylim, link=trans.link, 
                                                     inverse=trans.inverse, at=ticks$at, n=ticks$n)
     else make.ticks(ylim, link=I, inverse=I, at=ticks$at, n=ticks$n)  
     x.fit <- x.data[, predictors[x.var]]
@@ -650,7 +655,8 @@ plot.eff <- function(x, x.var,
             n.in.panel <- sum(use)
             if (n.in.panel > 0){
               fitted <- y[good][closest(x.fit[use], x[good])]
-              partial.res <- fitted + residuals[use]
+              partial.res <- if (!rescale.axis) original.inverse(original.link(fitted) + residuals[use])
+              else fitted + residuals[use]
               lpoints(trans(x.fit[use]), partial.res, col=residuals.color, pch=residuals.pch, cex=residuals.cex)
               if (show.fitted) lpoints(trans(x.fit[use]), fitted, pch=16, col=residuals.color)  # REMOVE ME
               if (smooth.residuals && n.in.panel >= 10) {
