@@ -17,6 +17,7 @@
 # 2016-03-01: move computation of partial residuals to the plot.eff() method. J. Fox
 # 2016-05-22: modified make.ticks() to avoid possible failure due to floating-point inaccuracy. J. Fox
 # 2016-08-31: fixed plotting with partial residuals with various scalings of y-axis and x-axis. J. Fox
+# 2016-09-16: added show.strip.values argument to plot.eff(). J. Fox
 
 # the following functions aren't exported
 
@@ -90,9 +91,10 @@ plot.eff <- function(x, x.var,
                      type=c("rescale", "response", "link"), ticks=list(at=NULL, n=5),  
                      alternating=TRUE, rotx=0, roty=0, grid=FALSE, layout, rescale.axis, 
                      transform.x=NULL, ticks.x=NULL,
+                     show.strip.values=!partial.residuals,
                      key.args=NULL, 
                      row=1, col=1, nrow=1, ncol=1, more=FALSE, 
-                     use.splines=TRUE, partial.residuals=TRUE,
+                     use.splines=TRUE, partial.residuals=!is.null(x$residuals),
                      show.fitted=FALSE,
                      residuals.color="blue", residuals.pch=1, residuals.cex=1,
                      smooth.residuals=TRUE, residuals.smooth.color=residuals.color, span=2/3, ...)
@@ -190,7 +192,7 @@ plot.eff <- function(x, x.var,
       levs <- levels(x[,1])  
       plot <- xyplot(eval(parse(
         text=paste("fit ~ as.numeric(", names(x)[1], ")"))), 
-        strip=function(...) strip.default(..., strip.names=c(factor.names, TRUE)),
+        strip=function(...) strip.default(..., strip.names=c(factor.names, TRUE)), 
         panel=function(x, y, lower, upper, has.se, ...){
           if (grid) panel.grid()
           good <- !is.na(y)
@@ -384,11 +386,16 @@ plot.eff <- function(x, x.var,
                   points=list(col=colors[.modc(1:length(zvals))], pch=symbols[.mods(1:length(zvals))]),
                   columns = if ("x" %in% names(key.args)) 1 else find.legend.columns(length(zvals)))
       for (k in names(key.args)) key[k] <- key.args[k]
+      if (show.strip.values && n.predictors > 2){
+        for (pred in predictors[-c(x.var, z.var)]){
+          x[[pred]] <- as.factor(x[[pred]])
+        }
+      }
       plot <- xyplot(eval(parse( 
         text=paste("fit ~ as.numeric(", predictors[x.var], ")",
                    if (n.predictors > 2) paste(" |", 
                                                paste(predictors[-c(x.var, z.var)])), collapse="*"))),
-        strip=function(...) strip.default(..., strip.names=c(factor.names, TRUE)),
+        strip=function(...) strip.default(..., strip.names=c(factor.names, TRUE), sep=" = "),
         panel=function(x, y, subscripts, z, lower, upper, show.se, ...){
           if (grid) panel.grid()
           for (i in 1:length(zvals)){
@@ -463,11 +470,16 @@ plot.eff <- function(x, x.var,
                   lines=list(col=colors[.modc(1:length(zvals))], lty=lines[.modl(1:length(zvals))], lwd=lwd),
                   columns = if ("x" %in% names(key.args)) 1 else find.legend.columns(length(zvals)))
       for (k in names(key.args)) key[k] <- key.args[k]
+      if (show.strip.values && n.predictors > 2){
+        for (pred in predictors[-c(x.var, z.var)]){
+          x[[pred]] <- as.factor(x[[pred]])
+        }
+      }
       plot <- xyplot(eval(parse( 
         text=paste("fit ~trans(", predictors[x.var], ")", 
                    if (n.predictors > 2) paste(" |", 
                                                paste(predictors[-c(x.var, z.var)])), collapse="*"))),
-        strip=function(...) strip.default(..., strip.names=c(factor.names, TRUE)),
+        strip=function(...) strip.default(..., strip.names=c(factor.names, TRUE), sep=" = "),
         panel=function(x, y, subscripts, x.vals, rug, z, lower, upper, show.se, ...){
           if (grid) panel.grid()
           if (rug && is.null(residuals)) lrug(trans(x.vals))
@@ -541,10 +553,15 @@ plot.eff <- function(x, x.var,
     else make.ticks(ylim, link=I, inverse=I, at=ticks$at, n=ticks$n)  
     
     levs <- levels(x[,x.var])
+    if (show.strip.values){
+      for (pred in predictors[-x.var]){
+        x[[pred]] <- as.factor(x[[pred]])
+      }
+    }
     plot <- xyplot(eval(parse( 
       text=paste("fit ~ as.numeric(", predictors[x.var], ") |", 
                  paste(predictors[-x.var], collapse="*")))),
-      strip=function(...) strip.default(..., strip.names=c(factor.names, TRUE)),
+      strip=function(...) strip.default(..., strip.names=c(factor.names, TRUE), sep=" = "),
       panel=function(x, y, subscripts, lower, upper, has.se, ...){  
         if (grid) panel.grid()
         good <- !is.na(y)
@@ -621,10 +638,15 @@ plot.eff <- function(x, x.var,
     x.fit <- x.data[, predictors[x.var]]
     use <- rep(TRUE, length(residuals))
     xx <- x[, predictors[-x.var], drop=FALSE]
+    if (show.strip.values){
+      for (pred in predictors[-x.var]){
+        x[[pred]] <- as.factor(x[[pred]])
+      }
+    }
     plot <- xyplot(eval(parse( 
       text=paste("fit ~ trans(", predictors[x.var], ") |", 
                  paste(predictors[-x.var], collapse="*")))),
-      strip=function(...) strip.default(..., strip.names=c(factor.names, TRUE)),
+      strip=function(...) strip.default(..., strip.names=c(factor.names, TRUE), sep=" = "),
       panel=function(x, y, subscripts, x.vals, rug, lower, upper, has.se, ...){
         if (grid) panel.grid()
         good <- !is.na(y)

@@ -11,6 +11,8 @@ Version 3.1-2
  o A warning is now printed if partial residuals are requested in a multiline plot.
  
  o Corrected plotting of partial residuals with various scalings of the y-axis and x-axis. 
+ 
+ o Added show.strip.values argument to plot.eff() and plot.effpoly().
 
 Version 3.1-1
 
