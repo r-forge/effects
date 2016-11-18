@@ -18,6 +18,7 @@
 # 2016-01-07: modified 'fixmod' to allow "||" in variance formulae
 # 2016-01-19: Fixed bug in glm.to.mer when 'poly' is used in a model.
 # 2016-06-08: Fixed bug handling the 'start' argument in glm.to.mer.  Fix by Ben Bolker, bug from Mariano Devoto
+# 2016-11-18: Change to mer.to.glm and lme.to.glm for stability is unusual glms. By Nate TeGrotenhuis.
 
 # the function lm.wfit fit gets the hessian wrong for mer's.  Get the variance
 # from the vcov method applied to the mer object.
@@ -62,6 +63,7 @@ fixmod <- function (term)
 lme.to.glm <- function(mod) {
     cl <- mod$call
     cl$formula <- cl$fixed
+    cl$control <- glm.control(eps=1) # suggested by Nate TeGrotenhuis
     m <- match(c("formula", "data", "subset", 
         "na.action",  "contrasts"), names(cl), 0L)
     cl <- cl[c(1L, m)]
@@ -116,6 +118,7 @@ mer.to.glm <- function(mod, KR=FALSE) {
     link <- family$link
     family <- family$family
     cl <- mod@call
+    cl$control <- glm.control(eps=1) # suggested by Nate TeGrotenhuis
     if(cl[[1]] =="nlmer") stop("effects package does not support 'nlmer' objects")
     m <- match(c("formula", "family", "data", "weights", "subset", 
         "na.action", "offset",  
