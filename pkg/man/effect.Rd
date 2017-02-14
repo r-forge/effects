@@ -41,7 +41,7 @@
   
   The function can also be used with some mixed-effects models, including linear and generalized linear model
   fits from \code{lmer} and \code{glmer} from the \pkg{lme4} package 
-  and \code{lme} from the \pkg{nlme} package; ordinal logistic mixed effects fit with \code{clm2} or \code{clmm} from the
+  and \code{lme} from the \pkg{nlme} package; ordinal logit mixed effects fit with \code{clm2} or \code{clmm} from the
   \pkg{ordinal} package, and polytomous latent-class models fit by the \code{poLCA} function in 
   the \pkg{poLCA} package.  The analysis in mixed effects is for the fixed effects only, not for random effects. 
   
@@ -320,9 +320,9 @@ and of class \code{effpoly} with more than 2 categories.
   Fitting ordinal mixed-models using \code{clmm} or \code{clmm2} permits many options, including a variety of link functions,
   scale functions, nominal regressors, and various methods for setting thresholds.  Effects are currently generated 
   only for the default values of the arguments \code{scale}, \code{nominal}, \code{link} and \code{threshold}, 
-  which is equivalent to fitting an ordinal response mixed effects model with a logistic link.  
+  which is equivalent to fitting an ordinal response mixed effects model with a logit link.  
   The effect methods can also be   
-  used with objects created using \code{dlm} or \code{clm2} fitting ordinal response logistic models with no random effects, with 
+  used with objects created using \code{dlm} or \code{clm2} fitting ordinal response logit models with no random effects, with 
   results similar to those from \code{polr} in the \pkg{MASS} package.
   
   Calling any of these functions from within a user-written function may result in errors due

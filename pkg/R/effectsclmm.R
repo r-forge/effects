@@ -15,7 +15,7 @@ clm2.to.polr <- function(mod) {
   cl <- mod$call 
   present <- match(c("scale", "nominal", "link", "threshold"), names(cl), 0L)
   if(any(present != 0)) {
-    if(present[3] != 0){if(cl$link != "logistic") stop("'link' must be 'logisitic' for use with effects")}
+    if(present[3] != 0){if(cl$link != "logit") stop("'link' must be 'logisitic' for use with effects")}
     if(present[4] != 0){if(cl$threshold != "flexible") stop("'threshold' must be 'flexible' for use with effects")}
     if(present[1] != 0){if(!is.null(cl$scale)) stop("'scale' must be NULL for use with effects")}
     if(present[2] != 0){if(!is.null(cl$nominal)) stop("'nominal' must be NULL for use with effects")}
@@ -70,7 +70,7 @@ clmm.to.polr <- function(mod) {
   cl <- mod$call 
   present <- match(c("scale", "nominal", "link", "threshold"), names(cl), 0L)
   if(any(present != 0)) {
-    if(present[3] != 0){if(cl$link != "logistic") stop("'link' must be 'logisitic' for use with effects")}
+    if(present[3] != 0){if(cl$link != "logit") stop("'link' must be 'logisitic' for use with effects")}
     if(present[4] != 0){if(cl$threshold != "flexible") stop("'threshold' must be 'flexible' for use with effects")}
     if(present[1] != 0){if(!is.null(cl$scale)) stop("'scale' must be NULL for use with effects")}
     if(present[2] != 0){if(!is.null(cl$nominal)) stop("'nominal' must be NULL for use with effects")}
@@ -126,7 +126,7 @@ clm.to.polr <- function(mod) {
   cl <- mod$call 
   present <- match(c("scale", "nominal", "link", "threshold"), names(cl), 0L)
   if(any(present != 0)) {
-    if(present[3] != 0){if(cl$link != "logistic") stop("'link' must be 'logisitic' for use with effects")}
+    if(present[3] != 0){if(cl$link != "logit") stop("'link' must be 'logit' for use with effects")}
     if(present[4] != 0){if(cl$threshold != "flexible") stop("'threshold' must be 'flexible' for use with effects")}
     if(present[1] != 0){if(!is.null(cl$scale)) stop("'scale' must be NULL for use with effects")}
     if(present[2] != 0){if(!is.null(cl$nominal)) stop("'nominal' must be NULL for use with effects")}
