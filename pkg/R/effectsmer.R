@@ -19,6 +19,9 @@
 # 2016-01-19: Fixed bug in glm.to.mer when 'poly' is used in a model.
 # 2016-06-08: Fixed bug handling the 'start' argument in glm.to.mer.  Fix by Ben Bolker, bug from Mariano Devoto
 # 2016-11-18: Change to mer.to.glm and lme.to.glm for stability is unusual glms. By Nate TeGrotenhuis.
+# 2017-03-28: in mer.to.glm, changed a name from m to .m.  The fake glm is created from the mer model's
+#             call slot, which included the name of the data.frame, if any.  A data.frame named 'm'
+#             therefore did not work.  Same bug fixed in lme.to.glm
 
 # the function lm.wfit fit gets the hessian wrong for mer's.  Get the variance
 # from the vcov method applied to the mer object.
@@ -64,9 +67,9 @@ lme.to.glm <- function(mod) {
     cl <- mod$call
     cl$formula <- cl$fixed
     cl$control <- glm.control(eps=1) # suggested by Nate TeGrotenhuis
-    m <- match(c("formula", "data", "subset", 
+    .m <- match(c("formula", "data", "subset", 
         "na.action",  "contrasts"), names(cl), 0L)
-    cl <- cl[c(1L, m)]
+    cl <- cl[c(1L, .m)]
     cl[[1L]] <- as.name("glm")
     mod2 <- eval(cl)
     pw <- attr(mod$modelStruct$varStruct, "weights")
@@ -120,10 +123,10 @@ mer.to.glm <- function(mod, KR=FALSE) {
     cl <- mod@call
     cl$control <- glm.control(eps=1) # suggested by Nate TeGrotenhuis
     if(cl[[1]] =="nlmer") stop("effects package does not support 'nlmer' objects")
-    m <- match(c("formula", "family", "data", "weights", "subset", 
+    .m <- match(c("formula", "family", "data", "weights", "subset", 
         "na.action", "offset",  
         "model", "contrasts"), names(cl), 0L)
-    cl <- cl[c(1L, m)]
+    cl <- cl[c(1L, .m)]
     cl[[1L]] <- as.name("glm")
     cl$formula <- fixmod(as.formula(cl$formula))
 #    cl$data <- mod@frame # caused bug with a 'poly' in the formula
