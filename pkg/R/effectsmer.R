@@ -1,11 +1,11 @@
 # effect.mer and effect.lme built from effect.lm by S. Weisberg 29 June 2011
-# last modified 2012-03-08 to require() lme4 or nlme. J. Fox
+# 2012-03-08 to require() lme4 or nlme. J. Fox
 # 2012-10-05 effect.lme didn't work with 'weights', now corrected.  S. Weisberg
 # 2013-03-05: introduced merMod methods for development version of lme4. J. Fox
 # 2013-04-06: added support for lme4.0, J. Fox
 # 2013-07-30: added 'data' argument to lme.to.glm and mer.to.glm to allow
 #   calling effect from within a subroutine.
-# 2013-09-25:  removed the 'data' argument as it make the functions fail with
+# 2013-09-25:  removed the 'data' argument as it makes the functions fail with
 #   logs, splines and polynomials
 # 2014-09-24: added option for KR cov matrix to mer.to.glm(). J. Fox
 # 2014-12-07: don't assume that pbkrtest is installed. J. Fox
@@ -18,16 +18,16 @@
 # 2016-01-07: modified 'fixmod' to allow "||" in variance formulae
 # 2016-01-19: Fixed bug in glm.to.mer when 'poly' is used in a model.
 # 2016-06-08: Fixed bug handling the 'start' argument in glm.to.mer.  Fix by Ben Bolker, bug from Mariano Devoto
-# 2016-11-18: Change to mer.to.glm and lme.to.glm for stability is unusual glms. By Nate TeGrotenhuis.
+# 2016-11-18: Change to mer.to.glm and lme.to.glm for stability in unusual glms. By Nate TeGrotenhuis.
 # 2017-03-28: in mer.to.glm, changed a name from m to .m.  The fake glm is created from the mer model's
 #             call slot, which included the name of the data.frame, if any.  A data.frame named 'm'
 #             therefore did not work.  Same bug fixed in lme.to.glm
 
-# the function lm.wfit fit gets the hessian wrong for mer's.  Get the variance
+# the function lm.wfit  gets the hessian wrong for mer's.  Get the variance
 # from the vcov method applied to the mer object.
 
 
-fixmod <- function (term) 
+fixmod <- function (term)
 {
   if (!("|" %in% all.names(term)) && !("||" %in% all.names(term)))
     return(term)
@@ -36,16 +36,16 @@ fixmod <- function (term)
     return(NULL)
     if (length(term) == 2) {
         nb <- fixmod(term[[2]])
-        if (is.null(nb)) 
+        if (is.null(nb))
             return(NULL)
         term[[2]] <- nb
         return(term)
     }
     nb2 <- fixmod(term[[2]])
     nb3 <- fixmod(term[[3]])
-    if (is.null(nb2)) 
+    if (is.null(nb2))
         return(nb3)
-    if (is.null(nb3)) 
+    if (is.null(nb3))
         return(nb2)
     term[[2]] <- nb2
     term[[3]] <- nb3
@@ -56,7 +56,7 @@ fixmod <- function (term)
 # model, in the same pattern as mer.to.glm.  This could be speeded up
 # slightly by using 'lm' rather than 'glm' but I use 'glm' to parallel
 # mer.to.glm more closely.  The differences are:  (1) match fewer args
-# in the call; (2) different def of mod2$coefficients; no other 
+# in the call; (2) different def of mod2$coefficients; no other
 # changes
 
 # The argument 'data' to lme.to.glm and to mer.to.glm copies the data
@@ -66,8 +66,8 @@ fixmod <- function (term)
 lme.to.glm <- function(mod) {
     cl <- mod$call
     cl$formula <- cl$fixed
-    cl$control <- glm.control(eps=1) # suggested by Nate TeGrotenhuis
-    .m <- match(c("formula", "data", "subset", 
+    cl$control <- glm.control(epsilon=1) # suggested by Nate TeGrotenhuis
+    .m <- match(c("formula", "data", "subset",
         "na.action",  "contrasts"), names(cl), 0L)
     cl <- cl[c(1L, .m)]
     cl[[1L]] <- as.name("glm")
@@ -88,7 +88,7 @@ lme.to.glm <- function(mod) {
 }
 
 # mer.to.glm evaluates a 'glm' model that is as similar to a given 'mer'
-# model as follows.  It is of class c("fakeglm", "glm", "lm")
+# model as possible.  It is of class c("fakeglm", "glm", "lm")
 # several items are added to the created objects. Do not export
 
 mer.to.glm <- function(mod, KR=FALSE) {
@@ -121,10 +121,10 @@ mer.to.glm <- function(mod, KR=FALSE) {
     link <- family$link
     family <- family$family
     cl <- mod@call
-    cl$control <- glm.control(eps=1) # suggested by Nate TeGrotenhuis
+    cl$control <- glm.control(epsilon=1) # suggested by Nate TeGrotenhuis
     if(cl[[1]] =="nlmer") stop("effects package does not support 'nlmer' objects")
-    .m <- match(c("formula", "family", "data", "weights", "subset", 
-        "na.action", "offset",  
+    .m <- match(c("formula", "family", "data", "weights", "subset",
+        "na.action", "offset",
         "model", "contrasts"), names(cl), 0L)
     cl <- cl[c(1L, .m)]
     cl[[1L]] <- as.name("glm")
@@ -146,7 +146,7 @@ mer.to.glm <- function(mod, KR=FALSE) {
 
 
 
-#method for 'fakeglm' objects. Do not export   
+#method for 'fakeglm' objects. Do not export
 vcov.fakeglm <- function(object, ...) object$vcov
 
 #The next six functions should be exported as S3 methods

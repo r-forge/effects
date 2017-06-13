@@ -14,6 +14,7 @@ importFrom(stats, as.formula, binomial, coef, coefficients, delete.response, fam
     model.response, na.exclude, na.omit, nlm, predict, qnorm, qt, quantile, residuals, 
     spline, terms, update, vcov, weights, xtabs)
 importFrom(utils, menu)
+importFrom("stats", "glm.control")
 
 export(effect, allEffects, all.effects, Effect, setStrip, restoreStrip)
 

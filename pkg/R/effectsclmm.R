@@ -3,6 +3,7 @@
 # 2015-06-10: requireNamespace("MASS") rather than require("MASS")
 # 2016-02-12: added support for clmm and clm objects from 'ordinal' S. Weisberg
 # 2016-08-16: added ... argument to effect() and Effect() methods. J. Fox
+# 2017-03-28: fixed bug to allow data=m S. Weisberg
 
 ###
 ###  clm2
