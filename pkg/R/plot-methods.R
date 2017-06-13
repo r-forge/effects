@@ -18,6 +18,7 @@
 # 2016-05-22: modified make.ticks() to avoid possible failure due to floating-point inaccuracy. J. Fox
 # 2016-08-31: fixed plotting with partial residuals with various scalings of y-axis and x-axis. J. Fox
 # 2016-09-16: added show.strip.values argument to plot.eff(). J. Fox
+# 2017-06-12: fixed bug in plot.eff() for multiline displays with many conditioning variables. J. Fox
 
 # the following functions aren't exported
 
@@ -394,7 +395,7 @@ plot.eff <- function(x, x.var,
       plot <- xyplot(eval(parse( 
         text=paste("fit ~ as.numeric(", predictors[x.var], ")",
                    if (n.predictors > 2) paste(" |", 
-                                               paste(predictors[-c(x.var, z.var)])), collapse="*"))),
+                                               paste(predictors[-c(x.var, z.var)], collapse="*"))))),
         strip=function(...) strip.default(..., strip.names=c(factor.names, TRUE), sep=" = "),
         panel=function(x, y, subscripts, z, lower, upper, show.se, ...){
           if (grid) panel.grid()
@@ -478,7 +479,7 @@ plot.eff <- function(x, x.var,
       plot <- xyplot(eval(parse( 
         text=paste("fit ~trans(", predictors[x.var], ")", 
                    if (n.predictors > 2) paste(" |", 
-                                               paste(predictors[-c(x.var, z.var)])), collapse="*"))),
+                                               paste(predictors[-c(x.var, z.var)], collapse="*"))))),
         strip=function(...) strip.default(..., strip.names=c(factor.names, TRUE), sep=" = "),
         panel=function(x, y, subscripts, x.vals, rug, z, lower, upper, show.se, ...){
           if (grid) panel.grid()

@@ -15,7 +15,7 @@ mixed-effect, polytomous latent-class, and some other models; (multidimensional)
 \tabular{ll}{
 Package: \tab effects\cr
 Version: \tab 3.1-3\cr
-Date: \tab 2016-10-05\cr
+Date: \tab 2017-06-12\cr
 Depends: \tab R (>= 3.2.0)\cr
 Suggests: \tab pbkrtest (>= 0.4-4), nlme, MASS, poLCA, heplots, splines, ordinal, car\cr
 Imports: \tab lme4, nnet, lattice, grid, colorspace, graphics, grDevices, stats, utils\cr
