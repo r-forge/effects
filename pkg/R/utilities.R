@@ -16,6 +16,7 @@
 # 2015-09-10: added a fix for class = 'array' in Analyze.model.  S. Weisberg
 # 2016-02-16: fix Analyze.model(), Fixup.model.matrix() to handle non-focal terms like polynomials correctly; clean up code. J. Fox
 # 2016-03-01: correct and improve computation of partial residuals
+# 2017-07-10: fix warnings about 1 x 1 arrays produced in eff.mul() and eff.polr() in R 3.4.0 (reported by Stefan Th. Gries). J. Fox
 
 has.intercept <- function(model, ...) any(names(coefficients(model))=="(Intercept)")
 
@@ -385,7 +386,7 @@ eff.mul <- function(x0, B, se, m, p, r, V){
     d[m, j,] <- - exp.x0.B[j]*x0
     for (jj in 1:(m-1)){
       d[j, jj,] <- if (jj != j)
-        - exp(x0 %*% (B[,jj] + B[,j]))*x0
+        - exp(as.vector(x0 %*% (B[,jj] + B[,j])))*x0
       else exp.x0.B[j]*(1 + sum.exp.x0.B - exp.x0.B[j])*x0
     }
   }
@@ -407,7 +408,7 @@ eff.mul <- function(x0, B, se, m, p, r, V){
 # the following are used by effect.polr() and Effect.polr()
 
 eff.polr <- function(x0, b, alpha, V, m, r, se){
-  eta0 <- x0 %*% b
+  eta0 <- as.vector(x0 %*% b)
   mu <- rep(0, m)
   mu[1] <- 1/(1 + exp(alpha[1] + eta0))
   for (j in 2:(m-1)){

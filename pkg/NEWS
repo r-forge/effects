@@ -9,6 +9,8 @@ Version 3.1-3
  o Improved stability of handling linear and generalized linear mixed effects models from lme4 and nlme.
  
  o Fixed bug in plot.eff() affecting multiline displays with four or more predictors in the effect.
+ 
+ o Fixed warnings (new in R 3.4.0) produced by use of 1 x 1 arrays in computing SEs of effects for multinom and polr model (problem reported by Stefan Th. Gries).
 
 Version 3.1-2
 
