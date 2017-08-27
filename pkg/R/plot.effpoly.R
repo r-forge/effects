@@ -7,27 +7,87 @@
 # 2014-12-05: made key.args more flexible. John
 # 2014-03-22: use wide columns by default only when x for legend not set. J. Fox
 # 2016-09-08: added show.strip.values argument to plot.effpoly(). J. Fox
+# 2017-08-16: modified plot.effpoly() to consolidate arguments and use lattice theme. J. Fox
 
-plot.effpoly <- function(x,
-    type=c("probability", "logit"),
-    x.var=which.max(levels),
-    rug=TRUE,
-    xlab,
-    ylab=paste(x$response, " (", type, ")", sep=""), 
-    main=paste(effect, "effect plot"),
-    colors, symbols, lines, cex=1.5, lwd=2,
-    factor.names=TRUE, show.strip.values=TRUE,
-    ci.style, band.colors, band.transparency=0.3,
-    style=c("lines", "stacked"), 
-    confint=(style == "lines" && !is.null(x$confidence.level)), 
-    transform.x=NULL, ticks.x=NULL, xlim=NULL,
-    ylim, rotx=0, alternating=TRUE, roty=0, grid=FALSE,
-    layout, key.args=NULL,
-    row=1, col=1, nrow=1, ncol=1, more=FALSE, use.splines=TRUE, ...){     
-    ci.style <- if(missing(ci.style)) NULL else 
-        match.arg(ci.style, c("bars", "lines", "bands", "none"))
-    type <- match.arg(type)
-    style <- match.arg(style)
+plot.effpoly <- function(x, x.var=which.max(levels), main=paste(effect, "effect plot"),
+    symbols, lines, axes, confint, lattice, ...){
+
+    if (missing(lines)) lines <- NULL
+    lines <- applyDefaults(lines, 
+                           defaults=list(lty=trellis.par.get("superpose.line")$lty, 
+                                         lwd=trellis.par.get("superpose.line")$lwd[1], col=NULL, splines=TRUE), 
+                           arg="lines")
+    lwd <- lines$lwd
+    use.splines <- lines$splines
+    lines.col <- lines$col
+    lines <- lines$lty
+    
+    if (missing(symbols)) symbols <- NULL
+    symbols <- applyDefaults(symbols,
+                             defaults= list(pch=trellis.par.get("superpose.symbol")$pch, cex=trellis.par.get("superpose.symbol")$cex[1]),
+                             arg="symbols")
+    cex <- symbols$cex
+    symbols <- symbols$pch
+    
+    if (missing(axes)) axes <- NULL
+    axes <- applyDefaults(axes, defaults=list(
+        x=list(rotate=0, rug=TRUE),
+        y=list(lab=NULL, lim=NULL, ticks=list(at=NULL, n=5), type="probability", rotate=0),
+        alternating=TRUE, grid=FALSE),
+        arg="axes")
+    x.args <- applyDefaults(axes$x, defaults=list(rotate=0, rug=TRUE), arg="axes$x")
+    xlab <- xlim <- ticks.x <- transform.x <- list()
+    rotx <- x.args$rotate
+    rug <- x.args$rug
+    x.args$rotate <- NULL
+    x.args$rug <- NULL
+    x.pred.names <- names(x.args)
+    if (length(x.pred.names) > 0){
+        for (pred.name in x.pred.names){
+            x.pred.args <- applyDefaults(x.args[[pred.name]], 
+                                         defaults=list(lab=NULL, lim=NULL, ticks=NULL, transform=NULL), 
+                                         arg=paste0("axes$x$", pred.name))
+            xlab[[pred.name]] <- x.pred.args$lab
+            xlim[[pred.name]] <- x.pred.args$lim
+            ticks.x[[pred.name]] <- x.pred.args$ticks
+            transform.x[[pred.name]] <- x.pred.args$transform
+        }
+    }
+    if (length(xlab) == 0) xlab <- NULL
+    if (length(xlim) == 0) xlim <- NULL
+    if (length(ticks.x) == 0) ticks.x <- NULL
+    if (length(transform.x) == 0) transform.x <- NULL
+    
+    y.args <- applyDefaults(axes$y, defaults=list(lab=NULL, lim=NULL, ticks=list(at=NULL, n=5), type="probability", style="lines", rotate=0), arg="axes$y")
+    ylim <- y.args$lim
+    ticks <- y.args$ticks
+    type <- y.args$type
+    type <- match.arg(type, c("probability", "logit"))
+    ylab <- y.args$lab
+    if (is.null(ylab)) ylab <- paste0(x$response, " (", type, ")")
+    roty <- y.args$rotate
+    alternating <- axes$alternating
+    grid <- axes$grid
+    style <- match.arg(y.args$style, c("lines", "stacked"))
+    
+    colors <- if (is.null(lines.col)){
+        if (style == "lines" || x$model == "multinom")
+            trellis.par.get("superpose.line")$col
+        else sequential_hcl(length(x$y.levels))
+    } else {
+        lines.col
+    }
+    
+    if (missing(confint)) confint <- NULL
+    confint <- applyDefaults(confint,
+                             defaults=list(style=if (style == "lines") "bands" else "none", alpha=0.15, col=colors),
+                             arg="confint")
+    ci.style <- confint$style
+    band.transparency <- confint$alpha
+    band.colors <- confint$col
+    if(!is.null(ci.style)) ci.style <- match.arg(ci.style, c("bars", "lines", "bands", "none")) 
+    confint <- confint$style != "none"
+    
     effect.llines <- llines
     has.se <- !is.null(x$confidence.level) 
     if (confint && !has.se) stop("there are no confidence limits to plot")
@@ -41,16 +101,26 @@ plot.effpoly <- function(x,
             warning('confint set to FALSE for stacked plot')
         }
     }
-    if (missing(colors)){
-        if (style == "stacked"){
-            colors <- if (x$model == "multinom") rainbow_hcl(length(x$y.levels))
-            else sequential_hcl(length(x$y.levels))
-        }
-        else colors <- palette()
-    }
-    if (missing(band.colors)) band.colors <- colors
-    if (missing(symbols)) symbols <- 1:length(colors)
-    if (missing(lines)) lines <- 1:length(colors)
+    
+    if (missing(lattice)) lattice <- NULL
+    lattice <- applyDefaults(lattice, defaults=list(
+        layout=NULL, key.args=NULL, 
+        strip=list(factor.names=TRUE, values=TRUE),
+        array=list(row=1, col=1, nrow=1, ncol=1, more=FALSE),
+        arg="lattice"
+    ))
+    layout <- lattice$layout
+    key.args <- lattice$key.args
+    strip.args <- applyDefaults(lattice$strip, defaults=list(factor.names=TRUE, values=TRUE), arg="lattice$strip")
+    factor.names <- strip.args$factor.names
+    show.strip.values <- strip.args$values
+    array.args <- applyDefaults(lattice$array, defaults=list(row=1, col=1, nrow=1, ncol=1, more=FALSE), arg="lattice$array")
+    row <- array.args$row
+    col <- array.args$col
+    nrow <- array.args$nrow
+    ncol <- array.args$ncol
+    more <- array.args$more
+    
     .mod <- function(a, b) ifelse( (d <- a %% b) == 0, b, d)
     .modc <- function(a) .mod(a, length(colors))
     .mods <- function(a) .mod(a, length(symbols))
@@ -74,7 +144,7 @@ plot.effpoly <- function(x,
         x.var <- which.x
     }
     x.vals <- x.frame[, names(x.frame)[x.var]]    
-    response <-matrix(0, nrow=nrow(x.frame), ncol=n.y.lev)
+    response <- matrix(0, nrow=nrow(x.frame), ncol=n.y.lev)
     for (i in 1:length(x$y.lev)){
         level <- which(colnames(x$prob)[i] == ylevel.names)
         response[,i] <- rep(x$y.lev[level], length(response[,i]))
@@ -93,7 +163,7 @@ plot.effpoly <- function(x,
     if (has.se) Data <- cbind(Data, data.frame(lower.prob, upper.prob, lower.logit, upper.logit))
     Data[[x$response]] <- response
     for (i in 1:length(predictors)){
-        Data <-cbind(Data, x.frame[predictors[i]])
+        Data <- cbind(Data, x.frame[predictors[i]])
     }
     levs <- levels(x$data[[predictors[x.var]]])
     n.predictor.cats <- sapply(Data[, predictors[-c(x.var)], drop=FALSE], 
@@ -104,7 +174,7 @@ plot.effpoly <- function(x,
     if( ci.style=="none" ) confint <- FALSE
     ### no confidence intervals if confint == FALSE or ci.style=="none"
     if (!confint){ # plot without confidence bands
-        layout <- if (missing(layout)){
+        layout <- if (is.null(layout)){
             lay <- c(prod(n.predictor.cats[-(n.predictors - 1)]), 
                 prod(n.predictor.cats[(n.predictors - 1)]), 1)
             if (lay[1] > 1) lay else lay[c(2, 1, 3)]
@@ -145,10 +215,10 @@ plot.effpoly <- function(x,
                         }
                     },
                     ylab=ylab,
-                    ylim= if (missing(ylim))
+                    ylim= if (is.null(ylim))
                         if (type == "probability") range(prob) else range(logit)
                     else ylim,
-                    xlab=if (missing(xlab)) predictors[x.var] else xlab,
+                    xlab=if (is.null(xlab)) predictors[x.var] else xlab,
                     x.vals=x$data[[predictors[x.var]]], 
                     rug=rug,
                     z=response,
@@ -156,7 +226,6 @@ plot.effpoly <- function(x,
                         y=list(rot=roty),  
                         alternating=alternating),
                     main=main,
-#                    key=c(key, key.args),
                     key=key,
                     layout=layout,
                     data=Data, ...)
@@ -217,17 +286,16 @@ plot.effpoly <- function(x,
                     },
                     ylab=ylab,
                     xlim=suppressWarnings(trans(xlm)),
-                    ylim= if (missing(ylim))
+                    ylim= if (is.null(ylim))
                         if (type == "probability") range(prob) else range(logit)
                     else ylim,
-                    xlab=if (missing(xlab)) predictors[x.var] else xlab,
+                    xlab=if (is.null(xlab)) predictors[x.var] else xlab,
                     x.vals=x$data[[predictors[x.var]]], 
                     rug=rug,
                     z=response,
                     scales=list(x=list(at=tickmarks.x$at, labels=tickmarks.x$labels, rot=rotx), y=list(rot=roty),
                         alternating=alternating),
                     main=main,
-#                    key=c(key, key.args),
                     key=key,
                     layout=layout,
                     data=Data, ...)
@@ -252,13 +320,12 @@ plot.effpoly <- function(x,
                     horizontal=FALSE, 
                     stack=TRUE, 
                     data=Data, 
-                    ylim=if (missing(ylim)) 0:1 else ylim,
+                    ylim=if (is.null(ylim)) 0:1 else ylim,
                     ylab=ylab, 
-                    xlab=if (missing(xlab)) predictors[x.var] else xlab,
+                    xlab=if (is.null(xlab)) predictors[x.var] else xlab,
                     scales=list(x=list(rot=rotx), y=list(rot=roty), 
                         alternating=alternating),
                     main=main,
-#                    key=c(key, key.args),
                     key=key,
                     layout=layout)
                 result$split <- split
@@ -318,13 +385,12 @@ plot.effpoly <- function(x,
                     x.vals=x$data[[predictors[x.var]]],
                     data=x$x,
                     xlim=suppressWarnings(trans(xlm)),
-                    ylim=if (missing(ylim)) 0:1 else ylim,
+                    ylim=if (is.null(ylim)) 0:1 else ylim,
                     ylab=ylab,
-                    xlab=if (missing(xlab)) predictors[x.var] else xlab,
+                    xlab=if (is.null(xlab)) predictors[x.var] else xlab,
                     scales=list(x=list(at=tickmarks.x$at, labels=tickmarks.x$labels, rot=rotx), y=list(rot=roty),
                         alternating=alternating),
                     main=main,
-#                    key=c(key, key.args),
                     key=key,
                     layout=layout, ...)
                 result$split <- split
@@ -335,7 +401,7 @@ plot.effpoly <- function(x,
     }
     ### with confidence bands
     else{ # plot with confidence bands
-        layout <- if(missing(layout)) c(prod(n.predictor.cats), length(levels(response)), 1) 
+        layout <- if(is.null(layout)) c(prod(n.predictor.cats), length(levels(response)), 1) 
         else layout
         if (type == "probability"){
             lower <- lower.prob
@@ -389,8 +455,8 @@ plot.effpoly <- function(x,
                 
                 
                 ylab=ylab,
-                ylim= if (missing(ylim)) c(min(lower), max(upper)) else ylim,
-                xlab=if (missing(xlab)) predictors[x.var] else xlab,
+                ylim= if (is.null(ylim)) c(min(lower), max(upper)) else ylim,
+                xlab=if (is.null(xlab)) predictors[x.var] else xlab,
                 main=main,
                 x.vals=x$data[[predictors[x.var]]],
                 rug=rug,
@@ -470,8 +536,8 @@ plot.effpoly <- function(x,
                 },
                 ylab=ylab,
                 xlim=suppressWarnings(trans(xlm)),
-                ylim= if (missing(ylim)) c(min(lower), max(upper)) else ylim,
-                xlab=if (missing(xlab)) predictors[x.var] else xlab,
+                ylim= if (is.null(ylim)) c(min(lower), max(upper)) else ylim,
+                xlab=if (is.null(xlab)) predictors[x.var] else xlab,
                 main=main,
                 x.vals=x$data[[predictors[x.var]]],
                 rug=rug,

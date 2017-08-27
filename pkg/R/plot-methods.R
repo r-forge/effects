@@ -19,6 +19,12 @@
 # 2016-08-31: fixed plotting with partial residuals with various scalings of y-axis and x-axis. J. Fox
 # 2016-09-16: added show.strip.values argument to plot.eff(). J. Fox
 # 2017-06-12: fixed bug in plot.eff() for multiline displays with many conditioning variables. J. Fox
+# 2017-07-15: modified plot.eff() to consolidate arguments and use lattice theme. J. Fox
+# 2017-08-09: small bug fixes, reorganized axes=list(x=list()) argument. J. Fox
+# 2017-08-17: tweaked layout. J. Fox
+# 2017-08-23: Fixed bug with the lattice=list(array()) argument in plot.efflist --- lattice was as
+#              an argument to the next method twice
+# 2017-08-23: plot.eff, in key.args, set default for between.columns=0
 
 # the following functions aren't exported
 
@@ -32,8 +38,8 @@ find.legend.columns <- function(n, target=min(4, n)){
 make.ticks <- function(range, link, inverse, at, n) {
   warn <- options(warn=-1)
   on.exit(options(warn))
-  link <- if (is.null(link)) 
-    function(x) nlm(function(y) (inverse(y) - x)^2, 
+  link <- if (is.null(link))
+    function(x) nlm(function(y) (inverse(y) - x)^2,
                     mean(range))$estimate
   else link
   if (is.null(n)) n <- 5
@@ -50,7 +56,7 @@ make.ticks <- function(range, link, inverse, at, n) {
 
 range.adj <- function(x){
   range <- range(x, na.rm=TRUE)
-  c(range[1] - .025*(range[2] - range[1]),                                              
+  c(range[1] - .025*(range[2] - range[1]),
     range[2] + .025*(range[2] - range[1]))
 }
 
@@ -83,45 +89,129 @@ panel.bands <- function(x, y, upper, lower, fill, col,
 
 spline.llines <- function(x, y, ...) llines(spline(x, y), ...)
 
-plot.eff <- function(x, x.var,
-                     z.var=which.min(levels), multiline=is.null(x$se), rug=TRUE, 
-                     xlab, ylab, main=paste(effect, "effect plot"),
-                     colors=palette(), symbols=1:length(colors), lines=1:length(colors),
-                     cex=1.5, lwd=2, ylim, xlim=NULL,
-                     factor.names=TRUE, ci.style, band.transparency=0.15, band.colors=colors,
-                     type=c("rescale", "response", "link"), ticks=list(at=NULL, n=5),  
-                     alternating=TRUE, rotx=0, roty=0, grid=FALSE, layout, rescale.axis, 
-                     transform.x=NULL, ticks.x=NULL,
-                     show.strip.values=!partial.residuals,
-                     key.args=NULL, 
-                     row=1, col=1, nrow=1, ncol=1, more=FALSE, 
-                     use.splines=TRUE, partial.residuals=!is.null(x$residuals),
-                     show.fitted=FALSE,
-                     residuals.color="blue", residuals.pch=1, residuals.cex=1,
-                     smooth.residuals=TRUE, residuals.smooth.color=residuals.color, span=2/3, ...)
-{  
+plot.eff <- function(x, x.var, z.var=which.min(levels), main=paste(effect, "effect plot"),
+                     symbols, lines, axes, confint, partial.residuals, lattice,
+                     ...)
+{
   closest <- function(x, x0) apply(outer(x, x0, FUN=function(x, x0) abs(x - x0)), 1, which.min)
   .mod <- function(a, b) ifelse( (d <- a %% b) == 0, b, d)
   .modc <- function(a) .mod(a, length(colors))
   .mods <- function(a) .mod(a, length(symbols))
   .modl <- function(a) .mod(a, length(lines))
   .modb <- function(a) .mod(a, length(band.colors))
-  if (is.character(partial.residuals)){
-    partial.residuals <- TRUE
-    warning("partial.residuals='adjusted' or 'raw' is deprecated\n",
-            "partial.residuals will be set to TRUE")
+
+  if (missing(lines)) lines <- NULL
+  lines <- applyDefaults(lines,
+     defaults=list(multiline=is.null(x$se), lty=trellis.par.get("superpose.line")$lty,
+                   lwd=trellis.par.get("superpose.line")$lwd[1], col=trellis.par.get("superpose.line")$col, splines=TRUE),
+     arg="lines")
+  multiline <- lines$multiline
+  lwd <- lines$lwd
+  colors <- lines$col
+  use.splines <- lines$splines
+  lines <- lines$lty
+
+  if (missing(symbols)) symbols <- NULL
+  symbols <- applyDefaults(symbols,
+    defaults= list(pch=trellis.par.get("superpose.symbol")$pch, cex=trellis.par.get("superpose.symbol")$cex[1]),
+    arg="symbols")
+  cex <- symbols$cex
+  symbols <- symbols$pch
+
+  if (missing(axes)) axes <- NULL
+  axes <- applyDefaults(axes, defaults=list(
+#        x=list(lab=NA, lim=NA, ticks=NA, transform=NA, rotate=0, rug=TRUE),
+        x=list(rotate=0, rug=TRUE),
+        y=list(lab=NA, lim=NA, ticks=list(at=NULL, n=5), type="rescale", rotate=0),
+        alternating=TRUE, grid=FALSE),
+    arg="axes")
+  x.args <- applyDefaults(axes$x, defaults=list(rotate=0, rug=TRUE), arg="axes$x")
+  # x.args <- applyDefaults(axes$x, defaults=list(lab=NA, lim=NA, ticks=NA, transform=NA, rotate=0, rug=TRUE), arg="axes$x")
+  # xlab <- x.args$lab
+  # xlim <- x.args$lim
+  # ticks.x <- x.args$ticks
+  # transform.x <- x.args$transform
+  xlab <- xlim <- ticks.x <- transform.x <- list()
+  rotx <- x.args$rotate
+  rug <- x.args$rug
+  x.args$rotate <- NULL
+  x.args$rug <- NULL
+  x.pred.names <- names(x.args)
+  if (length(x.pred.names) > 0){
+    for (pred.name in x.pred.names){
+      x.pred.args <- applyDefaults(x.args[[pred.name]],
+                                   defaults=list(lab=NULL, lim=NULL, ticks=NULL, transform=NULL),
+                                   arg=paste0("axes$x$", pred.name))
+      xlab[[pred.name]] <- x.pred.args$lab
+      xlim[[pred.name]] <- x.pred.args$lim
+      ticks.x[[pred.name]] <- x.pred.args$ticks
+      transform.x[[pred.name]] <- x.pred.args$transform
+    }
   }
-  ci.style <- if(missing(ci.style)) NULL else
-    match.arg(ci.style, c("bars", "lines", "bands", "none")) 
+  if (length(xlab) == 0) xlab <- NA
+  if (length(xlim) == 0) xlim <- NA
+  if (length(ticks.x) == 0) ticks.x <- NA
+  if (length(transform.x) == 0) transform.x <- NA
+
+  y.args <- applyDefaults(axes$y, defaults=list(lab=NA, lim=NA, ticks=list(at=NULL, n=5), type="rescale", rotate=0), arg="axes$y")
+  ylab <- y.args$lab
+  ylim <- y.args$lim
+  ticks <- y.args$ticks
+  type <- y.args$type
+  type <- match.arg(type, c("rescale", "response", "link"))
+  roty <- y.args$rotate
+  alternating <- axes$alternating
+  grid <- axes$grid
+
+  if (missing(confint)) confint <- NULL
+  confint <- applyDefaults(confint,
+    defaults=list(style=NULL, alpha=0.15, col=colors),
+    arg="confint")
+  ci.style <- confint$style
+  band.transparency <- confint$alpha
+  band.colors <- confint$col
+  if(!is.null(ci.style)) ci.style <- match.arg(ci.style, c("bars", "lines", "bands", "none"))
+
+  if(missing(partial.residuals)) partial.residuals <- NULL
+  partial.residuals <- applyDefaults(partial.residuals, defaults=list(
+      plot=!is.null(x$residuals), fitted=FALSE, col=colors[2], pch=1, cex=1, smooth=TRUE, span=2/3, smooth.col=colors[2], lty=lines[1], lwd=lwd),
+      arg="partial.residuals")
+  show.fitted <- partial.residuals$fitted
+  residuals.color <- partial.residuals$col
+  residuals.pch <- partial.residuals$pch
+  residuals.cex <- partial.residuals$cex
+  smooth.residuals <- partial.residuals$smooth
+  residuals.smooth.color <- partial.residuals$smooth.col
+  residuals.lty <- partial.residuals$lty
+  residuals.lwd <- partial.residuals$lwd
+  span <- partial.residuals$span
+  partial.residuals <- partial.residuals$plot
+  if (missing(lattice)) lattice <- NULL
+  lattice <- applyDefaults(lattice, defaults=list(
+      layout=NULL, key.args=list(),
+      strip=list(factor.names=TRUE, values=!partial.residuals),
+      array=list(row=1, col=1, nrow=1, ncol=1, more=FALSE),
+      arg="lattice"
+  ))
+  layout <- lattice$layout
+  lattice$key.args[["between.columns"]] <- if(is.null(lattice$key.args[["between.columns"]])) 0 else
+    lattice$key.args[["between.columns"]]
+  key.args <- lattice$key.args
+  strip.args <- applyDefaults(lattice$strip, defaults=list(factor.names=TRUE, values=!partial.residuals), arg="lattice$strip")
+  factor.names <- strip.args$factor.names
+  show.strip.values <- strip.args$values
+  array.args <- applyDefaults(lattice$array, defaults=list(row=1, col=1, nrow=1, ncol=1, more=FALSE), arg="lattice$array")
+  row <- array.args$row
+  col <- array.args$col
+  nrow <- array.args$nrow
+  ncol <- array.args$ncol
+  more <- array.args$more
+
+
   if (smooth.residuals && !is.null(x$family)){
     loess.family <- if (x$family == "gaussian") "symmetric" else "gaussian"
   }
-  type <- if (!missing(rescale.axis)){
-    message("NOTE: the rescale.axis argument is deprecated; use type instead")
-    if (!is.logical(rescale.axis)) stop ("rescale.axis must be logical (TRUE or FALSE)")
-    if (rescale.axis) "rescale" else "response"
-  }
-  else match.arg(type)
+
   switch(type,
          rescale = {
            type <- "response"
@@ -140,13 +230,13 @@ plot.eff <- function(x, x.var,
   thresholds <- x$thresholds
   has.thresholds <- !is.null(thresholds)
   effect.llines <- llines
-  if (missing(ylab)){
+  if (is.na(ylab)){
     ylab <- if (has.thresholds) paste(x$response, ": ", paste(x$y.levels, collapse=", "), sep="")
     else x$response
-  }     
-  if (has.thresholds){ 
+  }
+  if (has.thresholds){
     threshold.labels <- abbreviate(x$y.levels, minlength=1)
-    threshold.labels <- paste(" ", 
+    threshold.labels <- paste(" ",
                               paste(threshold.labels[-length(threshold.labels)], threshold.labels[-1], sep=" - "),
                               " ", sep="")
   }
@@ -154,9 +244,7 @@ plot.eff <- function(x, x.var,
   original.inverse <- trans.inverse <- x$transformation$inverse
   residuals <- if (partial.residuals) x$residuals else NULL
   partial.residuals.range <- x$partial.residuals.range
-  # if (!is.null(residuals) && !rescale.axis) {  # BUG
-  #   residuals <- trans.inverse(residuals)
-  # }
+
   if (!rescale.axis){
     x$lower[!is.na(x$lower)] <- trans.inverse(x$lower[!is.na(x$lower)])
     x$upper[!is.na(x$upper)] <- trans.inverse(x$upper[!is.na(x$upper)])
@@ -165,7 +253,6 @@ plot.eff <- function(x, x.var,
   }
   x.all <- x$x.all
   split <- c(col, row, ncol, nrow)
-  ylab # force evaluation
   if (missing(x.var)) x.var <- x$x.var
   if (!is.null(x.var) && is.numeric(x.var)) x.var <- names(x.var)
   x.data <- x$data
@@ -180,78 +267,79 @@ plot.eff <- function(x, x.var,
   n.predictors <- ncol(x) - 1 - 3*has.se
   if (n.predictors == 1){
     predictor <- names(x)[1]
+    if (is.list(xlab)) xlab <- xlab[[predictor]]
     ### factor no other predictors
     if (is.factor(x[,1])){
       ci.style <- if(is.null(ci.style)) "bars" else ci.style
       range <- if(has.se & ci.style!="none")
         range(c(x$lower, x$upper), na.rm=TRUE) else range(x$fit, na.rm=TRUE)
-      ylim <- if (!missing(ylim)) ylim else c(range[1] - .025*(range[2] - range[1]),                                              
+      ylim <- if (!any(is.na(ylim))) ylim else c(range[1] - .025*(range[2] - range[1]),
                                               range[2] + .025*(range[2] - range[1]))
-      tickmarks <- if (type == "response" && rescale.axis) make.ticks(ylim, 
+      tickmarks <- if (type == "response" && rescale.axis) make.ticks(ylim,
                                                       link=trans.link, inverse=trans.inverse, at=ticks$at, n=ticks$n)
       else make.ticks(ylim, link=I, inverse=I, at=ticks$at, n=ticks$n)
-      levs <- levels(x[,1])  
+      levs <- levels(x[,1])
       plot <- xyplot(eval(parse(
-        text=paste("fit ~ as.numeric(", names(x)[1], ")"))), 
-        strip=function(...) strip.default(..., strip.names=c(factor.names, TRUE)), 
+        text=paste("fit ~ as.numeric(", names(x)[1], ")"))),
+        strip=function(...) strip.default(..., strip.names=c(factor.names, TRUE)),
         panel=function(x, y, lower, upper, has.se, ...){
           if (grid) panel.grid()
           good <- !is.na(y)
-          if (has.se){ 
+          if (has.se){
             if (ci.style == "bars"){
-              larrows(x0=x[good], y0=lower[good], x1=x[good], y1=upper[good], angle=90, 
+              larrows(x0=x[good], y0=lower[good], x1=x[good], y1=upper[good], angle=90,
                       code=3, col=colors[.modc(2)], length=0.125*cex/1.5)
             }
             else if(ci.style == "lines") {
               effect.llines(x[good], lower[good], lty=2, col=colors[.modc(2)])
               effect.llines(x[good], upper[good], lty=2, col=colors[.modc(2)])
             }
-            else{ if(ci.style == "bands") { 
+            else{ if(ci.style == "bands") {
               panel.bands(x[good], y[good], upper[good], lower[good], fill=band.colors[1],
                           alpha=band.transparency, use.splines=FALSE)
             }}
           }
-          effect.llines(x[good], y[good], lwd=lwd, col=colors[1], type='b', pch=19, cex=cex, ...)
+          effect.llines(x[good], y[good], lwd=lwd, col=colors[1], lty=lines, type='b', pch=19, cex=cex, ...)
           if (has.thresholds){
             panel.abline(h=thresholds, lty=3)
-            panel.text(rep(current.panel.limits()$xlim[1], length(thresholds)), 
+            panel.text(rep(current.panel.limits()$xlim[1], length(thresholds)),
                        thresholds, threshold.labels, adj=c(0,0), cex=0.75)
-            panel.text(rep(current.panel.limits()$xlim[2], length(thresholds)), 
+            panel.text(rep(current.panel.limits()$xlim[2], length(thresholds)),
                        thresholds, threshold.labels, adj=c(1,0), cex=0.75)
           }
         },
         ylim=ylim,
         ylab=ylab,
-        xlab=if (missing(xlab)) names(x)[1] else xlab,
-        scales=list(x=list(at=1:length(levs), labels=levs, rot=rotx), 
+        xlab=if (is.na(xlab)) names(x)[1] else xlab,
+        scales=list(x=list(at=1:length(levs), labels=levs, rot=rotx),
                     y=list(at=tickmarks$at, labels=tickmarks$labels, rot=roty),
                     alternating=alternating, y=roty),
         main=main,
         lower=x$lower, upper=x$upper, has.se=has.se, data=x, ...)
-      result <- update(plot, layout = if (missing(layout)) c(0, prod(dim(plot))) 
+      result <- update(plot, layout = if (is.null(layout)) c(0, prod(dim(plot)))
                        else layout)
       result$split <- split
       result$more <- more
       class(result) <- c("plot.eff", class(result))
-    }  
+    }
     ### variate, no other predictors  ***
     else {
       effect.llines <- if(use.splines) spline.llines else effect.llines
       ci.style <- if(is.null(ci.style)) "bands" else ci.style
       range <- if(has.se & ci.style!="none")
         range(c(x$lower, x$upper), na.rm=TRUE) else range(x$fit, na.rm=TRUE)
-      
-      ylim <- if (!missing(ylim)) ylim
+
+      ylim <- if (!any(is.na(ylim))) ylim
       else if (is.null(residuals)) c(range[1] - .025*(range[2] - range[1]), range[2] + .025*(range[2] - range[1]))
-      else if (rescale.axis) c(min(partial.residuals.range[1], range[1] - .025*(range[2] - range[1])), 
+      else if (rescale.axis) c(min(partial.residuals.range[1], range[1] - .025*(range[2] - range[1])),
              max(partial.residuals.range[2], range[2] + .025*(range[2] - range[1])))
-      else c(min(original.inverse(partial.residuals.range[1]), range[1] - .025*(range[2] - range[1])), 
+      else c(min(original.inverse(partial.residuals.range[1]), range[1] - .025*(range[2] - range[1])),
              max(original.inverse(partial.residuals.range[2]), range[2] + .025*(range[2] - range[1])))
-      tickmarks <- if (type == "response" && rescale.axis) make.ticks(ylim, 
+      tickmarks <- if (type == "response" && rescale.axis) make.ticks(ylim,
                                                       link=trans.link, inverse=trans.inverse, at=ticks$at, n=ticks$n)
       else make.ticks(ylim, link=I, inverse=I, at=ticks$at, n=ticks$n)
       nm <- names(x)[1]
-      x.vals <- x.data[, nm]   
+      x.vals <- x.data[, nm]
       if (nm %in% names(ticks.x)){
         at <- ticks.x[[nm]]$at
         n <- ticks.x[[nm]]$n
@@ -272,7 +360,7 @@ plot.eff <- function(x, x.var,
         trans <- I
         make.ticks(xlm, link=I, inverse=I, at=at, n=n)
       }
-      
+
       if (is.null(x.var)){
         if (!is.null(residuals)){
           x.var <- names(x)[1]
@@ -290,10 +378,10 @@ plot.eff <- function(x, x.var,
           axis.length <- diff(range(x))
           effect.llines(x[good], y[good], lwd=lwd, col=colors[1], ...)
           if (rug && is.null(residuals)) lrug(trans(x.vals))
-          if (has.se){  
+          if (has.se){
             if (ci.style == "bars"){
-              larrows(x0=x[good], y0=lower[good], 
-                      x1=x[good], y1=upper[good], 
+              larrows(x0=x[good], y0=lower[good],
+                      x1=x[good], y1=upper[good],
                       angle=90, code=3, col=eval(colors[.modc(2)]),
                       length=.125*cex/1.5)
             }
@@ -308,33 +396,33 @@ plot.eff <- function(x, x.var,
           }
           if (has.thresholds){
             panel.abline(h=thresholds, lty=3)
-            panel.text(rep(current.panel.limits()$xlim[1], length(thresholds)), 
+            panel.text(rep(current.panel.limits()$xlim[1], length(thresholds)),
                        thresholds, threshold.labels, adj=c(0,0), cex=0.75)
-            panel.text(rep(current.panel.limits()$xlim[2], length(thresholds)), 
+            panel.text(rep(current.panel.limits()$xlim[2], length(thresholds)),
                        thresholds, threshold.labels, adj=c(1,0), cex=0.75)
           }
-          if (!is.null(residuals)){ 
+          if (!is.null(residuals)){
             fitted <- y[good][closest(trans(x.fit), x[good])]
             partial.res <- if (!rescale.axis) original.inverse(original.link(fitted) + residuals)
               else fitted + residuals
             lpoints(trans(x.fit), partial.res, col=residuals.color, pch=residuals.pch, cex=residuals.cex)
             if (show.fitted) lpoints(trans(x.fit), fitted, pch=16, col=residuals.color)  # REMOVE ME
             if (smooth.residuals){
-              llines(loess.smooth(trans(x.fit), partial.res, span=span, family=loess.family), lwd=lwd, lty=2, col=residuals.smooth.color)
+              llines(loess.smooth(trans(x.fit), partial.res, span=span, family=loess.family), lwd=residuals.lwd, lty=residuals.lty, col=residuals.smooth.color)
             }
           }
-          
+
         },
         ylim=ylim,
         xlim=suppressWarnings(trans(xlm)),
         ylab=ylab,
-        xlab=if (missing(xlab)) names(x)[1] else xlab,
+        xlab=if (is.na(xlab)) names(x)[1] else xlab,
         x.vals=x.vals, rug=rug,
         main=main,
-        lower=x$lower, upper=x$upper, has.se=has.se, data=x, 
+        lower=x$lower, upper=x$upper, has.se=has.se, data=x,
         scales=list(y=list(at=tickmarks$at, labels=tickmarks$labels, rot=roty),
                     x=list(at=tickmarks.x$at, labels=tickmarks.x$labels, rot=rotx), alternating=alternating), ...)
-      result <- update(plot, layout = if (missing(layout)) c(0, prod(dim(plot))) 
+      result <- update(plot, layout = if (is.null(layout)) c(0, prod(dim(plot)))
                        else layout)
       result$split <- split
       result$more <- more
@@ -342,7 +430,7 @@ plot.eff <- function(x, x.var,
     }
     return(result)
   }
-  ###  more than one variate
+  ###  more than one predictor
   predictors <- names(x)[1:n.predictors]
   levels <- sapply(apply(x[,predictors], 2, unique), length)
   if (is.null(x.var)){
@@ -351,6 +439,7 @@ plot.eff <- function(x, x.var,
     }
     else x.var <-  which.max(levels)
   }
+  if (is.list(xlab)) xlab <- xlab[[x.var]]
   if (!is.null(residuals)) x.fit <- x.data[, x.var]
   if (is.character(x.var)) {
     which.x <- which(x.var == predictors)
@@ -361,20 +450,20 @@ plot.eff <- function(x, x.var,
     which.z <- which(z.var == predictors)
     if (length(which.z) == 0) stop(paste("z.var = '", z.var, "' is not in the effect.", sep=""))
     z.var <- which.z
-  }    
+  }
   if (x.var == z.var) z.var <- z.var + 1
   ### multiline
   if (multiline){
     if (!is.null(residuals)) warning("partial residuals are not displayed in a multiline plot")
     ci.style <- if(is.null(ci.style)) "none" else ci.style
-    if(ci.style == "lines") { 
+    if(ci.style == "lines") {
       cat("Confidence interval style 'lines' changed to 'bars'\n")
       ci.style <- "bars"}
     range <- if (has.se && ci.style !="none")
       range(c(x$lower, x$upper), na.rm=TRUE) else range(x$fit, na.rm=TRUE)
-    ylim <- if (!missing(ylim)) ylim else c(range[1] - .025*(range[2] - range[1]),                                              
+    ylim <- if (!any(is.na(ylim))) ylim else c(range[1] - .025*(range[2] - range[1]),
                                             range[2] + .025*(range[2] - range[1]))
-    tickmarks <- if (type == "response" && rescale.axis) make.ticks(ylim, link=trans.link, 
+    tickmarks <- if (type == "response" && rescale.axis) make.ticks(ylim, link=trans.link,
                                                     inverse=trans.inverse, at=ticks$at, n=ticks$n)
     else make.ticks(ylim, link=I, inverse=I, at=ticks$at, n=ticks$n)
     zvals <- unique(x[, z.var])
@@ -382,7 +471,7 @@ plot.eff <- function(x, x.var,
     if (is.factor(x[,x.var])){
       levs <- levels(x[,x.var])
       key <- list(title=predictors[z.var], cex.title=1, border=TRUE,
-                  text=list(as.character(zvals)), 
+                  text=list(as.character(zvals)),
                   lines=list(col=colors[.modc(1:length(zvals))], lty=lines[.modl(1:length(zvals))], lwd=lwd),
                   points=list(col=colors[.modc(1:length(zvals))], pch=symbols[.mods(1:length(zvals))]),
                   columns = if ("x" %in% names(key.args)) 1 else find.legend.columns(length(zvals)))
@@ -392,9 +481,9 @@ plot.eff <- function(x, x.var,
           x[[pred]] <- as.factor(x[[pred]])
         }
       }
-      plot <- xyplot(eval(parse( 
+      plot <- xyplot(eval(parse(
         text=paste("fit ~ as.numeric(", predictors[x.var], ")",
-                   if (n.predictors > 2) paste(" |", 
+                   if (n.predictors > 2) paste(" |",
                                                paste(predictors[-c(x.var, z.var)], collapse="*"))))),
         strip=function(...) strip.default(..., strip.names=c(factor.names, TRUE), sep=" = "),
         panel=function(x, y, subscripts, z, lower, upper, show.se, ...){
@@ -403,49 +492,49 @@ plot.eff <- function(x, x.var,
             sub <- z[subscripts] == zvals[i]
             good <- !is.na(y[sub])
             os <- if(show.se)
-              (i - (length(zvals) + 1)/2) * (2/(length(zvals)-1)) * 
+              (i - (length(zvals) + 1)/2) * (2/(length(zvals)-1)) *
               .01 * (length(zvals) - 1) else 0
             effect.llines(x[sub][good]+os, y[sub][good], lwd=lwd, type='b', col=colors[.modc(i)],
                           pch=symbols[.mods(i)], lty=lines[.modl(i)], cex=cex, ...)
             if (show.se){
-              larrows(x0=x[sub][good]+os, y0=lower[subscripts][sub][good], 
-                      x1=x[sub][good]+os, y1=upper[subscripts][sub][good], 
+              larrows(x0=x[sub][good]+os, y0=lower[subscripts][sub][good],
+                      x1=x[sub][good]+os, y1=upper[subscripts][sub][good],
                       angle=90, code=3, col=eval(colors[.modc(i)]),
                       length=.125*cex/1.5)
             }
-          } 
+          }
           if (has.thresholds){
             panel.abline(h=thresholds, lty=3)
-            panel.text(rep(current.panel.limits()$xlim[1], length(thresholds)), 
+            panel.text(rep(current.panel.limits()$xlim[1], length(thresholds)),
                        thresholds, threshold.labels, adj=c(0,0), cex=0.75)
-            panel.text(rep(current.panel.limits()$xlim[2], length(thresholds)), 
+            panel.text(rep(current.panel.limits()$xlim[2], length(thresholds)),
                        thresholds, threshold.labels, adj=c(1,0), cex=0.75)
           }
-        },        
+        },
         ylim=ylim,
         ylab=ylab,
-        xlab=if (missing(xlab)) predictors[x.var] else xlab,
+        xlab=if (is.na(xlab)) predictors[x.var] else xlab,
         z=x[,z.var],
-        scales=list(x=list(at=1:length(levs), labels=levs, rot=rotx), 
+        scales=list(x=list(at=1:length(levs), labels=levs, rot=rotx),
                     y=list(at=tickmarks$at, labels=tickmarks$labels, rot=roty),
                     alternating=alternating),
         zvals=zvals,
         main=main,
         key=key,
-        lower=x$lower, upper=x$upper, 
-        show.se=has.se && ci.style=="bars", 
+        lower=x$lower, upper=x$upper,
+        show.se=has.se && ci.style=="bars",
         data=x, ...)
-      result <- update(plot, layout = if (missing(layout)) 
+      result <- update(plot, layout = if (is.null(layout))
         c(0, prod(dim(plot))) else layout)
       result$split <- split
       result$more <- more
       class(result) <- c("plot.eff", class(result))
-    } 
-    ### multiline variate   
+    }
+    ### multiline variate
     else{
       effect.llines <- if(use.splines) spline.llines else effect.llines
       nm <- names(x)[x.var]
-      x.vals <- x.data[, nm]   
+      x.vals <- x.data[, nm]
       if (nm %in% names(ticks.x)){
         at <- ticks.x[[nm]]$at
         n <- ticks.x[[nm]]$n
@@ -457,7 +546,7 @@ plot.eff <- function(x, x.var,
       xlm <- if (nm %in% names(xlim)){
         xlim[[nm]]
       }
-      else range.adj(x[nm]) 
+      else range.adj(x[nm])
       tickmarks.x <- if ((nm %in% names(transform.x)) && !(is.null(transform.x))){
         trans <- transform.x[[nm]]$trans
         make.ticks(trans(xlm), link=transform.x[[nm]]$trans, inverse=transform.x[[nm]]$inverse, at=at, n=n)
@@ -467,7 +556,7 @@ plot.eff <- function(x, x.var,
         make.ticks(xlm, link=I, inverse=I, at=at, n=n)
       }
       key <- list(title=predictors[z.var], cex.title=1, border=TRUE,
-                  text=list(as.character(zvals)), 
+                  text=list(as.character(zvals)),
                   lines=list(col=colors[.modc(1:length(zvals))], lty=lines[.modl(1:length(zvals))], lwd=lwd),
                   columns = if ("x" %in% names(key.args)) 1 else find.legend.columns(length(zvals)))
       for (k in names(key.args)) key[k] <- key.args[k]
@@ -476,9 +565,9 @@ plot.eff <- function(x, x.var,
           x[[pred]] <- as.factor(x[[pred]])
         }
       }
-      plot <- xyplot(eval(parse( 
-        text=paste("fit ~trans(", predictors[x.var], ")", 
-                   if (n.predictors > 2) paste(" |", 
+      plot <- xyplot(eval(parse(
+        text=paste("fit ~trans(", predictors[x.var], ")",
+                   if (n.predictors > 2) paste(" |",
                                                paste(predictors[-c(x.var, z.var)], collapse="*"))))),
         strip=function(...) strip.default(..., strip.names=c(factor.names, TRUE), sep=" = "),
         panel=function(x, y, subscripts, x.vals, rug, z, lower, upper, show.se, ...){
@@ -490,18 +579,18 @@ plot.eff <- function(x, x.var,
             good <- !is.na(y[sub])
             effect.llines(x[sub][good], y[sub][good], lwd=lwd, type='l',
                           col=colors[.modc(i)], lty=lines[.modl(i)], cex=cex, ...)
-            if(show.se){ 
+            if(show.se){
               if(ci.style == "bars"){
-                os <- (i - (length(zvals) + 1)/2) * (2/(length(zvals)-1)) * 
+                os <- (i - (length(zvals) + 1)/2) * (2/(length(zvals)-1)) *
                   .01 * axis.length
-                larrows(x0=x[sub][good]+os, y0=lower[subscripts][sub][good], 
-                        x1=x[sub][good]+os, y1=upper[subscripts][sub][good], 
+                larrows(x0=x[sub][good]+os, y0=lower[subscripts][sub][good],
+                        x1=x[sub][good]+os, y1=upper[subscripts][sub][good],
                         angle=90, code=3, col=eval(colors[.modc(i)]),
                         length=.125*cex/1.5)
               }
-              if(ci.style == "bands"){ 
-                panel.bands(x[sub][good], y[sub][good], 
-                            upper[subscripts][sub][good], lower[subscripts][sub][good], 
+              if(ci.style == "bands"){
+                panel.bands(x[sub][good], y[sub][good],
+                            upper[subscripts][sub][good], lower[subscripts][sub][good],
                             fill=eval(band.colors[.modb(i)]),
                             alpha=band.transparency, use.splines=use.splines)
               }
@@ -509,36 +598,36 @@ plot.eff <- function(x, x.var,
           }
           if (has.thresholds){
             panel.abline(h=thresholds, lty=3)
-            panel.text(rep(current.panel.limits()$xlim[1], length(thresholds)), 
+            panel.text(rep(current.panel.limits()$xlim[1], length(thresholds)),
                        thresholds, threshold.labels, adj=c(0,0), cex=0.75)
-            panel.text(rep(current.panel.limits()$xlim[2], length(thresholds)), 
+            panel.text(rep(current.panel.limits()$xlim[2], length(thresholds)),
                        thresholds, threshold.labels, adj=c(1,0), cex=0.75)
           }
         },
         ylim=ylim,
-        xlim=suppressWarnings(trans(xlm)), 
+        xlim=suppressWarnings(trans(xlm)),
         ylab=ylab,
-        xlab=if (missing(xlab)) predictors[x.var] else xlab,
+        xlab=if (is.na(xlab)) predictors[x.var] else xlab,
         x.vals=x.vals, rug=rug,
         z=x[,z.var],
         zvals=zvals,
         main=main,
-        key=key, 
+        key=key,
         #
-        lower=x$lower, upper=x$upper, 
+        lower=x$lower, upper=x$upper,
         show.se=has.se && ci.style %in% c("bars", "bands"),
         #
         data=x, scales=list(y=list(at=tickmarks$at, labels=tickmarks$labels),
-                            rot=roty, x=list(at=tickmarks.x$at, labels=tickmarks.x$labels, rot=rotx), 
+                            rot=roty, x=list(at=tickmarks.x$at, labels=tickmarks.x$labels, rot=rotx),
                             alternating=alternating),  ...)
-      result <- update(plot, layout = if (missing(layout)) c(0, prod(dim(plot))) 
+      result <- update(plot, layout = if (is.null(layout)) c(0, prod(dim(plot)))
                        else layout)
       result$split <- split
       result$more <- more
       class(result) <- c("plot.eff", class(result))
     }
     return(result)
-  } 
+  }
   # multiplot
   ci.style <- if(is.null(ci.style)){
     if(is.factor(x[, x.var])) "bars" else "bands"} else ci.style
@@ -546,67 +635,67 @@ plot.eff <- function(x, x.var,
     range(c(x$lower, x$upper), na.rm=TRUE) else range(x$fit, na.rm=TRUE)
   # multiplot factor
   if (is.factor(x[,x.var])){
-    
-    ylim <- if (!missing(ylim)) ylim else c(range[1] - .025*(range[2] - range[1]),                                              
+
+    ylim <- if (!any(is.na(ylim))) ylim else c(range[1] - .025*(range[2] - range[1]),
                                             range[2] + .025*(range[2] - range[1]))
-    tickmarks <- if (type == "response" && rescale.axis) make.ticks(ylim, link=trans.link, 
+    tickmarks <- if (type == "response" && rescale.axis) make.ticks(ylim, link=trans.link,
                                                     inverse=trans.inverse, at=ticks$at, n=ticks$n)
-    else make.ticks(ylim, link=I, inverse=I, at=ticks$at, n=ticks$n)  
-    
+    else make.ticks(ylim, link=I, inverse=I, at=ticks$at, n=ticks$n)
+
     levs <- levels(x[,x.var])
     if (show.strip.values){
       for (pred in predictors[-x.var]){
         x[[pred]] <- as.factor(x[[pred]])
       }
     }
-    plot <- xyplot(eval(parse( 
-      text=paste("fit ~ as.numeric(", predictors[x.var], ") |", 
+    plot <- xyplot(eval(parse(
+      text=paste("fit ~ as.numeric(", predictors[x.var], ") |",
                  paste(predictors[-x.var], collapse="*")))),
       strip=function(...) strip.default(..., strip.names=c(factor.names, TRUE), sep=" = "),
-      panel=function(x, y, subscripts, lower, upper, has.se, ...){  
+      panel=function(x, y, subscripts, lower, upper, has.se, ...){
         if (grid) panel.grid()
         good <- !is.na(y)
         if (has.se){
           if (ci.style == "bars"){
-            larrows(x0=x[good], y0=lower[subscripts][good], x1=x[good], y1=upper[subscripts][good], 
+            larrows(x0=x[good], y0=lower[subscripts][good], x1=x[good], y1=upper[subscripts][good],
                     angle=90, code=3, col=colors[.modc(2)], length=0.125*cex/1.5)
           }
           else if(ci.style == "lines") {
             effect.llines(x[good], lower[subscripts][good], lty=2, col=colors[.modc(2)])
             effect.llines(x[good], upper[subscripts][good], lty=2, col=colors[.modc(2)])
           }
-          else{ if(ci.style == "bands") { 
-            panel.bands(x[good], y[good], upper[subscripts][good], lower[subscripts][good], 
+          else{ if(ci.style == "bands") {
+            panel.bands(x[good], y[good], upper[subscripts][good], lower[subscripts][good],
                         fill=band.colors[1], alpha=band.transparency, use.splines=FALSE)
           }}
         }
         effect.llines(x[good], y[good], lwd=lwd, type='b', col=colors[1], pch=19, cex=cex, ...)
         if (has.thresholds){
           panel.abline(h=thresholds, lty=3)
-          panel.text(rep(current.panel.limits()$xlim[1], length(thresholds)), 
+          panel.text(rep(current.panel.limits()$xlim[1], length(thresholds)),
                      thresholds, threshold.labels, adj=c(0,0), cex=0.75)
-          panel.text(rep(current.panel.limits()$xlim[2], length(thresholds)), 
+          panel.text(rep(current.panel.limits()$xlim[2], length(thresholds)),
                      thresholds, threshold.labels, adj=c(1,0), cex=0.75)
         }
       },
       ylim=ylim,
       ylab=ylab,
-      xlab=if (missing(xlab)) predictors[x.var] else xlab,
-      scales=list(x=list(at=1:length(levs), labels=levs, rot=rotx), 
+      xlab=if (is.na(xlab)) predictors[x.var] else xlab,
+      scales=list(x=list(at=1:length(levs), labels=levs, rot=rotx),
                   y=list(at=tickmarks$at, labels=tickmarks$labels, rot=roty),
                   alternating=alternating),
       main=main,
       lower=x$lower, upper=x$upper, has.se=has.se, data=x, ...)
-    result <- update(plot, layout = if (missing(layout)) c(0, prod(dim(plot))) else layout)
+    result <- update(plot, layout = if (is.null(layout)) c(0, prod(dim(plot))) else layout)
     result$split <- split
     result$more <- more
     class(result) <- c("plot.eff", class(result))
-  } 
+  }
   ### multiplot variate   ***
   else{
     effect.llines <- if(use.splines) spline.llines else effect.llines
     nm <- names(x)[x.var]
-    x.vals <- x.data[, nm]   
+    x.vals <- x.data[, nm]
     if (nm %in% names(ticks.x)){
       at <- ticks.x[[nm]]$at
       n <- ticks.x[[nm]]$n
@@ -618,7 +707,7 @@ plot.eff <- function(x, x.var,
     xlm <- if (nm %in% names(xlim)){
       xlim[[nm]]
     }
-    else range.adj(x[nm]) 
+    else range.adj(x[nm])
     tickmarks.x <- if ((nm %in% names(transform.x)) && !(is.null(transform.x))){
       trans <- transform.x[[nm]]$trans
       make.ticks(trans(xlm), link=transform.x[[nm]]$trans, inverse=transform.x[[nm]]$inverse, at=at, n=n)
@@ -627,15 +716,15 @@ plot.eff <- function(x, x.var,
       trans <- I
       make.ticks(xlm, link=I, inverse=I, at=at, n=n)
     }
-    ylim <- if (!missing(ylim)) ylim
+    ylim <- if (!any(is.na(ylim))) ylim
     else if (is.null(residuals)) c(range[1] - .025*(range[2] - range[1]), range[2] + .025*(range[2] - range[1]))
-    else if (rescale.axis) c(min(partial.residuals.range[1], range[1] - .025*(range[2] - range[1])), 
+    else if (rescale.axis) c(min(partial.residuals.range[1], range[1] - .025*(range[2] - range[1])),
                              max(partial.residuals.range[2], range[2] + .025*(range[2] - range[1])))
-    else c(min(original.inverse(partial.residuals.range[1]), range[1] - .025*(range[2] - range[1])), 
+    else c(min(original.inverse(partial.residuals.range[1]), range[1] - .025*(range[2] - range[1])),
            max(original.inverse(partial.residuals.range[2]), range[2] + .025*(range[2] - range[1])))
-    tickmarks <- if (type == "response" && rescale.axis) make.ticks(ylim, link=trans.link, 
+    tickmarks <- if (type == "response" && rescale.axis) make.ticks(ylim, link=trans.link,
                                                     inverse=trans.inverse, at=ticks$at, n=ticks$n)
-    else make.ticks(ylim, link=I, inverse=I, at=ticks$at, n=ticks$n)  
+    else make.ticks(ylim, link=I, inverse=I, at=ticks$at, n=ticks$n)
     x.fit <- x.data[, predictors[x.var]]
     use <- rep(TRUE, length(residuals))
     xx <- x[, predictors[-x.var], drop=FALSE]
@@ -644,8 +733,8 @@ plot.eff <- function(x, x.var,
         x[[pred]] <- as.factor(x[[pred]])
       }
     }
-    plot <- xyplot(eval(parse( 
-      text=paste("fit ~ trans(", predictors[x.var], ") |", 
+    plot <- xyplot(eval(parse(
+      text=paste("fit ~ trans(", predictors[x.var], ") |",
                  paste(predictors[-x.var], collapse="*")))),
       strip=function(...) strip.default(..., strip.names=c(factor.names, TRUE), sep=" = "),
       panel=function(x, y, subscripts, x.vals, rug, lower, upper, has.se, ...){
@@ -653,10 +742,10 @@ plot.eff <- function(x, x.var,
         good <- !is.na(y)
         effect.llines(x[good], y[good], lwd=lwd, col=colors[1], ...)
         if (rug && is.null(residuals)) lrug(trans(x.vals))
-        if (has.se){  
-          if (ci.style == "bars"){ 
-            larrows(x0=x[good], y0=lower[subscripts][good], 
-                    x1=x[good], y1=upper[subscripts][good], 
+        if (has.se){
+          if (ci.style == "bars"){
+            larrows(x0=x[good], y0=lower[subscripts][good],
+                    x1=x[good], y1=upper[subscripts][good],
                     angle=90, code=3, col=eval(colors[.modc(2)]),
                     length=.125*cex/1.5)
           }
@@ -664,8 +753,8 @@ plot.eff <- function(x, x.var,
             effect.llines(x[good], lower[subscripts][good], lty=2, col=colors[.modc(2)])
             effect.llines(x[good], upper[subscripts][good], lty=2, col=colors[.modc(2)])
           }
-          else if(ci.style == "bands") { 
-            panel.bands(x[good], y[good], upper[subscripts][good], lower[subscripts][good], 
+          else if(ci.style == "bands") {
+            panel.bands(x[good], y[good], upper[subscripts][good], lower[subscripts][good],
                         fill=band.colors[1], alpha=band.transparency, use.splines=use.splines)
           }
           if (!is.null(residuals)){
@@ -683,31 +772,31 @@ plot.eff <- function(x, x.var,
               lpoints(trans(x.fit[use]), partial.res, col=residuals.color, pch=residuals.pch, cex=residuals.cex)
               if (show.fitted) lpoints(trans(x.fit[use]), fitted, pch=16, col=residuals.color)  # REMOVE ME
               if (smooth.residuals && n.in.panel >= 10) {
-                llines(loess.smooth(x.fit[use], partial.res, span=span, family=loess.family), 
-                       lwd=lwd, lty=2, col=residuals.smooth.color)
+                llines(loess.smooth(x.fit[use], partial.res, span=span, family=loess.family),
+                       lwd=residuals.lwd, lty=residuals.lty, col=residuals.smooth.color)
               }
             }
           }
         }
         if (has.thresholds){
           panel.abline(h=thresholds, lty=3)
-          panel.text(rep(current.panel.limits()$xlim[1], length(thresholds)), 
+          panel.text(rep(current.panel.limits()$xlim[1], length(thresholds)),
                      thresholds, threshold.labels, adj=c(0,0), cex=0.75)
-          panel.text(rep(current.panel.limits()$xlim[2], length(thresholds)), 
+          panel.text(rep(current.panel.limits()$xlim[2], length(thresholds)),
                      thresholds, threshold.labels, adj=c(1,0), cex=0.75)
         }
       },
       ylim=ylim,
       xlim=suppressWarnings(trans(xlm)),
       ylab=ylab,
-      xlab=if (missing(xlab)) predictors[x.var] else xlab,
+      xlab=if (is.na(xlab)) predictors[x.var] else xlab,
       x.vals=x.vals, rug=rug,
       main=main,
-      lower=x$lower, upper=x$upper, has.se=has.se, data=x, 
+      lower=x$lower, upper=x$upper, has.se=has.se, data=x,
       scales=list(y=list(at=tickmarks$at, labels=tickmarks$labels, rot=roty),
-                  x=list(at=tickmarks.x$at, labels=tickmarks.x$labels, rot=rotx), 
+                  x=list(at=tickmarks.x$at, labels=tickmarks.x$labels, rot=rotx),
                   alternating=alternating), ...)
-    result <- update(plot, layout = if (missing(layout)) c(0, prod(dim(plot))) else layout)
+    result <- update(plot, layout = if (is.null(layout)) c(0, prod(dim(plot))) else layout)
     result$split <- split
     result$more <- more
     class(result) <- c("plot.eff", class(result))
@@ -720,7 +809,9 @@ print.plot.eff <- function(x, ...){
   invisible(x)
 }
 
-plot.efflist <- function(x, selection, rows, cols, ask=FALSE, graphics=TRUE, ...){
+plot.efflist <- function(x, selection, rows, cols, ask=FALSE, graphics=TRUE, lattice, ...){
+# Next line added 8/23/17 along with lattice, also lattice arg above
+  lattice <- if(missing(lattice)) list() else lattice
   if (!missing(selection)){
     if (is.character(selection)) selection <- gsub(" ", "", selection)
     return(plot(x[[selection]], ...))
@@ -744,7 +835,8 @@ plot.efflist <- function(x, selection, rows, cols, ask=FALSE, graphics=TRUE, ...
       for (j in 1:cols){
         if ((i-1)*cols + j > neffects) break
         more <- !((i-1)*cols + j == neffects)
-        print(plot(x[[(i-1)*cols + j]], row=i, col=j, nrow=rows, ncol=cols, more=more, ...))
+        lattice[["array"]] <- list(row=i, col=j, nrow=rows, ncol=cols, more=more)
+        print(plot(x[[(i-1)*cols + j]], lattice=lattice, ...))
       }
     }
   }

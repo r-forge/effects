@@ -1,6 +1,6 @@
 Package: effects
-Version: 3.1-3
-Date: 2017-07-10
+Version: 4.0-0
+Date: 2017-08-27
 Title: Effect Displays for Linear, Generalized Linear, and Other Models
 Authors@R: c(person("John", "Fox", role = c("aut", "cre"), email = "jfox@mcmaster.ca"),
 	person("Sanford", "Weisberg", role = "aut", email = "sandy@umn.edu"),
@@ -9,7 +9,7 @@ Authors@R: c(person("John", "Fox", role = c("aut", "cre"), email = "jfox@mcmaste
     person("Robert", "Andersen", role = "ctb"),
     person("David", "Firth", role = "ctb"),
     person("Steve", "Taylor", role = "ctb"))
-Depends: R (>= 3.2.0)
+Depends: R (>= 3.2.0), carData
 Suggests: pbkrtest (>= 0.4-4), nlme, MASS, poLCA, heplots, splines, ordinal, car
 Imports: lme4, nnet, lattice, grid, colorspace, graphics, grDevices, stats, utils
 LazyLoad: yes
@@ -18,4 +18,4 @@ Description:
   Graphical and tabular effect displays, e.g., of interactions, for 
   various statistical models with linear predictors.
 License: GPL (>= 2)
-URL: http://www.r-project.org, http://socserv.socsci.mcmaster.ca/jfox/
+URL: https://www.r-project.org, http://socserv.socsci.mcmaster.ca/jfox/

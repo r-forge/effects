@@ -8,14 +8,12 @@
 # 2013-10-15: eliminated generic effect() and all its methods. J. Fox
 # 2014-07-02: added vcov. argument to effect 
 # 2014-12-10: Changed 'effect' back to a generic function.  S. Weisberg
-# 2016-11-20: added force(vcov.) to effect.default(). J. Fox
 
 effect <- function(term, mod, vcov.=vcov, ...){
   UseMethod("effect", mod)
 }
 
 effect.default <- function(term, mod, vcov.=vcov, ...){ 
-    force(vcov.)
     term <- gsub(" ", "", gsub("\\*", ":", term))
     terms <- term.names(mod)
     if (has.intercept(mod)) terms <- terms[-1]
@@ -67,9 +65,4 @@ allEffects.gls <- function(mod, ...){
 	names(result) <- terms
 	class(result) <- 'efflist'
 	result
-}
-
-all.effects <- function(...){
-	.Deprecated("allEffects")
-	allEffects(...)
 }

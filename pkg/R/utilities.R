@@ -17,6 +17,10 @@
 # 2016-02-16: fix Analyze.model(), Fixup.model.matrix() to handle non-focal terms like polynomials correctly; clean up code. J. Fox
 # 2016-03-01: correct and improve computation of partial residuals
 # 2017-07-10: fix warnings about 1 x 1 arrays produced in eff.mul() and eff.polr() in R 3.4.0 (reported by Stefan Th. Gries). J. Fox
+# 2017-07-14: added applyDefaults() and isFALSE(). J. Fox
+# 2017-07-27: added effectsTheme(); removed setStrip(), restoreStrip(). J. Fox
+# 2017-08-08: added .onAttach() to set lattice theme. J. Fox
+# 2017-08-26: added scheffe() to compute multipler for Scheffe-type confidence bounds. J. Fox
 
 has.intercept <- function(model, ...) any(names(coefficients(model))=="(Intercept)")
 
@@ -462,32 +466,80 @@ is.numeric.predictor <- function(predictor, model) {
   is.null(model$xlevels[[predictor]])
 }
 
-# manage lattice strips
+# custom lattice theme
 
-setStrip <- function(bg=3, fg="black", clip=c("off", "on")){
-  clip <- match.arg(clip)
-  bg.save <- strip.background <- trellis.par.get("strip.background")
-  if (is.numeric(bg) && length(bg) == 1){
-    if (bg <= 0) stop("bg should be a positive integer or vector of colors")
-    bg <- gray(seq(.95, .5, length=round(bg)))
-  }
-  strip.background$col <- bg
-  fg.save <- strip.shingle <- trellis.par.get("strip.shingle")
-  trellis.par.set("strip.background", strip.background)
-  if (length(fg) != 1 && length(fg) != length(bg)) 
-    stop("lengths of fg and bg incompatible")
-  strip.shingle$col <- fg
-  trellis.par.set("strip.shingle", strip.shingle)
-  clip.save <- .clip <- trellis.par.get("clip")
-  .clip$strip <- clip
-  trellis.par.set("clip", .clip)
-  invisible(list(strip.background=bg.save, strip.shingle=fg.save, clip=clip.save))
+effectsTheme <- function(strip.background=list(col=gray(seq(0.95, 0.5, length=3))),
+                         strip.shingle=list(col="black"), clip=list(strip="off"),
+                         superpose.line=list(lwd=c(2, rep(1, 6)))){
+  
+  current <- sapply(c("strip.background", "strip.shingle", "clip", "superpose.line"),
+                    trellis.par.get)
+  result <- list(strip.background=strip.background, strip.shingle=strip.shingle, clip=clip,
+     superpose.line=superpose.line)
+  attr(result, "current") <- current
+  result
 }
 
-restoreStrip <- function(saved){
-  if (!identical(names(saved), c("strip.background", "strip.shingle", "clip")))
-    stop("argument saved does not contain strip parameters")
-  trellis.par.set("strip.background", saved$strip.background)
-  trellis.par.set("strip.shingle", saved$strip.shingle)
-  trellis.par.set("clip", saved$clip)
+.onAttach <- function(libname, pkgname){
+    if (!"package:lattice" %in% search()){
+        lattice::trellis.par.set(effectsTheme(), warn=FALSE)
+        packageStartupMessage("lattice theme set by effectsTheme()",
+                              "\nSee ?effectsTheme() for details.")
+    }
+    else packageStartupMessage("Use the command",
+                               "\n    lattice::trellis.par.set(effectsTheme())",
+                               "\n  to customize lattice options for effects plots.",
+                               "\nSee ?efffectTheme() for details.")
 }
+
+# setStrip <- function(bg=3, fg="black", clip=c("off", "on")){
+#   clip <- match.arg(clip)
+#   bg.save <- strip.background <- trellis.par.get("strip.background")
+#   if (is.numeric(bg) && length(bg) == 1){
+#     if (bg <= 0) stop("bg should be a positive integer or vector of colors")
+#     bg <- gray(seq(.95, .5, length=round(bg)))
+#   }
+#   strip.background$col <- bg
+#   fg.save <- strip.shingle <- trellis.par.get("strip.shingle")
+#   trellis.par.set("strip.background", strip.background)
+#   if (length(fg) != 1 && length(fg) != length(bg)) 
+#     stop("lengths of fg and bg incompatible")
+#   strip.shingle$col <- fg
+#   trellis.par.set("strip.shingle", strip.shingle)
+#   clip.save <- .clip <- trellis.par.get("clip")
+#   .clip$strip <- clip
+#   trellis.par.set("clip", .clip)
+#   invisible(list(strip.background=bg.save, strip.shingle=fg.save, clip=clip.save))
+# }
+# 
+# restoreStrip <- function(saved){
+#   if (!identical(names(saved), c("strip.background", "strip.shingle", "clip")))
+#     stop("argument saved does not contain strip parameters")
+#   trellis.par.set("strip.background", saved$strip.background)
+#   trellis.par.set("strip.shingle", saved$strip.shingle)
+#   trellis.par.set("clip", saved$clip)
+# }
+
+# to handle defaults for list-style arguments
+
+applyDefaults <- function(args, defaults, arg=""){
+    if (is.null(args)) return(defaults)
+    if (isFALSE(args)) return(FALSE)
+    names <- names(args)
+    names <- names[names != ""]
+    if (!isTRUE(args) && length(names) != length(args)) warning("unnamed ", arg, " arguments, will be ignored")
+    if (isTRUE(args) || is.null(names)) defaults
+    else defaults[names] <- args[names]
+    as.list(defaults)
+}
+
+isFALSE <- function(x){ 
+    length(x) == 1 && is.logical(x) && !isTRUE(x)
+}
+
+# compute multiplier for Scheffe-type confidence bounds
+
+scheffe <- function(level, p, df=Inf){
+    sqrt(p*qf(level, p, df))
+}
+
