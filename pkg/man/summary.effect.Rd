@@ -142,7 +142,7 @@
 
 \bold{Detailed Argument Descriptions}
 
-Maximizing the flexibility of these plot commands requires inclusion of a myriad of options.  In an attempt to simpily the use of these options, they have been organized into just a few arguments that each accept a list of specifications as an argument.  In a few cases the named entries in the list are themselves lists.
+Maximizing the flexibility of these plot commands requires inclusion of a myriad of options.  In an attempt to simplify the use of these options, they have been organized into just a few arguments that each accept a list of specifications as an argument.  In a few cases the named entries in the list are themselves lists.
 
   Each of the following arguments takes an optional list of specifications; any specification absent from the list
 assumes its default value. Some of the list elements are themselves lists, so in complex cases, the argument can take
@@ -156,9 +156,9 @@ if \code{FALSE} symbols are suppressed; if \code{TRUE} default values are used:
     \item{\code{cex}}{plotting character sizes, a vector of values, with the default taken from \code{trellis.par.get("superpose.symbol")$cex}, typically a vector of 0.8s.}
     }
 }
-\item{\code{lines}}{code{symbols}}{\code{TRUE}, \code{FALSE}, or a list that controls the chacteristics of lines drawn on a plot, and also whether or not multiple lines should be drawn in the same panel in the plot; if \code{FALSE} lines are suppressed; if \code{TRUE} default values are used:
+\item{\code{lines}}{\code{TRUE}, \code{FALSE}, or a list that controls the chacteristics of lines drawn on a plot, and also whether or not multiple lines should be drawn in the same panel in the plot; if \code{FALSE} lines are suppressed; if \code{TRUE} default values are used:
     \describe{
-    \item{\code{multline}}{display a multiline plot in each panel; the default is \code{TRUE} if there are no standard errors
+    \item{\code{multiline}}{display a multiline plot in each panel; the default is \code{TRUE} if there are no standard errors
     in the \code{"eff"} object, \code{FALSE} otherwise.}
     \item{\code{lty}}{vector of line types, with the default taken from \code{trellis.par.get("superpose.line")$lty}, typically a vector of 1s (solid lines).}
     \item{\code{lwd}}{vector of line widths, with the default taken from \code{trellis.par.get("superpose.line")$lwd}, typically a vector with 2 in the first position followed by 1s.}
@@ -190,7 +190,7 @@ Two additional elements may appear in the \code{x} list, and apply to all predic
     }
 
 The \code{y} list contains \code{lab}, \code{lim}, \code{ticks}, and \code{rotate} elements
-(similar to those specified for individual predictors in the \code{x} list), along with the an additional \code{type} element:
+(similar to those specified for individual predictors in the \code{x} list), along with the additional \code{type} element:
     \describe{
     \item{\code{type}}{for plotting linear or generalized linear models, \code{"rescale"} (the default) plots the vertical
     axis on the link scale (e.g., the logit scale for a logit model) but labels the axis on the response
@@ -237,7 +237,7 @@ Other elements:
 
 }
 
-\item{\code{lattice}}{the plots are drawn with the \code{\link{lattice}} package, generally with the \code{\link{xyplot}} function.  These specifications are passed as arguments to the functions that actually draw the plots.
+\item{\code{lattice}}{the plots are drawn with the \pkg{\link{lattice}} package, generally by the \code{\link{xyplot}} function.  These specifications are passed as arguments to the functions that actually draw the plots.
 
     \describe{
     \item{\code{layout}}{the \code{layout} argument to the \pkg{lattice} function \code{\link{xyplot}}
@@ -248,9 +248,9 @@ Other elements:
   	or legend, on the
   	plot.  There are many options, and they are documented by searching for "\code{key:}" in
   	\code{\link{xyplot}}.  For example,
-  	\code{lattice=list(key.args=list(cex= .75, cex.title=.75, between.columns=0))} will
-  	reduce the size of the labels and title to .75 of nominal, and will reduce the space between columns
-  	to 0, and \code{lattice=list(key.args = list(x = 0.75, y = 0.75, corner = c(0, 0)))} move the key
+  	\code{lattice=list(key.args=list(cex= .75, cex.title=.75, between.columns=0))}
+  	reduces the size of the labels and title to .75 of nominal, and reduces the extra space between columns
+  	to 0, and \code{lattice=list(key.args = list(x = 0.75, y = 0.75, corner = c(0, 0)))} moves the key
   	onto the plot, with the origin \code{corner=c(0,0)} at the point \code{(.75, .75)}, thinking of the
   	total plotting area as a unit square. To conserve space, by default we set \code{between.columns=0}.}
     \item{\code{strip}}{a list with two elements: \code{factor.names}, which if \code{TRUE}, the default, shows conditioning

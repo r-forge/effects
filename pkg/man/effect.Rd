@@ -23,26 +23,26 @@
 \title{Functions For Constructing Effect Displays}
 \description{
   \code{Effect} and \code{effect} construct an \code{"eff"} object for a term (usually a high-order term)
-  in a linear (fit by \code{lm} or \code{gls}) or generalized linear model (fit by \code{glm}), or an
+  in a linear model (fit by \code{\link{lm}} or \code{\link[nlme]{gls}}) or generalized linear model (fit by \code{\link{glm}}), or an
   \code{"effpoly"} object for a term in a
-  multinomial or proportional-odds logit model (fit respectively by \code{multinom} or \code{polr}),
+  multinomial or proportional-odds logit model (fit respectively by \code{\link[nnet]{multinom}} or \code{\link[MASS]{polr}}),
   absorbing the lower-order terms marginal
   to the term in question, and averaging over other terms in the model.  For multivariate linear models
-  (\code{mlm}), the function constructs a list of \code{"eff"} objects separately for the various
+  (of class \code{"mlm"}, fit by \code{\link{lm}}), the function constructs a list of \code{"eff"} objects separately for the various
   response variables.
 
   \code{effect} builds the required object by specifying explicity a focal term like \code{"a:b"}
-  for an \code{a} by \code{b} interaction.  \code{Effect} requires specifying the predictors in
-  the term, for example \code{c("a", "b")} rather than the term itself.  \code{Effect} is consequently
+  for an \code{a} by \code{b} interaction.  \code{Effect} specifies the predictors in
+  the term, for example \code{c("a", "b")}, rather than the term itself.  \code{Effect} is consequently
   more flexible and robust than
-  \code{effect}, and will work with some models for which \code{effect} fails.  The \code{effect} function
+  \code{effect}, and will succeed with some models for which \code{effect} fails.  The \code{effect} function
   works by constructing a call to \code{Effect}.
 
   The \code{Effect} and \code{effect} functions can also be used with some mixed-effects models,
   including linear and generalized linear mixed-effects models
-  fit by \code{lmer} and \code{glmer} from the \pkg{lme4} package
-  and \code{lme} from the \pkg{nlme} package; ordinal logit mixed effects fit with \code{clm2} or \code{clmm} from the
-  \pkg{ordinal} package, and polytomous latent-class models fit by the \code{poLCA} function in
+  fit by \code{\link[lme4]{lmer}} and \code{\link[lme4]{glmer}} from the \pkg{lme4} package
+  and \code{\link[nlme]{lme}} from the \pkg{nlme} package; ordinal logit mixed effects fit with \code{\link[ordinal]{clm2}} or \code{\link[ordinal]{clmm}} from the
+  \pkg{ordinal} package, and polytomous latent-class models fit by the \code{\link[poLCA]{poLCA}} function in
   the \pkg{poLCA} package.  The displays for mixed-effects models are for the fixed effects only, not for random effects.
 
   There is a default
@@ -135,7 +135,7 @@ allEffects(mod, ...)
     for interactions.}
   \item{focal.predictors}{a character vector of one or more predictors in the model in any order.}
   \item{mod}{an object of class \code{"lm"}, \code{"gls"}, \code{"glm"},
-    \code{"multinom"}, \code{"polr"}, \code{"mer"} (or \code{"merMod"}), \code{"lme"}
+    \code{"multinom"}, \code{"polr"}, \code{"mer"} (or \code{"merMod"}), \code{"lme"},
     or \code{"poLCA"}. }
   \item{xlevels}{this argument is used to set the number of levels for any
     focal predictor that is not a factor.  If \code{xlevels=NULL}, the default,
@@ -144,7 +144,7 @@ allEffects(mod, ...)
     is an integer, then each numeric predictor is represented by \code{n} equally
     spaced levels.  More generally, \code{xlevels} can be a named list of values
     at which to set each numeric predictor.  For example, \code{xlevels=list(x1=c(2, 4, 7),
-    x2=5)} would use the values 2, 4 and 7 for the levels of \code{x1}, 5
+    x2=5)} would use the values 2, 4 and 7 for the levels of \code{x1}, use 5
     equally spaced levels for the levels of \code{x2}, and use the default for
     any other numeric predictors. If partial residuals are computed, then the focal
     predictor that is to appear on the horizontal axis of an effect plot is
@@ -161,11 +161,11 @@ allEffects(mod, ...)
   	should be consistent with each other.}
   \item{vcov.}{A function or the name of a function that will be used to get the estimated variance-covariance
     matrix of the estimated coefficients.  This will ordinarily be the default,
-    \code{vcov}, which will result in the function call \code{vcov(mod)} to get the variance-covariance matrix.
-    You can use the name of any function with \code{mod} as the value of
-    its first argument that returns an estimated sample covariance matrix, such as the \code{hccm}
-    function in the \pkg{car} package that returns a heteroscedasticity corrected estimate with
-    linear models.}
+    \code{\link{vcov}}, which will result in the function call \code{vcov(mod)} to get the variance-covariance matrix.
+    You can use the name of any function that takes the model object as
+    its first argument and returns an estimated sample covariance matrix, such as the \code{\link[car]{hccm}}
+    function in the \pkg{car} package, which returns a heteroscedasticity corrected estimate for a
+    linear model.}
   \item{confint}{a list with any or all of the following elements, controlling whether and how standard errors
     and confidence limits are computed for the effects: \code{compute} (default \code{TRUE}), whether or not
     to compute standard errors and confidence limits; \code{level} (default \code{0.95}), confidence level for
@@ -175,7 +175,7 @@ allEffects(mod, ...)
     normal distribution is used to get confidence limits.}
   \item{KR}{if \code{TRUE} and the \pkg{pbkrtest} package is installed,
     use the Kenward-Roger coefficient covariance
-    matrix to compute effect standard errors for linear mixed models fit with \code{lmer}
+    matrix to compute effect standard errors for linear mixed models fit with \code{\link[lme4]{lmer}}
     in the \pkg{lme4} package.  The default is \code{FALSE} because the computation can be
     very slow.}
   \item{transformation}{a two-element list with elements \code{link} and
@@ -188,13 +188,13 @@ allEffects(mod, ...)
     axis labels (see below). If the link is not given, an attempt will be
     made to approximate it from the inverse-link.}
   \item{typical}{a function to be applied to the columns of the model matrix
-    over which the effect is "averaged"; the default is \code{mean}.}
+    over which the effect is "averaged"; the default is \code{\link{mean}}.}
   \item{offset}{a function to be applied to the offset values (if there is an
     offset) in a linear or generalized linear model, or a mixed-effects
-    model fit by \code{lmer} or \code{glmer}; or a numeric value, to which
-    the offset will be set. The default is the \code{mean} function, and thus
+    model fit by \code{\link[lme4]{lmer}} or \code{\link[lme4]{glmer}}; or a numeric value, to which
+    the offset will be set. The default is the \code{\link{mean}} function, and thus
     the offset will be set to its mean. \emph{Note:} Only offsets defined
-    by the \code{offset} argument to \code{lm}, \code{glm}, \code{lmer}, or \code{glmer} will be handled
+    by the \code{offset} argument to \code{\link{lm}}, \code{\link{glm}}, \code{\link[lme4]{lmer}}, or \code{\link[lme4]{glmer}} will be handled
     correctly; use of the \code{offset} function in the model formula is
     not supported.}
   \item{partial.residuals}{if \code{TRUE}, residuals for a linear or generalized linear model
@@ -217,12 +217,12 @@ allEffects(mod, ...)
   \item{transform}{a transformation to be applied to the effects and confidence limits,
     by default taken from the inverse link function saved in the \code{"eff"} object.}
   \item{row.names, optional}{not used.}
-  \item{response}{for an \code{mlm}, a vector containing the name(s) or indices of one or more response variable(s).
+  \item{response}{for an \code{"mlm"} object, a vector containing the name(s) or indices of one or more response variable(s).
     The default is to use all responses in the model.}
   \item{object}{an object of class \code{"eff"} for which the covariance matrix of the effects is desired.}
   \item{...}{arguments to be passed down.}
   \item{se, confidence.level}{legacy arguments retained for backwards compatability; if present, these arguments take precedence
-  of the \code{compute} and \code{level} elements of the \code{confint} list argument.}
+  of the \code{compute} and \code{level} elements over the \code{confint} list argument.}
 }
 
 \details{
@@ -233,7 +233,7 @@ allEffects(mod, ...)
   while other predictors are held to typical values.
   Plots are drawn using the \code{\link{xyplot}} (or in some cases,
   the \code{\link{densityplot}}) function in the
-  \code{lattice} package. Effects may also be printed (implicitly or explicitly via
+  \pkg{lattice} package. Effects may also be printed (implicitly or explicitly via
   \code{print}) or summarized (using \code{summary})
   (see \code{\link{print.efflist}}, \code{\link{summary.efflist}},
   \code{\link{print.eff}}, \code{\link{summary.eff}}, \code{\link{print.effpoly}}, and \code{\link{summary.effpoly}}).
@@ -258,7 +258,7 @@ allEffects(mod, ...)
   For \code{lm}, \code{glm}, \code{mer} and \code{lme}, \code{effect} and \code{Effect} return
   an \code{"eff"} object, and for \code{multinom},
   \code{polr}, \code{clm}, \code{clmm} and \code{clm2}, an \code{"effpoly"} object, with the components listed below.
-  For \code{mlm} with one response specified, an \code{"eff"} object is returned, otherwise an \code{"efflist"} object
+  For an \code{"mlm"} object with one response specified, an \code{"eff"} object is returned, otherwise an \code{"efflist"} object
   is returned, containing one \code{"eff"} object for each \code{response}.
   \item{term}{the term to which the effect pertains.}
   \item{formula}{the complete model formula.}
@@ -303,11 +303,11 @@ allEffects(mod, ...)
   \code{allEffects} returns an \code{"efflist"} object, a list of \code{"eff"} or \code{"effpoly"} objects
   corresponding to the high-order terms of the model.
 
-If \code{mod} is of class \code{poLCA} (from the \code{poLCA} package), representing a
+If \code{mod} is of class \code{"poLCA"} (from the \code{poLCA} package), representing a
 polytomous latent class model, effects are computed for the predictors given the
 estimated latent classes.
-The result is of class \code{eff} if the latent class model has 2 categories
-and of class \code{effpoly} with more than 2 categories.
+The result is of class \code{"eff"} if the latent class model has 2 categories
+and of class \code{"effpoly"} with more than 2 categories.
 }
 
 \section{Warnings and Limitations}{
@@ -322,9 +322,9 @@ and of class \code{effpoly} with more than 2 categories.
   The functions in the \pkg{effects} package work properly with predictors that are numeric or factors;
   consequently, e.g., convert logical predictors to factors, and dates to numeric.
 
-  Empty cells in crossed-factors are now permitted for \code{lm}, \code{glm}, and \code{multinom} models.
-  For \code{multinom} models with two or more crossed factors with an empty cell, stacked area plots
-  apparently do not work because of a bug in the \code{barchart} function in the \pkg{lattice} package.  However, the default
+  Empty cells in crossed-factors are now permitted for \code{"lm"}, \code{"glm"}, and \code{"multinom"} models.
+  For \code{"multinom"} models with two or more crossed factors with an empty cell, stacked area plots
+  apparently do not work because of a bug in the \code{\link[lattice]{barchart}} function in the \pkg{lattice} package.  However, the default
   line plots do work.
 
   Offsets in linear and generalized linear models are supported, as are offsets in mixed models fit by
@@ -333,13 +333,13 @@ and of class \code{effpoly} with more than 2 categories.
   offsets supplied via calls to the \code{offset} function on the right-hand side
   of the model formula are not supported.
 
-  Fitting ordinal mixed-models using \code{clmm} or \code{clmm2} permits many options, including a variety of link functions,
+  Fitting ordinal mixed-models using \code{\link[ordinal]{clmm}} or \code{\link[ordinal]{clmm2}} permits many options, including a variety of link functions,
   scale functions, nominal regressors, and various methods for setting thresholds.  Effects are currently generated
   only for the default values of the arguments \code{scale}, \code{nominal}, \code{link} and \code{threshold},
   which is equivalent to fitting an ordinal response mixed effects model with a logit link.
   The effect methods can also be
-  used with objects created using \code{dlm} or \code{clm2} fitting ordinal response logit models with no random effects, with
-  results similar to those from \code{polr} in the \pkg{MASS} package.
+  used with objects created using \code{\link[ordinal]{clm}} or \code{\link[ordinal]{clm2}} fitting ordinal response logit models with no random effects, with
+  results similar to those from \code{\link[MASS]{polr}} in the \pkg{MASS} package.
 
   Calling any of these functions from within a user-written function may result in errors due
   to R's scoping rules.  See the vignette \code{embedding.pdf} for the \pkg{car} package
@@ -369,7 +369,7 @@ and of class \code{effpoly} with more than 2 categories.
     \bold{32:1}, 1--24, <\url{http://www.jstatsoft.org/v32/i01/}>.
 
     Fox, J. and S. Weisberg (forthcoming).
-    Visualizing Fit and Lack of Fit in Comples Regression Models:
+    Visualizing Fit and Lack of Fit in Complex Regression Models:
         Effect Plots with Partial Residuals.
     \emph{Journal of Statistical Software}.
 
