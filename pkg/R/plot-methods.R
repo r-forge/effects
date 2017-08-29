@@ -25,6 +25,7 @@
 # 2017-08-23: Fixed bug with the lattice=list(array()) argument in plot.efflist --- lattice was as
 #              an argument to the next method twice
 # 2017-08-23: plot.eff, in key.args, set default for between.columns=0
+# 2017-08-20: reintroduce legacy arguments for plot.eff()
 
 # the following functions aren't exported
 
@@ -90,8 +91,14 @@ panel.bands <- function(x, y, upper, lower, fill, col,
 spline.llines <- function(x, y, ...) llines(spline(x, y), ...)
 
 plot.eff <- function(x, x.var, z.var=which.min(levels), main=paste(effect, "effect plot"),
-                     symbols, lines, axes, confint, partial.residuals, lattice,
-                     ...)
+                     symbols=TRUE, lines=TRUE, axes, confint, partial.residuals, lattice,
+                     ...,
+                     # legacy arguments:
+                     multiline, rug, xlab, ylab, colors, cex, lty, lwd, ylim, xlim, factor.names, ci.style,
+                     band.transparency, band.colors, type, ticks, alternating, rotx, roty, grid, layout,
+                     rescale.axis, transform.x, ticks.x, show.strip.values, key.args, use.splines,
+                     residuals.color, residuals.pch, residuals.cex, smooth.residuals,
+                     residuals.smooth.color, show.fitted, span)
 {
   closest <- function(x, x0) apply(outer(x, x0, FUN=function(x, x0) abs(x - x0)), 1, which.min)
   .mod <- function(a, b) ifelse( (d <- a %% b) == 0, b, d)
@@ -99,41 +106,53 @@ plot.eff <- function(x, x.var, z.var=which.min(levels), main=paste(effect, "effe
   .mods <- function(a) .mod(a, length(symbols))
   .modl <- function(a) .mod(a, length(lines))
   .modb <- function(a) .mod(a, length(band.colors))
-
-  if (missing(lines)) lines <- NULL
+  
+  if (!is.logical(lines) && !is.list(lines)) lines <- list(lty=lines)
   lines <- applyDefaults(lines,
      defaults=list(multiline=is.null(x$se), lty=trellis.par.get("superpose.line")$lty,
                    lwd=trellis.par.get("superpose.line")$lwd[1], col=trellis.par.get("superpose.line")$col, splines=TRUE),
+     onFALSE=list(multiline=FALSE, lty=0, lwd=0, col=rgb(1, 1, 1, alpha=0), splines=FALSE),
      arg="lines")
-  multiline <- lines$multiline
-  lwd <- lines$lwd
-  colors <- lines$col
-  use.splines <- lines$splines
-  lines <- lines$lty
+  if (missing(multiline)) multiline <- lines$multiline
+  if (missing(lwd)) lwd <- lines$lwd
+  if (missing(colors)) colors <- lines$col
+  if (missing(use.splines)) use.splines <- lines$splines
+  lines <- if (missing(lty)) lines$lty else lty
 
-  if (missing(symbols)) symbols <- NULL
+  if (!is.logical(symbols) && !is.list(symbols)) symbols <- list(pch=symbols)
   symbols <- applyDefaults(symbols,
-    defaults= list(pch=trellis.par.get("superpose.symbol")$pch, cex=trellis.par.get("superpose.symbol")$cex[1]),
+    defaults=list(pch=trellis.par.get("superpose.symbol")$pch, cex=trellis.par.get("superpose.symbol")$cex[1]),
+    onFALSE=list(pch=NA_integer_, cex=0),
     arg="symbols")
   cex <- symbols$cex
   symbols <- symbols$pch
 
   if (missing(axes)) axes <- NULL
   axes <- applyDefaults(axes, defaults=list(
-#        x=list(lab=NA, lim=NA, ticks=NA, transform=NA, rotate=0, rug=TRUE),
         x=list(rotate=0, rug=TRUE),
         y=list(lab=NA, lim=NA, ticks=list(at=NULL, n=5), type="rescale", rotate=0),
         alternating=TRUE, grid=FALSE),
     arg="axes")
   x.args <- applyDefaults(axes$x, defaults=list(rotate=0, rug=TRUE), arg="axes$x")
-  # x.args <- applyDefaults(axes$x, defaults=list(lab=NA, lim=NA, ticks=NA, transform=NA, rotate=0, rug=TRUE), arg="axes$x")
-  # xlab <- x.args$lab
-  # xlim <- x.args$lim
-  # ticks.x <- x.args$ticks
-  # transform.x <- x.args$transform
-  xlab <- xlim <- ticks.x <- transform.x <- list()
-  rotx <- x.args$rotate
-  rug <- x.args$rug
+
+  if (missing(xlab)) {
+    xlab.arg <- FALSE
+    xlab <- list()
+  }
+  if (missing(xlim)) {
+    xlim.arg <- FALSE
+    xlim <- list()
+  }
+  if (missing(ticks.x)) {
+    ticks.x.arg <- FALSE
+    ticks.x <- list()
+  }
+  if (missing(transform.x)) {
+    transform.x.arg <- FALSE
+    transform.x <- list()
+  }
+  if (missing(rotx)) rotx <- x.args$rotate
+  if (missing(rug)) rug <- x.args$rug
   x.args$rotate <- NULL
   x.args$rug <- NULL
   x.pred.names <- names(x.args)
@@ -142,10 +161,10 @@ plot.eff <- function(x, x.var, z.var=which.min(levels), main=paste(effect, "effe
       x.pred.args <- applyDefaults(x.args[[pred.name]],
                                    defaults=list(lab=NULL, lim=NULL, ticks=NULL, transform=NULL),
                                    arg=paste0("axes$x$", pred.name))
-      xlab[[pred.name]] <- x.pred.args$lab
-      xlim[[pred.name]] <- x.pred.args$lim
-      ticks.x[[pred.name]] <- x.pred.args$ticks
-      transform.x[[pred.name]] <- x.pred.args$transform
+      if (!xlab.arg) xlab[[pred.name]] <- x.pred.args$lab
+      if (!xlim.arg) xlim[[pred.name]] <- x.pred.args$lim
+      if (!ticks.x.arg) ticks.x[[pred.name]] <- x.pred.args$ticks
+      if (!transform.x.arg) transform.x[[pred.name]] <- x.pred.args$transform
     }
   }
   if (length(xlab) == 0) xlab <- NA
@@ -154,37 +173,40 @@ plot.eff <- function(x, x.var, z.var=which.min(levels), main=paste(effect, "effe
   if (length(transform.x) == 0) transform.x <- NA
 
   y.args <- applyDefaults(axes$y, defaults=list(lab=NA, lim=NA, ticks=list(at=NULL, n=5), type="rescale", rotate=0), arg="axes$y")
-  ylab <- y.args$lab
-  ylim <- y.args$lim
-  ticks <- y.args$ticks
-  type <- y.args$type
+  if (missing(ylab)) ylab <- y.args$lab
+  if (missing(ylim)) ylim <- y.args$lim
+  if (missing(ticks)) ticks <- y.args$ticks
+  if (missing(type)) type <- y.args$type
+  if (!missing(rescale.axis)) type <- if (rescale.axis) "rescale" else "response"
   type <- match.arg(type, c("rescale", "response", "link"))
-  roty <- y.args$rotate
-  alternating <- axes$alternating
-  grid <- axes$grid
+  if (missing(roty)) roty <- y.args$rotate
+  if (missing(alternating)) alternating <- axes$alternating
+  if (missing(grid)) grid <- axes$grid
 
-  if (missing(confint)) confint <- NULL
+  if (missing(confint) || isTRUE(confint)) confint <- NULL
   confint <- applyDefaults(confint,
     defaults=list(style=NULL, alpha=0.15, col=colors),
+    onFALSE=list(style="none", alpha=0, col=NA_integer_),
     arg="confint")
-  ci.style <- confint$style
-  band.transparency <- confint$alpha
-  band.colors <- confint$col
+  if (missing(ci.style)) ci.style <- confint$style
+  if (missing(band.transparency)) band.transparency <- confint$alpha
+  if (missing(band.colors)) band.colors <- confint$col
   if(!is.null(ci.style)) ci.style <- match.arg(ci.style, c("bars", "lines", "bands", "none"))
 
-  if(missing(partial.residuals)) partial.residuals <- NULL
+  if (missing(partial.residuals)) partial.residuals <- NULL
+  if (is.logical(partial.residuals)) partial.residuals <- list(plot=partial.residuals)
   partial.residuals <- applyDefaults(partial.residuals, defaults=list(
       plot=!is.null(x$residuals), fitted=FALSE, col=colors[2], pch=1, cex=1, smooth=TRUE, span=2/3, smooth.col=colors[2], lty=lines[1], lwd=lwd),
       arg="partial.residuals")
-  show.fitted <- partial.residuals$fitted
-  residuals.color <- partial.residuals$col
-  residuals.pch <- partial.residuals$pch
-  residuals.cex <- partial.residuals$cex
-  smooth.residuals <- partial.residuals$smooth
-  residuals.smooth.color <- partial.residuals$smooth.col
+  if (missing(show.fitted)) show.fitted <- partial.residuals$fitted
+  if (missing(residuals.color)) residuals.color <- partial.residuals$col
+  if (missing(residuals.pch)) residuals.pch <- partial.residuals$pch
+  if (missing(residuals.cex)) residuals.cex <- partial.residuals$cex
+  if (missing(smooth.residuals)) smooth.residuals <- partial.residuals$smooth
+  if (missing(residuals.smooth.color)) residuals.smooth.color <- partial.residuals$smooth.col
   residuals.lty <- partial.residuals$lty
   residuals.lwd <- partial.residuals$lwd
-  span <- partial.residuals$span
+  if (missing(span)) span <- partial.residuals$span
   partial.residuals <- partial.residuals$plot
   if (missing(lattice)) lattice <- NULL
   lattice <- applyDefaults(lattice, defaults=list(
@@ -193,13 +215,15 @@ plot.eff <- function(x, x.var, z.var=which.min(levels), main=paste(effect, "effe
       array=list(row=1, col=1, nrow=1, ncol=1, more=FALSE),
       arg="lattice"
   ))
-  layout <- lattice$layout
-  lattice$key.args[["between.columns"]] <- if(is.null(lattice$key.args[["between.columns"]])) 0 else
-    lattice$key.args[["between.columns"]]
-  key.args <- lattice$key.args
+  if (missing(layout)) layout <- lattice$layout
+  if (missing(key.args)){
+    lattice$key.args[["between.columns"]] <- if(is.null(lattice$key.args[["between.columns"]])) 0 else
+      lattice$key.args[["between.columns"]]
+    key.args <- lattice$key.args
+  }
   strip.args <- applyDefaults(lattice$strip, defaults=list(factor.names=TRUE, values=!partial.residuals), arg="lattice$strip")
-  factor.names <- strip.args$factor.names
-  show.strip.values <- strip.args$values
+  if (missing(factor.names)) factor.names <- strip.args$factor.names
+  if (missing(show.strip.values)) show.strip.values <- strip.args$values
   array.args <- applyDefaults(lattice$array, defaults=list(row=1, col=1, nrow=1, ncol=1, more=FALSE), arg="lattice$array")
   row <- array.args$row
   col <- array.args$col
@@ -757,24 +781,24 @@ plot.eff <- function(x, x.var, z.var=which.min(levels), main=paste(effect, "effe
             panel.bands(x[good], y[good], upper[subscripts][good], lower[subscripts][good],
                         fill=band.colors[1], alpha=band.transparency, use.splines=use.splines)
           }
-          if (!is.null(residuals)){
-            predictors <- predictors[-x.var]
-            factors <- sapply(xx, is.factor)
-            for (predictor in predictors){
-              use <- use & if(factors[predictor]) x.all[, predictor] == xx[subscripts[1], predictor]
-              else x.all[, predictor] == xx[subscripts[1], predictor]
-            }
-            n.in.panel <- sum(use)
-            if (n.in.panel > 0){
-              fitted <- y[good][closest(trans(x.fit[use]), x[good])]
-              partial.res <- if (!rescale.axis) original.inverse(original.link(fitted) + residuals[use])
-              else fitted + residuals[use]
-              lpoints(trans(x.fit[use]), partial.res, col=residuals.color, pch=residuals.pch, cex=residuals.cex)
-              if (show.fitted) lpoints(trans(x.fit[use]), fitted, pch=16, col=residuals.color)  # REMOVE ME
-              if (smooth.residuals && n.in.panel >= 10) {
-                llines(loess.smooth(x.fit[use], partial.res, span=span, family=loess.family),
-                       lwd=residuals.lwd, lty=residuals.lty, col=residuals.smooth.color)
-              }
+        }
+        if (!is.null(residuals)){
+          predictors <- predictors[-x.var]
+          factors <- sapply(xx, is.factor)
+          for (predictor in predictors){
+            use <- use & if(factors[predictor]) x.all[, predictor] == xx[subscripts[1], predictor]
+            else x.all[, predictor] == xx[subscripts[1], predictor]
+          }
+          n.in.panel <- sum(use)
+          if (n.in.panel > 0){
+            fitted <- y[good][closest(trans(x.fit[use]), x[good])]
+            partial.res <- if (!rescale.axis) original.inverse(original.link(fitted) + residuals[use])
+            else fitted + residuals[use]
+            lpoints(trans(x.fit[use]), partial.res, col=residuals.color, pch=residuals.pch, cex=residuals.cex)
+            if (show.fitted) lpoints(trans(x.fit[use]), fitted, pch=16, col=residuals.color)  # REMOVE ME
+            if (smooth.residuals && n.in.panel >= 10) {
+              llines(loess.smooth(x.fit[use], partial.res, span=span, family=loess.family),
+                     lwd=residuals.lwd, lty=residuals.lty, col=residuals.smooth.color)
             }
           }
         }

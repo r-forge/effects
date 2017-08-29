@@ -37,12 +37,29 @@
 \method{summary}{efflatent}(object, ...)
 \method{summary}{efflist}(object, ...)
 \method{summary}{mlm.efflist}(object, ...)
-\method{plot}{eff}(x, x.var, z.var=which.min(levels),
+\method{plot}{eff}(x, x.var, z.var=which.min(levels), 
     main=paste(effect, "effect plot"),
-    symbols, lines, axes, confint, partial.residuals, lattice, ...)
-\method{plot}{effpoly}(x, x.var=which.max(levels),
+    symbols=TRUE, lines=TRUE, axes, confint, 
+    partial.residuals, lattice, ...,
+    # legacy arguments:
+    multiline, rug, xlab, ylab, colors, cex, lty, lwd, 
+    ylim, xlim, factor.names, ci.style,
+    band.transparency, band.colors, type, ticks, 
+    alternating, rotx, roty, grid, layout,
+    rescale.axis, transform.x, ticks.x, show.strip.values, 
+    key.args, use.splines,
+    residuals.color, residuals.pch, residuals.cex, smooth.residuals,
+    residuals.smooth.color, show.fitted, span)
+\method{plot}{effpoly}(x, x.var=which.max(levels), 
     main=paste(effect, "effect plot"),
-    symbols, lines, axes, confint, lattice, ...)
+    symbols=TRUE, lines=TRUE, axes, confint, lattice, ...,
+    # legacy arguments:
+    type, rug, xlab, ylab, colors, cex, lty, lwd, 
+    factor.names, show.strip.values,
+    ci.style, band.colors, band.transparency, style, 
+    transform.x, ticks.x, xlim,
+    ticks, ylim, rotx, roty, alternating, grid, 
+    layout, key.args, use.splines)
 \method{plot}{efflist}(x, selection, rows, cols, ask=FALSE, graphics=TRUE, lattice, ...)
 \method{plot}{mlm.efflist}(x, ...)
 }
@@ -56,7 +73,8 @@
     if \code{"response"} (the default), effects are printed on the scale of the response
     variable; if \code{"link"}, effects are printed  on the scale of the linear predictor.
     For polytomous logit models, this argument takes either \code{"probability"}
-    or \code{"logit"}, with the former as the default.}
+    or \code{"logit"}, with the former as the default. The \code{type} argument is also a
+    legacy argument for \code{plot} methods.}
   \item{x.var}{the index (number) or quoted name of the covariate or factor to place on the
     horizontal axis of each panel of the effect plot. The default is the
     predictor with the largest number of levels or values.}
@@ -67,9 +85,9 @@
     used for multipline plots --- see the \code{lines} argument.}
   \item{main}{the title for the plot, printed at the top; the default title is constructed from the
     name of the effect.}
-  \item{symbols}{an optional list of specifications for plotting symbols; if not given, symbol properties are
+  \item{symbols}{\code{TRUE}, \code{FALSE}, or an optional list of specifications for plotting symbols; if not given, symbol properties are
     taken from \code{superpose.symbol} in the lattice theme. See Detailed Argument Descriptions under Details for more information.}
-  \item{lines}{an optional list of specifications for plotting lines (and possibly areas); if not given, line properties are
+  \item{lines}{\code{TRUE}, \code{FALSE}, or an optional list of specifications for plotting lines (and possibly areas); if not given, line properties are
     taken from \code{superpose.line} in the lattice theme. See Detailed Argument Descriptions under Details for more information.}
   \item{axes}{an optional list of specifications for the x and y axes; if not given, axis properties take
     generally reasonable default values. See Details for more information.}
@@ -90,6 +108,15 @@
   \item{graphics}{if \code{TRUE} (the default), then the menu of terms to plot is presented
     in a dialog box rather than as a text menu.}
   \item{...}{arguments to be passed down.}
+  \item{multiline, rug, xlab, ylab, colors, cex, lty, lwd, 
+     ylim, xlim, factor.names, ci.style,
+     band.transparency, band.colors, ticks, 
+     alternating, rotx, roty, grid, layout,
+     rescale.axis, transform.x, ticks.x, show.strip.values, 
+     key.args, use.splines,
+     residuals.color, residuals.pch, residuals.cex, smooth.residuals,
+     residuals.smooth.color, show.fitted, span, style}{legacy arguments retained for backwards compatibility;
+     if specified, these will take precedence over the newer list-style arguments described above.}
 }
 
 \details{
@@ -122,13 +149,14 @@ assumes its default value. Some of the list elements are themselves lists, so in
 the form of nested lists.  All of these arguments can also be used on objects created with \code{\link{predictorEffects}}.
 
 \describe{
-\item{\code{symbols}}{a list of options that controls the plotting symbols and their sizes for use with factors:
+\item{\code{symbols}}{\code{TRUE}, \code{FALSE}, or a list of options that controls the plotting symbols and their sizes for use with factors; 
+if \code{FALSE} symbols are suppressed; if \code{TRUE} default values are used:
     \describe{
     \item{\code{pch}}{ploting symbols, a vector of plotting characters, with the default taken from \code{trellis.par.get("superpose.symbol")$pch}, typically a vector of 1s (circles).}
     \item{\code{cex}}{plotting character sizes, a vector of values, with the default taken from \code{trellis.par.get("superpose.symbol")$cex}, typically a vector of 0.8s.}
     }
 }
-\item{\code{lines}}{controls the chacteristics of lines drawn on a plot, and also whether or not multiple lines should be drawn in the same panel in the plot.
+\item{\code{lines}}{code{symbols}}{\code{TRUE}, \code{FALSE}, or a list that controls the chacteristics of lines drawn on a plot, and also whether or not multiple lines should be drawn in the same panel in the plot; if \code{FALSE} lines are suppressed; if \code{TRUE} default values are used:
     \describe{
     \item{\code{multline}}{display a multiline plot in each panel; the default is \code{TRUE} if there are no standard errors
     in the \code{"eff"} object, \code{FALSE} otherwise.}

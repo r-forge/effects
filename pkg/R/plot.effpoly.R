@@ -8,21 +8,27 @@
 # 2014-03-22: use wide columns by default only when x for legend not set. J. Fox
 # 2016-09-08: added show.strip.values argument to plot.effpoly(). J. Fox
 # 2017-08-16: modified plot.effpoly() to consolidate arguments and use lattice theme. J. Fox
+# 2017-08-20: reintroduce legacy arguments for plot.effpoly()
 
 plot.effpoly <- function(x, x.var=which.max(levels), main=paste(effect, "effect plot"),
-    symbols, lines, axes, confint, lattice, ...){
+    symbols=TRUE, lines=TRUE, axes, confint, lattice, ...,
+    # legacy arguments:
+    type, rug, xlab, ylab, colors, cex, lty, lwd, factor.names, show.strip.values,
+    ci.style, band.colors, band.transparency, style, transform.x, ticks.x, xlim,
+    ticks, ylim, rotx, roty, alternating, grid, layout, key.args, use.splines
+    ){
 
-    if (missing(lines)) lines <- NULL
+    if (!is.logical(lines) && !is.list(lines)) lines <- list(lty=lines)
     lines <- applyDefaults(lines, 
                            defaults=list(lty=trellis.par.get("superpose.line")$lty, 
                                          lwd=trellis.par.get("superpose.line")$lwd[1], col=NULL, splines=TRUE), 
                            arg="lines")
-    lwd <- lines$lwd
-    use.splines <- lines$splines
+    if (missing(lwd)) lwd <- lines$lwd
+    if (missing(use.splines)) use.splines <- lines$splines
     lines.col <- lines$col
-    lines <- lines$lty
+    lines <- if (missing(lty)) lines$lty else lty
     
-    if (missing(symbols)) symbols <- NULL
+    if (!is.logical(symbols) && !is.list(symbols)) symbols <- list(pch=symbols)
     symbols <- applyDefaults(symbols,
                              defaults= list(pch=trellis.par.get("superpose.symbol")$pch, cex=trellis.par.get("superpose.symbol")$cex[1]),
                              arg="symbols")
@@ -35,8 +41,27 @@ plot.effpoly <- function(x, x.var=which.max(levels), main=paste(effect, "effect 
         y=list(lab=NULL, lim=NULL, ticks=list(at=NULL, n=5), type="probability", rotate=0),
         alternating=TRUE, grid=FALSE),
         arg="axes")
+    
     x.args <- applyDefaults(axes$x, defaults=list(rotate=0, rug=TRUE), arg="axes$x")
-    xlab <- xlim <- ticks.x <- transform.x <- list()
+    
+    if (missing(xlab)) {
+      xlab.arg <- FALSE
+      xlab <- list()
+    }
+    if (missing(xlim)) {
+      xlim.arg <- FALSE
+      xlim <- list()
+    }
+    if (missing(ticks.x)) {
+      ticks.x.arg <- FALSE
+      ticks.x <- list()
+    }
+    if (missing(transform.x)) {
+      transform.x.arg <- FALSE
+      transform.x <- list()
+    }
+    if (missing(rotx)) rotx <- x.args$rotate
+    if (missing(rug)) rug <- x.args$rug
     rotx <- x.args$rotate
     rug <- x.args$rug
     x.args$rotate <- NULL
@@ -47,10 +72,10 @@ plot.effpoly <- function(x, x.var=which.max(levels), main=paste(effect, "effect 
             x.pred.args <- applyDefaults(x.args[[pred.name]], 
                                          defaults=list(lab=NULL, lim=NULL, ticks=NULL, transform=NULL), 
                                          arg=paste0("axes$x$", pred.name))
-            xlab[[pred.name]] <- x.pred.args$lab
-            xlim[[pred.name]] <- x.pred.args$lim
-            ticks.x[[pred.name]] <- x.pred.args$ticks
-            transform.x[[pred.name]] <- x.pred.args$transform
+            if (!xlab.arg) xlab[[pred.name]] <- x.pred.args$lab
+            if (!xlim.arg) xlim[[pred.name]] <- x.pred.args$lim
+            if (!ticks.x.arg) ticks.x[[pred.name]] <- x.pred.args$ticks
+            if (!transform.x.arg) transform.x[[pred.name]] <- x.pred.args$transform
         }
     }
     if (length(xlab) == 0) xlab <- NULL
@@ -59,18 +84,18 @@ plot.effpoly <- function(x, x.var=which.max(levels), main=paste(effect, "effect 
     if (length(transform.x) == 0) transform.x <- NULL
     
     y.args <- applyDefaults(axes$y, defaults=list(lab=NULL, lim=NULL, ticks=list(at=NULL, n=5), type="probability", style="lines", rotate=0), arg="axes$y")
-    ylim <- y.args$lim
-    ticks <- y.args$ticks
-    type <- y.args$type
+    if (missing(ylim)) ylim <- y.args$lim
+    if (missing(ticks)) ticks <- y.args$ticks
+    if (missing(type)) type <- y.args$type
     type <- match.arg(type, c("probability", "logit"))
-    ylab <- y.args$lab
+    if (missing(ylab)) ylab <- y.args$lab
     if (is.null(ylab)) ylab <- paste0(x$response, " (", type, ")")
-    roty <- y.args$rotate
-    alternating <- axes$alternating
-    grid <- axes$grid
-    style <- match.arg(y.args$style, c("lines", "stacked"))
+    if (missing(roty)) roty <- y.args$rotate
+    if (missing(alternating)) alternating <- axes$alternating
+    if (missing(grid)) grid <- axes$grid
+    if (missing(style)) style <- match.arg(y.args$style, c("lines", "stacked"))
     
-    colors <- if (is.null(lines.col)){
+    if (missing(colors)) colors <- if (is.null(lines.col)){
         if (style == "lines" || x$model == "multinom")
             trellis.par.get("superpose.line")$col
         else sequential_hcl(length(x$y.levels))
@@ -81,10 +106,11 @@ plot.effpoly <- function(x, x.var=which.max(levels), main=paste(effect, "effect 
     if (missing(confint)) confint <- NULL
     confint <- applyDefaults(confint,
                              defaults=list(style=if (style == "lines") "bands" else "none", alpha=0.15, col=colors),
+                             onFALSE=list(style="none", alpha=0, col="white"),
                              arg="confint")
-    ci.style <- confint$style
-    band.transparency <- confint$alpha
-    band.colors <- confint$col
+    if (missing(ci.style)) ci.style <- confint$style
+    if (missing(band.transparency)) band.transparency <- confint$alpha
+    if (missing(band.colors)) band.colors <- confint$col
     if(!is.null(ci.style)) ci.style <- match.arg(ci.style, c("bars", "lines", "bands", "none")) 
     confint <- confint$style != "none"
     
@@ -109,11 +135,11 @@ plot.effpoly <- function(x, x.var=which.max(levels), main=paste(effect, "effect 
         array=list(row=1, col=1, nrow=1, ncol=1, more=FALSE),
         arg="lattice"
     ))
-    layout <- lattice$layout
-    key.args <- lattice$key.args
+    if (missing(layout)) layout <- lattice$layout
+    if (missing(key.args)) key.args <- lattice$key.args
     strip.args <- applyDefaults(lattice$strip, defaults=list(factor.names=TRUE, values=TRUE), arg="lattice$strip")
     factor.names <- strip.args$factor.names
-    show.strip.values <- strip.args$values
+    if (missing(show.strip.values)) show.strip.values <- strip.args$values
     array.args <- applyDefaults(lattice$array, defaults=list(row=1, col=1, nrow=1, ncol=1, more=FALSE), arg="lattice$array")
     row <- array.args$row
     col <- array.args$col

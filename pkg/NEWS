@@ -4,7 +4,7 @@ Version 4.0-0
  
  o Introduced predictor effects.
  
- o Reorganized complex argumentsto  plot() and Effect() into lists.
+ o Reorganized complex arguments to  plot() and Effect() into lists; legacy arguments retained as alternatives.
  
  o Use lattice theme for plot defaults.
 

@@ -63,23 +63,31 @@ effect(term, mod, vcov.=vcov, ...)
 Effect(focal.predictors, mod, ...)
 
 \method{Effect}{lm}(focal.predictors, mod, xlevels = list(), given.values,
-    vcov.=vcov, confint,
+    vcov.=vcov, confint=TRUE,
     transformation = list(link = family(mod)$linkfun, inverse = family(mod)$linkinv),
     typical = mean, offset = mean,
     partial.residuals=FALSE, quantiles=seq(0.2, 0.8, by=0.2),
-    x.var=NULL,  ...)
+    x.var=NULL,  ...,
+    #legacy arguments:
+    se, confidence.level)
 
 \method{Effect}{gls}(focal.predictors, mod, xlevels = list(),
-    given.values, vcov.=vcov, confint, transformation = NULL,
-    typical = mean, ...)
+    given.values, vcov.=vcov, confint=TRUE, transformation = NULL,
+    typical = mean, ...,
+    #legacy arguments:
+    se, confidence.level)
 
 \method{Effect}{multinom}(focal.predictors, mod,
     xlevels=list(),
-    given.values, vcov.=vcov, confint, typical=mean, ...)
+    given.values, vcov.=vcov, confint=TRUE, typical=mean, ...,
+    #legacy arguments:
+    se, confidence.level)
 
 \method{Effect}{polr}(focal.predictors, mod,
     xlevels=list(),
-    given.values, vcov.=vcov, confint, typical=mean, latent=FALSE, ...)
+    given.values, vcov.=vcov, confint=TRUE, typical=mean, latent=FALSE, ...,
+    #legacy arguments:
+    se, confidence.level)
 
 \method{Effect}{clm2}(focal.predictors, mod, ...)
 
@@ -101,9 +109,11 @@ Effect(focal.predictors, mod, ...)
 
 \method{Effect}{default}(focal.predictors, mod, xlevels = list(),
     given.values,
-    vcov. = vcov, confint,
+    vcov. = vcov, confint=TRUE,
     transformation = list(link = I, inverse = I),
-    typical = mean, offset = mean, ...)
+    typical = mean, offset = mean, ...,
+    #legacy arguments:
+    se, confidence.level)
 
 allEffects(mod, ...)
 
@@ -211,6 +221,8 @@ allEffects(mod, ...)
     The default is to use all responses in the model.}
   \item{object}{an object of class \code{"eff"} for which the covariance matrix of the effects is desired.}
   \item{...}{arguments to be passed down.}
+  \item{se, confidence.level}{legacy arguments retained for backwards compatability; if present, these arguments take precedence
+  of the \code{compute} and \code{level} elements of the \code{confint} list argument.}
 }
 
 \details{

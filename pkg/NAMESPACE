@@ -1,4 +1,4 @@
-# last modified 2017-08-26 by J. Fox
+# last modified 2017-08-29 by J. Fox
 
 import(carData)
 
@@ -10,7 +10,7 @@ importFrom(grid, grid.pretty, grid.segments, unit)
 importFrom(lme4, fixef)
 importFrom(nnet, multinom)
 importFrom(graphics, plot)
-importFrom(grDevices, gray, palette)
+importFrom(grDevices, gray, palette, rgb)
 importFrom(stats, as.formula, binomial, coef, coefficients, delete.response, family, fitted,
     formula, glm, glm.control, lm, lm.fit, loess.smooth, model.frame, model.matrix, model.offset,
     model.response, na.exclude, na.omit, nlm, predict, qf, qnorm, qt, quantile, residuals,

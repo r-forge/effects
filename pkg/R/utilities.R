@@ -21,6 +21,7 @@
 # 2017-07-27: added effectsTheme(); removed setStrip(), restoreStrip(). J. Fox
 # 2017-08-08: added .onAttach() to set lattice theme. J. Fox
 # 2017-08-26: added scheffe() to compute multipler for Scheffe-type confidence bounds. J. Fox
+# 2017-08-29: enhanced applyDefaults() with onFALSE argument. J. Fox
 
 has.intercept <- function(model, ...) any(names(coefficients(model))=="(Intercept)")
 
@@ -522,9 +523,12 @@ effectsTheme <- function(strip.background=list(col=gray(seq(0.95, 0.5, length=3)
 
 # to handle defaults for list-style arguments
 
-applyDefaults <- function(args, defaults, arg=""){
+applyDefaults <- function(args, defaults, onFALSE, arg=""){
     if (is.null(args)) return(defaults)
-    if (isFALSE(args)) return(FALSE)
+    if (isFALSE(args)) {
+      if (missing(onFALSE)) return(FALSE)
+      else return(onFALSE)
+    }
     names <- names(args)
     names <- names[names != ""]
     if (!isTRUE(args) && length(names) != length(args)) warning("unnamed ", arg, " arguments, will be ignored")
