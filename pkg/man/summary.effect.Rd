@@ -116,7 +116,7 @@
      key.args, use.splines,
      residuals.color, residuals.pch, residuals.cex, smooth.residuals,
      residuals.smooth.color, show.fitted, span, style}{legacy arguments retained for backwards compatibility;
-     if specified, these will take precedence over the newer list-style arguments described above.}
+     if specified, these will take precedence over the newer list-style arguments described above. See \code{\link{LegacyArguments}} for details.}
 }
 
 \details{
@@ -288,7 +288,7 @@ Other elements:
 \author{John Fox \email{jfox@mcmaster.ca} and Jangman Hong.}
 
 
-\seealso{\code{\link{effect}}, \code{\link{allEffects}}, \code{\link{effectsTheme}},
+\seealso{\code{\link{LegacyArguments}}, \code{\link{effect}}, \code{\link{allEffects}}, \code{\link{effectsTheme}},
     \code{\link{xyplot}}, \code{\link{densityplot}}, \code{\link{print.trellis}}, \code{\link{loess}},
 	\code{\link[colorspace]{sequential_hcl}}
 }

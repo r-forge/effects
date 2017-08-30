@@ -222,7 +222,7 @@ allEffects(mod, ...)
   \item{object}{an object of class \code{"eff"} for which the covariance matrix of the effects is desired.}
   \item{...}{arguments to be passed down.}
   \item{se, confidence.level}{legacy arguments retained for backwards compatability; if present, these arguments take precedence
-  of the \code{compute} and \code{level} elements over the \code{confint} list argument.}
+  of the \code{compute} and \code{level} elements over the \code{confint} list argument. See \code{\link{LegacyArguments}} for details.}
 }
 
 \details{
@@ -389,7 +389,7 @@ and of class \code{"effpoly"} with more than 2 categories.
 and Jangman Hong.}
 
 
-\seealso{For information on printing, summarizing, and plotting effects:
+\seealso{\code{\link{LegacyArguments}}. For information on printing, summarizing, and plotting effects:
     \code{\link{print.eff}}, \code{\link{summary.eff}}, \code{\link{plot.eff}},
     \code{\link{print.summary.eff}},
     \code{\link{print.effpoly}}, \code{\link{summary.effpoly}}, \code{\link{plot.effpoly}},
