@@ -25,7 +25,7 @@ An object of class \code{predictoreff} or \code{predictorefflist}.
 the index (number) or quoted name of the covariate or factor to place on the horizontal axis of each panel of the effect plot. The default is the predictor with the largest number of levels or values.
 }
   \item{lines}{
-identical to the \code{lines} argument of \code{\link{plot.eff}} except that \code{multiline} defaults to \code{TRUE}.
+identical to the \code{lines} argument of \code{\link{plot.eff}}.
 }
   \item{main}{
 the title for the plot, printed at the top; the default title is constructed from the name of the effect.

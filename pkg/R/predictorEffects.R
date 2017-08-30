@@ -1,5 +1,7 @@
 # last update:  2017-07-16
 # 2017-08-14 fixed bug in plot.predictoreff on passing 'multiline' to lines list
+# 2017-08-30 for compatibility with other effect plots, default 
+#            is now multiline=FALSE
 
 predictorEffect <- function(predictor, mod, ...){
 #predictorEffect <- function(mod, predictor, ...){
@@ -45,7 +47,7 @@ plot.predictoreff <- function(x, x.var, lines=list(),
     main = paste(names(x$variables)[1], "predictor effect plot"), ...){
    if(missing(x.var)) x.var <- names(x$variables)[1]
 #   if(missing(key.args)) key.args=list(cex=3/4, cex.title=3/4)
-   if (is.null(lines[["multiline"]])) lines[["multiline"]] <- TRUE
+#   if (is.null(lines[["multiline"]])) lines[["multiline"]] <- TRUE
    NextMethod(x, x.var=x.var, main=main, lines=lines, ...)
 }
 
