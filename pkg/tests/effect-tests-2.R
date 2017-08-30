@@ -1,10 +1,10 @@
 
-if (requireNamespace("car") && require("effects")){
+if (requireNamespace("carData") && require("effects")){
 
   # plots should show fitted values directly on plotted effect, and must be checked visually
   # numbering corresponds to effect-test-1.R
   
-  data(Duncan, package="car")
+  data(Duncan, package="carData")
   
   mod.1 <- lm(prestige ~ type + poly(income, degree=2, raw=TRUE), data=Duncan)
   
@@ -63,7 +63,7 @@ if (requireNamespace("car") && require("effects")){
   
   # (9) focal: covariate, constant: 2 factors and 1 covariate, 3-way interaction
   
-  data(Mroz, package="car")
+  data(Mroz, package="carData")
   mod.6 <- lm(lwg ~ inc + age*hc*wc, data=Mroz)
 
   print(plot(Effect(c("inc"), mod.6, partial.residual=TRUE), show.fitted=TRUE))

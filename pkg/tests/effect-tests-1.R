@@ -1,7 +1,7 @@
 
-if (requireNamespace("car") && require("effects")){
+if (requireNamespace("carData") && require("effects")){
   
-  data(Duncan, package="car")
+  data(Duncan, package="carData")
 
   mi <- with(Duncan, mean(income))
   me <- with(Duncan, mean(education))
@@ -114,7 +114,7 @@ if (requireNamespace("car") && require("effects")){
   
   # (9) focal: covariate, constant: 2 factors and 1 covariate, 3-way interaction
   
-  data(Mroz, package="car")
+  data(Mroz, package="carData")
   mod.6 <- lm(lwg ~ inc + age*hc*wc, data=Mroz)
   mage <- with(Mroz, mean(age))
   mhc <- with(Mroz, mean(hc == "yes"))
