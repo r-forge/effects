@@ -54,7 +54,7 @@
     main=paste(effect, "effect plot"),
     symbols=TRUE, lines=TRUE, axes, confint, lattice, ...,
     # legacy arguments:
-    type, rug, xlab, ylab, colors, cex, lty, lwd, 
+    type, multiline, rug, xlab, ylab, colors, cex, lty, lwd, 
     factor.names, show.strip.values,
     ci.style, band.colors, band.transparency, style, 
     transform.x, ticks.x, xlim,
@@ -159,7 +159,8 @@ if \code{FALSE} symbols are suppressed; if \code{TRUE} default values are used:
 \item{\code{lines}}{\code{TRUE}, \code{FALSE}, or a list that controls the chacteristics of lines drawn on a plot, and also whether or not multiple lines should be drawn in the same panel in the plot; if \code{FALSE} lines are suppressed; if \code{TRUE} default values are used:
     \describe{
     \item{\code{multiline}}{display a multiline plot in each panel; the default is \code{TRUE} if there are no standard errors
-    in the \code{"eff"} object, \code{FALSE} otherwise.}
+    in the \code{"eff"} object, \code{FALSE} otherwise. For an \code{"effpoly"} object \code{multline=TRUE} causes all of the response
+    levels to be shown in the same panel rather than in separate panels.}
     \item{\code{lty}}{vector of line types, with the default taken from \code{trellis.par.get("superpose.line")$lty}, typically a vector of 1s (solid lines).}
     \item{\code{lwd}}{vector of line widths, with the default taken from \code{trellis.par.get("superpose.line")$lwd}, typically a vector with 2 in the first position followed by 1s.}
     \item{\code{col}}{a vector of line colors, with the default taken from from \code{trellis.par.get("superpose.line")$col}, used both for lines and
@@ -368,6 +369,7 @@ if (require(MASS)){
     plot(effect("country*poly(age, 3)", mod.wvs))
 
     \donttest{
+    plot(effect("country*poly(age, 3)", mod.wvs), lines=list(multiline=TRUE))
     plot(effect("country*poly(age, 3)", mod.wvs),
          axes=list(y=list(style="stacked")),
          lines=list(col=c("gray75", "gray50", "gray25")))

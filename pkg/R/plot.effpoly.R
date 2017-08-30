@@ -9,20 +9,21 @@
 # 2016-09-08: added show.strip.values argument to plot.effpoly(). J. Fox
 # 2017-08-16: modified plot.effpoly() to consolidate arguments and use lattice theme. J. Fox
 # 2017-08-20: reintroduce legacy arguments for plot.effpoly()
+# 2017-08-20: introduced multiline argument under lines argument and as a "legacy" argument
 
 plot.effpoly <- function(x, x.var=which.max(levels), main=paste(effect, "effect plot"),
     symbols=TRUE, lines=TRUE, axes, confint, lattice, ...,
     # legacy arguments:
-    type, rug, xlab, ylab, colors, cex, lty, lwd, factor.names, show.strip.values,
+    type, multiline, rug, xlab, ylab, colors, cex, lty, lwd, factor.names, show.strip.values,
     ci.style, band.colors, band.transparency, style, transform.x, ticks.x, xlim,
-    ticks, ylim, rotx, roty, alternating, grid, layout, key.args, use.splines
-    ){
+    ticks, ylim, rotx, roty, alternating, grid, layout, key.args, use.splines){
 
     if (!is.logical(lines) && !is.list(lines)) lines <- list(lty=lines)
     lines <- applyDefaults(lines, 
                            defaults=list(lty=trellis.par.get("superpose.line")$lty, 
-                                         lwd=trellis.par.get("superpose.line")$lwd[1], col=NULL, splines=TRUE), 
+                                         lwd=trellis.par.get("superpose.line")$lwd[1], col=NULL, splines=TRUE, multiline=NULL), 
                            arg="lines")
+    if (missing(multiline)) multiline <- lines$multiline
     if (missing(lwd)) lwd <- lines$lwd
     if (missing(use.splines)) use.splines <- lines$splines
     lines.col <- lines$col
@@ -105,7 +106,7 @@ plot.effpoly <- function(x, x.var=which.max(levels), main=paste(effect, "effect 
     
     if (missing(confint)) confint <- NULL
     confint <- applyDefaults(confint,
-                             defaults=list(style=if (style == "lines") "bands" else "none", alpha=0.15, col=colors),
+                             defaults=list(style=if (style == "lines" && !is.null(x$se.prob)) "bands" else "none", alpha=0.15, col=colors),
                              onFALSE=list(style="none", alpha=0, col="white"),
                              arg="confint")
     if (missing(ci.style)) ci.style <- confint$style
@@ -113,6 +114,8 @@ plot.effpoly <- function(x, x.var=which.max(levels), main=paste(effect, "effect 
     if (missing(band.colors)) band.colors <- confint$col
     if(!is.null(ci.style)) ci.style <- match.arg(ci.style, c("bars", "lines", "bands", "none")) 
     confint <- confint$style != "none"
+    
+    if (is.null(multiline)) multiline <- if (confint) FALSE else TRUE
     
     effect.llines <- llines
     has.se <- !is.null(x$confidence.level) 
@@ -157,9 +160,11 @@ plot.effpoly <- function(x, x.var=which.max(levels), main=paste(effect, "effect 
     y.lev <- x$y.lev
     n.y.lev <- length(y.lev)
     ylevel.names <- make.names(paste("prob",y.lev))
-    colnames(x$prob) <- colnames(x$logit) <- 
+    colnames(x$prob) <- colnames(x$logit) <- ylevel.names
+    if (has.se){
         colnames(x$lower.logit) <- colnames(x$upper.logit) <- 
-        colnames(x$lower.prob) <- colnames(x$upper.prob)<- ylevel.names
+          colnames(x$lower.prob) <- colnames(x$upper.prob)<- ylevel.names
+    }
     x.frame <-as.data.frame(x)
     predictors <- names(x.frame)[1:n.predictors]
     levels <- if (n.predictors==1) length (x.frame[,predictors])
@@ -200,13 +205,130 @@ plot.effpoly <- function(x, x.var=which.max(levels), main=paste(effect, "effect 
     if( ci.style=="none" ) confint <- FALSE
     ### no confidence intervals if confint == FALSE or ci.style=="none"
     if (!confint){ # plot without confidence bands
-        layout <- if (is.null(layout)){
-            lay <- c(prod(n.predictor.cats[-(n.predictors - 1)]), 
-                prod(n.predictor.cats[(n.predictors - 1)]), 1)
-            if (lay[1] > 1) lay else lay[c(2, 1, 3)]
-        }
-        else layout
         if (style == "lines"){ # line plot
+          if (!multiline){
+            layout <- if(is.null(layout)) c(prod(n.predictor.cats), length(levels(response)), 1) 
+            else layout
+            ### factor
+            if (is.factor(x$data[[predictors[x.var]]])){ # x-variable a factor
+              levs <- levels(x$data[[predictors[x.var]]])
+              if (show.strip.values){
+                for (pred in predictors[-x.var]){
+                  Data[[pred]] <- as.factor(Data[[pred]])
+                }
+              }
+              result <- xyplot(eval(if (type=="probability") 
+                parse(text=if (n.predictors==1) 
+                  paste("prob ~ as.numeric(", predictors[x.var],") |", x$response)
+                  else paste("prob ~ as.numeric(", predictors[x.var],") |", 
+                             paste(predictors[-x.var], collapse="*"), 
+                             paste("*", x$response)))
+                else parse(text=if (n.predictors==1) 
+                  paste("logit ~ as.numeric(", predictors[x.var],") |", x$response)
+                  else paste("logit ~ as.numeric(", predictors[x.var],")|", 
+                             paste(predictors[-x.var], collapse="*"), 
+                             paste("*", x$response)))),
+                par.strip.text=list(cex=0.8),							
+                strip=function(...) strip.default(..., strip.names=c(factor.names, TRUE), sep=" = "),
+                panel=function(x, y, subscripts, x.vals, rug, ... ){
+                  if (grid) panel.grid()
+                  good <- !is.na(y)
+                  effect.llines(x[good], y[good], lwd=lwd, type="b", pch=19, col=colors[1], cex=cex, ...)
+                  subs <- subscripts+as.numeric(rownames(Data)[1])-1		
+                },
+                
+                
+                ylab=ylab,
+                ylim=if (is.null(ylim))
+                  if (type == "probability") range(prob) else range(logit)
+                  else ylim,
+                xlab=if (is.null(xlab)) predictors[x.var] else xlab,
+                main=main,
+                x.vals=x$data[[predictors[x.var]]],
+                rug=rug,
+                scales=list(x=list(at=1:length(levs), labels=levs, rot=rotx), 
+                            y=list(rot=roty), alternating=alternating),
+                layout=layout,
+                data=Data, ...)
+              result$split <- split
+              result$more <- more
+              class(result) <- c("plot.eff", class(result))
+            }
+            else { # x-variable numeric
+              if(use.splines) effect.llines <- spline.llines # added 10/17/13
+              nm <- predictors[x.var]
+              x.vals <- x$data[[nm]]   
+              if (nm %in% names(ticks.x)){
+                at <- ticks.x[[nm]]$at
+                n <- ticks.x[[nm]]$n
+              }
+              else{
+                at <- NULL
+                n <- 5
+              }
+              xlm <- if (nm %in% names(xlim)){
+                xlim[[nm]]
+              }
+              else range.adj(Data[nm]) # range(x.vals)
+              tickmarks.x <- if ((nm %in% names(transform.x)) && !(is.null(transform.x))){
+                trans <- transform.x[[nm]]$trans
+                make.ticks(trans(xlm), link=transform.x[[nm]]$trans, inverse=transform.x[[nm]]$inverse, at=at, n=n)
+              }
+              else {
+                trans <- I
+                make.ticks(xlm, link=I, inverse=I, at=at, n=n)
+              }
+              if (show.strip.values){
+                for (pred in predictors[-x.var]){
+                  Data[[pred]] <- as.factor(Data[[pred]])
+                }
+              }
+              result <- xyplot(eval(if (type=="probability") 
+                parse(text=if (n.predictors==1) 
+                  paste("prob ~ trans(", predictors[x.var],") |", x$response)
+                  else paste("prob ~ trans(", predictors[x.var],") |", 
+                             paste(predictors[-x.var], collapse="*"), 
+                             paste("*", x$response)))
+                else parse(text=if (n.predictors==1) 
+                  paste("logit ~ trans(", predictors[x.var],") |", x$response)
+                  else paste("logit ~ trans(", predictors[x.var],") |", 
+                             paste(predictors[-x.var], collapse="*"), 
+                             paste("*", x$response)))
+              ),
+              par.strip.text=list(cex=0.8),							
+              strip=function(...) strip.default(..., strip.names=c(factor.names, TRUE), sep=" = "),
+              panel=function(x, y, subscripts, x.vals, rug, ... ){
+                if (grid) panel.grid()
+                if (rug) lrug(trans(x.vals))
+                good <- !is.na(y)
+                effect.llines(x[good], y[good], lwd=lwd, col=colors[1], ...)
+                subs <- subscripts+as.numeric(rownames(Data)[1])-1	
+              },
+              ylab=ylab,
+              xlim=suppressWarnings(trans(xlm)),
+              ylim= if (is.null(ylim))
+                if (type == "probability") range(prob) else range(logit)
+                else ylim,
+              xlab=if (is.null(xlab)) predictors[x.var] else xlab,
+              main=main,
+              x.vals=x$data[[predictors[x.var]]],
+              rug=rug,
+              scales=list(y=list(rot=roty), x=list(at=tickmarks.x$at, labels=tickmarks.x$labels, rot=rotx),
+                          alternating=alternating),
+              layout=layout,
+              data=Data, ...)
+              result$split <- split
+              result$more <- more
+              class(result) <- c("plot.eff", class(result))
+            }
+            
+          } else {
+            layout <- if (is.null(layout)){
+              lay <- c(prod(n.predictor.cats[-(n.predictors - 1)]), 
+                       prod(n.predictor.cats[(n.predictors - 1)]), 1)
+              if (lay[1] > 1) lay else lay[c(2, 1, 3)]
+            }
+            else layout
             if (n.y.lev > min(c(length(colors), length(lines), length(symbols))))
                 warning('Colors, lines and symbols may have been recycled')
             if (is.factor(x$data[[predictors[x.var]]])){ # x-variable a factor
@@ -329,8 +451,15 @@ plot.effpoly <- function(x, x.var=which.max(levels), main=paste(effect, "effect 
                 result$more <- more
                 class(result) <- c("plot.eff", class(result))			
             }
+          }
         }
         else { # stacked plot
+          layout <- if (is.null(layout)){
+            lay <- c(prod(n.predictor.cats[-(n.predictors - 1)]), 
+                     prod(n.predictor.cats[(n.predictors - 1)]), 1)
+            if (lay[1] > 1) lay else lay[c(2, 1, 3)]
+          }
+          else layout
             if (n.y.lev > length(colors))
                 stop(paste('Not enough colors to plot', n.y.lev, 'regions'))
             key <- list(text=list(lab=rev(y.lev)), rectangle=list(col=rev(colors[1:n.y.lev])))
@@ -427,16 +556,17 @@ plot.effpoly <- function(x, x.var=which.max(levels), main=paste(effect, "effect 
     }
     ### with confidence bands
     else{ # plot with confidence bands
+      if (type == "probability"){
+        lower <- lower.prob
+        upper <- upper.prob
+      }
+      else {
+        lower <- lower.logit
+        upper <- upper.logit
+      }
+      if (!multiline){
         layout <- if(is.null(layout)) c(prod(n.predictor.cats), length(levels(response)), 1) 
         else layout
-        if (type == "probability"){
-            lower <- lower.prob
-            upper <- upper.prob
-        }
-        else {
-            lower <- lower.logit
-            upper <- upper.logit
-        }
         ### factor
         if (is.factor(x$data[[predictors[x.var]]])){ # x-variable a factor
             levs <- levels(x$data[[predictors[x.var]]])
@@ -577,6 +707,166 @@ plot.effpoly <- function(x, x.var=which.max(levels), main=paste(effect, "effect 
             result$more <- more
             class(result) <- c("plot.eff", class(result))
         }
+      } else {
+        
+        layout <- if (is.null(layout)){
+          lay <- c(prod(n.predictor.cats[-(n.predictors - 1)]), 
+                   prod(n.predictor.cats[(n.predictors - 1)]), 1)
+          if (lay[1] > 1) lay else lay[c(2, 1, 3)]
+        }
+        else layout
+        if (n.y.lev > min(c(length(colors), length(lines), length(symbols))))
+          warning('Colors, lines and symbols may have been recycled')
+        if (is.factor(x$data[[predictors[x.var]]])){ # x-variable a factor
+          key <- list(title=x$response, cex.title=1, border=TRUE,
+                      text=list(as.character(unique(response))),
+                      lines=list(col=colors[.modc(1:n.y.lev)], lty=lines[.modl(1:n.y.lev)], lwd=lwd),
+                      points=list(pch=symbols[.mods(1:n.y.lev)], col=colors[.modc(1:n.y.lev)]),
+                      columns = if ("x" %in% names(key.args)) 1 else find.legend.columns(n.y.lev))
+          for (k in names(key.args)) key[k] <- key.args[k]
+          if (show.strip.values){
+            for (pred in predictors[-x.var]){
+              Data[[pred]] <- as.factor(Data[[pred]])
+            }
+          }
+          result <- xyplot(eval(if (type=="probability") 
+            parse(text=if (n.predictors==1) 
+              paste("prob ~ as.numeric(", predictors[x.var], ")")
+              else paste("prob ~ as.numeric(", predictors[x.var],") | ", 
+                         paste(predictors[-x.var], collapse="*")))
+            else parse(text=if (n.predictors==1) 
+              paste("logit ~ as.numeric(", predictors[x.var], ")")
+              else paste("logit ~ as.numeric(", predictors[x.var],") | ", 
+                         paste(predictors[-x.var], collapse="*")))), 
+            strip=function(...) strip.default(..., strip.names=c(factor.names, TRUE), sep=" = "),
+            panel=function(x, y, subscripts, rug, z, x.vals, lower, upper, ...){
+              if (grid) panel.grid()
+              for (i in 1:n.y.lev){
+                sub <- z[subscripts] == y.lev[i]
+                good <- !is.na(y[sub])
+                effect.llines(x[sub][good], y[sub][good], lwd=lwd, type="b", col=colors[.modc(i)], lty=lines[.modl(i)],
+                              pch=symbols[i], cex=cex, ...)
+                if (ci.style == "bars"){
+                  larrows(x0=x[sub][good], y0=lower[subscripts][sub][good], 
+                          x1=x[sub][good], y1=upper[subscripts][sub][good], 
+                          angle=90, code=3, col=colors[.modc(i)], length=0.125*cex/1.5)
+                }
+                else  if(ci.style == "lines"){
+                  effect.llines(x[sub][good], lower[subscripts][sub][good], lty=lines[.modl(i)], col=colors[.modc(i)])
+                  effect.llines(x[sub][good], upper[subscripts][sub][good], lty=lines[.modl(i)], col=colors[.modc(i)])
+                }
+                else { if(ci.style == "bands") {		
+                  panel.bands(x[sub][good], y[sub][good],
+                              lower[subscripts][sub][good], upper[subscripts][sub][good],
+                              fill=colors[.modc(i)], alpha=band.transparency)
+                }}
+              }
+            },
+            ylab=ylab,
+            ylim= if (is.null(ylim)) c(min(lower), max(upper)) else ylim,
+            xlab=if (is.null(xlab)) predictors[x.var] else xlab,
+            x.vals=x$data[[predictors[x.var]]], 
+            rug=rug,
+            z=response,
+            lower=lower,
+            upper=upper,
+            scales=list(x=list(at=1:length(levs), labels=levs, rot=rotx),
+                        y=list(rot=roty),  
+                        alternating=alternating),
+            main=main,
+            key=key,
+            layout=layout,
+            data=Data, ...)
+          result$split <- split
+          result$more <- more
+          class(result) <- c("plot.eff", class(result))    		
+        }
+        else { # x-variable numeric
+          if(use.splines) effect.llines <- spline.llines # added 10/17/13
+          nm <- predictors[x.var]
+          x.vals <- x$data[[nm]]   
+          if (nm %in% names(ticks.x)){
+            at <- ticks.x[[nm]]$at
+            n <- ticks.x[[nm]]$n
+          }
+          else{
+            at <- NULL
+            n <- 5
+          }
+          xlm <- if (nm %in% names(xlim)){
+            xlim[[nm]]
+          }
+          else range.adj(Data[nm]) # range(x.vals)
+          tickmarks.x <- if ((nm %in% names(transform.x)) && !(is.null(transform.x))){
+            trans <- transform.x[[nm]]$trans
+            make.ticks(trans(xlm), link=transform.x[[nm]]$trans, inverse=transform.x[[nm]]$inverse, at=at, n=n)
+          }
+          else {
+            trans <- I
+            make.ticks(xlm, link=I, inverse=I, at=at, n=n)
+          }
+          key <- list(title=x$response, cex.title=1, border=TRUE,
+                      text=list(as.character(unique(response))), 
+                      lines=list(col=colors[.modc(1:n.y.lev)], lty=lines[.modl(1:n.y.lev)], lwd=lwd),
+                      columns = if ("x" %in% names(key.args)) 1 else find.legend.columns(n.y.lev))
+          for (k in names(key.args)) key[k] <- key.args[k]
+          if (show.strip.values){
+            for (pred in predictors[-x.var]){
+              Data[[pred]] <- as.factor(Data[[pred]])
+            }
+          }
+          result <- xyplot(eval(if (type=="probability") 
+            parse(text=if (n.predictors==1) paste("prob ~ trans(", predictors[x.var], ")")
+                  else paste("prob ~ trans(", predictors[x.var],") |", 
+                             paste(predictors[-x.var], collapse="*")))
+            else parse(text=if (n.predictors==1) paste("logit ~ trans(", predictors[x.var], ")")
+                       else paste("logit ~ trans(", predictors[x.var],") | ", 
+                                  paste(predictors[-x.var], collapse="*")))), 
+            strip=function(...) strip.default(..., strip.names=c(factor.names, TRUE), sep=" = "),
+            panel=function(x, y, subscripts, rug, z, x.vals, lower, upper, ...){
+              if (grid) panel.grid()
+              if (rug) lrug(trans(x.vals))
+              for (i in 1:n.y.lev){
+                sub <- z[subscripts] == y.lev[i]
+                good <- !is.na(y[sub])
+                effect.llines(x[sub][good], y[sub][good], lwd=lwd, type="l", col=colors[.modc(i)], lty=lines[.modl(i)], ...)
+                if (ci.style == "bars"){
+                  larrows(x0=x[sub][good], y0=lower[subscripts][sub][good], 
+                          x1=x[sub][good], y1=upper[subscripts][sub][good], 
+                          angle=90, code=3, col=colors[.modc(i)], length=0.125*cex/1.5)
+                }
+                else  if(ci.style == "lines"){
+                  effect.llines(x[sub][good], lower[subscripts][sub][good], lty=lines[.modl(i)], col=colors[.modc(i)])
+                  effect.llines(x[sub][good], upper[subscripts][sub][good], lty=lines[.modl(i)], col=colors[.modc(i)])
+                }
+                else { if(ci.style == "bands") {		
+                  panel.bands(x[sub][good], y[sub][good],
+                              lower[subscripts][sub][good], upper[subscripts][sub][good],
+                              fill=colors[.modc(i)], alpha=band.transparency)
+                }}
+              }
+            },
+            ylab=ylab,
+            xlim=suppressWarnings(trans(xlm)),
+            ylim= if (is.null(ylim)) c(min(lower), max(upper)) else ylim,
+            xlab=if (is.null(xlab)) predictors[x.var] else xlab,
+            x.vals=x$data[[predictors[x.var]]], 
+            rug=rug,
+            z=response,
+            lower=lower,
+            upper=upper,
+            scales=list(x=list(at=tickmarks.x$at, labels=tickmarks.x$labels, rot=rotx), y=list(rot=roty),
+                        alternating=alternating),
+            main=main,
+            key=key,
+            layout=layout,
+            data=Data, ...)
+          result$split <- split
+          result$more <- more
+          class(result) <- c("plot.eff", class(result))			
+        }
+        
+      }
     }
     result
 }
