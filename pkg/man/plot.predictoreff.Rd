@@ -11,11 +11,11 @@ These functions call \code{\link{plot.eff}} and \code{\link{plot.efflist}} to dr
 \usage{
 
 
-\method{plot}{predictoreff}(x, x.var, lines=list(),
+\method{plot}{predictoreff}(x, x.var, 
     main = paste(names(x$variables)[1], "predictor effect plot"), ...)
 
-\method{plot}{predictorefflist}(x, selection, rows, cols, ask = FALSE, graphics = TRUE,
-    lattice, ...)
+\method{plot}{predictorefflist}(x, selection, rows, cols, ask = FALSE, graphics = TRUE, 
+     lattice, ...)
 }
 \arguments{
   \item{x}{
@@ -23,9 +23,6 @@ An object of class \code{predictoreff} or \code{predictorefflist}.
 }
   \item{x.var}{
 the index (number) or quoted name of the covariate or factor to place on the horizontal axis of each panel of the effect plot. The default is the predictor with the largest number of levels or values.
-}
-  \item{lines}{
-identical to the \code{lines} argument of \code{\link{plot.eff}}.
 }
   \item{main}{
 the title for the plot, printed at the top; the default title is constructed from the name of the effect.

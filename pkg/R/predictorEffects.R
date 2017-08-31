@@ -43,19 +43,17 @@ predictorEffects <- function(mod, predictors = ~ ., ...){
 
 # plot methods
 
-plot.predictoreff <- function(x, x.var, lines=list(),
+plot.predictoreff <- function(x, x.var, 
     main = paste(names(x$variables)[1], "predictor effect plot"), ...){
    if(missing(x.var)) x.var <- names(x$variables)[1]
-#   if(missing(key.args)) key.args=list(cex=3/4, cex.title=3/4)
-#   if (is.null(lines[["multiline"]])) lines[["multiline"]] <- TRUE
-   NextMethod(x, x.var=x.var, main=main, lines=lines, ...)
+   NextMethod(x, x.var=x.var, main=main, ...)
 }
 
 # This next function differs for plot.efflist only by changing the title on each plot
-plot.predictorefflist <- function(x, selection, rows, cols, ask=FALSE, graphics=TRUE, lattice, ...){
-# Next line added 8/23/17 along with lattice, also lattice arg above
+plot.predictorefflist <- function(x, selection, rows, cols, ask=FALSE, graphics=TRUE, 
+                                  lattice, ...){
  lattice <- if(missing(lattice)) list() else lattice
- if(length(x) == 1) plot(x[[1]], lattice=lattice, ...) else {
+ if(length(x) == 1) plot(x[[1]],  ...) else {
   if (!missing(selection)){
     if (is.character(selection)) selection <- gsub(" ", "", selection)
     return(plot(x[[selection]], ...))
@@ -86,7 +84,42 @@ plot.predictorefflist <- function(x, selection, rows, cols, ask=FALSE, graphics=
       }
     }
   }
-}}
+ }}
+
+plot.predictorefflist <- function(x, selection, rows, cols, ask=FALSE, graphics=TRUE, 
+                                  lattice, ...){
+# Next line added 8/23/17 along with lattice, also lattice arg above
+  lattice <- if(missing(lattice)) list() else lattice
+  if (!missing(selection)){
+    if (is.character(selection)) selection <- gsub(" ", "", selection)
+    return(plot(x[[selection]], ...))
+  }
+  effects <- gsub(":", "*", names(x))
+  if (ask){
+    repeat {
+      selection <- menu(effects, graphics=graphics, title="Select Term to Plot")
+      if (selection == 0) break
+      else print(plot(x[[selection]], ...))
+    }
+  }
+  else {
+    neffects <- length(x)
+    mfrow <- mfrow(neffects)
+    if (missing(rows) || missing(cols)){
+      rows <- mfrow[1]
+      cols <- mfrow[2]
+    }
+    for (i in 1:rows) {
+      for (j in 1:cols){
+        if ((i-1)*cols + j > neffects) break
+        more <- !((i-1)*cols + j == neffects)
+        lattice[["array"]] <- list(row=i, col=j, nrow=rows, ncol=cols, more=more)
+        print(plot(x[[(i-1)*cols + j]], lattice=lattice, 
+                   ...))
+      }
+    }
+  }
+}
 
 
 # print and summary methods
