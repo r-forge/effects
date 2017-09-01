@@ -3,8 +3,13 @@
 # 2017-08-30 for compatibility with other effect plots, default 
 #            is now multiline=FALSE
 
-predictorEffect <- function(predictor, mod, ...){
+predictorEffect <- function(predictor, mod, xlevels=list(), ...){
 #predictorEffect <- function(mod, predictor, ...){
+  all.vars <- all.vars(formula(mod))
+  data <- na.omit(expand.model.frame(mod, all.vars)[, all.vars])
+  if (is.null(xlevels[[predictor]]) && is.numeric(data[[predictor]])){
+    xlevels[[predictor]] <- quantile(data[[predictor]], seq(0.01, 0.99, by=0.02))
+  } 
 # find the right effect to use
   terms <- attr(terms(mod), "term.labels")
 # get the predictor names:
@@ -17,7 +22,7 @@ predictorEffect <- function(predictor, mod, ...){
   for(j in 1:length(terms)){if(predictor %in% decode(terms[j])) tab[j] <- TRUE}
   ans <- unlist(strsplit(paste(terms[tab], collapse=":"), ":"))
   ans <- unique(all.vars(parse(text=ans)))
-  result <- Effect(ans, mod, ...)
+  result <- Effect(ans, mod, xlevels=xlevels, ...)
   class(result) <- c("predictoreff", "eff")
   result
 }

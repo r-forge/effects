@@ -261,12 +261,13 @@ Analyze.model <- function(focal.predictors, mod, xlevels, default.levels=NULL, f
           quantile(X[, name], quantiles)
         }
         else{
-          grid.pretty(range(X[, name]))
+ #         grid.pretty(range(X[, name]))
+          nice(seq(min(X[, name]), max(X[, name]), length.out=5))
         }
       }
       else {
         if(length(xlevels[[name]]) == 1L) { 
-          seq(min(X[, name]), max(X[,name]), length=xlevels[[name]])} else
+          nice(seq(min(X[, name]), max(X[,name]), length=xlevels[[name]]))} else
             xlevels[[name]]}
     }
     else factor.levels[[name]] <- levels
@@ -547,3 +548,19 @@ scheffe <- function(level, p, df=Inf){
     sqrt(p*qf(level, p, df))
 }
 
+# function to compute "nice" numbers
+
+nice <- function (x, direction = c("round", "down", "up"), lead.digits = 1) 
+{
+  direction <- match.arg(direction)
+  if (length(x) > 1) 
+    return(sapply(x, nice, direction = direction, lead.digits = lead.digits))
+  if (x == 0) 
+    return(0)
+  power.10 <- floor(log(abs(x), 10))
+  if (lead.digits > 1) 
+    power.10 <- power.10 - lead.digits + 1
+  lead.digit <- switch(direction, round = round(abs(x)/10^power.10), 
+                       down = floor(abs(x)/10^power.10), up = ceiling(abs(x)/10^power.10))
+  sign(x) * lead.digit * 10^power.10
+}

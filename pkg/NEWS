@@ -7,6 +7,8 @@ Version 4.0-0
  o Reorganized complex arguments to  plot() and Effect() into lists; legacy arguments retained as alternatives.
  
  o Use lattice theme for plot defaults.
+ 
+ o Improve generation of default values for numeric predictors.
 
 Version 3.1-3
 
