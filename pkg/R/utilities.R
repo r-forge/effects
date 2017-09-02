@@ -22,6 +22,7 @@
 # 2017-08-08: added .onAttach() to set lattice theme. J. Fox
 # 2017-08-26: added scheffe() to compute multipler for Scheffe-type confidence bounds. J. Fox
 # 2017-08-29: enhanced applyDefaults() with onFALSE argument. J. Fox
+# 2107-09-02: added nice()
 
 has.intercept <- function(model, ...) any(names(coefficients(model))=="(Intercept)")
 
@@ -550,11 +551,13 @@ scheffe <- function(level, p, df=Inf){
 
 # function to compute "nice" numbers
 
-nice <- function (x, direction = c("round", "down", "up"), lead.digits = 1) 
-{
+nice <- function (x, direction = c("round", "down", "up"), lead.digits = 1) {
   direction <- match.arg(direction)
-  if (length(x) > 1) 
-    return(sapply(x, nice, direction = direction, lead.digits = lead.digits))
+  if (length(x) > 1){
+    result <- sapply(x, nice, direction = direction, lead.digits = lead.digits)
+    if (anyDuplicated(result)) result <- nice(x, direction=direction, lead.digits = lead.digits + 1)
+    return(result)
+  }
   if (x == 0) 
     return(0)
   power.10 <- floor(log(abs(x), 10))
