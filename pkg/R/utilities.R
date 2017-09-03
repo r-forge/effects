@@ -487,12 +487,12 @@ effectsTheme <- function(strip.background=list(col=gray(seq(0.95, 0.5, length=3)
     if (!"package:lattice" %in% search()){
         lattice::trellis.par.set(effectsTheme(), warn=FALSE)
         packageStartupMessage("lattice theme set by effectsTheme()",
-                              "\nSee ?effectsTheme() for details.")
+                              "\nSee ?effectsTheme for details.")
     }
     else packageStartupMessage("Use the command",
                                "\n    lattice::trellis.par.set(effectsTheme())",
                                "\n  to customize lattice options for effects plots.",
-                               "\nSee ?efffectTheme() for details.")
+                               "\nSee ?efffectTheme for details.")
 }
 
 # setStrip <- function(bg=3, fg="black", clip=c("off", "on")){
