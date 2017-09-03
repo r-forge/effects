@@ -213,8 +213,9 @@ Other elements:
 \item{\code{confint}}{specifications to add/remove confidence intervals or regions from a plot, and to set the nominal confidence level.
 
     \describe{
-    \item{\code{style}}{one of \code{"bars"}, \code{"lines"}, \code{"bands"}, and \code{"none"}; the default
-    is \code{"bars"} for factors, \code{"lines"} for numeric predictors, and \code{"none"} for multiline plots.}
+    \item{\code{style}}{one of \code{"auto"}, \code{"bars"}, \code{"lines"}, \code{"bands"}, and \code{"none"}; the default
+    is \code{"bars"} for factors, \code{"bands"} for numeric predictors, and \code{"none"} for multiline plots; \code{"auto"} also produces \code{"bars"} for factors 
+    and \code{"bands"} for numeric predictors, even in multiline plots.}
     \item{\code{alpha}}{transparency of confidence bands; the default is 0.15.}
     \item{\code{col}}{colors; the default is taken from the line colors.}
     }

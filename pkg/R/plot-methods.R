@@ -191,7 +191,7 @@ plot.eff <- function(x, x.var, z.var=which.min(levels), main=paste(effect, "effe
   if (missing(ci.style)) ci.style <- confint$style
   if (missing(band.transparency)) band.transparency <- confint$alpha
   if (missing(band.colors)) band.colors <- confint$col
-  if(!is.null(ci.style)) ci.style <- match.arg(ci.style, c("bars", "lines", "bands", "none"))
+  if(!is.null(ci.style)) ci.style <- match.arg(ci.style, c("auto", "bars", "lines", "bands", "none"))
 
   if (missing(partial.residuals)) partial.residuals <- NULL
   if (is.logical(partial.residuals)) partial.residuals <- list(plot=partial.residuals)
@@ -294,7 +294,7 @@ plot.eff <- function(x, x.var, z.var=which.min(levels), main=paste(effect, "effe
     if (is.list(xlab)) xlab <- xlab[[predictor]]
     ### factor no other predictors
     if (is.factor(x[,1])){
-      ci.style <- if(is.null(ci.style)) "bars" else ci.style
+      ci.style <- if(is.null(ci.style) || ci.style == "auto") "bars" else ci.style
       range <- if(has.se & ci.style!="none")
         range(c(x$lower, x$upper), na.rm=TRUE) else range(x$fit, na.rm=TRUE)
       ylim <- if (!any(is.na(ylim))) ylim else c(range[1] - .025*(range[2] - range[1]),
@@ -349,8 +349,8 @@ plot.eff <- function(x, x.var, z.var=which.min(levels), main=paste(effect, "effe
     ### variate, no other predictors  ***
     else {
       effect.llines <- if(use.splines) spline.llines else effect.llines
-      ci.style <- if(is.null(ci.style)) "bands" else ci.style
-      range <- if(has.se & ci.style!="none")
+      ci.style <- if(is.null(ci.style) || ci.style == "auto") "bands" else ci.style
+      range <- if(has.se && ci.style!="none")
         range(c(x$lower, x$upper), na.rm=TRUE) else range(x$fit, na.rm=TRUE)
 
       ylim <- if (!any(is.na(ylim))) ylim
@@ -493,6 +493,7 @@ plot.eff <- function(x, x.var, z.var=which.min(levels), main=paste(effect, "effe
     zvals <- unique(x[, z.var])
     ### multiline factor
     if (is.factor(x[,x.var])){
+      if (ci.style == "auto") ci.style <- "bars"
       levs <- levels(x[,x.var])
       key <- list(title=predictors[z.var], cex.title=1, border=TRUE,
                   text=list(as.character(zvals)),
@@ -556,6 +557,7 @@ plot.eff <- function(x, x.var, z.var=which.min(levels), main=paste(effect, "effe
     }
     ### multiline variate
     else{
+      if (ci.style == "auto") ci.style <- "bands"
       effect.llines <- if(use.splines) spline.llines else effect.llines
       nm <- names(x)[x.var]
       x.vals <- x.data[, nm]
@@ -653,7 +655,7 @@ plot.eff <- function(x, x.var, z.var=which.min(levels), main=paste(effect, "effe
     return(result)
   }
   # multiplot
-  ci.style <- if(is.null(ci.style)){
+  ci.style <- if(is.null(ci.style) || ci.style == "auto"){
     if(is.factor(x[, x.var])) "bars" else "bands"} else ci.style
   range <- if (has.se && ci.style !="none")
     range(c(x$lower, x$upper), na.rm=TRUE) else range(x$fit, na.rm=TRUE)

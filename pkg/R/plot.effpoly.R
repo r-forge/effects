@@ -112,7 +112,7 @@ plot.effpoly <- function(x, x.var=which.max(levels), main=paste(effect, "effect 
     if (missing(ci.style)) ci.style <- confint$style
     if (missing(band.transparency)) band.transparency <- confint$alpha
     if (missing(band.colors)) band.colors <- confint$col
-    if(!is.null(ci.style)) ci.style <- match.arg(ci.style, c("bars", "lines", "bands", "none")) 
+    if(!is.null(ci.style)) ci.style <- match.arg(ci.style, c("auto", "bars", "lines", "bands", "none")) 
     confint <- confint$style != "none"
     
     if (is.null(multiline)) multiline <- if (confint) FALSE else TRUE
@@ -200,7 +200,7 @@ plot.effpoly <- function(x, x.var=which.max(levels), main=paste(effect, "effect 
     n.predictor.cats <- sapply(Data[, predictors[-c(x.var)], drop=FALSE], 
         function(x) length(unique(x)))
     if (length(n.predictor.cats) == 0) n.predictor.cats <- 1
-    ci.style <- if(is.null(ci.style)) {
+    ci.style <- if(is.null(ci.style) || ci.style == "auto") {
         if(is.factor(x$data[[predictors[x.var]]])) "bars" else "bands"} else ci.style
     if( ci.style=="none" ) confint <- FALSE
     ### no confidence intervals if confint == FALSE or ci.style=="none"
