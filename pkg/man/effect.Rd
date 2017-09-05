@@ -138,11 +138,11 @@ allEffects(mod, ...)
     \code{"multinom"}, \code{"polr"}, \code{"mer"} (or \code{"merMod"}), \code{"lme"},
     or \code{"poLCA"}. }
   \item{xlevels}{this argument is used to set the number of levels for any
-    focal predictor that is not a factor.  If \code{xlevels=NULL}, the default,
-    then the number and values of levels for any
-    numeric predictor is determined by \code{\link{grid.pretty}}.  If \code{xlevels=n}
+    focal predictor that is not a factor.  If \code{xlevels=NULL}, then
+    each numeric predictor is represented by five values equally spaced over
+    its range and then rounded to 'nice' numbers.  If \code{xlevels=n}
     is an integer, then each numeric predictor is represented by \code{n} equally
-    spaced levels.  More generally, \code{xlevels} can be a named list of values
+    spaced values rounded to 'nice' numbers.  More generally, \code{xlevels} can be a named list of values
     at which to set each numeric predictor.  For example, \code{xlevels=list(x1=c(2, 4, 7),
     x2=5)} would use the values 2, 4 and 7 for the levels of \code{x1}, use 5
     equally spaced levels for the levels of \code{x2}, and use the default for

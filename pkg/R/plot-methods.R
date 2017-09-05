@@ -196,8 +196,10 @@ plot.eff <- function(x, x.var, z.var=which.min(levels), main=paste(effect, "effe
   if (missing(partial.residuals)) partial.residuals <- NULL
   if (is.logical(partial.residuals)) partial.residuals <- list(plot=partial.residuals)
   partial.residuals <- applyDefaults(partial.residuals, defaults=list(
-      plot=!is.null(x$residuals), fitted=FALSE, col=colors[2], pch=1, cex=1, smooth=TRUE, span=2/3, smooth.col=colors[2], lty=lines[1], lwd=lwd),
+      plot=!is.null(x$residuals), fitted=FALSE, col=colors[2], pch=1, cex=1, smooth=TRUE, 
+      span=2/3, smooth.col=colors[2], lty=lines[1], lwd=lwd, id.n=0),
       arg="partial.residuals")
+  id.n <- partial.residuals$id.n
   if (missing(show.fitted)) show.fitted <- partial.residuals$fitted
   if (missing(residuals.color)) residuals.color <- partial.residuals$col
   if (missing(residuals.pch)) residuals.pch <- partial.residuals$pch
@@ -433,6 +435,14 @@ plot.eff <- function(x, x.var, z.var=which.min(levels), main=paste(effect, "effe
             if (show.fitted) lpoints(trans(x.fit), fitted, pch=16, col=residuals.color)  # REMOVE ME
             if (smooth.residuals){
               llines(loess.smooth(trans(x.fit), partial.res, span=span, family=loess.family), lwd=residuals.lwd, lty=residuals.lty, col=residuals.smooth.color)
+            }
+            if (id.n > 0){
+              M <- cbind(trans(x.fit), partial.res)
+              md <- mahalanobis(M, colMeans(M), cov(M))
+              biggest <- order(md, decreasing=TRUE)[1:id.n]
+              pos <- ifelse(trans(x.fit[biggest]) > mean(current.panel.limits()$xlim), 2, 4)
+              ltext(trans(x.fit[biggest]), partial.res[biggest], 
+                    names(partial.res)[biggest], pos=pos)
             }
           }
 
@@ -801,6 +811,14 @@ plot.eff <- function(x, x.var, z.var=which.min(levels), main=paste(effect, "effe
             if (smooth.residuals && n.in.panel >= 10) {
               llines(loess.smooth(x.fit[use], partial.res, span=span, family=loess.family),
                      lwd=residuals.lwd, lty=residuals.lty, col=residuals.smooth.color)
+            }
+            if (id.n > 0){
+              M <- cbind(trans(x.fit[use]), partial.res)
+              md <- mahalanobis(M, colMeans(M), cov(M))
+              biggest <- order(md, decreasing=TRUE)[1:id.n]
+              pos <- ifelse(trans(x.fit[use][biggest]) > mean(current.panel.limits()$xlim), 2, 4)
+              ltext(trans(x.fit[use][biggest]), partial.res[biggest], 
+                    names(partial.res)[biggest], pos=pos)
             }
           }
         }

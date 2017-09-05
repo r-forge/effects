@@ -232,9 +232,14 @@ Other elements:
     \item{\code{cex}}{size of symbols for partial residuals; the default is 1.}
     \item{\code{smooth}}{draw a loess smooth of the partial residuals; the default is \code{TRUE}.}
     \item{\code{span}}{span for the loess smooth; the default is 2/3.}
-    \item{\code{smooth.col}}{color for the loess smooth; the default is the second line color.}
+    \item{\code{smooth.col}}{color for the loess smooth; the default is the second line color.} 
     \item{\code{lty}}{line type for the loess smooth; the default is the first line type, normally 1 (a solid line).}
     \item{\code{lwd}}{line width for the loess smooth; the default is the first line width, normally 2.}
+    \item{id.n}{number of points to identify in each panel, based on the Mahalanobis
+    distances of the pairs of x-values and partial residuals from their centroid. The
+    default is 0 (i.e., not to identify any points). The point names are taken from
+    the names of the residual vector, which is normally the row names of the data frame
+    to which the model is fit.}
     }
 
 }

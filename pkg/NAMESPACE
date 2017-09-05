@@ -1,8 +1,8 @@
-# last modified 2017-08-29 by J. Fox
+# last modified 2017-09-05 by J. Fox
 
 import(carData)
 
-importFrom(lattice, barchart, current.panel.limits, densityplot, larrows, llines, lpoints,
+importFrom(lattice, barchart, current.panel.limits, densityplot, larrows, llines, lpoints, ltext,
            panel.abline, panel.grid, panel.polygon, panel.text, strip.default, trellis.par.get,
            trellis.par.set, xyplot)
 importFrom(colorspace, rainbow_hcl, sequential_hcl)
@@ -11,8 +11,9 @@ importFrom(lme4, fixef)
 importFrom(nnet, multinom)
 importFrom(graphics, plot)
 importFrom(grDevices, gray, palette, rgb)
-importFrom(stats, as.formula, binomial, coef, coefficients, delete.response, family, fitted,
-    formula, glm, glm.control, lm, lm.fit, loess.smooth, model.frame, model.matrix, model.offset,
+importFrom(stats, as.formula, binomial, coef, coefficients, cov, delete.response, family, fitted,
+    formula, glm, glm.control, lm, lm.fit, loess.smooth, mahalanobis, 
+    model.frame, model.matrix, model.offset,
     model.response, na.exclude, na.omit, nlm, predict, qf, qnorm, qt, quantile, residuals,
     spline, terms, update, vcov, weights, xtabs)
 importFrom(utils, menu)
