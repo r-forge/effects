@@ -40,7 +40,7 @@
 \method{plot}{eff}(x, x.var, z.var=which.min(levels), 
     main=paste(effect, "effect plot"),
     symbols=TRUE, lines=TRUE, axes, confint, 
-    partial.residuals, lattice, ...,
+    partial.residuals, id, lattice, ...,
     # legacy arguments:
     multiline, rug, xlab, ylab, colors, cex, lty, lwd, 
     ylim, xlim, factor.names, ci.style,
@@ -95,6 +95,9 @@
     generally reasonable default values are used. See Detailed Argument Descriptions under Details for more information.}
   \item{partial.residuals}{an optional list of specifications for plotting partial residuals for linear
     and generalized linear models; if not given, generally reasonable default values are used. See Detailed Argument Descriptions under Details for more information.}
+  \item{id}{an optional list of specifications for identifying points when partial residuals are 
+  plotted; if not specified, no points are labelled. See Detailed Argument Descriptions under Details
+  for more information.}
   \item{lattice}{an optional list of specifications for various lattice properties, such as legend placement;
     if not given, generally reasonable default values are used. See Detailed Argument Descriptions under Details for more information.}
   \item{selection}{the optional index (number) or quoted name of the effect in an effect
@@ -235,13 +238,22 @@ Other elements:
     \item{\code{smooth.col}}{color for the loess smooth; the default is the second line color.} 
     \item{\code{lty}}{line type for the loess smooth; the default is the first line type, normally 1 (a solid line).}
     \item{\code{lwd}}{line width for the loess smooth; the default is the first line width, normally 2.}
-    \item{id.n}{number of points to identify in each panel, based on the Mahalanobis
-    distances of the pairs of x-values and partial residuals from their centroid. The
-    default is 0 (i.e., not to identify any points). The point names are taken from
-    the names of the residual vector, which is normally the row names of the data frame
-    to which the model is fit.}
     }
 
+}
+
+\item{\code{id}}{specifications for optional point identification when partial residuals are plotted.
+
+  \describe{
+  \item{\code{n}}{number of points to identify; default is \code{2} if \code{id=TRUE} 
+    and \code{0} if \code{id=FALSE}. Points are selected based on the Mahalanobis
+    distances of the pairs of x-values and partial residuals from their centroid.}
+  \item{\code{col}}{color for the point labels; default is the same as the color of the partial residuals.}
+  \item{\code{cex}}{relative size of text for point labels; default is \code{0.75}.}
+  \item{\code{labels}}{vector of point labels; the default is the names of the residual vector,
+  which is typically the row names of the data frame to which the model is fit.}
+  }
+  
 }
 
 \item{\code{lattice}}{the plots are drawn with the \pkg{\link{lattice}} package, generally by the \code{\link{xyplot}} function.  These specifications are passed as arguments to the functions that actually draw the plots.

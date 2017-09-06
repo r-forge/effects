@@ -91,7 +91,7 @@ panel.bands <- function(x, y, upper, lower, fill, col,
 spline.llines <- function(x, y, ...) llines(spline(x, y), ...)
 
 plot.eff <- function(x, x.var, z.var=which.min(levels), main=paste(effect, "effect plot"),
-                     symbols=TRUE, lines=TRUE, axes, confint, partial.residuals, lattice,
+                     symbols=TRUE, lines=TRUE, axes, confint, partial.residuals, id, lattice,
                      ...,
                      # legacy arguments:
                      multiline, rug, xlab, ylab, colors, cex, lty, lwd, ylim, xlim, factor.names, ci.style,
@@ -197,9 +197,8 @@ plot.eff <- function(x, x.var, z.var=which.min(levels), main=paste(effect, "effe
   if (is.logical(partial.residuals)) partial.residuals <- list(plot=partial.residuals)
   partial.residuals <- applyDefaults(partial.residuals, defaults=list(
       plot=!is.null(x$residuals), fitted=FALSE, col=colors[2], pch=1, cex=1, smooth=TRUE, 
-      span=2/3, smooth.col=colors[2], lty=lines[1], lwd=lwd, id.n=0),
+      span=2/3, smooth.col=colors[2], lty=lines[1], lwd=lwd),
       arg="partial.residuals")
-  id.n <- partial.residuals$id.n
   if (missing(show.fitted)) show.fitted <- partial.residuals$fitted
   if (missing(residuals.color)) residuals.color <- partial.residuals$col
   if (missing(residuals.pch)) residuals.pch <- partial.residuals$pch
@@ -210,6 +209,23 @@ plot.eff <- function(x, x.var, z.var=which.min(levels), main=paste(effect, "effe
   residuals.lwd <- partial.residuals$lwd
   if (missing(span)) span <- partial.residuals$span
   partial.residuals <- partial.residuals$plot
+  
+  if (missing(id) || isFALSE(id)) {
+    id.n <- 0
+    id.cex <- 0
+    id.col <- NULL
+    id.labels <- NULL
+  }
+  else {
+    id <- applyDefaults(id, list(
+      n=2, cex=0.75, col=residuals.color, labels=NULL
+      ), arg="id")
+    id.n <- id$n
+    id.col <- id$col
+    id.cex <- id$cex
+    id.labels <- id$labels
+  }
+  
   if (missing(lattice)) lattice <- NULL
   lattice <- applyDefaults(lattice, defaults=list(
       layout=NULL, key.args=list(),
@@ -269,6 +285,7 @@ plot.eff <- function(x, x.var, z.var=which.min(levels), main=paste(effect, "effe
   original.link <- trans.link <- x$transformation$link
   original.inverse <- trans.inverse <- x$transformation$inverse
   residuals <- if (partial.residuals) x$residuals else NULL
+  if (!is.null(residuals) && !is.null(id.labels)) names(residuals) <- id.labels
   partial.residuals.range <- x$partial.residuals.range
 
   if (!rescale.axis){
@@ -442,7 +459,7 @@ plot.eff <- function(x, x.var, z.var=which.min(levels), main=paste(effect, "effe
               biggest <- order(md, decreasing=TRUE)[1:id.n]
               pos <- ifelse(trans(x.fit[biggest]) > mean(current.panel.limits()$xlim), 2, 4)
               ltext(trans(x.fit[biggest]), partial.res[biggest], 
-                    names(partial.res)[biggest], pos=pos)
+                    names(partial.res)[biggest], pos=pos, col=id.col, cex=id.cex)
             }
           }
 
@@ -818,7 +835,7 @@ plot.eff <- function(x, x.var, z.var=which.min(levels), main=paste(effect, "effe
               biggest <- order(md, decreasing=TRUE)[1:id.n]
               pos <- ifelse(trans(x.fit[use][biggest]) > mean(current.panel.limits()$xlim), 2, 4)
               ltext(trans(x.fit[use][biggest]), partial.res[biggest], 
-                    names(partial.res)[biggest], pos=pos)
+                    names(partial.res)[biggest], pos=pos, col=id.col, cex=id.cex)
             }
           }
         }
