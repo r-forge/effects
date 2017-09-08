@@ -1,5 +1,7 @@
 Version 4.0-0
 
+ o This is a major update of the effects package.
+
  o Moved data sets to the carData package.
  
  o Introduced predictor effects.
@@ -9,6 +11,10 @@ Version 4.0-0
  o Use lattice theme for plot defaults.
  
  o Improve generation of default values for numeric predictors.
+ 
+ o Methods for "svyglm" objects.
+ 
+ o Various small improvements and fixes.
 
 Version 3.1-3
 

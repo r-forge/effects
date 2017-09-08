@@ -21,6 +21,7 @@
 # 2017-08-18: removed default.levels argument. J. Fox
 # 2017-08-26: introduced confint list argument, including Scheffe intervals. J. Fox
 # 2017-08-29: reintroduce legacy se and confidence.level arguments.
+# 2017-09-07: added Effect.svyglm()
 
 checkFormula <- function(object){
     if (!inherits(object, "formula")){
@@ -45,7 +46,8 @@ Effect.lm <- function (focal.predictors, mod, xlevels = list(),
                        given.values,
                        vcov. = vcov, confint=TRUE,
                        transformation = list(link = family(mod)$linkfun, inverse = family(mod)$linkinv), 
-                       typical = mean, offset = mean, partial.residuals=FALSE, quantiles=seq(0.2, 0.8, by=0.2),
+                       typical = mean, apply.typical.to.factors=FALSE,
+                       offset = mean, partial.residuals=FALSE, quantiles=seq(0.2, 0.8, by=0.2),
                        x.var=NULL,  ...,
                        #legacy arguments:
                        se, confidence.level){
@@ -105,7 +107,7 @@ Effect.lm <- function (focal.predictors, mod, xlevels = list(),
         wts <- rep(1, length(residuals(mod)))
     mod.matrix <- Fixup.model.matrix(mod, mod.matrix, mod.matrix.all, 
                                      X.mod, factor.cols, cnames, focal.predictors, excluded.predictors, 
-                                     typical, given.values) #,
+                                     typical, given.values, apply.typical.to.factors) #,
     # look for aliased coefficients and remove those columns from mod.matrix
     mod.matrix <- mod.matrix[, !is.na(mod$coefficients)]
     effect <- off + mod.matrix %*% mod$coefficients[!is.na(mod$coefficients)]
@@ -600,4 +602,25 @@ Effect.default <- function(focal.predictors, mod, xlevels = list(), given.values
     result$transformation <- transformation
     class(result) <- "eff"
     result
+}
+
+# Effect.svyglm <- function(focal.predictors, mod, ...){
+#   mod$call <- list(mod$call, data=mod$data)
+#   NextMethod()
+# }
+
+Effect.svyglm <- function(focal.predictors, mod, typical, apply.typical.to.factors,
+                          offset, ...){
+  Svymean <- function(x){
+    svymean(x, design=mod$survey.design)
+  }
+  if (missing(typical)) {
+    typical <- Svymean
+    if (missing(apply.typical.to.factors)) apply.typical.to.factors <- TRUE
+  }
+  else if (missing(apply.typical.to.factors)) apply.typical.to.factors <- FALSE
+  if (missing(offset)) offset <- Svymean
+  mod$call <- list(mod$call, data=mod$data)
+  Effect.lm(focal.predictors, mod, typical=typical, 
+            apply.typical.to.factors=apply.typical.to.factors, offset=offset, ...)
 }

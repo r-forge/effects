@@ -14,6 +14,7 @@
 \alias{Effect.clm}
 \alias{Effect.clmm}
 \alias{Effect.mlm}
+\alias{Effect.svyglm}
 \alias{allEffects}
 \alias{as.data.frame.eff}
 \alias{as.data.frame.effpoly}
@@ -42,8 +43,9 @@
   including linear and generalized linear mixed-effects models
   fit by \code{\link[lme4]{lmer}} and \code{\link[lme4]{glmer}} from the \pkg{lme4} package
   and \code{\link[nlme]{lme}} from the \pkg{nlme} package; ordinal logit mixed effects fit with \code{\link[ordinal]{clm2}} or \code{\link[ordinal]{clmm}} from the
-  \pkg{ordinal} package, and polytomous latent-class models fit by the \code{\link[poLCA]{poLCA}} function in
-  the \pkg{poLCA} package.  The displays for mixed-effects models are for the fixed effects only, not for random effects.
+  \pkg{ordinal} package, polytomous latent-class models fit by the \code{\link[poLCA]{poLCA}} function in
+  the \pkg{poLCA} package, and generalized linear models fit to data from complex surveys
+  using the \code{\link[survey]{svyglm}} function in the \pkg{survey} package.  The displays for mixed-effects models are for the fixed effects only, not for random effects.
 
   There is a default
   method for \code{Effect} that should work with most model objects that have a linear predictor and that respond
@@ -65,7 +67,7 @@ Effect(focal.predictors, mod, ...)
 \method{Effect}{lm}(focal.predictors, mod, xlevels = list(), given.values,
     vcov.=vcov, confint=TRUE,
     transformation = list(link = family(mod)$linkfun, inverse = family(mod)$linkinv),
-    typical = mean, offset = mean,
+    typical = mean, apply.typical.to.factors=FALSE, offset = mean,
     partial.residuals=FALSE, quantiles=seq(0.2, 0.8, by=0.2),
     x.var=NULL,  ...,
     #legacy arguments:
@@ -106,6 +108,9 @@ Effect(focal.predictors, mod, ...)
 \method{Effect}{poLCA}(focal.predictors, mod, ...)
 
 \method{Effect}{mlm}(focal.predictors, mod, response, ...)
+
+\method{Effect}{svyglm}(focal.predictors, mod, typical, 
+    apply.typical.to.factors, offset, ...)
 
 \method{Effect}{default}(focal.predictors, mod, xlevels = list(),
     given.values,
@@ -188,13 +193,22 @@ allEffects(mod, ...)
     axis labels (see below). If the link is not given, an attempt will be
     made to approximate it from the inverse-link.}
   \item{typical}{a function to be applied to the columns of the model matrix
-    over which the effect is "averaged"; the default is \code{\link{mean}}.}
+    over which the effect is "averaged"; with the exception of the \code{"svyglm"} method,
+    the default is \code{\link{mean}}. For\code{"svyglm"} objects, the default is to
+    use the survey-design weighted mean.}
+  \item{apply.typical.to.factors}{It generally doesn't make sense to apply typical
+    values that aren't means (e.g., medians) to the columns of the model-matrix
+    representing contrasts for factors. This argument generally defaults to \code{FALSE}
+    except for \code{"svyglm"} objects, for which the default is \code{TRUE}, using the the survey-design
+    weighted mean.}
   \item{offset}{a function to be applied to the offset values (if there is an
     offset) in a linear or generalized linear model, or a mixed-effects
     model fit by \code{\link[lme4]{lmer}} or \code{\link[lme4]{glmer}}; or a numeric value, to which
     the offset will be set. The default is the \code{\link{mean}} function, and thus
-    the offset will be set to its mean. \emph{Note:} Only offsets defined
-    by the \code{offset} argument to \code{\link{lm}}, \code{\link{glm}}, \code{\link[lme4]{lmer}}, or \code{\link[lme4]{glmer}} will be handled
+    the offset will be set to its mean; in the case of \code{"svyglm"}
+    objects, the default is to use the survey-design weighted mean. 
+    \emph{Note:} Only offsets defined
+    by the \code{offset} argument to \code{\link{lm}}, \code{\link{glm}}, \code{\link[survey]{svyglm}}, \code{\link[lme4]{lmer}}, or \code{\link[lme4]{glmer}} will be handled
     correctly; use of the \code{offset} function in the model formula is
     not supported.}
   \item{partial.residuals}{if \code{TRUE}, residuals for a linear or generalized linear model
@@ -599,6 +613,21 @@ if (require(heplots)) {
     plot(Effect("educ", mod, response="read"))
     }
     detach(package:heplots)
+}
+
+# svyglm() example (adapting an example from the survey package)
+
+\donttest{
+if (require(survey)){
+  data(api)
+  dstrat<-svydesign(id=~1, strata=~stype, weights=~pw, 
+    data=apistrat, fpc=~fpc) 
+  mod <- svyglm(sch.wide ~ ell + meals + mobility, design=dstrat, 
+    family=quasibinomial())
+  plot(allEffects(mod), 
+    axes=list(y=list(lim=log(c(0.4, 0.99)/c(0.6, 0.01)), 
+      ticks=list(at=c(0.4, 0.75, 0.9, 0.95, 0.99)))))
+}
 }
 
 # component + residual plot examples

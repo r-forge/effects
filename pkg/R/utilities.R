@@ -22,7 +22,8 @@
 # 2017-08-08: added .onAttach() to set lattice theme. J. Fox
 # 2017-08-26: added scheffe() to compute multipler for Scheffe-type confidence bounds. J. Fox
 # 2017-08-29: enhanced applyDefaults() with onFALSE argument. J. Fox
-# 2107-09-02: added nice()
+# 2017-09-02: added nice()
+# 2017-09-08: small changes to accommodate Effect.svyglm()
 
 has.intercept <- function(model, ...) any(names(coefficients(model))=="(Intercept)")
 
@@ -325,7 +326,7 @@ Analyze.model <- function(focal.predictors, mod, xlevels, default.levels=NULL, f
 
 Fixup.model.matrix <- function(mod, mod.matrix, mod.matrix.all, X.mod,
                                factor.cols, cnames, focal.predictors, excluded.predictors, 
-                               typical, given.values){
+                               typical, given.values, apply.typical.to.factors=FALSE){
   attr(mod.matrix, "assign") <- attr(mod.matrix.all, "assign")
   if (length(excluded.predictors) > 0){
     strangers <- Strangers(mod, focal.predictors, excluded.predictors)
@@ -339,7 +340,8 @@ Fixup.model.matrix <- function(mod, mod.matrix, mod.matrix.all, X.mod,
     covs <- (!factor.cols) & stranger.cols
     if (has.intercept(mod)) covs[1] <- FALSE
     if (any(facs)){ 
-      mod.matrix[,facs] <-  matrix(apply(as.matrix(X.mod[,facs]), 2, mean), 
+      mod.matrix[,facs] <-  matrix(apply(as.matrix(X.mod[,facs]), 2, 
+                                         if (apply.typical.to.factors) typical else mean), 
                                    nrow=nrow(mod.matrix), ncol=sum(facs), byrow=TRUE)
     }
     if (!is.null(given.values)){

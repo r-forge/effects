@@ -45,12 +45,13 @@ make.ticks <- function(range, link, inverse, at, n) {
   else link
   if (is.null(n)) n <- 5
   labels <- if (is.null(at)){
-    labels <- pretty(sapply(range, inverse), n=n+1)
+    range.labels <- sapply(range, inverse)
+    labels <- nice(seq(range.labels[1], range.labels[2], length.out=n))
   }
   else at
   ticks <- try(sapply(labels, link), silent=TRUE)
   if (inherits(ticks, "try-error")){
-      ticks <- seq(range[1], range[2], length=5)
+      ticks <- seq(range[1], range[2], length=n)
   }
   list(at=ticks, labels=format(labels))
 }

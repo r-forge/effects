@@ -1,14 +1,20 @@
 \name{predictorEffects}
 \alias{predictorEffect}
+\alias{predictorEffect.svyglm}
+\alias{predictorEffect.default}
 \alias{predictorEffects}
 \title{
-Functions For Constructing Effect Plots
+Functions For Computing Predictor Effects
 }
 \description{
-Alternatives to the \code{Effect} and \code{allEffects} functions that use a different paradigm for conditioning in an effects plot.  The user specifies one predictor, either continuous or a factor, for the horizontal axis of a plot, and the function determines the appropriate plot to display.
+Alternatives to the \code{Effect} and \code{allEffects} functions that use a different paradigm for conditioning in an effects display.  The user specifies one predictor, either continuous or a factor, for the horizontal axis of a plot, and the function determines the appropriate plot to display (which is drawn by \code{plot}).
 }
 \usage{
-predictorEffect(predictor, mod, xlevels=list(), ...)
+predictorEffect(predictor, mod, xlevels, ...)
+
+\method{predictorEffect}{svyglm}(predictor, mod, xlevels, ...)
+
+\method{predictorEffect}{default}(predictor, mod, xlevels=list(), ...)
 
 predictorEffects(mod, predictors = ~., ...)
 }
@@ -55,8 +61,22 @@ S. Weisberg, \email{sandy@umn.edu}
 }
 \examples{
 mod <- lm(prestige ~ type*(education + income + women), Prestige)
-predictorEffect("income", mod)
-predictorEffects(mod)
+plot(predictorEffect("income", mod))
+plot(predictorEffects(mod, ~ education + income + women))
+
+# svyglm() example (adapting an example from the survey package)
+\donttest{
+if (require(survey)){
+  data(api)
+  dstrat<-svydesign(id=~1, strata=~stype, weights=~pw, 
+    data=apistrat, fpc=~fpc) 
+  mod <- svyglm(sch.wide ~ ell + meals + mobility, design=dstrat, 
+    family=quasibinomial())
+  plot(predictorEffects(mod), 
+    axes=list(y=list(lim=log(c(0.4, 0.99)/c(0.6, 0.01)), 
+      ticks=list(at=c(0.4, 0.75, 0.9, 0.95, 0.99)))))
+}
+}
 }
 
 \keyword{hplot}

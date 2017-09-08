@@ -3,8 +3,16 @@
 # 2017-08-30 for compatibility with other effect plots, default 
 #            is now multiline=FALSE
 
-predictorEffect <- function(predictor, mod, xlevels=list(), ...){
-#predictorEffect <- function(mod, predictor, ...){
+predictorEffect <- function(predictor, mod, xlevels, ...){
+  UseMethod("predictorEffect", mod)
+}
+
+predictorEffect.svyglm <- function(predictor, mod, xlevels, ...){
+  mod$call <- list(mod$call, data=mod$data)
+  NextMethod(object=mod)
+}
+
+predictorEffect.default <- function(predictor, mod, xlevels=list(), ...){
   all.vars <- all.vars(formula(mod))
   data <- na.omit(expand.model.frame(mod, all.vars)[, all.vars])
   if (is.null(xlevels[[predictor]]) && is.numeric(data[[predictor]])){

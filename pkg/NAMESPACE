@@ -1,4 +1,4 @@
-# last modified 2017-09-05 by J. Fox
+# last modified 2017-09-08 by J. Fox
 
 import(carData)
 
@@ -11,6 +11,7 @@ importFrom(lme4, fixef)
 importFrom(nnet, multinom)
 importFrom(graphics, plot)
 importFrom(grDevices, gray, palette, rgb)
+importFrom(survey, svymean)
 importFrom(stats, as.formula, binomial, coef, coefficients, cov, delete.response, family, fitted,
     formula, glm, glm.control, lm, lm.fit, loess.smooth, mahalanobis, 
     model.frame, model.matrix, model.offset,
@@ -36,6 +37,9 @@ S3method(Effect, multinom)
 S3method(Effect, polr)
 S3method(Effect, poLCA)
 S3method(Effect, mlm)
+S3method(Effect, svyglm)
+S3method(predictorEffect, default)
+S3method(predictorEffect, svyglm)
 S3method(print, eff)
 S3method(print, efflist)
 S3method(print, mlm.efflist)
