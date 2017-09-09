@@ -42,15 +42,22 @@ Effect <- function(focal.predictors, mod, ...){
     UseMethod("Effect", mod)
 }
 
-Effect.lm <- function (focal.predictors, mod, xlevels = list(), 
-                       given.values,
+Effect.lm <- function(focal.predictors, mod, xlevels=list(), fixed.predictors,
                        vcov. = vcov, confint=TRUE,
                        transformation = list(link = family(mod)$linkfun, inverse = family(mod)$linkinv), 
-                       typical = mean, apply.typical.to.factors=FALSE,
-                       offset = mean, partial.residuals=FALSE, quantiles=seq(0.2, 0.8, by=0.2),
+                       partial.residuals=FALSE, quantiles=seq(0.2, 0.8, by=0.2),
                        x.var=NULL,  ...,
                        #legacy arguments:
-                       se, confidence.level){
+                       given.values, typical, offset, se, confidence.level){
+    if (missing(fixed.predictors)) fixed.predictors <- NULL
+    fixed.predictors <- applyDefaults(fixed.predictors, 
+                                      list(given.values=NULL, typical=mean, 
+                                           apply.typical.to.factors=FALSE, offset=mean),
+                                      arg="fixed.predictors")
+    if (missing(given.values)) given.values <- fixed.predictors$given.values
+    if (missing(typical)) typical <- fixed.predictors$typical
+    if (missing(offset)) offset <- fixed.predictors$offset
+    apply.typical.to.factors <- fixed.predictors$apply.typical.to.factors
     confint <- applyDefaults(confint, list(compute=TRUE, level=.95, type="pointwise"), 
                              onFALSE=list(compute=FALSE, level=.95, type="pointwise"),
                              arg="confint")
@@ -63,9 +70,7 @@ Effect.lm <- function (focal.predictors, mod, xlevels = list(),
         expand.model.frame(mod, all.vars)[, all.vars]
     }
     else NULL
-    if (missing(given.values)) 
-        given.values <- NULL
-    else if (!all(which <- names(given.values) %in% names(coef(mod)))) 
+    if (!is.null(given.values) && !all(which <- names(given.values) %in% names(coef(mod)))) 
         stop("given.values (", names(given.values[!which]), ") not in the model")
     off <- if (is.numeric(offset) && length(offset) == 1) offset
     else if (is.function(offset)) {
@@ -204,12 +209,19 @@ Effect.lme <- function(focal.predictors, mod, ...) {
     result
 }
 
-Effect.gls <- function (focal.predictors, mod, xlevels = list(),  given.values,
+Effect.gls <- function(focal.predictors, mod, xlevels = list(), fixed.predictors,
                         vcov. = vcov, confint=TRUE, 
                         transformation = NULL, 
-                        typical = mean, ...,
+                        ...,
                         #legacy arguments:
+                        given.values, typical,
                         se, confidence.level){
+    if (missing(fixed.predictors)) fixed.predictors <- NULL
+    fixed.predictors <- applyDefaults(fixed.predictors, 
+                                    list(given.values=NULL, typical=mean),
+                                    arg="fixed.predictors")
+    if (missing(given.values)) given.values <- fixed.predictors$given.values
+    if (missing(typical)) typical <- fixed.predictors$typical
     confint <- applyDefaults(confint, list(compute=TRUE, level=.95, type="pointwise"), 
                            onFALSE=list(compute=FALSE, level=.95, type="pointwise"),
                            arg="confint")
@@ -287,10 +299,16 @@ Effect.gls <- function (focal.predictors, mod, xlevels = list(),  given.values,
 }
 
 Effect.multinom <- function(focal.predictors, mod, 
-                            xlevels=list(),
-                            given.values, vcov. = vcov, confint=TRUE, typical=mean, ...,
+                            xlevels=list(), fixed.predictors,
+                            vcov. = vcov, confint=TRUE, ...,
                             #legacy arguments:
-                            se, confidence.level){    
+                            se, confidence.level, given.values, typical){  
+    if (missing(fixed.predictors)) fixed.predictors <- NULL
+    fixed.predictors <- applyDefaults(fixed.predictors, 
+                                    list(given.values=NULL, typical=mean),
+                                    arg="fixed.predictors")
+    if (missing(given.values)) given.values <- fixed.predictors$given.values
+    if (missing(typical)) typical <- fixed.predictors$typical
     confint <- applyDefaults(confint, list(compute=TRUE, level=.95, type="pointwise"), 
                            onFALSE=list(compute=FALSE, level=.95, type="pointwise"),
                            arg="confint")    
@@ -408,10 +426,16 @@ Effect.multinom <- function(focal.predictors, mod,
 }
 
 Effect.polr <- function(focal.predictors, mod, 
-                        xlevels=list(), 
-                        given.values, vcov.=vcov, confint=TRUE, typical=mean, latent=FALSE, ...,
+                        xlevels=list(), fixed.predictors,
+                        vcov.=vcov, confint=TRUE, latent=FALSE, ...,
                         #legacy arguments:
-                        se, confidence.level){
+                        se, confidence.level, given.values, typical){
+    if (missing(fixed.predictors)) fixed.predictors <- NULL
+    fixed.predictors <- applyDefaults(fixed.predictors, 
+                                    list(given.values=NULL, typical=mean),
+                                    arg="fixed.predictors")
+    if (missing(given.values)) given.values <- fixed.predictors$given.values
+    if (missing(typical)) typical <- fixed.predictors$typical
     confint <- applyDefaults(confint, list(compute=TRUE, level=.95, type="pointwise"), 
                            onFALSE=list(compute=FALSE, level=.95, type="pointwise"),
                            arg="confint")
@@ -514,12 +538,18 @@ Effect.polr <- function(focal.predictors, mod,
     result
 }
 
-Effect.default <- function(focal.predictors, mod, xlevels = list(), given.values,
+Effect.default <- function(focal.predictors, mod, xlevels = list(), 
+                           fixed.predictors,
                            vcov. = vcov, confint=TRUE, 
-                           transformation = list(link = I, inverse = I), 
-                           typical = mean, offset = mean, ...,
+                           transformation = list(link = I, inverse = I), ...,
                            #legacy arguments:
-                           se, confidence.level){
+                           se, confidence.level, given.values, typical, offset){
+    if (missing(fixed.predictors)) fixed.predictors <- NULL
+    fixed.predictors <- applyDefaults(fixed.predictors, 
+                                    list(given.values=NULL, typical=mean),
+                                    arg="fixed.predictors")
+    if (missing(given.values)) given.values <- fixed.predictors$given.values
+    if (missing(typical)) typical <- fixed.predictors$typical
     confint <- applyDefaults(confint, list(compute=TRUE, level=.95, type="pointwise"), 
                            onFALSE=list(compute=FALSE, level=.95, type="pointwise"),
                            arg="confint")
@@ -609,17 +639,18 @@ Effect.default <- function(focal.predictors, mod, xlevels = list(), given.values
 #   NextMethod()
 # }
 
-Effect.svyglm <- function(focal.predictors, mod, typical, apply.typical.to.factors,
-                          offset, ...){
+Effect.svyglm <- function(focal.predictors, mod, fixed.predictors, ...){
   Svymean <- function(x){
     svymean(x, design=mod$survey.design)
   }
-  if (missing(typical)) {
-    typical <- Svymean
-    if (missing(apply.typical.to.factors)) apply.typical.to.factors <- TRUE
-  }
-  else if (missing(apply.typical.to.factors)) apply.typical.to.factors <- FALSE
-  if (missing(offset)) offset <- Svymean
+  if (missing(fixed.predictors)) fixed.predictors <- NULL
+  fixed.predictors <- applyDefaults(fixed.predictors, 
+                                    list(given.values=NULL, typical=Svymean, 
+                                         apply.typical.to.factors=TRUE, offset=Svymean),
+                                    arg="fixed.predictors")
+  typical <- fixed.predictors$typical
+  apply.typical.to.factors <- fixed.predictors$apply.typical.to.factors
+  offset <- fixed.predictors$offset
   mod$call <- list(mod$call, data=mod$data)
   Effect.lm(focal.predictors, mod, typical=typical, 
             apply.typical.to.factors=apply.typical.to.factors, offset=offset, ...)

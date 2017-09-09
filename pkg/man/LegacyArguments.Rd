@@ -6,19 +6,24 @@
 
 \description{
 Prior to verson 4.0-0 of the \pkg{effects} package, there were many (literally dozens) of
-arguments to the \code{plot} methods for \code{"eff"} and \code{"effpoly"} objects. In
-version 4.0-0 of the package, we have consolidated these arguments into a much smaller
+arguments to the \code{plot} methods for \code{"eff"} and \code{"effpoly"} objects. 
+
+In version 4.0-0 of the package, we have consolidated these arguments into a much smaller
 number of arguments (e.g., \code{lines}, \code{points}, \code{axes}) that take lists of
-specifications. For backwards compatibility, we have to the extent possible retained the
+specifications. We have similarly consolidated some of the arguments to \code{Effect} methods
+into the \code{confint} and \code{fixed.predictors} arguments.
+
+For backwards compatibility, we have to the extent possible retained the
 older arguments. If specified, these legacy arguments take precedence over the newer
 list-style arguments
 }
 
 \details{
-Here is the correspondence between the old and new arguments:
+Here is the correspondence between the old and new arguments.
+
+For \code{plots} methods:
 
 \describe{
-
 \item{\code{multiline=TRUE/FALSE}}{\code{lines=list(multiline=TRUE/FALSE)}}
 
 \item{\code{colors={vector of colors}}}{\code{lines=list(col={vector of colors})}}
@@ -90,8 +95,22 @@ Here is the correspondence between the old and new arguments:
 \item{\code{style="lines"/"stacked"}}{for \code{plot.effpoly}, \code{axes=list(y=list(style="lines"/"stacked"))}}
 
 \item{\code{rescale.axis=TRUE/FALSE}}{\code{type="rescale"/"response"/"link"}}
-
 }
+
+For \code{Effect} methods:
+
+\describe{
+\item{\code{se=TRUE/FALSE}}{\code{confint=list(compute=TRUE/FALSE)}}
+
+\item{\code{confidence.level={number}}}{\code{confint=list(level={number})}}
+
+\item{\code{given.values={named vector}}}{\code{fixed.predictors=list(given.values={named vector})}}
+
+\item{\code{typical={function}}}{\code{fixed.predictors=list(typical={function})}}
+
+\item{\code{offset={function}}}{\code{fixed.predictors=list(offset={function})}}
+}
+
 }
 
 \author{John Fox \email{jfox@mcmaster.ca}}

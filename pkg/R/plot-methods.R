@@ -46,7 +46,8 @@ make.ticks <- function(range, link, inverse, at, n) {
   if (is.null(n)) n <- 5
   labels <- if (is.null(at)){
     range.labels <- sapply(range, inverse)
-    labels <- nice(seq(range.labels[1], range.labels[2], length.out=n))
+    #labels <- nice(seq(range.labels[1], range.labels[2], length.out=n))
+    labels <- grid.pretty(range.labels)
   }
   else at
   ticks <- try(sapply(labels, link), silent=TRUE)

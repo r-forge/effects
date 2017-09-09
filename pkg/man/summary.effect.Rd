@@ -376,7 +376,7 @@ if (require(nnet)){
 
     plot(effect("Europe*political.knowledge", mod.beps,
                 xlevels=list(political.knowledge=0:3),
-                given.values=c(gendermale=0.5)),
+                fixed.predictors=list(given.values=c(gendermale=0.5))),
          axes=list(y=list(style="stacked"), x=list(rug=FALSE)),
          lines=list(col=c("blue", "red", "orange")))
 }
