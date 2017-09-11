@@ -24,6 +24,7 @@
 # 2017-08-29: enhanced applyDefaults() with onFALSE argument. J. Fox
 # 2017-09-02: added nice()
 # 2017-09-08: small changes to accommodate Effect.svyglm()
+# 2017-09-10: added replacement for ticksGrid()
 
 has.intercept <- function(model, ...) any(names(coefficients(model))=="(Intercept)")
 
@@ -568,4 +569,9 @@ nice <- function (x, direction = c("round", "down", "up"), lead.digits = 1) {
   lead.digit <- switch(direction, round = round(abs(x)/10^power.10), 
                        down = floor(abs(x)/10^power.10), up = ceiling(abs(x)/10^power.10))
   sign(x) * lead.digit * 10^power.10
+}
+
+ticksGrid <- function(x, y){
+  reference.line <- trellis.par.get("reference.line")
+  panel.abline(h=y, v=x, col=reference.line$col, lty=reference.line$lty)
 }

@@ -10,6 +10,7 @@
 # 2017-08-16: modified plot.effpoly() to consolidate arguments and use lattice theme. J. Fox
 # 2017-08-20: reintroduce legacy arguments for plot.effpoly()
 # 2017-08-20: introduced multiline argument under lines argument and as a "legacy" argument
+# 2017-09-10: use replacement for grid.panel()
 
 plot.effpoly <- function(x, x.var=which.max(levels), main=paste(effect, "effect plot"),
     symbols=TRUE, lines=TRUE, axes, confint, lattice, ...,
@@ -231,7 +232,7 @@ plot.effpoly <- function(x, x.var=which.max(levels), main=paste(effect, "effect 
                 par.strip.text=list(cex=0.8),							
                 strip=function(...) strip.default(..., strip.names=c(factor.names, TRUE), sep=" = "),
                 panel=function(x, y, subscripts, x.vals, rug, ... ){
-                  if (grid) panel.grid()
+                  if (grid) ticksGrid(x=tickmarks.x$at, y=tickmarks$at)
                   good <- !is.na(y)
                   effect.llines(x[good], y[good], lwd=lwd, type="b", pch=19, col=colors[1], cex=cex, ...)
                   subs <- subscripts+as.numeric(rownames(Data)[1])-1		
@@ -298,7 +299,7 @@ plot.effpoly <- function(x, x.var=which.max(levels), main=paste(effect, "effect 
               par.strip.text=list(cex=0.8),							
               strip=function(...) strip.default(..., strip.names=c(factor.names, TRUE), sep=" = "),
               panel=function(x, y, subscripts, x.vals, rug, ... ){
-                if (grid) panel.grid()
+                if (grid) ticksGrid(x=tickmarks.x$at, y=tickmarks$at)
                 if (rug) lrug(trans(x.vals))
                 good <- !is.na(y)
                 effect.llines(x[good], y[good], lwd=lwd, col=colors[1], ...)
@@ -354,7 +355,7 @@ plot.effpoly <- function(x, x.var=which.max(levels), main=paste(effect, "effect 
                             paste(predictors[-x.var], collapse="*")))), 
                     strip=function(...) strip.default(..., strip.names=c(factor.names, TRUE), sep=" = "),
                     panel=function(x, y, subscripts, rug, z, x.vals, ...){
-                        if (grid) panel.grid()
+                        if (grid) ticksGrid(x=tickmarks.x$at, y=tickmarks$at)
                         for (i in 1:n.y.lev){
                             sub <- z[subscripts] == y.lev[i]
                             good <- !is.na(y[sub])
@@ -424,7 +425,7 @@ plot.effpoly <- function(x, x.var=which.max(levels), main=paste(effect, "effect 
                             paste(predictors[-x.var], collapse="*")))), 
                     strip=function(...) strip.default(..., strip.names=c(factor.names, TRUE), sep=" = "),
                     panel=function(x, y, subscripts, rug, z, x.vals, ...){
-                        if (grid) panel.grid()
+                        if (grid) ticksGrid(x=tickmarks.x$at, y=tickmarks$at)
                         if (rug) lrug(trans(x.vals))
                         for (i in 1:n.y.lev){
                             sub <- z[subscripts] == y.lev[i]
@@ -589,7 +590,7 @@ plot.effpoly <- function(x, x.var=which.max(levels), main=paste(effect, "effect 
                 par.strip.text=list(cex=0.8),							
                 strip=function(...) strip.default(..., strip.names=c(factor.names, TRUE), sep=" = "),
                 panel=function(x, y, subscripts, x.vals, rug, lower, upper, ... ){
-                    if (grid) panel.grid()
+                    if (grid) ticksGrid(x=1:length(levs), y=tickmarks$at)
                     good <- !is.na(y)
                     effect.llines(x[good], y[good], lwd=lwd, type="b", pch=19, col=colors[1], cex=cex, ...)
                     subs <- subscripts+as.numeric(rownames(Data)[1])-1		
@@ -670,7 +671,7 @@ plot.effpoly <- function(x, x.var=which.max(levels), main=paste(effect, "effect 
                 par.strip.text=list(cex=0.8),							
                 strip=function(...) strip.default(..., strip.names=c(factor.names, TRUE), sep=" = "),
                 panel=function(x, y, subscripts, x.vals, rug, lower, upper, ... ){
-                    if (grid) panel.grid()
+                    if (grid) ticksGrid(x=tickmarks.x$at, y=tickmarks$at)
                     if (rug) lrug(trans(x.vals))
                     good <- !is.na(y)
                     effect.llines(x[good], y[good], lwd=lwd, col=colors[1], ...)
@@ -740,7 +741,7 @@ plot.effpoly <- function(x, x.var=which.max(levels), main=paste(effect, "effect 
                          paste(predictors[-x.var], collapse="*")))), 
             strip=function(...) strip.default(..., strip.names=c(factor.names, TRUE), sep=" = "),
             panel=function(x, y, subscripts, rug, z, x.vals, lower, upper, ...){
-              if (grid) panel.grid()
+              if (grid) ticksGrid(x=1:length(levs), y=tickmarks$at)
               for (i in 1:n.y.lev){
                 sub <- z[subscripts] == y.lev[i]
                 good <- !is.na(y[sub])
@@ -824,7 +825,7 @@ plot.effpoly <- function(x, x.var=which.max(levels), main=paste(effect, "effect 
                                   paste(predictors[-x.var], collapse="*")))), 
             strip=function(...) strip.default(..., strip.names=c(factor.names, TRUE), sep=" = "),
             panel=function(x, y, subscripts, rug, z, x.vals, lower, upper, ...){
-              if (grid) panel.grid()
+              if (grid) ticksGrid(x=tickmarks.x$at, y=tickmarks$at)
               if (rug) lrug(trans(x.vals))
               for (i in 1:n.y.lev){
                 sub <- z[subscripts] == y.lev[i]

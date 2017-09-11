@@ -26,6 +26,7 @@
 #              an argument to the next method twice
 # 2017-08-23: plot.eff, in key.args, set default for between.columns=0
 # 2017-08-20: reintroduce legacy arguments for plot.eff()
+# 2017-09-10: use replacement for grid.panel()
 
 # the following functions aren't exported
 
@@ -328,7 +329,7 @@ plot.eff <- function(x, x.var, z.var=which.min(levels), main=paste(effect, "effe
         text=paste("fit ~ as.numeric(", names(x)[1], ")"))),
         strip=function(...) strip.default(..., strip.names=c(factor.names, TRUE)),
         panel=function(x, y, lower, upper, has.se, ...){
-          if (grid) panel.grid()
+          if (grid) ticksGrid(x=1:length(levs), y=tickmarks$at)
           good <- !is.na(y)
           if (has.se){
             if (ci.style == "bars"){
@@ -418,7 +419,7 @@ plot.eff <- function(x, x.var, z.var=which.min(levels), main=paste(effect, "effe
         text=paste("fit ~ trans(", x.var, ")"))),
         strip=function(...) strip.default(..., strip.names=c(factor.names, TRUE)),
         panel=function(x, y, x.vals, rug, lower, upper, has.se, ...){
-          if (grid) panel.grid()
+          if (grid) ticksGrid(x=tickmarks.x$at, y=tickmarks$at)
           good <- !is.na(y)
           axis.length <- diff(range(x))
           effect.llines(x[good], y[good], lwd=lwd, col=colors[1], ...)
@@ -541,7 +542,7 @@ plot.eff <- function(x, x.var, z.var=which.min(levels), main=paste(effect, "effe
                                                paste(predictors[-c(x.var, z.var)], collapse="*"))))),
         strip=function(...) strip.default(..., strip.names=c(factor.names, TRUE), sep=" = "),
         panel=function(x, y, subscripts, z, lower, upper, show.se, ...){
-          if (grid) panel.grid()
+          if (grid) ticksGrid(x=1:length(levs), y=tickmarks$at)
           for (i in 1:length(zvals)){
             sub <- z[subscripts] == zvals[i]
             good <- !is.na(y[sub])
@@ -626,7 +627,7 @@ plot.eff <- function(x, x.var, z.var=which.min(levels), main=paste(effect, "effe
                                                paste(predictors[-c(x.var, z.var)], collapse="*"))))),
         strip=function(...) strip.default(..., strip.names=c(factor.names, TRUE), sep=" = "),
         panel=function(x, y, subscripts, x.vals, rug, z, lower, upper, show.se, ...){
-          if (grid) panel.grid()
+          if (grid) ticksGrid(x=tickmarks.x$at, y=tickmarks$at)
           if (rug && is.null(residuals)) lrug(trans(x.vals))
           axis.length <- diff(range(x))
           for (i in 1:length(zvals)){
@@ -708,7 +709,7 @@ plot.eff <- function(x, x.var, z.var=which.min(levels), main=paste(effect, "effe
                  paste(predictors[-x.var], collapse="*")))),
       strip=function(...) strip.default(..., strip.names=c(factor.names, TRUE), sep=" = "),
       panel=function(x, y, subscripts, lower, upper, has.se, ...){
-        if (grid) panel.grid()
+        if (grid) ticksGrid(x=1:length(levs), y=tickmarks$at)
         good <- !is.na(y)
         if (has.se){
           if (ci.style == "bars"){
@@ -793,7 +794,7 @@ plot.eff <- function(x, x.var, z.var=which.min(levels), main=paste(effect, "effe
                  paste(predictors[-x.var], collapse="*")))),
       strip=function(...) strip.default(..., strip.names=c(factor.names, TRUE), sep=" = "),
       panel=function(x, y, subscripts, x.vals, rug, lower, upper, has.se, ...){
-        if (grid) panel.grid()
+        if (grid) ticksGrid(x=tickmarks.x$at, y=tickmarks$at)
         good <- !is.na(y)
         effect.llines(x[good], y[good], lwd=lwd, col=colors[1], ...)
         if (rug && is.null(residuals)) lrug(trans(x.vals))
