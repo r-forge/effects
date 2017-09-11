@@ -172,7 +172,8 @@ if \code{FALSE} symbols are suppressed; if \code{TRUE} default values are used:
     \item{\code{splines}}{use splines to smooth plotted effect lines; the default is \code{TRUE}.}
     }
 }
-\item{\code{axes}}{a list with elements \code{x}, \code{y}, \code{alternating}, and \code{grid} that control axis limits, ticks, and labels.  Each of these elements is also a list.
+\item{\code{axes}}{a list with elements \code{x}, \code{y}, \code{alternating}, and \code{grid} that control axis limits, ticks, and labels.
+The \code{x} and \code{y} elements may themselves be lists.
 
 The \code{x} entry is a list with elements named for predictors, with each predictor element itself a list with the following elements:
     \describe{
@@ -377,7 +378,7 @@ if (require(nnet)){
     plot(effect("Europe*political.knowledge", mod.beps,
                 xlevels=list(political.knowledge=0:3),
                 fixed.predictors=list(given.values=c(gendermale=0.5))),
-         axes=list(y=list(style="stacked"), x=list(rug=FALSE)),
+         axes=list(y=list(style="stacked"), x=list(rug=FALSE), grid=TRUE),
          lines=list(col=c("blue", "red", "orange")))
 }
 

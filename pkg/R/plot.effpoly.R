@@ -40,7 +40,7 @@ plot.effpoly <- function(x, x.var=which.max(levels), main=paste(effect, "effect 
     if (missing(axes)) axes <- NULL
     axes <- applyDefaults(axes, defaults=list(
         x=list(rotate=0, rug=TRUE),
-        y=list(lab=NULL, lim=NULL, ticks=list(at=NULL, n=5), type="probability", rotate=0),
+        y=list(lab=NULL, lim=c(NA, NA), ticks=list(at=NULL, n=5), type="probability", rotate=0),
         alternating=TRUE, grid=FALSE),
         arg="axes")
     
@@ -85,7 +85,7 @@ plot.effpoly <- function(x, x.var=which.max(levels), main=paste(effect, "effect 
     if (length(ticks.x) == 0) ticks.x <- NULL
     if (length(transform.x) == 0) transform.x <- NULL
     
-    y.args <- applyDefaults(axes$y, defaults=list(lab=NULL, lim=NULL, ticks=list(at=NULL, n=5), type="probability", style="lines", rotate=0), arg="axes$y")
+    y.args <- applyDefaults(axes$y, defaults=list(lab=NULL, lim=c(NA, NA), ticks=list(at=NULL, n=5), type="probability", style="lines", rotate=0), arg="axes$y")
     if (missing(ylim)) ylim <- y.args$lim
     if (missing(ticks)) ticks <- y.args$ticks
     if (missing(type)) type <- y.args$type
@@ -130,6 +130,7 @@ plot.effpoly <- function(x, x.var=which.max(levels), main=paste(effect, "effect 
             confint <- FALSE
             warning('confint set to FALSE for stacked plot')
         }
+      ylim <- c(0, 1)
     }
     
     if (missing(lattice)) lattice <- NULL
@@ -212,6 +213,10 @@ plot.effpoly <- function(x, x.var=which.max(levels), main=paste(effect, "effect 
             else layout
             ### factor
             if (is.factor(x$data[[predictors[x.var]]])){ # x-variable a factor
+              range <- if (type=="probability") range(prob, na.rm=TRUE) else range(logit, na.rm=TRUE)
+              ylim <- if (!any(is.na(ylim))) ylim else c(range[1] - .025*(range[2] - range[1]),
+                                                         range[2] + .025*(range[2] - range[1]))
+              tickmarks <- make.ticks(ylim, link=I, inverse=I, at=ticks$at, n=ticks$n)
               levs <- levels(x$data[[predictors[x.var]]])
               if (show.strip.values){
                 for (pred in predictors[-x.var]){
@@ -232,7 +237,7 @@ plot.effpoly <- function(x, x.var=which.max(levels), main=paste(effect, "effect 
                 par.strip.text=list(cex=0.8),							
                 strip=function(...) strip.default(..., strip.names=c(factor.names, TRUE), sep=" = "),
                 panel=function(x, y, subscripts, x.vals, rug, ... ){
-                  if (grid) ticksGrid(x=tickmarks.x$at, y=tickmarks$at)
+                  if (grid) ticksGrid(x=1:length(levs), y=tickmarks$at)
                   good <- !is.na(y)
                   effect.llines(x[good], y[good], lwd=lwd, type="b", pch=19, col=colors[1], cex=cex, ...)
                   subs <- subscripts+as.numeric(rownames(Data)[1])-1		
@@ -248,7 +253,7 @@ plot.effpoly <- function(x, x.var=which.max(levels), main=paste(effect, "effect 
                 x.vals=x$data[[predictors[x.var]]],
                 rug=rug,
                 scales=list(x=list(at=1:length(levs), labels=levs, rot=rotx), 
-                            y=list(rot=roty), alternating=alternating),
+                            y=list(at=tickmarks$at, labels=tickmarks$labels, rot=roty), alternating=alternating),
                 layout=layout,
                 data=Data, ...)
               result$split <- split
@@ -257,6 +262,10 @@ plot.effpoly <- function(x, x.var=which.max(levels), main=paste(effect, "effect 
             }
             else { # x-variable numeric
               if(use.splines) effect.llines <- spline.llines # added 10/17/13
+              range <- if (type=="probability") range(prob, na.rm=TRUE) else range(logit, na.rm=TRUE)
+              ylim <- if (!any(is.na(ylim))) ylim else c(range[1] - .025*(range[2] - range[1]),
+                                                         range[2] + .025*(range[2] - range[1]))
+              tickmarks <- make.ticks(ylim, link=I, inverse=I, at=ticks$at, n=ticks$n)
               nm <- predictors[x.var]
               x.vals <- x$data[[nm]]   
               if (nm %in% names(ticks.x)){
@@ -314,7 +323,8 @@ plot.effpoly <- function(x, x.var=which.max(levels), main=paste(effect, "effect 
               main=main,
               x.vals=x$data[[predictors[x.var]]],
               rug=rug,
-              scales=list(y=list(rot=roty), x=list(at=tickmarks.x$at, labels=tickmarks.x$labels, rot=rotx),
+              scales=list(y=list(at=tickmarks$at, labels=tickmarks$labels, rot=roty), 
+                          x=list(at=tickmarks.x$at, labels=tickmarks.x$labels, rot=rotx),
                           alternating=alternating),
               layout=layout,
               data=Data, ...)
@@ -332,6 +342,10 @@ plot.effpoly <- function(x, x.var=which.max(levels), main=paste(effect, "effect 
             else layout
             if (n.y.lev > min(c(length(colors), length(lines), length(symbols))))
                 warning('Colors, lines and symbols may have been recycled')
+            range <- if (type=="probability") range(prob, na.rm=TRUE) else range(logit, na.rm=TRUE)
+            ylim <- if (!any(is.na(ylim))) ylim else c(range[1] - .025*(range[2] - range[1]),
+                                                       range[2] + .025*(range[2] - range[1]))
+            tickmarks <- make.ticks(ylim, link=I, inverse=I, at=ticks$at, n=ticks$n)
             if (is.factor(x$data[[predictors[x.var]]])){ # x-variable a factor
                 key <- list(title=x$response, cex.title=1, border=TRUE,
                     text=list(as.character(unique(response))),
@@ -355,7 +369,7 @@ plot.effpoly <- function(x, x.var=which.max(levels), main=paste(effect, "effect 
                             paste(predictors[-x.var], collapse="*")))), 
                     strip=function(...) strip.default(..., strip.names=c(factor.names, TRUE), sep=" = "),
                     panel=function(x, y, subscripts, rug, z, x.vals, ...){
-                        if (grid) ticksGrid(x=tickmarks.x$at, y=tickmarks$at)
+                        if (grid) ticksGrid(x=1:length(levs), y=tickmarks$at)
                         for (i in 1:n.y.lev){
                             sub <- z[subscripts] == y.lev[i]
                             good <- !is.na(y[sub])
@@ -372,7 +386,7 @@ plot.effpoly <- function(x, x.var=which.max(levels), main=paste(effect, "effect 
                     rug=rug,
                     z=response,
                     scales=list(x=list(at=1:length(levs), labels=levs, rot=rotx),
-                        y=list(rot=roty),  
+                        y=list(at=tickmarks$at, labels=tickmarks$labels, rot=roty),  
                         alternating=alternating),
                     main=main,
                     key=key,
@@ -384,6 +398,10 @@ plot.effpoly <- function(x, x.var=which.max(levels), main=paste(effect, "effect 
             }
             else { # x-variable numeric
                 if(use.splines) effect.llines <- spline.llines # added 10/17/13
+                range <- if (type=="probability") range(prob, na.rm=TRUE) else range(logit, na.rm=TRUE)
+                ylim <- if (!any(is.na(ylim))) ylim else c(range[1] - .025*(range[2] - range[1]),
+                                                           range[2] + .025*(range[2] - range[1]))
+                tickmarks <- make.ticks(ylim, link=I, inverse=I, at=ticks$at, n=ticks$n)
                 nm <- predictors[x.var]
                 x.vals <- x$data[[nm]]   
                 if (nm %in% names(ticks.x)){
@@ -442,7 +460,8 @@ plot.effpoly <- function(x, x.var=which.max(levels), main=paste(effect, "effect 
                     x.vals=x$data[[predictors[x.var]]], 
                     rug=rug,
                     z=response,
-                    scales=list(x=list(at=tickmarks.x$at, labels=tickmarks.x$labels, rot=rotx), y=list(rot=roty),
+                    scales=list(x=list(at=tickmarks.x$at, labels=tickmarks.x$labels, rot=rotx), 
+                                y=list(at=tickmarks$at, labels=tickmarks$labels, rot=roty),
                         alternating=alternating),
                     main=main,
                     key=key,
@@ -455,6 +474,7 @@ plot.effpoly <- function(x, x.var=which.max(levels), main=paste(effect, "effect 
           }
         }
         else { # stacked plot
+          tickmarks <- make.ticks(c(0, 1), link=I, inverse=I, at=ticks$at, n=ticks$n)
           layout <- if (is.null(layout)){
             lay <- c(prod(n.predictor.cats[-(n.predictors - 1)]), 
                      prod(n.predictor.cats[(n.predictors - 1)]), 1)
@@ -471,15 +491,20 @@ plot.effpoly <- function(x, x.var=which.max(levels), main=paste(effect, "effect 
                     else paste("prob ~ ", predictors[x.var]," | ", 
                         paste(predictors[-x.var], collapse="*")))), 
                     strip=function(...) strip.default(..., strip.names=c(factor.names, TRUE), sep=" = "),
+                    panel=function(x, y, ...){
+                      panel.barchart(x, y, ...)
+                      if (grid) ticksGrid(x=NA, y=tickmarks$at, col="white")
+                    },
                     groups = response,
                     col=colors,
                     horizontal=FALSE, 
                     stack=TRUE, 
                     data=Data, 
-                    ylim=if (is.null(ylim)) 0:1 else ylim,
+                    ylim=ylim, # if (is.null(ylim)) 0:1 else ylim,
                     ylab=ylab, 
                     xlab=if (is.null(xlab)) predictors[x.var] else xlab,
-                    scales=list(x=list(rot=rotx), y=list(rot=roty), 
+                    scales=list(x=list(rot=rotx, at=1:length(levs), labels=levs), 
+                                y=list(rot=roty, at=tickmarks$at, labels=tickmarks$labels), 
                         alternating=alternating),
                     main=main,
                     key=key,
@@ -536,15 +561,17 @@ plot.effpoly <- function(x, x.var=which.max(levels), main=paste(effect, "effect 
                             fill(x, Y[,i-1], Y[,i], col=col[i])
                         }
                         if (rug) lrug(trans(x.vals))
+                        if (grid) ticksGrid(x=tickmarks.x$at, y=tickmarks$at, col="white")
                     },
                     rug=rug,
                     x.vals=x$data[[predictors[x.var]]],
                     data=x$x,
                     xlim=suppressWarnings(trans(xlm)),
-                    ylim=if (is.null(ylim)) 0:1 else ylim,
+                    ylim= c(0, 1), # if (is.null(ylim)) 0:1 else ylim,
                     ylab=ylab,
                     xlab=if (is.null(xlab)) predictors[x.var] else xlab,
-                    scales=list(x=list(at=tickmarks.x$at, labels=tickmarks.x$labels, rot=rotx), y=list(rot=roty),
+                    scales=list(x=list(at=tickmarks.x$at, labels=tickmarks.x$labels, rot=rotx), 
+                                y=list(rot=roty, at=tickmarks$at, labels=tickmarks$labels),
                         alternating=alternating),
                     main=main,
                     key=key,
@@ -570,6 +597,10 @@ plot.effpoly <- function(x, x.var=which.max(levels), main=paste(effect, "effect 
         else layout
         ### factor
         if (is.factor(x$data[[predictors[x.var]]])){ # x-variable a factor
+          range <- range(c(lower, upper), na.rm=TRUE)
+          ylim <- if (!any(is.na(ylim))) ylim else c(range[1] - .025*(range[2] - range[1]),
+                                                     range[2] + .025*(range[2] - range[1]))
+          tickmarks <- make.ticks(ylim, link=I, inverse=I, at=ticks$at, n=ticks$n)
             levs <- levels(x$data[[predictors[x.var]]])
             if (show.strip.values){
               for (pred in predictors[-x.var]){
@@ -620,7 +651,8 @@ plot.effpoly <- function(x, x.var=which.max(levels), main=paste(effect, "effect 
                 lower=lower,
                 upper=upper, 
                 scales=list(x=list(at=1:length(levs), labels=levs, rot=rotx), 
-                    y=list(rot=roty), alternating=alternating),
+                    y=list(at=tickmarks$at, labels=tickmarks$labels, rot=roty), 
+                    alternating=alternating),
                 layout=layout,
                 data=Data, ...)
             result$split <- split
@@ -629,6 +661,10 @@ plot.effpoly <- function(x, x.var=which.max(levels), main=paste(effect, "effect 
         }
         else { # x-variable numeric
             if(use.splines) effect.llines <- spline.llines # added 10/17/13
+            range <- range(c(lower, upper), na.rm=TRUE)
+            ylim <- if (!any(is.na(ylim))) ylim else c(range[1] - .025*(range[2] - range[1]),
+                                                       range[2] + .025*(range[2] - range[1]))
+            tickmarks <- make.ticks(ylim, link=I, inverse=I, at=ticks$at, n=ticks$n)
             nm <- predictors[x.var]
             x.vals <- x$data[[nm]]   
             if (nm %in% names(ticks.x)){
@@ -700,7 +736,8 @@ plot.effpoly <- function(x, x.var=which.max(levels), main=paste(effect, "effect 
                 rug=rug,
                 lower=lower,
                 upper=upper, 
-                scales=list(y=list(rot=roty), x=list(at=tickmarks.x$at, labels=tickmarks.x$labels, rot=rotx),
+                scales=list(y=list(at=tickmarks$at, labels=tickmarks$labels, rot=roty), 
+                            x=list(at=tickmarks.x$at, labels=tickmarks.x$labels, rot=rotx),
                     alternating=alternating),
                 layout=layout,
                 data=Data, ...)
@@ -719,6 +756,10 @@ plot.effpoly <- function(x, x.var=which.max(levels), main=paste(effect, "effect 
         if (n.y.lev > min(c(length(colors), length(lines), length(symbols))))
           warning('Colors, lines and symbols may have been recycled')
         if (is.factor(x$data[[predictors[x.var]]])){ # x-variable a factor
+          range <- range(c(lower, upper), na.rm=TRUE)
+          ylim <- if (!any(is.na(ylim))) ylim else c(range[1] - .025*(range[2] - range[1]),
+                                                     range[2] + .025*(range[2] - range[1]))
+          tickmarks <- make.ticks(ylim, link=I, inverse=I, at=ticks$at, n=ticks$n)
           key <- list(title=x$response, cex.title=1, border=TRUE,
                       text=list(as.character(unique(response))),
                       lines=list(col=colors[.modc(1:n.y.lev)], lty=lines[.modl(1:n.y.lev)], lwd=lwd),
@@ -772,7 +813,7 @@ plot.effpoly <- function(x, x.var=which.max(levels), main=paste(effect, "effect 
             lower=lower,
             upper=upper,
             scales=list(x=list(at=1:length(levs), labels=levs, rot=rotx),
-                        y=list(rot=roty),  
+                        y=list(at=tickmarks$at, labels=tickmarks$labels, rot=roty),  
                         alternating=alternating),
             main=main,
             key=key,
@@ -784,6 +825,10 @@ plot.effpoly <- function(x, x.var=which.max(levels), main=paste(effect, "effect 
         }
         else { # x-variable numeric
           if(use.splines) effect.llines <- spline.llines # added 10/17/13
+          range <- range(c(lower, upper), na.rm=TRUE)
+          ylim <- if (!any(is.na(ylim))) ylim else c(range[1] - .025*(range[2] - range[1]),
+                                                     range[2] + .025*(range[2] - range[1]))
+          tickmarks <- make.ticks(ylim, link=I, inverse=I, at=ticks$at, n=ticks$n)
           nm <- predictors[x.var]
           x.vals <- x$data[[nm]]   
           if (nm %in% names(ticks.x)){
@@ -856,7 +901,8 @@ plot.effpoly <- function(x, x.var=which.max(levels), main=paste(effect, "effect 
             z=response,
             lower=lower,
             upper=upper,
-            scales=list(x=list(at=tickmarks.x$at, labels=tickmarks.x$labels, rot=rotx), y=list(rot=roty),
+            scales=list(x=list(at=tickmarks.x$at, labels=tickmarks.x$labels, rot=rotx), 
+                        y=list(at=tickmarks$at, labels=tickmarks$labels, rot=roty),
                         alternating=alternating),
             main=main,
             key=key,

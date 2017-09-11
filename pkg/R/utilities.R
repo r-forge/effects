@@ -571,7 +571,7 @@ nice <- function (x, direction = c("round", "down", "up"), lead.digits = 1) {
   sign(x) * lead.digit * 10^power.10
 }
 
-ticksGrid <- function(x, y){
+ticksGrid <- function(x, y, col=reference.line$col){
   reference.line <- trellis.par.get("reference.line")
-  panel.abline(h=y, v=x, col=reference.line$col, lty=reference.line$lty)
+  panel.abline(h=y, v=x, col=col, lty=reference.line$lty)
 }

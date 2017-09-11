@@ -1,9 +1,9 @@
-# last modified 2017-09-10 by J. Fox
+# last modified 2017-09-11 by J. Fox
 
 import(carData)
 
 importFrom(lattice, barchart, current.panel.limits, densityplot, larrows, llines, lpoints, ltext,
-           panel.abline, #panel.grid, 
+           panel.abline, panel.barchart, #panel.grid, 
            panel.polygon, panel.text, strip.default, trellis.par.get,
            trellis.par.set, xyplot)
 importFrom(colorspace, rainbow_hcl, sequential_hcl)
