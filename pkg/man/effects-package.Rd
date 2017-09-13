@@ -14,7 +14,7 @@ various statistical models with linear predictors.
 \tabular{ll}{
 Package: \tab effects\cr
 Version: \tab 4.0-0\cr
-Date: \tab 2017-09-11\cr
+Date: \tab 2017-09-13\cr
 Depends: \tab R (>= 3.2.0), carData\cr
 Suggests: \tab pbkrtest (>= 0.4-4), nlme, MASS, poLCA, heplots, splines, ordinal, car\cr
 Imports: \tab lme4, nnet, lattice, grid, colorspace, graphics, grDevices, stats, utils\cr
