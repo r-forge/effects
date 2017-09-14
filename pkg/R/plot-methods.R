@@ -47,13 +47,12 @@ make.ticks <- function(range, link, inverse, at, n) {
   if (is.null(n)) n <- 5
   labels <- if (is.null(at)){
     range.labels <- sapply(range, inverse)
-    #labels <- nice(seq(range.labels[1], range.labels[2], length.out=n))
     labels <- grid.pretty(range.labels)
   }
   else at
   ticks <- try(sapply(labels, link), silent=TRUE)
   if (inherits(ticks, "try-error")){
-      ticks <- seq(range[1], range[2], length=n)
+    ticks <- seq(range[1], range[2], length=n)
   }
   list(at=ticks, labels=format(labels))
 }
@@ -112,32 +111,32 @@ plot.eff <- function(x, x.var, z.var=which.min(levels), main=paste(effect, "effe
   
   if (!is.logical(lines) && !is.list(lines)) lines <- list(lty=lines)
   lines <- applyDefaults(lines,
-     defaults=list(multiline=is.null(x$se), lty=trellis.par.get("superpose.line")$lty,
-                   lwd=trellis.par.get("superpose.line")$lwd[1], col=trellis.par.get("superpose.line")$col, splines=TRUE),
-     onFALSE=list(multiline=FALSE, lty=0, lwd=0, col=rgb(1, 1, 1, alpha=0), splines=FALSE),
-     arg="lines")
+                         defaults=list(multiline=is.null(x$se), lty=trellis.par.get("superpose.line")$lty,
+                                       lwd=trellis.par.get("superpose.line")$lwd[1], col=trellis.par.get("superpose.line")$col, splines=TRUE),
+                         onFALSE=list(multiline=FALSE, lty=0, lwd=0, col=rgb(1, 1, 1, alpha=0), splines=FALSE),
+                         arg="lines")
   if (missing(multiline)) multiline <- lines$multiline
   if (missing(lwd)) lwd <- lines$lwd
   if (missing(colors)) colors <- lines$col
   if (missing(use.splines)) use.splines <- lines$splines
   lines <- if (missing(lty)) lines$lty else lty
-
+  
   if (!is.logical(symbols) && !is.list(symbols)) symbols <- list(pch=symbols)
   symbols <- applyDefaults(symbols,
-    defaults=list(pch=trellis.par.get("superpose.symbol")$pch, cex=trellis.par.get("superpose.symbol")$cex[1]),
-    onFALSE=list(pch=NA_integer_, cex=0),
-    arg="symbols")
+                           defaults=list(pch=trellis.par.get("superpose.symbol")$pch, cex=trellis.par.get("superpose.symbol")$cex[1]),
+                           onFALSE=list(pch=NA_integer_, cex=0),
+                           arg="symbols")
   cex <- symbols$cex
   symbols <- symbols$pch
-
+  
   if (missing(axes)) axes <- NULL
   axes <- applyDefaults(axes, defaults=list(
-        x=list(rotate=0, rug=TRUE),
-        y=list(lab=NA, lim=NA, ticks=list(at=NULL, n=5), type="rescale", rotate=0),
-        alternating=TRUE, grid=FALSE),
+    x=list(rotate=0, rug=TRUE),
+    y=list(lab=NA, lim=NA, ticks=list(at=NULL, n=5), type="rescale", rotate=0),
+    alternating=TRUE, grid=FALSE),
     arg="axes")
   x.args <- applyDefaults(axes$x, defaults=list(rotate=0, rug=TRUE), arg="axes$x")
-
+  
   if (missing(xlab)) {
     xlab.arg <- FALSE
     xlab <- list()
@@ -174,7 +173,7 @@ plot.eff <- function(x, x.var, z.var=which.min(levels), main=paste(effect, "effe
   if (length(xlim) == 0) xlim <- NA
   if (length(ticks.x) == 0) ticks.x <- NA
   if (length(transform.x) == 0) transform.x <- NA
-
+  
   y.args <- applyDefaults(axes$y, defaults=list(lab=NA, lim=NA, ticks=list(at=NULL, n=5), type="rescale", rotate=0), arg="axes$y")
   if (missing(ylab)) ylab <- y.args$lab
   if (missing(ylim)) ylim <- y.args$lim
@@ -185,23 +184,23 @@ plot.eff <- function(x, x.var, z.var=which.min(levels), main=paste(effect, "effe
   if (missing(roty)) roty <- y.args$rotate
   if (missing(alternating)) alternating <- axes$alternating
   if (missing(grid)) grid <- axes$grid
-
+  
   if (missing(confint) || isTRUE(confint)) confint <- NULL
   confint <- applyDefaults(confint,
-    defaults=list(style=NULL, alpha=0.15, col=colors),
-    onFALSE=list(style="none", alpha=0, col=NA_integer_),
-    arg="confint")
+                           defaults=list(style=NULL, alpha=0.15, col=colors),
+                           onFALSE=list(style="none", alpha=0, col=NA_integer_),
+                           arg="confint")
   if (missing(ci.style)) ci.style <- confint$style
   if (missing(band.transparency)) band.transparency <- confint$alpha
   if (missing(band.colors)) band.colors <- confint$col
   if(!is.null(ci.style)) ci.style <- match.arg(ci.style, c("auto", "bars", "lines", "bands", "none"))
-
+  
   if (missing(partial.residuals)) partial.residuals <- NULL
   if (is.logical(partial.residuals)) partial.residuals <- list(plot=partial.residuals)
   partial.residuals <- applyDefaults(partial.residuals, defaults=list(
-      plot=!is.null(x$residuals), fitted=FALSE, col=colors[2], pch=1, cex=1, smooth=TRUE, 
-      span=2/3, smooth.col=colors[2], lty=lines[1], lwd=lwd),
-      arg="partial.residuals")
+    plot=!is.null(x$residuals), fitted=FALSE, col=colors[2], pch=1, cex=1, smooth=TRUE, 
+    span=2/3, smooth.col=colors[2], lty=lines[1], lwd=lwd),
+    arg="partial.residuals")
   if (missing(show.fitted)) show.fitted <- partial.residuals$fitted
   if (missing(residuals.color)) residuals.color <- partial.residuals$col
   if (missing(residuals.pch)) residuals.pch <- partial.residuals$pch
@@ -222,7 +221,7 @@ plot.eff <- function(x, x.var, z.var=which.min(levels), main=paste(effect, "effe
   else {
     id <- applyDefaults(id, list(
       n=2, cex=0.75, col=residuals.color, labels=NULL
-      ), arg="id")
+    ), arg="id")
     id.n <- id$n
     id.col <- id$col
     id.cex <- id$cex
@@ -231,10 +230,10 @@ plot.eff <- function(x, x.var, z.var=which.min(levels), main=paste(effect, "effe
   
   if (missing(lattice)) lattice <- NULL
   lattice <- applyDefaults(lattice, defaults=list(
-      layout=NULL, key.args=list(),
-      strip=list(factor.names=TRUE, values=!partial.residuals),
-      array=list(row=1, col=1, nrow=1, ncol=1, more=FALSE),
-      arg="lattice"
+    layout=NULL, key.args=list(),
+    strip=list(factor.names=TRUE, values=!partial.residuals),
+    array=list(row=1, col=1, nrow=1, ncol=1, more=FALSE),
+    arg="lattice"
   ))
   if (missing(layout)) layout <- lattice$layout
   if (missing(key.args)){
@@ -251,12 +250,11 @@ plot.eff <- function(x, x.var, z.var=which.min(levels), main=paste(effect, "effe
   nrow <- array.args$nrow
   ncol <- array.args$ncol
   more <- array.args$more
-
-
+  
   if (smooth.residuals && !is.null(x$family)){
     loess.family <- if (x$family == "gaussian") "symmetric" else "gaussian"
   }
-
+  
   switch(type,
          rescale = {
            type <- "response"
@@ -290,7 +288,7 @@ plot.eff <- function(x, x.var, z.var=which.min(levels), main=paste(effect, "effe
   residuals <- if (partial.residuals) x$residuals else NULL
   if (!is.null(residuals) && !is.null(id.labels)) names(residuals) <- id.labels
   partial.residuals.range <- x$partial.residuals.range
-
+  
   if (!rescale.axis){
     x$lower[!is.na(x$lower)] <- trans.inverse(x$lower[!is.na(x$lower)])
     x$upper[!is.na(x$upper)] <- trans.inverse(x$upper[!is.na(x$upper)])
@@ -320,9 +318,9 @@ plot.eff <- function(x, x.var, z.var=which.min(levels), main=paste(effect, "effe
       range <- if(has.se & ci.style!="none")
         range(c(x$lower, x$upper), na.rm=TRUE) else range(x$fit, na.rm=TRUE)
       ylim <- if (!any(is.na(ylim))) ylim else c(range[1] - .025*(range[2] - range[1]),
-                                              range[2] + .025*(range[2] - range[1]))
+                                                 range[2] + .025*(range[2] - range[1]))
       tickmarks <- if (type == "response" && rescale.axis) make.ticks(ylim,
-                                                      link=trans.link, inverse=trans.inverse, at=ticks$at, n=ticks$n)
+                                                                      link=trans.link, inverse=trans.inverse, at=ticks$at, n=ticks$n)
       else make.ticks(ylim, link=I, inverse=I, at=ticks$at, n=ticks$n)
       levs <- levels(x[,1])
       plot <- xyplot(eval(parse(
@@ -374,15 +372,15 @@ plot.eff <- function(x, x.var, z.var=which.min(levels), main=paste(effect, "effe
       ci.style <- if(is.null(ci.style) || ci.style == "auto") "bands" else ci.style
       range <- if(has.se && ci.style!="none")
         range(c(x$lower, x$upper), na.rm=TRUE) else range(x$fit, na.rm=TRUE)
-
+      
       ylim <- if (!any(is.na(ylim))) ylim
       else if (is.null(residuals)) c(range[1] - .025*(range[2] - range[1]), range[2] + .025*(range[2] - range[1]))
       else if (rescale.axis) c(min(partial.residuals.range[1], range[1] - .025*(range[2] - range[1])),
-             max(partial.residuals.range[2], range[2] + .025*(range[2] - range[1])))
+                               max(partial.residuals.range[2], range[2] + .025*(range[2] - range[1])))
       else c(min(original.inverse(partial.residuals.range[1]), range[1] - .025*(range[2] - range[1])),
              max(original.inverse(partial.residuals.range[2]), range[2] + .025*(range[2] - range[1])))
       tickmarks <- if (type == "response" && rescale.axis) make.ticks(ylim,
-                                                      link=trans.link, inverse=trans.inverse, at=ticks$at, n=ticks$n)
+                                                                      link=trans.link, inverse=trans.inverse, at=ticks$at, n=ticks$n)
       else make.ticks(ylim, link=I, inverse=I, at=ticks$at, n=ticks$n)
       nm <- names(x)[1]
       x.vals <- x.data[, nm]
@@ -406,7 +404,7 @@ plot.eff <- function(x, x.var, z.var=which.min(levels), main=paste(effect, "effe
         trans <- I
         make.ticks(xlm, link=I, inverse=I, at=at, n=n)
       }
-
+      
       if (is.null(x.var)){
         if (!is.null(residuals)){
           x.var <- names(x)[1]
@@ -450,7 +448,7 @@ plot.eff <- function(x, x.var, z.var=which.min(levels), main=paste(effect, "effe
           if (!is.null(residuals)){
             fitted <- y[good][closest(trans(x.fit), x[good])]
             partial.res <- if (!rescale.axis) original.inverse(original.link(fitted) + residuals)
-              else fitted + residuals
+            else fitted + residuals
             lpoints(trans(x.fit), partial.res, col=residuals.color, pch=residuals.pch, cex=residuals.cex)
             if (show.fitted) lpoints(trans(x.fit), fitted, pch=16, col=residuals.color)  # REMOVE ME
             if (smooth.residuals){
@@ -465,7 +463,7 @@ plot.eff <- function(x, x.var, z.var=which.min(levels), main=paste(effect, "effe
                     names(partial.res)[biggest], pos=pos, col=id.col, cex=id.cex)
             }
           }
-
+          
         },
         ylim=ylim,
         xlim=suppressWarnings(trans(xlm)),
@@ -516,9 +514,9 @@ plot.eff <- function(x, x.var, z.var=which.min(levels), main=paste(effect, "effe
     range <- if (has.se && ci.style !="none")
       range(c(x$lower, x$upper), na.rm=TRUE) else range(x$fit, na.rm=TRUE)
     ylim <- if (!any(is.na(ylim))) ylim else c(range[1] - .025*(range[2] - range[1]),
-                                            range[2] + .025*(range[2] - range[1]))
+                                               range[2] + .025*(range[2] - range[1]))
     tickmarks <- if (type == "response" && rescale.axis) make.ticks(ylim, link=trans.link,
-                                                    inverse=trans.inverse, at=ticks$at, n=ticks$n)
+                                                                    inverse=trans.inverse, at=ticks$at, n=ticks$n)
     else make.ticks(ylim, link=I, inverse=I, at=ticks$at, n=ticks$n)
     zvals <- unique(x[, z.var])
     ### multiline factor
@@ -691,13 +689,13 @@ plot.eff <- function(x, x.var, z.var=which.min(levels), main=paste(effect, "effe
     range(c(x$lower, x$upper), na.rm=TRUE) else range(x$fit, na.rm=TRUE)
   # multiplot factor
   if (is.factor(x[,x.var])){
-
+    
     ylim <- if (!any(is.na(ylim))) ylim else c(range[1] - .025*(range[2] - range[1]),
-                                            range[2] + .025*(range[2] - range[1]))
+                                               range[2] + .025*(range[2] - range[1]))
     tickmarks <- if (type == "response" && rescale.axis) make.ticks(ylim, link=trans.link,
-                                                    inverse=trans.inverse, at=ticks$at, n=ticks$n)
+                                                                    inverse=trans.inverse, at=ticks$at, n=ticks$n)
     else make.ticks(ylim, link=I, inverse=I, at=ticks$at, n=ticks$n)
-
+    
     levs <- levels(x[,x.var])
     if (show.strip.values){
       for (pred in predictors[-x.var]){
@@ -779,7 +777,7 @@ plot.eff <- function(x, x.var, z.var=which.min(levels), main=paste(effect, "effe
     else c(min(original.inverse(partial.residuals.range[1]), range[1] - .025*(range[2] - range[1])),
            max(original.inverse(partial.residuals.range[2]), range[2] + .025*(range[2] - range[1])))
     tickmarks <- if (type == "response" && rescale.axis) make.ticks(ylim, link=trans.link,
-                                                    inverse=trans.inverse, at=ticks$at, n=ticks$n)
+                                                                    inverse=trans.inverse, at=ticks$at, n=ticks$n)
     else make.ticks(ylim, link=I, inverse=I, at=ticks$at, n=ticks$n)
     x.fit <- x.data[, predictors[x.var]]
     use <- rep(TRUE, length(residuals))
@@ -874,7 +872,7 @@ print.plot.eff <- function(x, ...){
 }
 
 plot.efflist <- function(x, selection, rows, cols, ask=FALSE, graphics=TRUE, lattice, ...){
-# Next line added 8/23/17 along with lattice, also lattice arg above
+  # Next line added 8/23/17 along with lattice, also lattice arg above
   lattice <- if(missing(lattice)) list() else lattice
   if (!missing(selection)){
     if (is.character(selection)) selection <- gsub(" ", "", selection)
@@ -905,4 +903,3 @@ plot.efflist <- function(x, selection, rows, cols, ask=FALSE, graphics=TRUE, lat
     }
   }
 }
-

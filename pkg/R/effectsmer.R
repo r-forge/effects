@@ -34,22 +34,22 @@ fixmod <- function (term)
   if ((is.call(term) && term[[1]] == as.name("|")) ||
       (is.call(term) && term[[1]] == as.name("||")))
     return(NULL)
-    if (length(term) == 2) {
-        nb <- fixmod(term[[2]])
-        if (is.null(nb))
-            return(NULL)
-        term[[2]] <- nb
-        return(term)
-    }
-    nb2 <- fixmod(term[[2]])
-    nb3 <- fixmod(term[[3]])
-    if (is.null(nb2))
-        return(nb3)
-    if (is.null(nb3))
-        return(nb2)
-    term[[2]] <- nb2
-    term[[3]] <- nb3
-    term
+  if (length(term) == 2) {
+    nb <- fixmod(term[[2]])
+    if (is.null(nb))
+      return(NULL)
+    term[[2]] <- nb
+    return(term)
+  }
+  nb2 <- fixmod(term[[2]])
+  nb3 <- fixmod(term[[3]])
+  if (is.null(nb2))
+    return(nb3)
+  if (is.null(nb3))
+    return(nb2)
+  term[[2]] <- nb2
+  term[[3]] <- nb3
+  term
 }
 
 # lme.to.glm evaluates a 'glm' model that is as similar to a given 'lme'
@@ -64,27 +64,27 @@ fixmod <- function (term)
 # is called from within another function.
 
 lme.to.glm <- function(mod) {
-    cl <- mod$call
-    cl$formula <- cl$fixed
-    cl$control <- glm.control(epsilon=1) # suggested by Nate TeGrotenhuis
-    .m <- match(c("formula", "data", "subset",
-        "na.action",  "contrasts"), names(cl), 0L)
-    cl <- cl[c(1L, .m)]
-    cl[[1L]] <- as.name("glm")
-    mod2 <- eval(cl)
-    pw <- attr(mod$modelStruct$varStruct, "weights")
-    if(!is.null(pw)) mod2$prior.weights <- pw
-    mod2$coefficients <- mod$coefficients$fixed
-    mod2$vcov <- as.matrix(vcov(mod))
-    mod2$linear.predictors <- model.matrix(mod2) %*% mod2$coefficients
-    mod2$fitted.values <- mod2$family$linkinv(mod2$linear.predictors)
-    mod2$weights <- as.vector(with(mod2,
-        prior.weights * (family$mu.eta(linear.predictors)^2 /
-                family$variance(fitted.values))))
-    mod2$residuals <- with(mod2,
-        prior.weights * (y - fitted.values)/weights )
-    class(mod2) <- c("fakeglm", class(mod2))
-    mod2
+  cl <- mod$call
+  cl$formula <- cl$fixed
+  cl$control <- glm.control(epsilon=1) # suggested by Nate TeGrotenhuis
+  .m <- match(c("formula", "data", "subset",
+                "na.action",  "contrasts"), names(cl), 0L)
+  cl <- cl[c(1L, .m)]
+  cl[[1L]] <- as.name("glm")
+  mod2 <- eval(cl)
+  pw <- attr(mod$modelStruct$varStruct, "weights")
+  if(!is.null(pw)) mod2$prior.weights <- pw
+  mod2$coefficients <- mod$coefficients$fixed
+  mod2$vcov <- as.matrix(vcov(mod))
+  mod2$linear.predictors <- model.matrix(mod2) %*% mod2$coefficients
+  mod2$fitted.values <- mod2$family$linkinv(mod2$linear.predictors)
+  mod2$weights <- as.vector(with(mod2,
+                                 prior.weights * (family$mu.eta(linear.predictors)^2 /
+                                                    family$variance(fitted.values))))
+  mod2$residuals <- with(mod2,
+                         prior.weights * (y - fitted.values)/weights )
+  class(mod2) <- c("fakeglm", class(mod2))
+  mod2
 }
 
 # mer.to.glm evaluates a 'glm' model that is as similar to a given 'mer'
@@ -92,56 +92,56 @@ lme.to.glm <- function(mod) {
 # several items are added to the created objects. Do not export
 
 mer.to.glm <- function(mod, KR=FALSE) {
-    if (KR && !requireNamespace("pbkrtest", quietly=TRUE)){
-        KR <- FALSE
-        warning("pbkrtest is not available, KR set to FALSE")
+  if (KR && !requireNamespace("pbkrtest", quietly=TRUE)){
+    KR <- FALSE
+    warning("pbkrtest is not available, KR set to FALSE")
+  }
+  # object$family$family doesn't work correctly with the negative binomial family because of the
+  # argument in the family function, so the old line
+  #   family <- family(mod)
+  # returns an error message for these models.  The following kluge fixes this.
+  # If this bug is fixed in lme4, this code may break because it expects resp$family$family
+  # to return "Link Name(arg)" with ONE argument, and so spaces between Name and "(arg)"
+  family1 <- function(object, ...) {UseMethod("family1", object@resp)}
+  family1.lmResp <- function(object, ...) family(object, ...)
+  family1.glmResp <- function(object, ...){
+    famname <- object@resp$family$family
+    open.paren <- regexpr("\\(", famname)
+    if(open.paren==-1) {
+      name <- famname
+      arg <- list()
+    } else {
+      name <- sub(" ", ".", tolower(substr(famname, 1, -1 + open.paren)))
+      arg <- list(as.numeric(gsub("\\)", "", substr(famname, 1 + open.paren, 100))))
     }
-    # object$family$family doesn't work correctly with the negative binomial family because of the
-    # argument in the family function, so the old line
-    #   family <- family(mod)
-    # returns an error message for these models.  The following kluge fixes this.
-    # If this bug is fixed in lme4, this code may break because it expects resp$family$family
-    # to return "Link Name(arg)" with ONE argument, and so spaces between Name and "(arg)"
-    family1 <- function(object, ...) {UseMethod("family1", object@resp)}
-    family1.lmResp <- function(object, ...) family(object, ...)
-    family1.glmResp <- function(object, ...){
-        famname <- object@resp$family$family
-        open.paren <- regexpr("\\(", famname)
-        if(open.paren==-1) {
-            name <- famname
-            arg <- list()
-        } else {
-            name <- sub(" ", ".", tolower(substr(famname, 1, -1 + open.paren)))
-            arg <- list(as.numeric(gsub("\\)", "", substr(famname, 1 + open.paren, 100))))
-        }
-        if(is.null(object@resp$family$initialize)) do.call(name, arg) else object@resp$family
-    }
-    family <- family1(mod)
-    # end
-    link <- family$link
-    family <- family$family
-    cl <- mod@call
-    cl$control <- glm.control(epsilon=1) # suggested by Nate TeGrotenhuis
-    if(cl[[1]] =="nlmer") stop("effects package does not support 'nlmer' objects")
-    .m <- match(c("formula", "family", "data", "weights", "subset",
-        "na.action", "offset",
-        "model", "contrasts"), names(cl), 0L)
-    cl <- cl[c(1L, .m)]
-    cl[[1L]] <- as.name("glm")
-    cl$formula <- fixmod(as.formula(cl$formula))
-#    cl$data <- mod@frame # caused bug with a 'poly' in the formula
-    mod2 <- eval(cl)
-    mod2$coefficients <- lme4::fixef(mod) #mod@fixef
-    mod2$vcov <- if (family == "gaussian" && link == "identity" && KR) as.matrix(pbkrtest::vcovAdj(mod)) else as.matrix(vcov(mod))
-    mod2$linear.predictors <- model.matrix(mod2) %*% mod2$coefficients
-    mod2$fitted.values <- mod2$family$linkinv(mod2$linear.predictors)
-    mod2$weights <- as.vector(with(mod2,
-        prior.weights * (family$mu.eta(linear.predictors)^2 /
-                family$variance(fitted.values))))
-    mod2$residuals <- with(mod2,
-        prior.weights * (y - fitted.values)/weights )
-    class(mod2) <- c("fakeglm", class(mod2))
-    mod2
+    if(is.null(object@resp$family$initialize)) do.call(name, arg) else object@resp$family
+  }
+  family <- family1(mod)
+  # end
+  link <- family$link
+  family <- family$family
+  cl <- mod@call
+  cl$control <- glm.control(epsilon=1) # suggested by Nate TeGrotenhuis
+  if(cl[[1]] =="nlmer") stop("effects package does not support 'nlmer' objects")
+  .m <- match(c("formula", "family", "data", "weights", "subset",
+                "na.action", "offset",
+                "model", "contrasts"), names(cl), 0L)
+  cl <- cl[c(1L, .m)]
+  cl[[1L]] <- as.name("glm")
+  cl$formula <- fixmod(as.formula(cl$formula))
+  #    cl$data <- mod@frame # caused bug with a 'poly' in the formula
+  mod2 <- eval(cl)
+  mod2$coefficients <- lme4::fixef(mod) #mod@fixef
+  mod2$vcov <- if (family == "gaussian" && link == "identity" && KR) as.matrix(pbkrtest::vcovAdj(mod)) else as.matrix(vcov(mod))
+  mod2$linear.predictors <- model.matrix(mod2) %*% mod2$coefficients
+  mod2$fitted.values <- mod2$family$linkinv(mod2$linear.predictors)
+  mod2$weights <- as.vector(with(mod2,
+                                 prior.weights * (family$mu.eta(linear.predictors)^2 /
+                                                    family$variance(fitted.values))))
+  mod2$residuals <- with(mod2,
+                         prior.weights * (y - fitted.values)/weights )
+  class(mod2) <- c("fakeglm", class(mod2))
+  mod2
 }
 
 
@@ -152,33 +152,30 @@ vcov.fakeglm <- function(object, ...) object$vcov
 #The next six functions should be exported as S3 methods
 
 effect.mer <- function(term, mod, vcov.=vcov, KR=FALSE, ...) {
-    result <- effect(term, mer.to.glm(mod, KR=KR), vcov., ...)
-    result$formula <- as.formula(formula(mod))
-    result
+  result <- effect(term, mer.to.glm(mod, KR=KR), vcov., ...)
+  result$formula <- as.formula(formula(mod))
+  result
 }
 
 effect.merMod <- function(term, mod, vcov.=vcov, KR=FALSE, ...){
-    effect.mer(term, mod, vcov.=vcov, KR=KR, ...)
+  effect.mer(term, mod, vcov.=vcov, KR=KR, ...)
 }
 
 effect.lme <- function(term, mod, ...) {
-    mod1 <- lme.to.glm(mod)
-    result <- effect(term, mod1)
-    result$formula <- as.formula(formula(mod))
-    result
+  mod1 <- lme.to.glm(mod)
+  result <- effect(term, mod1)
+  result$formula <- as.formula(formula(mod))
+  result
 }
 
 allEffects.mer <- function(mod, KR=FALSE,...){
-    allEffects(mer.to.glm(mod,KR=KR), ...)
+  allEffects(mer.to.glm(mod,KR=KR), ...)
 }
 
 allEffects.merMod <- function(mod, KR=FALSE,...){
-    allEffects(mer.to.glm(mod,KR=KR), ...)
+  allEffects(mer.to.glm(mod,KR=KR), ...)
 }
 
 allEffects.lme <- function(mod, ...){
-    allEffects(lme.to.glm(mod), ...)
+  allEffects(lme.to.glm(mod), ...)
 }
-
-
-

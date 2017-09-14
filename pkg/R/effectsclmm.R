@@ -28,7 +28,7 @@ clm2.to.polr <- function(mod) {
   cl$formula <- cl$location
   cl$method <- cl$link
   .m <- match(c("formula", "data", "subset","weights",
-               "na.action",  "contrasts", "method"), names(cl), 0L)
+                "na.action",  "contrasts", "method"), names(cl), 0L)
   cl <- cl[c(1L, .m)]
   cl$start <- c(mod$beta, mod$Theta)
   cl[[1L]] <- as.name("polr")
@@ -49,15 +49,15 @@ vcov.fakeclm2 <- function(object, ...) object$vcov
 #The next three functions should be exported
 
 effect.clm2 <- function(term, mod, ...) {
-    effect(term, clm.to.polr(mod), ...)
+  effect(term, clm.to.polr(mod), ...)
 }
 
 allEffects.clm2 <- function(mod, ...){
-    allEffects(clm.to.polr(mod), ...)
+  allEffects(clm.to.polr(mod), ...)
 }
 
 Effect.clm2 <- function(focal.predictors, mod, ...){
-    Effect(focal.predictors, clm.to.polr(mod), ...)
+  Effect(focal.predictors, clm.to.polr(mod), ...)
 }
 
 ###
@@ -83,7 +83,7 @@ clmm.to.polr <- function(mod) {
   cl$formula <- fixmod(mod$formula)  # changed for clm2
   cl$method <- cl$link
   .m <- match(c("formula", "data", "subset","weights",
-               "na.action",  "contrasts", "method"), names(cl), 0L)
+                "na.action",  "contrasts", "method"), names(cl), 0L)
   cl <- cl[c(1L, .m)]
   cl$start <- c(mod$beta, mod$Theta)
   cl[[1L]] <- as.name("polr")
@@ -136,10 +136,10 @@ clm.to.polr <- function(mod) {
     message("\nRe-fitting to get Hessian\n")
     mod <- update(mod, Hess=TRUE)
   }
-# cl$formula <- cl$location
+  # cl$formula <- cl$location
   cl$method <- cl$link
   .m <- match(c("formula", "data", "subset","weights",
-               "na.action",  "contrasts", "method"), names(cl), 0L)
+                "na.action",  "contrasts", "method"), names(cl), 0L)
   cl <- cl[c(1L, .m)]
   cl$start <- c(mod$beta, mod$Theta)
   cl[[1L]] <- as.name("polr")
