@@ -22,6 +22,7 @@
 # 2017-08-26: introduced confint list argument, including Scheffe intervals. J. Fox
 # 2017-08-29: reintroduce legacy se and confidence.level arguments.
 # 2017-09-07: added Effect.svyglm()
+# 2017-09-14: no partial residuals for Effect.svyglm()
 
 checkFormula <- function(object){
     if (!inherits(object, "formula")){
@@ -642,6 +643,10 @@ Effect.default <- function(focal.predictors, mod, xlevels = list(),
 Effect.svyglm <- function(focal.predictors, mod, fixed.predictors, ...){
   Svymean <- function(x){
     svymean(x, design=mod$survey.design)
+  }
+  ellipses.list <- list(...)
+  if (!is.null(ellipses.list$partial.residuals) && !isFALSE(ellipses.list$partial.residuals)){
+    stop("partial residuals are not available for svy.glm models")
   }
   if (missing(fixed.predictors)) fixed.predictors <- NULL
   fixed.predictors <- applyDefaults(fixed.predictors, 
