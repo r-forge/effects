@@ -137,7 +137,7 @@ plot(predictorEffects(mod.1, partial.residuals=TRUE),
 In these graphs and, unless noted to the contrary, elsewhere in this vignette, the loess smooths are drawn with span 2/3. Because of the large number of points in the graphs, optional arguments to \code{plot} are specified to de-emphasize the partial residuals. To this end, the residuals are plotted as small points (\code{pch="."}) and in a translucent magenta color (\code{col="\#FF00FF80"}).
 
 \begin{figure}[tbp]
-  \caption{Effect displays with partial residuals for the individual predictors $x_1$, $x_2$, and $x_3$ in the incorrect model $y \captilde x_1 + x_2 + x_3$ fit to data generated with the mean function $\E(y|\x) = x_1 + x_2x_3$, with uncorrelated predictors.}\label{fig-contrived-1a}
+  \caption{Effect displays with partial residuals for the individual predictors $x_1$, $x_2$, and $x_3$ in the incorrect model $y \captilde x_1 + x_2 + x_3$ fit to data generated with the mean function $\E(y|\x) = x_1 + x_2x_3$, with uncorrelated predictors.\label{fig-contrived-1a}}
   \centering
     \includegraphics[width=1\textwidth]{figure/fig-contrived-1a-1.pdf}
 \end{figure}
@@ -158,7 +158,7 @@ plot(Effect(c("x1", "x2"), mod.1, partial.residuals = TRUE),
 @
 
 \begin{figure}[tbp]
-  \caption{Term effect displays with partial residuals for $\{x_2, x_3 \}$, corresponding to the missing interaction \inter{x_2}{x_3}, and for $\{x_1, x_2 \}$, corresponding to an interaction not present in the model that generated the data.}\label{fig-contrived-1b}
+  \caption{Term effect displays with partial residuals for $\{x_2, x_3 \}$, corresponding to the missing interaction \inter{x_2}{x_3}, and for $\{x_1, x_2 \}$, corresponding to an interaction not present in the model that generated the data.\label{fig-contrived-1b}}
   \centering
     \includegraphics[width=1\textwidth]{figure/fig-contrived-1b-1.pdf} \\
     \includegraphics[width=1\textwidth]{figure/fig-contrived-1c-1.pdf}
@@ -192,12 +192,12 @@ plot(Effect(c("x1", "x2"), mod.2, partial.residuals = TRUE),
 The predictor effect plots for  $x_2$ and $x_3$, and to a much lesser extent, for $x_1$, in the incorrect model in Figure~\ref{fig-contrived-2a} show apparent nonlinearity as a consequence of the unmodelled interaction and the correlations among the predictors. A similar phenomenon was noted in our analysis of the Canadian occupational prestige data in \citet[Section~4.2]{FoxWeisberg17}, where the unmodelled interaction between \code{type} and \code{income} induced nonlinearity in the partial relationship of \code{prestige} to \code{income}. The omitted interaction is clear in the effect plot for $\{x_2, x_3\}$, but also, to a lesser extent, contaminates the effect plot for $\{x_1,x_2\}$, which corresponds to an interaction that does not enter the model generating the data. These artifacts become more prominent if we increase the predictor correlations, say to $\rho = 0.9$ (as we invite the reader to do).
 
 \begin{figure}[tbp]
-  \caption{Predictor effect displays with partial residuals for the individual predictors $x_1$, $x_2$, and $x_3$ in the incorrect model $y \captilde x_1 + x_2 + x_3$ fit to data generated with the mean function $\E(y|\x) = x_1 + x_2x_3$, with moderately correlated predictors.}\label{fig-contrived-2a}
+  \caption{Predictor effect displays with partial residuals for the individual predictors $x_1$, $x_2$, and $x_3$ in the incorrect model $y \captilde x_1 + x_2 + x_3$ fit to data generated with the mean function $\E(y|\x) = x_1 + x_2x_3$, with moderately correlated predictors.\label{fig-contrived-2a}}
   \centering
     \includegraphics[width=1\textwidth]{figure/fig-contrived-2a-1.pdf}
 \end{figure}
 \begin{figure}[tbp]
-  \caption{Term effect displays with partial residuals for $\{x_2, x_3 \}$, corresponding to the missing interaction \inter{x_2}{x_3}, and for $\{x_1, x_2 \}$, corresponding to an interaction not present in the model that generated the data.}\label{fig-contrived-2b}
+  \caption{Term effect displays with partial residuals for $\{x_2, x_3 \}$, corresponding to the missing interaction \inter{x_2}{x_3}, and for $\{x_1, x_2 \}$, corresponding to an interaction not present in the model that generated the data.\label{fig-contrived-2b}}
   \centering
     \includegraphics[width=1\textwidth]{figure/fig-contrived-2b-1.pdf}\\
     \includegraphics[width=1\textwidth]{figure/fig-contrived-2c-1.pdf}
@@ -221,7 +221,7 @@ plot(predictorEffects(mod.3, partial.residuals=TRUE),
 @
 
 \begin{figure}[tbp]
-  \caption{Predictor effect displays with partial residuals for the individual predictors $x_1$, $x_2$, and $x_3$  in the incorrect model $y \captilde x_1 + x_2 + x_3$ fit to data generated with the mean function $\E(y|\x) = x_1^2 + x_2 + x_3$, with moderately correlated predictors.}\label{fig-contrived-3a}
+  \caption{Predictor effect displays with partial residuals for the individual predictors $x_1$, $x_2$, and $x_3$  in the incorrect model $y \captilde x_1 + x_2 + x_3$ fit to data generated with the mean function $\E(y|\x) = x_1^2 + x_2 + x_3$, with moderately correlated predictors.\label{fig-contrived-3a}}
   \centering
     \includegraphics[width=1\textwidth]{figure/fig-contrived-3a-1.pdf}
 \end{figure}
@@ -242,7 +242,7 @@ plot(Effect(c("x1", "x2"), mod.3, partial.residuals = TRUE),
 Neither of these graphs corresponds to a term in the model generating the data nor in the working model, and the effect plots largely confirm the absence of \inter{x_1}{x_2} and \inter{x_2}{x_3} interactions, along with the nonlinearity of the partial effect of $x_1$, apparent in the top panel.
 
 \begin{figure}[tbp]
-  \caption{Term effect displays with partial residuals for $\{x_1, x_2 \}$ and for $\{x_2, x_3 \}$, neither of which corresponds to an interaction in the model generating the data.}\label{fig-contrived-3b}
+  \caption{Term effect displays with partial residuals for $\{x_1, x_2 \}$ and for $\{x_2, x_3 \}$, neither of which corresponds to an interaction in the model generating the data.\label{fig-contrived-3b}}
   \centering
     \includegraphics[width=1\textwidth]{figure/fig-contrived-3c-1.pdf} \\
     \includegraphics[width=1\textwidth]{figure/fig-contrived-3b-1.pdf}
@@ -278,12 +278,12 @@ plot(Effect(c("x1", "x2"), mod.4, partial.residuals = TRUE),
 The nonlinearity in the partial relationship of $y$ to $x_1$ shows up clearly. The nonlinearity apparent in the plots for $x_2$ and $x_3$ is partly due to contamination with $x_1$, but largely to the unmodelled interaction between $x_2$ and $x_3$, coupled with the correlation between these predictors. The plot corresponding to the missing \inter{x_2}{x_3} term (in the top panel of Figure~\ref{fig-contrived-4b}) does a good job of detecting the unmodelled interaction, and curvature in this plot is slight. The plot for the \inter{x_1}{x_2} term (in the bottom panel of Figure~\ref{fig-contrived-4b}), a term neither in the true model nor in the working model, primarily reveals the unmodelled nonlinearity in the partial relationship of $y$ to $x_1$.
 
 \begin{figure}[tbp]
-  \caption{Effect displays with partial residuals for the predictors $x_1$, $x_2$, and $x_3$ in the incorrect model $y \captilde x_1 + x_2 + x_3$ fit to data generated with the mean function $\E(y|\x) = x_1^2 + x_2x_3$, with moderately correlated predictors.}\label{fig-contrived-4a}
+  \caption{Effect displays with partial residuals for the predictors $x_1$, $x_2$, and $x_3$ in the incorrect model $y \captilde x_1 + x_2 + x_3$ fit to data generated with the mean function $\E(y|\x) = x_1^2 + x_2x_3$, with moderately correlated predictors.\label{fig-contrived-4a}}
   \centering
     \includegraphics[width=1\textwidth]{figure/fig-contrived-4a-1.pdf}
 \end{figure}
 \begin{figure}[tbp]
-  \caption{Term effect displays with partial residuals for $\{x_2, x_3 \}$ (top) and for $\{x_1, x_2 \}$ (bottom), the first of which corresponds to the missing \inter{x_2}{x_3} interaction in the model generating the data.}\label{fig-contrived-4b}
+  \caption{Term effect displays with partial residuals for $\{x_2, x_3 \}$ (top) and for $\{x_1, x_2 \}$ (bottom), the first of which corresponds to the missing \inter{x_2}{x_3} interaction in the model generating the data.\label{fig-contrived-4b}}
   \centering
     \includegraphics[width=1\textwidth]{figure/fig-contrived-4b-1.pdf} \\
     \includegraphics[width=1\textwidth]{figure/fig-contrived-4c-1.pdf}
@@ -312,7 +312,7 @@ plot(Effect(c("x1", "x2"), mod.5, partial.residuals = TRUE),
 \noindent In these graphs, we adjust the span of the loess smoother to the approximately smallest value that produces a smooth fit to the partial residuals in each case.
 
 \begin{figure}[tbp]
-  \caption{Effect displays with partial residuals for $x_1$ and $\{x_2, x_3 \}$, which correspond to the terms in the model generating \emph{and} fitted to the data, $y \Rtilde{} x_1^2 + x_2 * x_3$, and for $\{x_1, x_2 \}$, which corresponds to an interaction that is not in the model.}\label{fig-contrived-5}
+  \caption{Effect displays with partial residuals for $x_1$ and $\{x_2, x_3 \}$, which correspond to the terms in the model generating \emph{and} fitted to the data, $y \Rtilde{} x_1^2 + x_2 * x_3$, and for $\{x_1, x_2 \}$, which corresponds to an interaction that is not in the model.\label{fig-contrived-5}}
   \centering
     \includegraphics[width=0.45\textwidth]{figure/fig-contrived-5a-1.pdf} \\
     \includegraphics[width=0.9\textwidth]{figure/fig-contrived-5b-1.pdf}  \\
