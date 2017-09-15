@@ -314,8 +314,9 @@ plot(Effect(c("x1", "x2"), mod.5, partial.residuals = TRUE),
 \begin{figure}[tbp]
   \caption{Effect displays with partial residuals for $x_1$ and  $\{x_2, x_3 \}$, which correspond to terms in the model generating \emph{and} fitted to the data, $y \captilde x_1^2 + x_2 * x_3$, and for $\{x_1, x_2 \}$, which corresponds to an interaction that is not in the model.\label{fig-contrived-5}}
   \centering
-    \includegraphics[width=1\textwidth]{figure/fig-contrived-4b-1.pdf} \\
-    \includegraphics[width=1\textwidth]{figure/fig-contrived-4c-1.pdf}
+    \includegraphics[width=0.45\textwidth]{figure/fig-contrived-5a-1.pdf} \\
+    \includegraphics[width=1\textwidth]{figure/fig-contrived-5b-1.pdf} \\
+    \includegraphics[width=1\textwidth]{figure/fig-contrived-5c-1.pdf}
 \end{figure}
 
 \bibliography{partial-residuals}
