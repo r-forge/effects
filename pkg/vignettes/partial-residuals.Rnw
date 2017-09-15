@@ -289,7 +289,7 @@ The nonlinearity in the partial relationship of $y$ to $x_1$ shows up clearly. T
     \includegraphics[width=1\textwidth]{figure/fig-contrived-4c-1.pdf}
 \end{figure}
 
-If we fit the correct model, $y \Rtilde{} x_1^2 + x_2*x_3$, to the data, we obtain the plots shown in Figure~\ref{fig-contrived-5}. As theory suggests, the partial residuals in these effect displays validate the model, supporting the exclusion of the \inter{x_1}{x_2} interaction, the linear-by-linear interaction between $x_1$ and $x_2$, and the quadratic partial relationship of $y$ to $x_1$. 
+% If we fit the correct model, $y \Rtilde{} x_1^2 + x_2*x_3$, to the data, we obtain the plots shown in Figure~\ref{fig-contrived-5}. As theory suggests, the partial residuals in these effect displays validate the model, supporting the exclusion of the \inter{x_1}{x_2} interaction, the linear-by-linear interaction between $x_1$ and $x_2$, and the quadratic partial relationship of $y$ to $x_1$. 
 
 <<fig-contrived-5a,include=TRUE,fig.width=5,fig.height=4,fig.show='hide'>>=
 mod.5 <- lm(y ~ poly(x1, 2) + x2*x3, data=Data.4)
@@ -311,13 +311,13 @@ plot(Effect(c("x1", "x2"), mod.5, partial.residuals = TRUE),
 
 \noindent In these graphs, we adjust the span of the loess smoother to the approximately smallest value that produces a smooth fit to the partial residuals in each case.
 
-\begin{figure}[tbp]
-  \caption{Effect displays with partial residuals for $x_1$ and $\{x_2, x_3 \}$, which correspond to the terms in the model generating \emph{and} fitted to the data, $y \Rtilde{} x_1^2 + x_2 * x_3$, and for $\{x_1, x_2 \}$, which corresponds to an interaction that is not in the model.\label{fig-contrived-5}}
-  \centering
-    \includegraphics[width=0.45\textwidth]{figure/fig-contrived-5a-1.pdf} \\
-    \includegraphics[width=0.9\textwidth]{figure/fig-contrived-5b-1.pdf}  \\
-    \includegraphics[width=0.9\textwidth]{figure/fig-contrived-5c-1.pdf}
-\end{figure}
+% \begin{figure}[tbp]
+%   \caption{Effect displays with partial residuals for $x_1$ and $\{x_2, x_3 \}$, which correspond to the terms in the model generating \emph{and} fitted to the data, $y \Rtilde{} x_1^2 + x_2 * x_3$, and for $\{x_1, x_2 \}$, which corresponds to an interaction that is not in the model.\label{fig-contrived-5}}
+%   \centering
+%     \includegraphics[width=0.45\textwidth]{figure/fig-contrived-5a-1.pdf} \\
+%     \includegraphics[width=0.9\textwidth]{figure/fig-contrived-5b-1.pdf}  \\
+%     \includegraphics[width=0.9\textwidth]{figure/fig-contrived-5c-1.pdf}
+% \end{figure}
 
 \bibliography{partial-residuals}
 
