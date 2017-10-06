@@ -1,3 +1,7 @@
+Version 4.0-1
+ 
+ o Fixed a bug in predictorEffects with polym use to specify multivariate polynomials
+
 Version 4.0-0
 
  o This is a major update of the effects package.

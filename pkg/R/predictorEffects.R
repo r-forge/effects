@@ -30,6 +30,7 @@ predictorEffect.default <- function(predictor, mod, xlevels=list(), ...){
   for(j in 1:length(terms)){if(predictor %in% decode(terms[j])) tab[j] <- TRUE}
   ans <- unlist(strsplit(paste(terms[tab], collapse=":"), ":"))
   ans <- unique(all.vars(parse(text=ans)))
+  ans <- unique(c(predictor, ans)) # guarantees focal predictor is first
   result <- Effect(ans, mod, xlevels=xlevels, ...)
   class(result) <- c("predictoreff", "eff")
   result
