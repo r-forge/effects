@@ -107,7 +107,7 @@ plot.effpoly <- function(x, x.var=which.max(levels), main=paste(effect, "effect 
   
   if (missing(confint)) confint <- NULL
   confint <- applyDefaults(confint,
-                           defaults=list(style=if (style == "lines" && !is.null(x$se.prob)) "bands" else "none", alpha=0.15, col=colors),
+                           defaults=list(style=if (style == "lines" && !is.null(x$se.prob)) "auto" else "none", alpha=0.15, col=colors),
                            onFALSE=list(style="none", alpha=0, col="white"),
                            arg="confint")
   if (missing(ci.style)) ci.style <- confint$style
