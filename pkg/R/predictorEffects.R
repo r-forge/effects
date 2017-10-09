@@ -2,6 +2,7 @@
 # 2017-08-14 fixed bug in plot.predictoreff on passing 'multiline' to lines list
 # 2017-08-30 for compatibility with other effect plots, default 
 #            is now multiline=FALSE
+# 2017-1-=09 fixed bug in setting the class for multinom models, and possibly others
 
 predictorEffect <- function(predictor, mod, xlevels, ...){
   UseMethod("predictorEffect", mod)
@@ -32,7 +33,7 @@ predictorEffect.default <- function(predictor, mod, xlevels=list(), ...){
   ans <- unique(all.vars(parse(text=ans)))
   ans <- unique(c(predictor, ans)) # guarantees focal predictor is first
   result <- Effect(ans, mod, xlevels=xlevels, ...)
-  class(result) <- c("predictoreff", "eff")
+  class(result) <- c("predictoreff", class(result))
   result
 }
 
