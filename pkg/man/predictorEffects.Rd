@@ -3,6 +3,9 @@
 \alias{predictorEffect.svyglm}
 \alias{predictorEffect.default}
 \alias{predictorEffects}
+\alias{predictorEffects.default}
+\alias{predictorEffects.lme}
+\alias{predictorEffects.merMod}
 \title{
 Functions For Computing Predictor Effects
 }
@@ -16,7 +19,13 @@ predictorEffect(predictor, mod, xlevels, ...)
 
 \method{predictorEffect}{default}(predictor, mod, xlevels=list(), ...)
 
-predictorEffects(mod, predictors = ~., ...)
+predictorEffects(mod, predictors, ...)
+
+\method{predictorEffects}{default}(mod, predictors = ~ ., ...)
+
+\method{predictorEffects}{lme}(mod, predictors = ~., ...)
+
+\method{predictorEffects}{merMod}(mod, predictors = ~., ..., KR = FALSE)
 }
 \arguments{
   \item{mod}{
@@ -31,6 +40,7 @@ A model object.  Supported models include all those described on the help page f
   \item{predictors}{
 If the default \code{~ .}, a predictor effecrts plot is drawn for each predictor (not regressor) in a model.  Otherwise, this should be a one-sided formula listing the first-order predictors for which predictor effects plots should be drawn.
 }
+  \item{KR}{if TRUE and the pbkrtest package is installed, use the Kenward-Roger coefficient covariance matrix to compute effect standard errors for linear mixed models fit with \code{\link{lmer}} function in the lme4 package. The default is FALSE because the computation can be very slow.}
   \item{\dots}{
 Additional arguments passed to \code{\link{Effect}}.
 }

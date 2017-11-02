@@ -37,7 +37,11 @@ predictorEffect.default <- function(predictor, mod, xlevels=list(), ...){
   result
 }
 
-predictorEffects <- function(mod, predictors = ~ ., ...){
+predictorEffects <- function(mod, predictors, ...){
+  UseMethod("predictorEffects", mod)
+}
+
+predictorEffects.default <- function(mod, predictors = ~ ., ...){
   # convert `predictors` arg to a list of predictors
   vterms <- if(is.character(predictors)) paste("~",predictors) else predictors
   vform <- update(formula(mod), vterms)
@@ -53,6 +57,14 @@ predictorEffects <- function(mod, predictors = ~ ., ...){
   }
   class(result) <- 'predictorefflist'
   result
+}
+
+predictorEffects.merMod <- function(mod, predictors = ~ ., ..., KR=FALSE){
+  predictorEffects(mer.to.glm(mod,KR=KR), predictors=predictors,  ...)
+}
+
+predictorEffects.lme <- function(mod, predictors = ~ ., ...){
+  predictorEffects(lme.to.glm(mod), predictors=predictors,  ...)
 }
 
 # plot methods
