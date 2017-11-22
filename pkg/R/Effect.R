@@ -25,6 +25,7 @@
 # 2017-09-14: no partial residuals for Effect.svyglm()
 # 2017-11-03: correct handling of rank deficient models, now using `estimability` package
 # 2017-11-04: allow given.values="equal" or given.values="default"
+# 2017-11-22: fixed handling of offset arg in Effect.default()
 
 ### Non-exported function added 2017-11-03 to generalize given.values to allow for "default" or "equal" weighting of factor levels for non-focal predictors.
 fix.given.values <- function(mod, spec){
@@ -563,12 +564,13 @@ Effect.default <- function(focal.predictors, mod, xlevels = list(),
                            vcov. = vcov, confint=TRUE, 
                            transformation = list(link = I, inverse = I), ...,
                            #legacy arguments:
-                           se, confidence.level, given.values, typical, offset=NULL){
+                           se, confidence.level, given.values, typical, offset){
   if (missing(fixed.predictors)) fixed.predictors <- NULL
   fixed.predictors <- applyDefaults(fixed.predictors, 
-                                    list(given.values=NULL, typical=mean),
+                                    list(given.values=NULL, typical=mean, offset=mean),
                                     arg="fixed.predictors")
   if (missing(given.values)) given.values <- fixed.predictors$given.values
+  if (missing(offset)) offset <- fixed.predictors$offset
   given.values <- fix.given.values(mod, given.values) # 11/3/2017
   if (missing(typical)) typical <- fixed.predictors$typical
   confint <- applyDefaults(confint, list(compute=TRUE, level=.95, type="pointwise"), 
