@@ -7,6 +7,7 @@
 # 2017-11-17: allow links with clm rather than just logit.  S. Weisberg
 # 2017-11-17: allow clm clm2 clmm to work with predictorEffects.  S. Weisberg
 # 2017-11-17: add predictorEffect(s) methods for ordinal functions.  S. Weisberg
+# 2017-11-22: allow greater variety of arguments in clm, clm2, clmm
 
 ###
 ###  clm2
@@ -79,7 +80,7 @@ clmm.to.polr <- function(mod) {
                 "na.action",  "contrasts", "method"), names(cl), 0L)
   cl <- cl[c(1L, .m)]
   cl$start <- c(mod$beta, mod$Theta)
-  cl$control <- list(maxit=1000)   ##########
+  cl$control <- list(maxit=1)   ##########
   cl[[1L]] <- as.name("polr")
   cl$control <- list(maxit=1)
   mod2 <- eval(cl)
@@ -88,7 +89,10 @@ clmm.to.polr <- function(mod) {
   numTheta <- length(mod$Theta)
   numBeta <- length(mod$beta)
   or <- c( (numTheta+1):(numTheta + numBeta), 1:(numTheta))
-  mod2$vcov <- as.matrix(vcov(mod)[or, or])
+  skip <- length(unique(model.frame(mod)[,1])) - 1
+  mod2$vcov <- matrix(NA, nrow=numBeta + skip, ncol=numBeta + skip)
+  sel <- rownames(vcov(mod)) %in% names(mod$beta)
+  mod2$vcov[1:numBeta, 1:numBeta] <- vcov(mod)[sel, sel]
   class(mod2) <- c("fakeclmm", class(mod2))
   mod2
 }
