@@ -27,6 +27,8 @@
 # 2017-08-23: plot.eff, in key.args, set default for between.columns=0
 # 2017-08-20: reintroduce legacy arguments for plot.eff()
 # 2017-09-10: use replacement for grid.panel()
+# 2017-11-03: Added a test to assume that at least one point will be plotted in a tile, else
+#                draw a blank tile. Needed for rank-deficient models.  S. Weisberg.
 
 # the following functions aren't exported
 
@@ -47,7 +49,7 @@ make.ticks <- function(range, link, inverse, at, n) {
   if (is.null(n)) n <- 5
   labels <- if (is.null(at)){
     range.labels <- sapply(range, inverse)
-    labels <- grid.pretty(range.labels)
+    labels <- grid::grid.pretty(range.labels)
   }
   else at
   ticks <- try(sapply(labels, link), silent=TRUE)
@@ -319,16 +321,17 @@ plot.eff <- function(x, x.var, z.var=which.min(levels), main=paste(effect, "effe
         range(c(x$lower, x$upper), na.rm=TRUE) else range(x$fit, na.rm=TRUE)
       ylim <- if (!any(is.na(ylim))) ylim else c(range[1] - .025*(range[2] - range[1]),
                                                  range[2] + .025*(range[2] - range[1]))
-      tickmarks <- if (type == "response" && rescale.axis) make.ticks(ylim,
-                                                                      link=trans.link, inverse=trans.inverse, at=ticks$at, n=ticks$n)
+      tickmarks <- if (type == "response" && rescale.axis) 
+        make.ticks(ylim, link=trans.link, inverse=trans.inverse, at=ticks$at, n=ticks$n)
       else make.ticks(ylim, link=I, inverse=I, at=ticks$at, n=ticks$n)
       levs <- levels(x[,1])
       plot <- xyplot(eval(parse(
         text=paste("fit ~ as.numeric(", names(x)[1], ")"))),
         strip=function(...) strip.default(..., strip.names=c(factor.names, TRUE)),
-        panel=function(x, y, lower, upper, has.se, ...){
+        panel=function(x, y, lower, upper, has.se, ...){ 
           if (grid) ticksGrid(x=1:length(levs), y=tickmarks$at)
           good <- !is.na(y)
+          if(!all(!good)){
           if (has.se){
             if (ci.style == "bars"){
               larrows(x0=x[good], y0=lower[good], x1=x[good], y1=upper[good], angle=90,
@@ -351,7 +354,7 @@ plot.eff <- function(x, x.var, z.var=which.min(levels), main=paste(effect, "effe
             panel.text(rep(current.panel.limits()$xlim[2], length(thresholds)),
                        thresholds, threshold.labels, adj=c(1,0), cex=0.75)
           }
-        },
+        }},
         ylim=ylim,
         ylab=ylab,
         xlab=if (is.na(xlab)) names(x)[1] else xlab,
@@ -379,8 +382,8 @@ plot.eff <- function(x, x.var, z.var=which.min(levels), main=paste(effect, "effe
                                max(partial.residuals.range[2], range[2] + .025*(range[2] - range[1])))
       else c(min(original.inverse(partial.residuals.range[1]), range[1] - .025*(range[2] - range[1])),
              max(original.inverse(partial.residuals.range[2]), range[2] + .025*(range[2] - range[1])))
-      tickmarks <- if (type == "response" && rescale.axis) make.ticks(ylim,
-                                                                      link=trans.link, inverse=trans.inverse, at=ticks$at, n=ticks$n)
+      tickmarks <- if (type == "response" && rescale.axis) 
+              make.ticks(ylim, link=trans.link, inverse=trans.inverse, at=ticks$at, n=ticks$n)
       else make.ticks(ylim, link=I, inverse=I, at=ticks$at, n=ticks$n)
       nm <- names(x)[1]
       x.vals <- x.data[, nm]
@@ -416,9 +419,10 @@ plot.eff <- function(x, x.var, z.var=which.min(levels), main=paste(effect, "effe
       plot <- xyplot(eval(parse(
         text=paste("fit ~ trans(", x.var, ")"))),
         strip=function(...) strip.default(..., strip.names=c(factor.names, TRUE)),
-        panel=function(x, y, x.vals, rug, lower, upper, has.se, ...){
+        panel=function(x, y, x.vals, rug, lower, upper, has.se, ...){ 
           if (grid) ticksGrid(x=tickmarks.x$at, y=tickmarks$at)
           good <- !is.na(y)
+          if(!all(!good)){
           axis.length <- diff(range(x))
           effect.llines(x[good], y[good], lwd=lwd, col=colors[1], ...)
           if (rug && is.null(residuals)) lrug(trans(x.vals))
@@ -464,7 +468,7 @@ plot.eff <- function(x, x.var, z.var=which.min(levels), main=paste(effect, "effe
             }
           }
           
-        },
+        }},
         ylim=ylim,
         xlim=suppressWarnings(trans(xlm)),
         ylab=ylab,
@@ -539,11 +543,12 @@ plot.eff <- function(x, x.var, z.var=which.min(levels), main=paste(effect, "effe
                    if (n.predictors > 2) paste(" |",
                                                paste(predictors[-c(x.var, z.var)], collapse="*"))))),
         strip=function(...) strip.default(..., strip.names=c(factor.names, TRUE), sep=" = "),
-        panel=function(x, y, subscripts, z, lower, upper, show.se, ...){
+        panel=function(x, y, subscripts, z, lower, upper, show.se, ...){ 
           if (grid) ticksGrid(x=1:length(levs), y=tickmarks$at)
           for (i in 1:length(zvals)){
             sub <- z[subscripts] == zvals[i]
             good <- !is.na(y[sub])
+            if(!all(!good)){
             os <- if(show.se)
               (i - (length(zvals) + 1)/2) * (2/(length(zvals)-1)) *
               .01 * (length(zvals) - 1) else 0
@@ -555,7 +560,7 @@ plot.eff <- function(x, x.var, z.var=which.min(levels), main=paste(effect, "effe
                       angle=90, code=3, col=eval(colors[.modc(i)]),
                       length=.125*cex/1.5)
             }
-          }
+          }}
           if (has.thresholds){
             panel.abline(h=thresholds, lty=3)
             panel.text(rep(current.panel.limits()$xlim[1], length(thresholds)),
@@ -624,13 +629,14 @@ plot.eff <- function(x, x.var, z.var=which.min(levels), main=paste(effect, "effe
                    if (n.predictors > 2) paste(" |",
                                                paste(predictors[-c(x.var, z.var)], collapse="*"))))),
         strip=function(...) strip.default(..., strip.names=c(factor.names, TRUE), sep=" = "),
-        panel=function(x, y, subscripts, x.vals, rug, z, lower, upper, show.se, ...){
+        panel=function(x, y, subscripts, x.vals, rug, z, lower, upper, show.se, ...){ 
           if (grid) ticksGrid(x=tickmarks.x$at, y=tickmarks$at)
           if (rug && is.null(residuals)) lrug(trans(x.vals))
           axis.length <- diff(range(x))
           for (i in 1:length(zvals)){
             sub <- z[subscripts] == zvals[i]
             good <- !is.na(y[sub])
+            if(!all(!good)){
             effect.llines(x[sub][good], y[sub][good], lwd=lwd, type='l',
                           col=colors[.modc(i)], lty=lines[.modl(i)], cex=cex, ...)
             if(show.se){
@@ -649,7 +655,7 @@ plot.eff <- function(x, x.var, z.var=which.min(levels), main=paste(effect, "effe
                             alpha=band.transparency, use.splines=use.splines)
               }
             }
-          }
+          }}
           if (has.thresholds){
             panel.abline(h=thresholds, lty=3)
             panel.text(rep(current.panel.limits()$xlim[1], length(thresholds)),
@@ -706,9 +712,11 @@ plot.eff <- function(x, x.var, z.var=which.min(levels), main=paste(effect, "effe
       text=paste("fit ~ as.numeric(", predictors[x.var], ") |",
                  paste(predictors[-x.var], collapse="*")))),
       strip=function(...) strip.default(..., strip.names=c(factor.names, TRUE), sep=" = "),
-      panel=function(x, y, subscripts, lower, upper, has.se, ...){
+      panel=function(x, y, subscripts, lower, upper, has.se, ...){ 
         if (grid) ticksGrid(x=1:length(levs), y=tickmarks$at)
         good <- !is.na(y)
+        no.points <- all(!good) # skip arrows and lines if no.points==TRUE
+        if(!no.points){
         if (has.se){
           if (ci.style == "bars"){
             larrows(x0=x[good], y0=lower[subscripts][good], x1=x[good], y1=upper[subscripts][good],
@@ -731,7 +739,7 @@ plot.eff <- function(x, x.var, z.var=which.min(levels), main=paste(effect, "effe
           panel.text(rep(current.panel.limits()$xlim[2], length(thresholds)),
                      thresholds, threshold.labels, adj=c(1,0), cex=0.75)
         }
-      },
+      }},
       ylim=ylim,
       ylab=ylab,
       xlab=if (is.na(xlab)) predictors[x.var] else xlab,
@@ -791,9 +799,10 @@ plot.eff <- function(x, x.var, z.var=which.min(levels), main=paste(effect, "effe
       text=paste("fit ~ trans(", predictors[x.var], ") |",
                  paste(predictors[-x.var], collapse="*")))),
       strip=function(...) strip.default(..., strip.names=c(factor.names, TRUE), sep=" = "),
-      panel=function(x, y, subscripts, x.vals, rug, lower, upper, has.se, ...){
+      panel=function(x, y, subscripts, x.vals, rug, lower, upper, has.se, ...){ 
         if (grid) ticksGrid(x=tickmarks.x$at, y=tickmarks$at)
         good <- !is.na(y)
+        if(!all(!good)){
         effect.llines(x[good], y[good], lwd=lwd, col=colors[1], ...)
         if (rug && is.null(residuals)) lrug(trans(x.vals))
         if (has.se){
@@ -847,7 +856,7 @@ plot.eff <- function(x, x.var, z.var=which.min(levels), main=paste(effect, "effe
           panel.text(rep(current.panel.limits()$xlim[2], length(thresholds)),
                      thresholds, threshold.labels, adj=c(1,0), cex=0.75)
         }
-      },
+      }},
       ylim=ylim,
       xlim=suppressWarnings(trans(xlm)),
       ylab=ylab,

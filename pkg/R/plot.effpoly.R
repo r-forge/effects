@@ -11,6 +11,7 @@
 # 2017-08-20: reintroduce legacy arguments for plot.effpoly()
 # 2017-08-20: introduced multiline argument under lines argument and as a "legacy" argument
 # 2017-09-10: use replacement for grid.panel()
+# 2017-11-22: added a check for non-estimable factor combinations with style="stacked"
 
 plot.effpoly <- function(x, x.var=which.max(levels), main=paste(effect, "effect plot"),
                          symbols=TRUE, lines=TRUE, axes, confint, lattice, ...,
@@ -486,6 +487,8 @@ plot.effpoly <- function(x, x.var=which.max(levels), main=paste(effect, "effect 
       key <- list(text=list(lab=rev(y.lev)), rectangle=list(col=rev(colors[1:n.y.lev])))
       for (k in names(key.args)) key[k] <- key.args[k]
       if (is.factor(x$data[[predictors[x.var]]])){ # x-variable a factor
+# 11/22/17 check for rank deficient models and if found stop
+        if(any(is.na(Data$prob))) stop("At least one combination of factor levels is not estimable.\n  Stacked plots are misleading, change to style='lines'")
         result <- barchart(eval(parse(text=if (n.predictors == 1) 
           paste("prob ~ ", predictors[x.var], sep="")
           else paste("prob ~ ", predictors[x.var]," | ", 

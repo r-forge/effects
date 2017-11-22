@@ -159,13 +159,8 @@ allEffects(mod, ...)
     
     \describe{
     
-      \item{given.values}{a numeric vector of named elements, setting particular
-  	columns of the model matrix to specific values for predictors that are \emph{not}
-  	focal predictors; if specified, these takes precedence over the
-  	application of the function given in the \code{typical} list element
-  	(below). Care must be taken in specifying these values --- e.g.,
-  	for a factor, the values of all contrasts should be given and these
-  	should be consistent with each other.}
+      \item{given.values}{\code{given.values="default"} specifies averaging over levels of a non-focal factor using the default that weights levels of the factor by sample size.  \code{given.values="equal"} uses unweighted averages over factor levels for non-focal factors.  For finer control, the user can also provide a named numeric vector of weights for particular columns of the model matrix that correspond to regressors for the factor.  For example, for a factor \code{X} with three levels \code{a}, \code{b} and \code{c}, the regressors generated using the default parameterization for a factor will be named \code{Xb} and \code{Xc} as the regressor for level \code{a} is usually excluded.  The specification \code{given.values=c(Xb=1/2, Xc=1/4)} would average over the levels of \code{X} with weight 1/2 for level \code{b}, 1/4 for \code{c}, and weight 1 = 1/2 - 1/4 = 1/4 for the baseline level \code{a}.  Setting \code{given.values=c(Xb=1)} will fix \code{X} and level \code{b}.
+}
   	
   	  \item{typical}{a function to be applied to the columns of the model matrix
     over which the effect is "averaged"; with the exception of the \code{"svyglm"} method,
@@ -364,7 +359,7 @@ and of class \code{"effpoly"} with more than 2 categories.
   only for the default values of the arguments \code{scale}, \code{nominal}, \code{link} and \code{threshold},
   which is equivalent to fitting an ordinal response mixed effects model with a logit link.
   The effect methods can also be
-  used with objects created using \code{\link[ordinal]{clm}} or \code{\link[ordinal]{clm2}} fitting ordinal response logit models with no random effects, with
+  used with objects created using \code{\link[ordinal]{clm}} or \code{\link[ordinal]{clm2}} fitting ordinal response models with the same links permitted by polr with no random effects, with
   results similar to those from \code{\link[MASS]{polr}} in the \pkg{MASS} package.
 
   Calling any of these functions from within a user-written function may result in errors due

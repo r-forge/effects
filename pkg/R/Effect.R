@@ -23,6 +23,32 @@
 # 2017-08-29: reintroduce legacy se and confidence.level arguments.
 # 2017-09-07: added Effect.svyglm()
 # 2017-09-14: no partial residuals for Effect.svyglm()
+# 2017-11-03: correct handling of rank deficient models, now using `estimability` package
+# 2017-11-04: allow given.values="equal" or given.values="default"
+
+### Non-exported function added 2017-11-03 to generalize given.values to allow for "default" or "equal" weighting of factor levels for non-focal predictors.
+fix.given.values <- function(mod, spec){
+  if(is.null(spec)) return(spec)
+  if(length(spec) > 1) return(spec) # spec is a named vector of given values for existing code
+  if(spec == "default") return(NULL) # use existing code to determine given.values
+  if(spec != "equal") stop("Error--given.values must be a vector of specifications, 'default' or 'equal'")
+  # get here:  find the weights for equal weighting of factor levels for all factors
+  xlevels <- mod$xlevels # names of factors, if any
+  if(length(xlevels) == 0) return(NULL) # no factors
+  vars <- names(xlevels) # names of factors
+  lengths <- lapply(xlevels, length) # number of levels  
+  form1 <- as.formula(paste("~", paste(vars, collapse="+")))
+  mm <- update(mod, form1, x=TRUE)$x  # keeps the model.matrix only; check for glms
+  gv <- c()
+  for (j in 1:length(vars)){
+    cols <- which(attr(mm, "assign") == j)
+    out <- rep( 1/lengths[[j]], length(cols))
+    names(out) <- colnames(mm)[cols]
+    gv <- c(gv, out)
+  }
+  gv
+}
+### end of non-exported function
 
 checkFormula <- function(object){
   if (!inherits(object, "formula")){
@@ -56,6 +82,9 @@ Effect.lm <- function(focal.predictors, mod, xlevels=list(), fixed.predictors,
                                          apply.typical.to.factors=FALSE, offset=mean),
                                     arg="fixed.predictors")
   if (missing(given.values)) given.values <- fixed.predictors$given.values
+# added but not yet implemented 2 next lines
+#  given.values <- fix.given.values(mod, spec=given.values)
+#  print(given.values)
   if (missing(typical)) typical <- fixed.predictors$typical
   if (missing(offset)) offset <- fixed.predictors$offset
   apply.typical.to.factors <- fixed.predictors$apply.typical.to.factors
@@ -114,9 +143,16 @@ Effect.lm <- function(focal.predictors, mod, xlevels=list(), fixed.predictors,
   mod.matrix <- Fixup.model.matrix(mod, mod.matrix, mod.matrix.all, 
                                    X.mod, factor.cols, cnames, focal.predictors, excluded.predictors, 
                                    typical, given.values, apply.typical.to.factors) #,
-  # look for aliased coefficients and remove those columns from mod.matrix
-  mod.matrix <- mod.matrix[, !is.na(mod$coefficients)]
-  effect <- off + mod.matrix %*% mod$coefficients[!is.na(mod$coefficients)]
+# 11/3/2017.  Check to see if the model is full rank
+  # Compute a basis for the null space, using estimibility package
+  null.basis <- estimability::nonest.basis(mod)  # returns basis for null space
+  # check to see if each row of mod.matrix is estimable
+  is.estimable <- estimability::is.estble(mod.matrix, null.basis) # TRUE if effect is estimable else FALSE
+  # substitute 0 for NA in coef vector and compute effects
+  scoef <- ifelse(is.na(mod$coefficients), 0L, mod$coefficients)
+  effect <- off + mod.matrix %*% scoef
+  effect[!is.estimable] <- NA  # set all non-estimable effects to NA
+# end estimability check
   if (partial.residuals){
     res <- na.omit(residuals(mod, type="working"))
     fitted <- na.omit(if (inherits(mod, "glm")) predict(mod, type="link") else predict(mod))
@@ -134,24 +170,6 @@ Effect.lm <- function(focal.predictors, mod, xlevels=list(), fixed.predictors,
                  discrepancy = 0, offset=off,
                  residuals=res, partial.residuals.range=partial.residuals.range,
                  x.var=x.var)
-  # find empty cells, if any, and correct
-  whichFact <- unlist(lapply(result$variables, function(x) x$is.factor))
-  zeroes <- NULL
-  if(sum(whichFact) > 1){
-    nameFact <- names(whichFact)[whichFact]
-    counts <- xtabs(as.formula( paste("~", paste(nameFact, collapse="+"))), 
-                    model.frame(mod))
-    zeroes <- which(counts == 0)  
-  }
-  if(length(zeroes) > 0){
-    levs <- expand.grid(lapply(result$variables, function(x) x$levels)) 
-    good <- rep(TRUE, dim(levs)[1])
-    for(z in zeroes){
-      good <- good &  
-        apply(levs, 1, function(x) !all(x == levs[z, whichFact]))
-    } 
-    result$fit[!good] <- NA
-  } 
   if (se) {
     if (any(family(mod)$family == c("binomial", "poisson"))) {
       z <- if (confidence.type == "pointwise") {
@@ -170,19 +188,16 @@ Effect.lm <- function(focal.predictors, mod, xlevels=list(), fixed.predictors,
       }
     }
     V <- vcov.(mod)
-    eff.vcov <- mod.matrix %*% V %*% t(mod.matrix)
+    mmat <- mod.matrix[, !is.na(mod$coefficients)] # remove non-cols with NA coeffs
+    eff.vcov <- mmat %*% V %*% t(mmat)
     rownames(eff.vcov) <- colnames(eff.vcov) <- NULL
     var <- diag(eff.vcov)
     result$vcov <- eff.vcov        
     result$se <- sqrt(var)
+    result$se[!is.estimable] <- NA
     result$lower <- effect - z * result$se
     result$upper <- effect + z * result$se
     result$confidence.level <- confidence.level
-    if(length(zeroes) > 0){
-      result$se[!good] <- NA
-      result$lower[!good] <- NA
-      result$upper[!good] <- NA
-    }
   }
   if (is.null(transformation$link) && is.null(transformation$inverse)) {
     transformation$link <- I
@@ -398,6 +413,9 @@ Effect.multinom <- function(focal.predictors, mod,
                                    lower.prob=Lower.P, upper.prob=Upper.P,
                                    confidence.level=confidence.level))
   # find empty cells, if any, and correct
+## 11/3/17:  The code until the next comment is surely incorrect, but
+## generally harmless.  One must learn if the notion of estimablilty applied
+## to multinomial models and figure out the right thing to do
   whichFact <- unlist(lapply(result$variables, function(x) x$is.factor))
   zeroes <- NULL
   if(sum(whichFact) > 1){
@@ -422,6 +440,7 @@ Effect.multinom <- function(focal.predictors, mod,
       result$upper.prob[!good, ] <- NA
     }
   } 
+## End of unnecessary code
   class(result) <-'effpoly'
   result
 }
@@ -544,12 +563,13 @@ Effect.default <- function(focal.predictors, mod, xlevels = list(),
                            vcov. = vcov, confint=TRUE, 
                            transformation = list(link = I, inverse = I), ...,
                            #legacy arguments:
-                           se, confidence.level, given.values, typical, offset){
+                           se, confidence.level, given.values, typical, offset=NULL){
   if (missing(fixed.predictors)) fixed.predictors <- NULL
   fixed.predictors <- applyDefaults(fixed.predictors, 
                                     list(given.values=NULL, typical=mean),
                                     arg="fixed.predictors")
   if (missing(given.values)) given.values <- fixed.predictors$given.values
+  given.values <- fix.given.values(mod, given.values) # 11/3/2017
   if (missing(typical)) typical <- fixed.predictors$typical
   confint <- applyDefaults(confint, list(compute=TRUE, level=.95, type="pointwise"), 
                            onFALSE=list(compute=FALSE, level=.95, type="pointwise"),
@@ -589,7 +609,8 @@ Effect.default <- function(focal.predictors, mod, xlevels = list(),
   effect <- off + mod.matrix %*% mod$coefficients[!is.na(coef(mod))]
   result <- list(term = paste(focal.predictors, collapse="*"), 
                  formula = formula(mod), response = response.name(mod), 
-                 variables = x, fit = effect, x = predict.data[, 1:n.focal, drop=FALSE], model.matrix = mod.matrix, data = X, 
+                 variables = x, fit = effect, x = predict.data[, 1:n.focal, drop=FALSE], 
+                 model.matrix = mod.matrix, data = X, 
                  discrepancy = 0, offset=off)
   whichFact <- unlist(lapply(result$variables, function(x) x$is.factor))
   zeroes <- NULL

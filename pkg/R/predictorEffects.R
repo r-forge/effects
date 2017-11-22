@@ -2,7 +2,8 @@
 # 2017-08-14 fixed bug in plot.predictoreff on passing 'multiline' to lines list
 # 2017-08-30 for compatibility with other effect plots, default 
 #            is now multiline=FALSE
-# 2017-1-=09 fixed bug in setting the class for multinom models, and possibly others
+# 2017-11-09 fixed bug in setting the class for multinom models, and possibly others
+# 2017-11-17 added methods for clm, clm2, clmm in the file effectsclmm.R
 
 predictorEffect <- function(predictor, mod, xlevels, ...){
   UseMethod("predictorEffect", mod)
@@ -66,6 +67,8 @@ predictorEffects.merMod <- function(mod, predictors = ~ ., ..., KR=FALSE){
 predictorEffects.lme <- function(mod, predictors = ~ ., ...){
   predictorEffects(lme.to.glm(mod), predictors=predictors,  ...)
 }
+
+
 
 # plot methods
 

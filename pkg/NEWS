@@ -1,5 +1,9 @@
 Version 4.0-1
  
+ o Added estimability check for linear models and glims.  Fixed bugs in plot with rank deficient models.
+ 
+ o Repaired clm, clmm and clm2 methods that were brokedn
+ 
  o Fixed a bug in predictorEffects with polym use to specify multivariate polynomials.
  
  o Small fixes/improvements.
