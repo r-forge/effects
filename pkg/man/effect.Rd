@@ -1,21 +1,13 @@
 \name{effect}
 \alias{effect}
+\alias{effect.default}
 \alias{Effect}
-\alias{Effect.default}
 \alias{Effect.lm}
-\alias{Effect.mer}
-\alias{Effect.merMod}
-\alias{Effect.lme}
-\alias{Effect.gls}
 \alias{Effect.multinom}
 \alias{Effect.polr}
-\alias{Effect.poLCA}
-\alias{Effect.clm2}
-\alias{Effect.clm}
-\alias{Effect.clmm}
-\alias{Effect.mlm}
 \alias{Effect.svyglm}
 \alias{allEffects}
+\alias{allEffects.default}
 \alias{as.data.frame.eff}
 \alias{as.data.frame.effpoly}
 \alias{as.data.frame.efflatent}
@@ -39,17 +31,7 @@
   \code{effect}, and will succeed with some models for which \code{effect} fails.  The \code{effect} function
   works by constructing a call to \code{Effect}.
 
-  The \code{Effect} and \code{effect} functions can also be used with some mixed-effects models,
-  including linear and generalized linear mixed-effects models
-  fit by \code{\link[lme4]{lmer}} and \code{\link[lme4]{glmer}} from the \pkg{lme4} package
-  and \code{\link[nlme]{lme}} from the \pkg{nlme} package; ordinal logit mixed effects fit with \code{\link[ordinal]{clm2}} or \code{\link[ordinal]{clmm}} from the
-  \pkg{ordinal} package, polytomous latent-class models fit by the \code{\link[poLCA]{poLCA}} function in
-  the \pkg{poLCA} package, and generalized linear models fit to data from complex surveys
-  using the \code{\link[survey]{svyglm}} function in the \pkg{survey} package.  The displays for mixed-effects models are for the fixed effects only, not for random effects.
-
-  There is a default
-  method for \code{Effect} that should work with most model objects that have a linear predictor and that respond
-  to the \code{\link{coef}}, \code{\link{model.frame}}, \code{\link{formula}}, and \code{\link{vcov}} functions.
+  The \code{Effect} and \code{effect} functions can also be used with many other models; see \code{\link{Effect.default}} and a vignette for this package.
 
   \code{allEffects} identifies all of the high-order terms in a model and returns
   a list of \code{"eff"} or \code{"effpoly"} objects (i.e., an object of type \code{"efflist"}).
@@ -62,63 +44,36 @@
 \usage{
 effect(term, mod, vcov.=vcov, ...)
 
+\method{effect}{default}(term, mod, vcov.=vcov, ...)
+
 Effect(focal.predictors, mod, ...)
 
-\method{Effect}{lm}(focal.predictors, mod, xlevels=list(),  
+\method{Effect}{lm}(focal.predictors, mod, xlevels=list(),
     fixed.predictors, vcov. = vcov, confint=TRUE,
-    transformation = list(link = family(mod)$linkfun, 
-        inverse = family(mod)$linkinv), 
+    transformation = list(link = family(mod)$linkfun,
+        inverse = family(mod)$linkinv),
     partial.residuals=FALSE, quantiles=seq(0.2, 0.8, by=0.2),
     x.var=NULL,  ...,
     #legacy arguments:
     given.values, typical, offset, se, confidence.level)
 
-\method{Effect}{gls}(focal.predictors, mod, xlevels = list(), 
-    fixed.predictors, vcov. = vcov, confint=TRUE, 
-    transformation = NULL, ...,
-    #legacy arguments:
-    given.values, typical, se, confidence.level)
-
-\method{Effect}{multinom}(focal.predictors, mod, 
+\method{Effect}{multinom}(focal.predictors, mod,
     xlevels=list(), fixed.predictors,
     vcov. = vcov, confint=TRUE, ...,
     #legacy arguments:
     se, confidence.level, given.values, typical)
 
-\method{Effect}{polr}(focal.predictors, mod, 
+\method{Effect}{polr}(focal.predictors, mod,
     xlevels=list(), fixed.predictors,
     vcov.=vcov, confint=TRUE, latent=FALSE, ...,
     #legacy arguments:
     se, confidence.level, given.values, typical)
 
-\method{Effect}{clm2}(focal.predictors, mod, ...)
-
-\method{Effect}{clmm}(focal.predictors, mod, ...)
-
-\method{Effect}{clm}(focal.predictors, mod, ...)
-
-\method{Effect}{mer}(focal.predictors, mod,
-    KR=FALSE, ...)
-
-\method{Effect}{merMod}(focal.predictors, mod,
-    KR=FALSE, ...)
-
-\method{Effect}{lme}(focal.predictors, mod, ...)
-
-\method{Effect}{poLCA}(focal.predictors, mod, ...)
-
-\method{Effect}{mlm}(focal.predictors, mod, response, ...)
-
 \method{Effect}{svyglm}(focal.predictors, mod, fixed.predictors, ...)
-
-\method{Effect}{default}(focal.predictors, mod, xlevels = list(), 
-    fixed.predictors, vcov. = vcov, confint=TRUE, 
-    transformation = list(link = I, inverse = I), ...,
-    #legacy arguments:
-    se, confidence.level, given.values, typical, offset)
 
 allEffects(mod, ...)
 
+\method{allEffects}{default}(mod, ...)
 
 \method{as.data.frame}{eff}(x, row.names=NULL, optional=TRUE,
     transform=x$transformation$inverse, ...)
@@ -134,11 +89,9 @@ allEffects(mod, ...)
   \item{term}{the quoted name of a term, usually, but not necessarily, a high-order
     term in the model. The term must be given exactly as it appears in the printed
     model, although either colons (\code{:}) or asterisks (\code{*}) may be used
-    for interactions.}
+    for interactions.  If \code{term} is NULL, the function returns the formula for the linear predictor.}
   \item{focal.predictors}{a character vector of one or more predictors in the model in any order.}
-  \item{mod}{an object of class \code{"lm"}, \code{"gls"}, \code{"glm"},
-    \code{"multinom"}, \code{"polr"}, \code{"mer"} (or \code{"merMod"}), \code{"lme"},
-    or \code{"poLCA"}. }
+  \item{mod}{an object of the appropriate class.  If no method exists for that class, \code{Effect.default} will be called. }
   \item{xlevels}{this argument is used to set the number of levels for any
     focal predictor that is not a factor.  If \code{xlevels=NULL}, then
     each numeric predictor is represented by five values equally spaced over
@@ -156,35 +109,35 @@ allEffects(mod, ...)
     \code{xlevels}.}
   \item{fixed.predictors}{an optional list of specifications affecting the values at which fixed predictors
     for an effect are set, potentially including:
-    
+
     \describe{
-    
+
       \item{given.values}{\code{given.values="default"} specifies averaging over levels of a non-focal factor using the default that weights levels of the factor by sample size.  \code{given.values="equal"} uses unweighted averages over factor levels for non-focal factors.  For finer control, the user can also provide a named numeric vector of weights for particular columns of the model matrix that correspond to regressors for the factor.  For example, for a factor \code{X} with three levels \code{a}, \code{b} and \code{c}, the regressors generated using the default parameterization for a factor will be named \code{Xb} and \code{Xc} as the regressor for level \code{a} is usually excluded.  The specification \code{given.values=c(Xb=1/2, Xc=1/4)} would average over the levels of \code{X} with weight 1/2 for level \code{b}, 1/4 for \code{c}, and weight 1 = 1/2 - 1/4 = 1/4 for the baseline level \code{a}.  Setting \code{given.values=c(Xb=1)} will fix \code{X} and level \code{b}.
 }
-  	
+
   	  \item{typical}{a function to be applied to the columns of the model matrix
     over which the effect is "averaged"; with the exception of the \code{"svyglm"} method,
     the default is \code{\link{mean}}. For\code{"svyglm"} objects, the default is to
     use the survey-design weighted mean.}
-    
+
       \item{apply.typical.to.factors}{It generally doesn't make sense to apply typical
     values that aren't means (e.g., medians) to the columns of the model-matrix
     representing contrasts for factors. This value generally defaults to \code{FALSE}
     except for \code{"svyglm"} objects, for which the default is \code{TRUE}, using the the survey-design
     weighted mean.}
-  
+
       \item{offset}{a function to be applied to the offset values (if there is an
     offset) in a linear or generalized linear model, or a mixed-effects
     model fit by \code{\link[lme4]{lmer}} or \code{\link[lme4]{glmer}}; or a numeric value, to which
     the offset will be set. The default is the \code{\link{mean}} function, and thus
     the offset will be set to its mean; in the case of \code{"svyglm"}
-    objects, the default is to use the survey-design weighted mean. 
+    objects, the default is to use the survey-design weighted mean.
     \emph{Note:} Only offsets defined
-    by the \code{offset} argument to \code{\link{lm}}, \code{\link{glm}}, \code{\link[survey]{svyglm}}, 
+    by the \code{offset} argument to \code{\link{lm}}, \code{\link{glm}}, \code{\link[survey]{svyglm}},
     \code{\link[lme4]{lmer}}, or \code{\link[lme4]{glmer}} will be handled
     correctly; use of the \code{offset} function in the model formula is
     not supported.}
-    
+
     }
   }
 
@@ -202,11 +155,6 @@ allEffects(mod, ...)
     whether to compute confidence limits with specified coverage at each point for an effect or to compute limits
     for a Scheffe-type confidence envelope. For \code{mer}, \code{merMod}, and \code{lme} objects, the
     normal distribution is used to get confidence limits.}
-  \item{KR}{if \code{TRUE} and the \pkg{pbkrtest} package is installed,
-    use the Kenward-Roger coefficient covariance
-    matrix to compute effect standard errors for linear mixed models fit with \code{\link[lme4]{lmer}}
-    in the \pkg{lme4} package.  The default is \code{FALSE} because the computation can be
-    very slow.}
   \item{transformation}{a two-element list with elements \code{link} and
     \code{inverse}. For a generalized linear model, these are by default
     the link function and inverse-link (mean) function. For a linear model,
@@ -236,8 +184,6 @@ allEffects(mod, ...)
   \item{transform}{a transformation to be applied to the effects and confidence limits,
     by default taken from the inverse link function saved in the \code{"eff"} object.}
   \item{row.names, optional}{not used.}
-  \item{response}{for an \code{"mlm"} object, a vector containing the name(s) or indices of one or more response variable(s).
-    The default is to use all responses in the model.}
   \item{object}{an object of class \code{"eff"} for which the covariance matrix of the effects is desired.}
   \item{...}{arguments to be passed down.}
   \item{se, confidence.level, given.values, typical, offset}{legacy arguments retained for backwards compatability; if present, these arguments take precedence
@@ -437,10 +383,10 @@ plot(eff.cowles, 'sex', axes=list(y=list(lab="Prob(Volunteer)")))
 plot(eff.cowles, 'neuroticism:extraversion',
      axes=list(y=list(lab="Prob(Volunteer)",
         ticks=list(at=c(.1,.25,.5,.75,.9)))))
-        
+
 plot(Effect(c("neuroticism", "extraversion"), mod.cowles,
             confint=list(type="Scheffe"),
-            xlevels=list(extraversion=seq(0, 24, 6)), 
+            xlevels=list(extraversion=seq(0, 24, 6)),
             fixed.predictors=list(given.values=c(sexmale=0.5))),
      axes=list(y=list(lab="Prob(Volunteer)",
         ticks=list(at=c(.1,.25,.5,.75,.9)))))
@@ -500,7 +446,7 @@ if (require(MASS)){
          axes=list(y=list(style="stacked"))) # equivalent
 
     plot(effect("country*poly(age, 3)", latent=TRUE, mod.wvs))
-    plot(effect("country*poly(age, 3)", latent=TRUE, mod.wvs, 
+    plot(effect("country*poly(age, 3)", latent=TRUE, mod.wvs,
          confint=list(type="scheffe"))) # Scheffe-type confidence envelopes
     }
 }
@@ -627,12 +573,12 @@ if (require(heplots)) {
 \donttest{
 if (require(survey)){
   data(api)
-  dstrat<-svydesign(id=~1, strata=~stype, weights=~pw, 
-    data=apistrat, fpc=~fpc) 
-  mod <- svyglm(sch.wide ~ ell + meals + mobility, design=dstrat, 
+  dstrat<-svydesign(id=~1, strata=~stype, weights=~pw,
+    data=apistrat, fpc=~fpc)
+  mod <- svyglm(sch.wide ~ ell + meals + mobility, design=dstrat,
     family=quasibinomial())
-  plot(allEffects(mod), 
-    axes=list(y=list(lim=log(c(0.4, 0.99)/c(0.6, 0.01)), 
+  plot(allEffects(mod),
+    axes=list(y=list(lim=log(c(0.4, 0.99)/c(0.6, 0.01)),
       ticks=list(at=c(0.4, 0.75, 0.9, 0.95, 0.99)))))
 }
 }

@@ -1,5 +1,7 @@
 Version 4.0-1
  
+ o Replaced the Effect.default method so it is easier to write new methods.
+ 
  o Added estimability check for linear models and glims.  Fixed bugs in plot with rank deficient models.
  
  o Repaired clm, clmm and clm2 methods that were brokedn

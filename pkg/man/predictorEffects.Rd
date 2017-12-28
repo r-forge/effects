@@ -4,8 +4,6 @@
 \alias{predictorEffect.default}
 \alias{predictorEffects}
 \alias{predictorEffects.default}
-\alias{predictorEffects.lme}
-\alias{predictorEffects.merMod}
 \title{
 Functions For Computing Predictor Effects
 }
@@ -17,22 +15,19 @@ predictorEffect(predictor, mod, xlevels, ...)
 
 \method{predictorEffect}{svyglm}(predictor, mod, xlevels, ...)
 
-\method{predictorEffect}{default}(predictor, mod, xlevels=list(), ...)
+\method{predictorEffect}{default}(predictor, mod, ...)
 
 predictorEffects(mod, predictors, ...)
 
 \method{predictorEffects}{default}(mod, predictors = ~ ., ...)
 
-\method{predictorEffects}{lme}(mod, predictors = ~., ...)
-
-\method{predictorEffects}{merMod}(mod, predictors = ~., ..., KR = FALSE)
 }
 \arguments{
   \item{mod}{
 A model object.  Supported models include all those described on the help page for \code{\link{Effect}}.
 }
-  \item{predictor}{quoted name of the focal predictor}
-  \item{xlevels}{this argument is used to set the values for any predictor in the 
+  \item{predictor}{quoted name of the focal predictor.}
+  \item{xlevels}{this argument is used to set the values for any predictor in the
   effect that is not a factor.  For a predictor
   effect, the default is to use 50 quantiles of the focal predictor on the x-axis
   between the 0.01 and 0.98 quantiles. See \code{\link{Effect}} for details and for
@@ -40,7 +35,6 @@ A model object.  Supported models include all those described on the help page f
   \item{predictors}{
 If the default \code{~ .}, a predictor effecrts plot is drawn for each predictor (not regressor) in a model.  Otherwise, this should be a one-sided formula listing the first-order predictors for which predictor effects plots should be drawn.
 }
-  \item{KR}{if TRUE and the pbkrtest package is installed, use the Kenward-Roger coefficient covariance matrix to compute effect standard errors for linear mixed models fit with \code{\link{lmer}} function in the lme4 package. The default is FALSE because the computation can be very slow.}
   \item{\dots}{
 Additional arguments passed to \code{\link{Effect}}.
 }
@@ -78,12 +72,12 @@ plot(predictorEffects(mod, ~ education + income + women))
 \donttest{
 if (require(survey)){
   data(api)
-  dstrat<-svydesign(id=~1, strata=~stype, weights=~pw, 
-    data=apistrat, fpc=~fpc) 
-  mod <- svyglm(sch.wide ~ ell + meals + mobility, design=dstrat, 
+  dstrat<-svydesign(id=~1, strata=~stype, weights=~pw,
+    data=apistrat, fpc=~fpc)
+  mod <- svyglm(sch.wide ~ ell + meals + mobility, design=dstrat,
     family=quasibinomial())
-  plot(predictorEffects(mod), 
-    axes=list(y=list(lim=log(c(0.4, 0.99)/c(0.6, 0.01)), 
+  plot(predictorEffects(mod),
+    axes=list(y=list(lim=log(c(0.4, 0.99)/c(0.6, 0.01)),
       ticks=list(at=c(0.4, 0.75, 0.9, 0.95, 0.99)))))
 }
 }
