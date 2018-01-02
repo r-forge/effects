@@ -264,16 +264,16 @@ Other elements:
   	(or, in some cases \code{\link{densityplot}}), which
   	is used to draw the effect display; if not specified, the plot will be formatted so that
   	it appears on a single page.}
-  	\item{\code{key.args}}{additional arguments that control the appearance or location of the key,
-  	or legend, on the
-  	plot.  There are many options, and they are documented by searching for "\code{key:}" in
-  	\code{\link{xyplot}}.  For example,
-  	\code{lattice=list(key.args=list(columns=2))} reformats the key to have just two columns rather than the default of 4 columns,
-  	\code{lattice=list(key.args=list(cex= .75, cex.title=.75, between.columns=0))}
-  	reduces the size of the labels and title to .75 of nominal, and reduces the extra space between columns
-  	to 0, and \code{lattice=list(key.args = list(x = 0.75, y = 0.75, corner = c(0, 0)))} moves the key
-  	onto the plot, with the origin \code{corner=c(0,0)} at the point \code{(.75, .75)}, thinking of the
-  	total plotting area as a unit square. To conserve space, by default we set \code{between.columns=0}.}
+  	\item{\code{key.args}}{a key, or legend, is added to the plot if \code{multiline=TRUE}.  This argument is a list with components that determine the the placement and other characteristics of the key.  The default if not set by the user is \code{key.args = list(space="top", columns=2, border=FALSE, fontfamily="serif", cex.title=.80, cex=0.75)}.  If there are more than 6 groups in the plot, \code{columns} is set to 3.
+  	\describe{
+  	\item{\code{space}}{determines the placement of the key outside the plotting area, with default \code{space="above"} for above the plot and below its title.  Setting \code{space="right"} uses space to the right of the plot for the key.}
+  	\item{\code{x, y, corner}}{used to put the key on the graph itself.  For example, \code{x=.05, y=.95, corner=c(0,1)} will locate the upper-left corner of the key at (.05, .95), thinking of the graph as a unit square.}
+  	\item{\code{columns}}{number of columns in the key.  If \code{space="top"}, columns should be 2, 3 or 4; if \code{space="right"}, set \code{columns=1}.}
+  	\item{\code{border}}{if \code{TRUE} draw a border around the key; omit the border if \code{FALSE}.}
+  	\item{\code{fontfamily}}{the default is \code{"sans"} for the sans-serif font used in the rest of the plot; the alternative is \code{"serif"} for a serif font.}
+  	\item{\code{cex, cex.title}}{the default relative size of the font for labels and the title, respectively.  To save space set these to be smaller than 1.}
+  	}
+}
     \item{\code{strip}}{a list with two elements: \code{factor.names}, which if \code{TRUE}, the default, shows conditioning
     variable names in the panel headers; and \code{values}, which if \code{TRUE}, the default unless partial residuals are plotted,
     displays conditioning variable values in the panel headers.}

@@ -29,6 +29,8 @@
 # 2017-09-10: use replacement for grid.panel()
 # 2017-11-03: Added a test to assume that at least one point will be plotted in a tile, else
 #                draw a blank tile. Needed for rank-deficient models.  S. Weisberg.
+# 2018-01-02: Changed the default key:  see lines 240-241
+# 2018-01-02: Rewrote find.legend columns, lines 41-44
 
 # the following functions aren't exported
 
@@ -36,6 +38,12 @@ find.legend.columns <- function(n, target=min(4, n)){
   rem <- n %% target
   if (rem != 0 && rem < target/2) target <- target - 1
   target
+}
+# new version 1/2/2017 by sw
+find.legend.columns <- function(n, target=min(4, n)){
+  if(n == 2) 2 else {
+   if(n <=3) 1 else 
+     {if (n <= 6) 2 else 3}}
 }
 
 
@@ -232,7 +240,8 @@ plot.eff <- function(x, x.var, z.var=which.min(levels), main=paste(effect, "effe
   
   if (missing(lattice)) lattice <- NULL
   lattice <- applyDefaults(lattice, defaults=list(
-    layout=NULL, key.args=list(),
+    layout=NULL, #key.args=list(),  #New default added 1/2/2017 by sw
+    key.args=list(space="top", border=FALSE, fontfamily="serif", cex=.85, cex.title=.8),
     strip=list(factor.names=TRUE, values=!partial.residuals),
     array=list(row=1, col=1, nrow=1, ncol=1, more=FALSE),
     arg="lattice"

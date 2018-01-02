@@ -12,6 +12,7 @@
 # 2017-08-20: introduced multiline argument under lines argument and as a "legacy" argument
 # 2017-09-10: use replacement for grid.panel()
 # 2017-11-22: added a check for non-estimable factor combinations with style="stacked"
+# 2018-01-02: changed defaults for key.args, lines 140-141
 
 plot.effpoly <- function(x, x.var=which.max(levels), main=paste(effect, "effect plot"),
                          symbols=TRUE, lines=TRUE, axes, confint, lattice, ...,
@@ -136,7 +137,8 @@ plot.effpoly <- function(x, x.var=which.max(levels), main=paste(effect, "effect 
   
   if (missing(lattice)) lattice <- NULL
   lattice <- applyDefaults(lattice, defaults=list(
-    layout=NULL, key.args=NULL, 
+    layout=NULL, #key.args=list(),  #New default added 1/2/2017 by sw
+    key.args=list(space="top", border=FALSE, fontfamily="serif", cex=.85, cex.title=.8), 
     strip=list(factor.names=TRUE, values=TRUE),
     array=list(row=1, col=1, nrow=1, ncol=1, more=FALSE),
     arg="lattice"
