@@ -138,10 +138,13 @@ plot.effpoly <- function(x, x.var=which.max(levels), main=paste(effect, "effect 
   if (missing(lattice)) lattice <- NULL
   lattice <- applyDefaults(lattice, defaults=list(
     layout=NULL, #key.args=list(),  #New default added 1/2/2017 by sw
-    key.args=list(space="top", border=FALSE, fontfamily="serif", cex=.85, cex.title=.8), 
     strip=list(factor.names=TRUE, values=TRUE),
     array=list(row=1, col=1, nrow=1, ncol=1, more=FALSE),
     arg="lattice"
+  ))
+  lattice$key.args <- applyDefaults(lattice$key.args, defaults=list(
+    space="top", border=FALSE, fontfamily="serif", cex=.85, cex.title=.8, 
+    arg="key.args"
   ))
   if (missing(layout)) layout <- lattice$layout
   if (missing(key.args)) key.args <- lattice$key.args

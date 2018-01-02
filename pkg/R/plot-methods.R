@@ -40,10 +40,11 @@ find.legend.columns <- function(n, target=min(4, n)){
   target
 }
 # new version 1/2/2017 by sw
-find.legend.columns <- function(n, target=min(4, n)){
-  if(n == 2) 2 else {
-   if(n <=3) 1 else 
-     {if (n <= 6) 2 else 3}}
+find.legend.columns <- function(n, space="top"){
+  if(space == "right") 1 else {
+  if(n <= 2) 2 else {
+   if(n == 3) 1 else 
+     {if (n <= 6) 2 else 3}}}
 }
 
 
@@ -102,15 +103,17 @@ panel.bands <- function(x, y, upper, lower, fill, col,
 
 spline.llines <- function(x, y, ...) llines(spline(x, y), ...)
 
-plot.eff <- function(x, x.var, z.var=which.min(levels), main=paste(effect, "effect plot"),
-                     symbols=TRUE, lines=TRUE, axes, confint, partial.residuals, id, lattice,
-                     ...,
-                     # legacy arguments:
-                     multiline, rug, xlab, ylab, colors, cex, lty, lwd, ylim, xlim, factor.names, ci.style,
-                     band.transparency, band.colors, type, ticks, alternating, rotx, roty, grid, layout,
-                     rescale.axis, transform.x, ticks.x, show.strip.values, key.args, use.splines,
-                     residuals.color, residuals.pch, residuals.cex, smooth.residuals,
-                     residuals.smooth.color, show.fitted, span)
+plot.eff <- function(x, x.var, z.var=which.min(levels), 
+          main=paste(effect, "effect plot"),
+          symbols=TRUE, lines=TRUE, axes, confint, partial.residuals, id, lattice,
+          ...,
+        # legacy arguments:
+          multiline, rug, xlab, ylab, colors, cex, lty, lwd, ylim, xlim, 
+          factor.names, ci.style, band.transparency, band.colors, type, ticks, 
+          alternating, rotx, roty, grid, layout,
+          rescale.axis, transform.x, ticks.x, show.strip.values, key.args, 
+          use.splines, residuals.color, residuals.pch, residuals.cex, smooth.residuals,
+          residuals.smooth.color, show.fitted, span)
 {
   closest <- function(x, x0) apply(outer(x, x0, FUN=function(x, x0) abs(x - x0)), 1, which.min)
   .mod <- function(a, b) ifelse( (d <- a %% b) == 0, b, d)
@@ -240,11 +243,14 @@ plot.eff <- function(x, x.var, z.var=which.min(levels), main=paste(effect, "effe
   
   if (missing(lattice)) lattice <- NULL
   lattice <- applyDefaults(lattice, defaults=list(
-    layout=NULL, #key.args=list(),  #New default added 1/2/2017 by sw
-    key.args=list(space="top", border=FALSE, fontfamily="serif", cex=.85, cex.title=.8),
+    layout=NULL, #key.args=list(),  
     strip=list(factor.names=TRUE, values=!partial.residuals),
     array=list(row=1, col=1, nrow=1, ncol=1, more=FALSE),
     arg="lattice"
+  ))
+  lattice$key.args <- applyDefaults(lattice$key.args, defaults=list(
+    space="top", border=FALSE, fontfamily="serif", cex=.85, cex.title=.8, 
+    arg="key.args"
   ))
   if (missing(layout)) layout <- lattice$layout
   if (missing(key.args)){
@@ -536,11 +542,15 @@ plot.eff <- function(x, x.var, z.var=which.min(levels), main=paste(effect, "effe
     if (is.factor(x[,x.var])){
       if (ci.style == "auto") ci.style <- "bars"
       levs <- levels(x[,x.var])
-      key <- list(title=predictors[z.var], cex.title=1, border=TRUE,
+      key <- list(title=predictors[z.var], #cex.title=1, border=TRUE,
                   text=list(as.character(zvals)),
-                  lines=list(col=colors[.modc(1:length(zvals))], lty=lines[.modl(1:length(zvals))], lwd=lwd),
-                  points=list(col=colors[.modc(1:length(zvals))], pch=symbols[.mods(1:length(zvals))]),
-                  columns = if ("x" %in% names(key.args)) 1 else find.legend.columns(length(zvals)))
+                  lines=list(col=colors[.modc(1:length(zvals))], 
+                             lty=lines[.modl(1:length(zvals))], lwd=lwd),
+                  points=list(col=colors[.modc(1:length(zvals))], 
+                              pch=symbols[.mods(1:length(zvals))]),
+                  columns = if ("x" %in% names(key.args)) 1 else 
+                    find.legend.columns(length(zvals), 
+                        space=if("x" %in% names(key.args)) "top" else key.args$space))
       for (k in names(key.args)) key[k] <- key.args[k]
       if (show.strip.values && n.predictors > 2){
         for (pred in predictors[-c(x.var, z.var)]){
@@ -623,10 +633,13 @@ plot.eff <- function(x, x.var, z.var=which.min(levels), main=paste(effect, "effe
         trans <- I
         make.ticks(xlm, link=I, inverse=I, at=at, n=n)
       }
-      key <- list(title=predictors[z.var], cex.title=1, border=TRUE,
+      key <- list(title=predictors[z.var], #cex.title=1, border=TRUE,
                   text=list(as.character(zvals)),
-                  lines=list(col=colors[.modc(1:length(zvals))], lty=lines[.modl(1:length(zvals))], lwd=lwd),
-                  columns = if ("x" %in% names(key.args)) 1 else find.legend.columns(length(zvals)))
+                  lines=list(col=colors[.modc(1:length(zvals))], 
+                             lty=lines[.modl(1:length(zvals))], lwd=lwd),
+                  columns = if ("x" %in% names(key.args)) 1 else 
+                             find.legend.columns(length(zvals), 
+                             if("x" %in% names(key.args)) "top" else key.args$space))
       for (k in names(key.args)) key[k] <- key.args[k]
       if (show.strip.values && n.predictors > 2){
         for (pred in predictors[-c(x.var, z.var)]){
