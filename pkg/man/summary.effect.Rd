@@ -346,13 +346,13 @@ plot(eff.cowles, 'neuroticism:extraversion',
 plot(eff.cowles, 'neuroticism:extraversion',
      lines=list(multiline=TRUE),
      axes=list(y=list(lab="Prob(Volunteer)")),
-     lattice=list(key.args = list(x = 0.75, y = 0.75, corner = c(0, 0))))
+     lattice=list(key.args = list(x = 0.65, y = 0.99, corner = c(0, 1))))
 
 # use probability scale in place of logit scale, all lines are black.
 plot(eff.cowles, 'neuroticism:extraversion',
      lines=list(multiline=TRUE, lty=1:8, col="black"),
      axes=list(y=list(type="response", lab="Prob(Volunteer)")),
-     lattice=list(key.args = list(x = 0.75, y = 0.75, corner = c(0, 0))),
+     lattice=list(key.args = list(x = 0.65, y = 0.99, corner = c(0, 1))),
      confint=list(style="bands"))
 
 plot(effect('sex:neuroticism:extraversion', mod.cowles,

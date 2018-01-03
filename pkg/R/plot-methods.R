@@ -114,7 +114,7 @@ plot.eff <- function(x, x.var, z.var=which.min(levels),
           rescale.axis, transform.x, ticks.x, show.strip.values, key.args, 
           use.splines, residuals.color, residuals.pch, residuals.cex, smooth.residuals,
           residuals.smooth.color, show.fitted, span)
-{
+{ 
   closest <- function(x, x0) apply(outer(x, x0, FUN=function(x, x0) abs(x - x0)), 1, which.min)
   .mod <- function(a, b) ifelse( (d <- a %% b) == 0, b, d)
   .modc <- function(a) .mod(a, length(colors))
@@ -240,7 +240,6 @@ plot.eff <- function(x, x.var, z.var=which.min(levels),
     id.cex <- id$cex
     id.labels <- id$labels
   }
-  
   if (missing(lattice)) lattice <- NULL
   lattice <- applyDefaults(lattice, defaults=list(
     layout=NULL, #key.args=list(),  
@@ -249,12 +248,14 @@ plot.eff <- function(x, x.var, z.var=which.min(levels),
     arg="lattice"
   ))
   lattice$key.args <- applyDefaults(lattice$key.args, defaults=list(
-    space="top", border=FALSE, fontfamily="serif", cex=.85, cex.title=.8, 
+    space="top", border=FALSE, fontfamily="sans", cex=.75, cex.title=.7, 
     arg="key.args"
   ))
+  if("x" %in% names(lattice$key.args)) lattice$key.args[["space"]] <- NULL
   if (missing(layout)) layout <- lattice$layout
   if (missing(key.args)){
-    lattice$key.args[["between.columns"]] <- if(is.null(lattice$key.args[["between.columns"]])) 0 else
+    lattice$key.args[["between.columns"]] <- 
+      if(is.null(lattice$key.args[["between.columns"]])) 0 else
       lattice$key.args[["between.columns"]]
     key.args <- lattice$key.args
   }
@@ -305,7 +306,7 @@ plot.eff <- function(x, x.var, z.var=which.min(levels),
   residuals <- if (partial.residuals) x$residuals else NULL
   if (!is.null(residuals) && !is.null(id.labels)) names(residuals) <- id.labels
   partial.residuals.range <- x$partial.residuals.range
-  
+ 
   if (!rescale.axis){
     x$lower[!is.na(x$lower)] <- trans.inverse(x$lower[!is.na(x$lower)])
     x$upper[!is.na(x$upper)] <- trans.inverse(x$upper[!is.na(x$upper)])
@@ -326,6 +327,7 @@ plot.eff <- function(x, x.var, z.var=which.min(levels),
   }
   has.se <- !is.null(x$se)
   n.predictors <- ncol(x) - 1 - 3*has.se
+
   if (n.predictors == 1){
     predictor <- names(x)[1]
     if (is.list(xlab)) xlab <- xlab[[predictor]]
@@ -907,14 +909,14 @@ plot.efflist <- function(x, selection, rows, cols, ask=FALSE, graphics=TRUE, lat
   lattice <- if(missing(lattice)) list() else lattice
   if (!missing(selection)){
     if (is.character(selection)) selection <- gsub(" ", "", selection)
-    return(plot(x[[selection]], ...))
+    return(plot(x[[selection]], lattice=lattice, ...))
   }
   effects <- gsub(":", "*", names(x))
   if (ask){
     repeat {
       selection <- menu(effects, graphics=graphics, title="Select Term to Plot")
       if (selection == 0) break
-      else print(plot(x[[selection]], ...))
+      else print(plot(x[[selection]], lattice=lattice, ...))
     }
   }
   else {
