@@ -1,0 +1,11 @@
+*.aux
+*.cls
+jss.*
+*.tex
+*.bbl
+*.log
+*.out
+*.gz
+*.jpg
+figure
+figure/*
