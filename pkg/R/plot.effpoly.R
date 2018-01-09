@@ -31,7 +31,7 @@ plot.effpoly <- function(x, x.var=which.max(levels), main=paste(effect, "effect 
   if (missing(use.splines)) use.splines <- lines$splines
   lines.col <- lines$col
   lines <- if (missing(lty)) lines$lty else lty
-  
+ 
   if (!is.logical(symbols) && !is.list(symbols)) symbols <- list(pch=symbols)
   symbols <- applyDefaults(symbols,
                            defaults= list(pch=trellis.par.get("superpose.symbol")$pch, cex=trellis.par.get("superpose.symbol")$cex[1]),
@@ -143,7 +143,7 @@ plot.effpoly <- function(x, x.var=which.max(levels), main=paste(effect, "effect 
     arg="lattice"
   ))
   lattice$key.args <- applyDefaults(lattice$key.args, defaults=list(
-    space="top", border=FALSE, fontfamily="serif", cex=.85, cex.title=.8, 
+    space="top", border=FALSE, fontfamily="sans", cex=.85, cex.title=.8, 
     arg="key.args"
   ))
   if (missing(layout)) layout <- lattice$layout
@@ -357,7 +357,9 @@ plot.effpoly <- function(x, x.var=which.max(levels), main=paste(effect, "effect 
                       text=list(as.character(unique(response))),
                       lines=list(col=colors[.modc(1:n.y.lev)], lty=lines[.modl(1:n.y.lev)], lwd=lwd),
                       points=list(pch=symbols[.mods(1:n.y.lev)], col=colors[.modc(1:n.y.lev)]),
-                      columns = if ("x" %in% names(key.args)) 1 else find.legend.columns(n.y.lev))
+                      columns = if ("x" %in% names(key.args)) 1 else 
+                        find.legend.columns(length(n.y.lev), 
+                              space=if("x" %in% names(key.args)) "top" else key.args$space))
           for (k in names(key.args)) key[k] <- key.args[k]
           if (show.strip.values){
             for (pred in predictors[-x.var]){
@@ -433,7 +435,9 @@ plot.effpoly <- function(x, x.var=which.max(levels), main=paste(effect, "effect 
           key <- list(title=x$response, cex.title=1, border=TRUE,
                       text=list(as.character(unique(response))), 
                       lines=list(col=colors[.modc(1:n.y.lev)], lty=lines[.modl(1:n.y.lev)], lwd=lwd),
-                      columns = if ("x" %in% names(key.args)) 1 else find.legend.columns(n.y.lev))
+                      columns = if ("x" %in% names(key.args)) 1 else 
+                        find.legend.columns(length(n.y.lev), 
+                                space=if("x" %in% names(key.args)) "top" else key.args$space))
           for (k in names(key.args)) key[k] <- key.args[k]
           if (show.strip.values){
             for (pred in predictors[-x.var]){
@@ -489,7 +493,11 @@ plot.effpoly <- function(x, x.var=which.max(levels), main=paste(effect, "effect 
       else layout
       if (n.y.lev > length(colors))
         stop(paste('Not enough colors to plot', n.y.lev, 'regions'))
-      key <- list(text=list(lab=rev(y.lev)), rectangle=list(col=rev(colors[1:n.y.lev])))
+      key <- list(text=list(lab=rev(y.lev)), 
+                  rectangle=list(col=rev(colors[1:n.y.lev])),
+                  columns = if ("x" %in% names(key.args)) 1 else 
+                    find.legend.columns(length(n.y.lev), 
+                          space=if("x" %in% names(key.args)) "top" else key.args$space))
       for (k in names(key.args)) key[k] <- key.args[k]
       if (is.factor(x$data[[predictors[x.var]]])){ # x-variable a factor
 # 11/22/17 check for rank deficient models and if found stop
@@ -772,7 +780,10 @@ plot.effpoly <- function(x, x.var=which.max(levels), main=paste(effect, "effect 
                     text=list(as.character(unique(response))),
                     lines=list(col=colors[.modc(1:n.y.lev)], lty=lines[.modl(1:n.y.lev)], lwd=lwd),
                     points=list(pch=symbols[.mods(1:n.y.lev)], col=colors[.modc(1:n.y.lev)]),
-                    columns = if ("x" %in% names(key.args)) 1 else find.legend.columns(n.y.lev))
+                    columns = if ("x" %in% names(key.args)) 1 else 
+                      find.legend.columns(length(n.y.lev), 
+                            space=if("x" %in% names(key.args)) "top" else key.args$space))
+
         for (k in names(key.args)) key[k] <- key.args[k]
         if (show.strip.values){
           for (pred in predictors[-x.var]){
@@ -862,7 +873,9 @@ plot.effpoly <- function(x, x.var=which.max(levels), main=paste(effect, "effect 
         key <- list(title=x$response, cex.title=1, border=TRUE,
                     text=list(as.character(unique(response))), 
                     lines=list(col=colors[.modc(1:n.y.lev)], lty=lines[.modl(1:n.y.lev)], lwd=lwd),
-                    columns = if ("x" %in% names(key.args)) 1 else find.legend.columns(n.y.lev))
+                    columns = if ("x" %in% names(key.args)) 1 else 
+                      find.legend.columns(length(n.y.lev), 
+                            space=if("x" %in% names(key.args)) "top" else key.args$space))
         for (k in names(key.args)) key[k] <- key.args[k]
         if (show.strip.values){
           for (pred in predictors[-x.var]){

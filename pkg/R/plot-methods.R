@@ -34,11 +34,11 @@
 
 # the following functions aren't exported
 
-find.legend.columns <- function(n, target=min(4, n)){
-  rem <- n %% target
-  if (rem != 0 && rem < target/2) target <- target - 1
-  target
-}
+#find.legend.columns <- function(n, target=min(4, n)){
+#  rem <- n %% target
+#  if (rem != 0 && rem < target/2) target <- target - 1
+#  target
+#}
 # new version 1/2/2017 by sw
 find.legend.columns <- function(n, space="top"){
   if(space == "right") 1 else {
