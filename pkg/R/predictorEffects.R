@@ -5,7 +5,8 @@
 # 2017-11-09 fixed bug in setting the class for multinom models, and possibly others
 # 2017-11-17 added methods for clm, clm2, clmm in the file effectsclmm.R
 # 2017-12-08 modified predictorEffect.default and predictorEffects.default for compatibility to Effect.default
-# 2017-01-09 fixed bug in predictorEffects.default with log() in a formula.
+# 201*-01-09 fixed bug in predictorEffects.default with log() in a formula.
+# 2018-01-24 fixed bug with minus sign in a formula predictorEffects.default
 
 predictorEffect <- function(predictor, mod, xlevels, ...){
   UseMethod("predictorEffect", mod)
@@ -42,11 +43,15 @@ predictorEffects <- function(mod, predictors, ...){
   UseMethod("predictorEffects", mod)
 }
 
-# rewritten, simplified, 12/08/17
+# rewritten, simplified, 12/08/17, bug in formulas fixed 01/24/2018
 predictorEffects.default <- function(mod, predictors = ~ ., ...) {
   mform <- Effect.default(NULL, mod)  # returns the fixed-effect formula for any method
-  cform <- if(is.character(predictors)) as.formula(paste( "~", predictors)) else predictors
-  cform <- update(formula(mod), cform)
+  cform <- if(is.character(predictors)) 
+    as.formula(paste("~", paste(predictors, collapse="+"))) else
+      predictors
+  cform <- update(as.formula(paste(". ~", 
+                paste(all.vars(formula(mform)[[3]]), collapse="+"))), 
+                cform)
   mvars <- all.vars(mform[[3]])
   cvars <- all.vars(cform[[3]])
 # check that 'cvars' is a subset of 'mvars'. If so apply predictorEffect

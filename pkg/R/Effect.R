@@ -1,6 +1,6 @@
 # Effect generic and methods
 # John Fox and Sanford Weisberg
-# 12-21-2012 Allow for empty cells in factor interactions, S. Weisberg
+# 2012-12-21: Allow for empty cells in factor interactions, S. Weisberg
 # 2012-03-05: Added .merMod method for development version of lme4, J. Fox
 # 2012-04-06: Added support for lme4.0, J. Fox
 # 2013-07-15:  Changed default xlevels and default.levels
@@ -23,31 +23,35 @@
 # 2017-09-07: added Effect.svyglm()
 # 2017-09-14: no partial residuals for Effect.svyglm()
 # 2017-11-03: correct handling of rank deficient models, now using `estimability` package
-# 2017-11-04: allow given.values="equal" or given.values="default"
 # 2017-11-22: modified checkFormula to work with clm2 models that don't have a 'formula' argument
 # 2017-12-10: Effect.default. Effect.mer, .merMod, .lme, gls have been replaced to use the default.
+# 2018-01-22: allow given.values="equal" or given.values="default" 
 
-### Non-exported function added 2017-11-03 to generalize given.values to allow for "default" or "equal" weighting of factor levels for non-focal predictors.
-fix.given.values <- function(mod, spec){
-  if(is.null(spec)) return(spec)
-  if(length(spec) > 1) return(spec) # spec is a named vector of given values for existing code
-  if(spec == "default") return(NULL) # use existing code to determine given.values
-  if(spec != "equal") stop("Error--given.values must be a vector of specifications, 'default' or 'equal'")
-  # get here:  find the weights for equal weighting of factor levels for all factors
-  xlevels <- mod$xlevels # names of factors, if any
-  if(length(xlevels) == 0) return(NULL) # no factors
-  vars <- names(xlevels) # names of factors
-  lengths <- lapply(xlevels, length) # number of levels
-  form1 <- as.formula(paste("~", paste(vars, collapse="+")))
-  mm <- update(mod, form1, x=TRUE)$x  # keeps the model.matrix only; check for glms
-  gv <- c()
-  for (j in 1:length(vars)){
-    cols <- which(attr(mm, "assign") == j)
-    out <- rep( 1/lengths[[j]], length(cols))
-    names(out) <- colnames(mm)[cols]
-    gv <- c(gv, out)
+### Non-exported function added 2018-01-22 to generalize given.values to allow for "equal" weighting of factor levels for non-focal predictors.
+.set.given.equal <- function(m){
+  if(inherits(m, "lm") & !("(Intercept)" %in% names(coef(m))))
+      stop("Seting given.vales='equal' requires an intercept in the model formula")
+  terms <- terms(m)
+  classes <- attr(terms, "dataClasses")
+  response <- attr(terms, "response")
+  classes <- classes[-response]
+  factors <- names(classes)[classes=="factor"]
+  out <- NULL
+  for (f in factors){
+    form <- as.formula(paste( "~", f, collapse=""))
+    .m0 <- if(inherits(class(m), "glm")) 
+              {update(m, form, control=glm.control(epsilon=1))} else {
+    if(inherits(class(m), "polr"))
+              {update(m, form, control=list(maxit=1))} else {
+    if(inherits(class(m), "multinom"))    
+              {update(m, form, maxit=0, trace=FALSE)} else
+        update(m, form)}}
+    names <- colnames(model.matrix(.m0))[-1]
+    vals <- rep(1/(length(names)+1), length(names))
+    names(vals) <- names
+    out <- c(out, vals)
   }
-  gv
+  out
 }
 ### end of non-exported function
 
@@ -82,7 +86,7 @@ Effect.default <- function(focal.predictors, mod, ..., sources=NULL){
 
   if(is.null(focal.predictors)) return(formula)
   type <- if(is.null(sources$type)) "glm" else sources$type
-# Effect uses the linkfuntion and the inverse function.  This ordinarily are found in
+# Effect uses the link funtion and the inverse function.  This ordinarily are found in
 # family(mod)$linkfun and family(mod)$invlinkfun.  Some models, e.g., betareg, have a fixed family,
 # and so the link is specified separately, typically by an argument link
 # If neither family nor link are specified in sources do nothing
@@ -99,14 +103,14 @@ Effect.default <- function(focal.predictors, mod, ..., sources=NULL){
   cl$control <- switch(type,
           glm = glm.control(epsilon=1),
           polr = list(maxit=1),
-          multinom = list(maxit=1))
+          multinom = c(maxit=1))
   .m <- switch(type,
                glm=match(c("formula", "data", "contrasts", "weights", "subset",
                 "family", "control", "offset"), names(cl), 0L),
                polr=match(c("formula", "data", "contrasts", "weights", "subset",
                 "control"), names(cl), 0L),
                multinom=match(c("formula", "data", "contrasts", "weights", "subset",
-                "family", "control", "offset"), names(cl), 0L))
+                "family", "maxit", "offset"), names(cl), 0L))
   cl <- cl[c(1L, .m)]
   cl[[1L]] <- as.name(type)
   mod2 <- eval(cl)
@@ -161,9 +165,11 @@ Effect.lm <- function(focal.predictors, mod, xlevels=list(), fixed.predictors,
                                          apply.typical.to.factors=FALSE, offset=mean),
                                     arg="fixed.predictors")
   if (missing(given.values)) given.values <- fixed.predictors$given.values
-# added but not yet implemented 2 next lines
-#  given.values <- fix.given.values(mod, spec=given.values)
-#  print(given.values)
+# new 1/22/18 to allow for automatical equal weighting of factor levels
+  if(!is.null(given.values)){
+   if (given.values == "default") given.values <- NULL
+   if (given.values == "equal") given.values <- .set.given.equal(mod)}
+# end new code
   if (missing(typical)) typical <- fixed.predictors$typical
   if (missing(offset)) offset <- fixed.predictors$offset
   apply.typical.to.factors <- fixed.predictors$apply.typical.to.factors
@@ -220,8 +226,9 @@ Effect.lm <- function(focal.predictors, mod, xlevels=list(), fixed.predictors,
   if (is.null(wts))
     wts <- rep(1, length(residuals(mod)))
   mod.matrix <- Fixup.model.matrix(mod, mod.matrix, mod.matrix.all,
-                                   X.mod, factor.cols, cnames, focal.predictors, excluded.predictors,
-                                   typical, given.values, apply.typical.to.factors) #,
+                                   X.mod, factor.cols, cnames, focal.predictors, 
+                                   excluded.predictors, typical, given.values, 
+                                   apply.typical.to.factors) 
 # 11/3/2017.  Check to see if the model is full rank
   # Compute a basis for the null space, using estimibility package
   null.basis <- estimability::nonest.basis(mod)  # returns basis for null space
@@ -298,6 +305,12 @@ Effect.multinom <- function(focal.predictors, mod,
                                     list(given.values=NULL, typical=mean),
                                     arg="fixed.predictors")
   if (missing(given.values)) given.values <- fixed.predictors$given.values
+  # new 1/22/18 to allow for automatical equal weighting of factor levels
+  if(!is.null(given.values)){
+    if (given.values == "default") given.values <- NULL
+    if (given.values == "equal") given.values <- .set.given.equal(mod)}
+  # end new code
+  # end new code
   if (missing(typical)) typical <- fixed.predictors$typical
   confint <- applyDefaults(confint, list(compute=TRUE, level=.95, type="pointwise"),
                            onFALSE=list(compute=FALSE, level=.95, type="pointwise"),
@@ -429,6 +442,12 @@ Effect.polr <- function(focal.predictors, mod,
                                     list(given.values=NULL, typical=mean),
                                     arg="fixed.predictors")
   if (missing(given.values)) given.values <- fixed.predictors$given.values
+  # new 1/22/18 to allow for automatical equal weighting of factor levels
+  # new 1/22/18 to allow for automatical equal weighting of factor levels
+  if(!is.null(given.values)){
+    if (given.values == "default") given.values <- NULL
+    if (given.values == "equal") given.values <- .set.given.equal(mod)}
+  # end new code
   if (missing(typical)) typical <- fixed.predictors$typical
   confint <- applyDefaults(confint, list(compute=TRUE, level=.95, type="pointwise"),
                            onFALSE=list(compute=FALSE, level=.95, type="pointwise"),
