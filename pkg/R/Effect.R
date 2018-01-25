@@ -26,6 +26,7 @@
 # 2017-11-22: modified checkFormula to work with clm2 models that don't have a 'formula' argument
 # 2017-12-10: Effect.default. Effect.mer, .merMod, .lme, gls have been replaced to use the default.
 # 2018-01-22: allow given.values="equal" or given.values="default" 
+# 2018-01-25: substitute se for confint arg; make confint a legacy arg
 
 ### Non-exported function added 2018-01-22 to generalize given.values to allow for "equal" weighting of factor levels for non-focal predictors.
 .set.given.equal <- function(m){
@@ -153,12 +154,12 @@ fixFormula <- function (term)
 }
 
 Effect.lm <- function(focal.predictors, mod, xlevels=list(), fixed.predictors,
-        vcov. = vcov, confint=TRUE,
+        vcov. = vcov, se=TRUE,
         transformation = list(link = family(mod)$linkfun, inverse = family(mod)$linkinv),
         partial.residuals=FALSE, quantiles=seq(0.2, 0.8, by=0.2),
         x.var=NULL,  ...,
         #legacy arguments:
-        given.values, typical, offset, se, confidence.level){
+        given.values, typical, offset, confint, confidence.level){
   if (missing(fixed.predictors)) fixed.predictors <- NULL
   fixed.predictors <- applyDefaults(fixed.predictors,
                                     list(given.values=NULL, typical=mean,
@@ -173,10 +174,11 @@ Effect.lm <- function(focal.predictors, mod, xlevels=list(), fixed.predictors,
   if (missing(typical)) typical <- fixed.predictors$typical
   if (missing(offset)) offset <- fixed.predictors$offset
   apply.typical.to.factors <- fixed.predictors$apply.typical.to.factors
-  confint <- applyDefaults(confint, list(compute=TRUE, level=.95, type="pointwise"),
+  if (!missing(confint)) se <- confint
+  confint <- applyDefaults(se, list(compute=TRUE, level=.95, type="pointwise"),
                            onFALSE=list(compute=FALSE, level=.95, type="pointwise"),
-                           arg="confint")
-  if (missing(se)) se <- confint$compute
+                           arg="se")
+  se <- confint$compute
   if (missing(confidence.level)) confidence.level <- confint$level
   confidence.type <- match.arg(confint$type, c("pointwise", "Scheffe", "scheffe"))
   default.levels <- NULL # just for backwards compatibility
@@ -297,9 +299,9 @@ Effect.lm <- function(focal.predictors, mod, xlevels=list(), fixed.predictors,
 
 Effect.multinom <- function(focal.predictors, mod,
                             xlevels=list(), fixed.predictors,
-                            vcov. = vcov, confint=TRUE, ...,
+                            vcov. = vcov, se=TRUE, ...,
                             #legacy arguments:
-                            se, confidence.level, given.values, typical){
+                            confint, confidence.level, given.values, typical){
   if (missing(fixed.predictors)) fixed.predictors <- NULL
   fixed.predictors <- applyDefaults(fixed.predictors,
                                     list(given.values=NULL, typical=mean),
@@ -312,10 +314,11 @@ Effect.multinom <- function(focal.predictors, mod,
   # end new code
   # end new code
   if (missing(typical)) typical <- fixed.predictors$typical
-  confint <- applyDefaults(confint, list(compute=TRUE, level=.95, type="pointwise"),
+  if (!missing(confint)) se <- confint
+  confint <- applyDefaults(se, list(compute=TRUE, level=.95, type="pointwise"),
                            onFALSE=list(compute=FALSE, level=.95, type="pointwise"),
-                           arg="confint")
-  if (missing(se)) se <- confint$compute
+                           arg="se")
+  se <- confint$compute
   if (missing(confidence.level)) confidence.level <- confint$level
   confidence.type <- match.arg(confint$type, c("pointwise", "Scheffe", "scheffe"))
   default.levels <- NULL # just for backwards compatibility
@@ -434,9 +437,9 @@ Effect.multinom <- function(focal.predictors, mod,
 
 Effect.polr <- function(focal.predictors, mod,
                         xlevels=list(), fixed.predictors,
-                        vcov.=vcov, confint=TRUE, latent=FALSE, ...,
+                        vcov.=vcov, se=TRUE, latent=FALSE, ...,
                         #legacy arguments:
-                        se, confidence.level, given.values, typical){
+                        confint, confidence.level, given.values, typical){
   if (missing(fixed.predictors)) fixed.predictors <- NULL
   fixed.predictors <- applyDefaults(fixed.predictors,
                                     list(given.values=NULL, typical=mean),
@@ -449,10 +452,11 @@ Effect.polr <- function(focal.predictors, mod,
     if (given.values == "equal") given.values <- .set.given.equal(mod)}
   # end new code
   if (missing(typical)) typical <- fixed.predictors$typical
-  confint <- applyDefaults(confint, list(compute=TRUE, level=.95, type="pointwise"),
+  if (!missing(confint)) se <- confint
+  confint <- applyDefaults(se, list(compute=TRUE, level=.95, type="pointwise"),
                            onFALSE=list(compute=FALSE, level=.95, type="pointwise"),
-                           arg="confint")
-  if (missing(se)) se <- confint$compute
+                           arg="se")
+  se <- confint$compute
   if (missing(confidence.level)) confidence.level <- confint$level
   confidence.type <- match.arg(confint$type, c("pointwise", "Scheffe", "scheffe"))
   default.levels <- NULL # just for backwards compatibility

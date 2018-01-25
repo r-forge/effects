@@ -331,7 +331,7 @@ plot(eff.cowles, 'neuroticism:extraversion',
         ticks=list(at=c(.1,.25,.5,.75,.9)))))
 
 plot(Effect(c("neuroticism", "extraversion"), mod.cowles,
-            confint=list(type="Scheffe"),
+            se=list(type="Scheffe"),
             xlevels=list(extraversion=seq(0, 24, 6))),
      axes=list(y=list(lab="Prob(Volunteer)",
         ticks=list(at=c(.1,.25,.5,.75,.9)))))

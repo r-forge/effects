@@ -49,25 +49,25 @@ effect(term, mod, vcov.=vcov, ...)
 Effect(focal.predictors, mod, ...)
 
 \method{Effect}{lm}(focal.predictors, mod, xlevels=list(),
-    fixed.predictors, vcov. = vcov, confint=TRUE,
+    fixed.predictors, vcov. = vcov, se=TRUE,
     transformation = list(link = family(mod)$linkfun,
         inverse = family(mod)$linkinv),
     partial.residuals=FALSE, quantiles=seq(0.2, 0.8, by=0.2),
     x.var=NULL,  ...,
     #legacy arguments:
-    given.values, typical, offset, se, confidence.level)
+    given.values, typical, offset, confint, confidence.level)
 
 \method{Effect}{multinom}(focal.predictors, mod,
     xlevels=list(), fixed.predictors,
-    vcov. = vcov, confint=TRUE, ...,
+    vcov. = vcov, se=TRUE, ...,
     #legacy arguments:
-    se, confidence.level, given.values, typical)
+    confint, confidence.level, given.values, typical)
 
 \method{Effect}{polr}(focal.predictors, mod,
     xlevels=list(), fixed.predictors,
-    vcov.=vcov, confint=TRUE, latent=FALSE, ...,
+    vcov.=vcov, se=TRUE, latent=FALSE, ...,
     #legacy arguments:
-    se, confidence.level, given.values, typical)
+    confint, confidence.level, given.values, typical)
 
 \method{Effect}{svyglm}(focal.predictors, mod, fixed.predictors, ...)
 
@@ -148,7 +148,7 @@ allEffects(mod, ...)
     its first argument and returns an estimated sample covariance matrix, such as the \code{\link[car]{hccm}}
     function in the \pkg{car} package, which returns a heteroscedasticity corrected estimate for a
     linear model.}
-  \item{confint}{a list with any or all of the following elements, controlling whether and how standard errors
+  \item{se}{\code{TRUE} (the default), \code{FALSE}, or a list with any or all of the following elements, controlling whether and how standard errors
     and confidence limits are computed for the effects: \code{compute} (default \code{TRUE}), whether or not
     to compute standard errors and confidence limits; \code{level} (default \code{0.95}), confidence level for
     confidence limits; \code{type}, one of \code{"pointwise"} (the default), \code{"Scheffe"}, or \code{"scheffe"},
@@ -186,10 +186,10 @@ allEffects(mod, ...)
   \item{row.names, optional}{not used.}
   \item{object}{an object of class \code{"eff"} for which the covariance matrix of the effects is desired.}
   \item{...}{arguments to be passed down.}
-  \item{se, confidence.level, given.values, typical, offset}{legacy arguments retained for backwards compatability; if present, these arguments take precedence
-  of the \code{compute} and \code{level} elements over the \code{confint} list argument and the
+  \item{confint, confidence.level, given.values, typical, offset}{legacy arguments retained for backwards compatability; if present, these arguments take precedence
+  over \code{level} element of the \code{confint} list argument and the
   \code{given.values}, \code{typical}, and \code{offset} elements of the \code{fixed.predictors}
-  list argument. See \code{\link{LegacyArguments}} for details.}
+  list argument; \code{confint} may be used in place of the \code{se} argument. See \code{\link{LegacyArguments}} for details.}
 }
 
 \details{
@@ -385,7 +385,7 @@ plot(eff.cowles, 'neuroticism:extraversion',
         ticks=list(at=c(.1,.25,.5,.75,.9)))))
 
 plot(Effect(c("neuroticism", "extraversion"), mod.cowles,
-            confint=list(type="Scheffe"),
+            se=list(type="Scheffe"),
             xlevels=list(extraversion=seq(0, 24, 6)),
             fixed.predictors=list(given.values=c(sexmale=0.5))),
      axes=list(y=list(lab="Prob(Volunteer)",
@@ -447,7 +447,7 @@ if (require(MASS)){
 
     plot(effect("country*poly(age, 3)", latent=TRUE, mod.wvs))
     plot(effect("country*poly(age, 3)", latent=TRUE, mod.wvs,
-         confint=list(type="scheffe"))) # Scheffe-type confidence envelopes
+         se=list(type="scheffe"))) # Scheffe-type confidence envelopes
     }
 }
 
@@ -591,7 +591,7 @@ Prestige$type <- factor(Prestige$type, levels=c("bc", "wc", "prof"))
 mod.prestige.1 <- lm(prestige ~ income + education, data=Prestige)
 plot(allEffects(mod.prestige.1, partial.residuals=TRUE)) # standard C+R plots
 plot(allEffects(mod.prestige.1, partial.residuals=TRUE,
-    confint=list(type="scheffe"))) # with Scheffe-type confidence bands
+    se=list(type="scheffe"))) # with Scheffe-type confidence bands
 
 mod.prestige.2 <- lm(prestige ~ type*(income + education), data=Prestige)
 plot(allEffects(mod.prestige.2, partial.residuals=TRUE))
