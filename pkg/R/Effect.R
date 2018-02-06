@@ -156,10 +156,12 @@ fixFormula <- function (term)
 Effect.lm <- function(focal.predictors, mod, xlevels=list(), fixed.predictors,
         vcov. = vcov, se=TRUE,
         transformation = list(link = family(mod)$linkfun, inverse = family(mod)$linkinv),
-        partial.residuals=FALSE, quantiles=seq(0.2, 0.8, by=0.2),
+        residuals=FALSE, quantiles=seq(0.2, 0.8, by=0.2),
         x.var=NULL,  ...,
         #legacy arguments:
-        given.values, typical, offset, confint, confidence.level){
+        given.values, typical, offset, confint, confidence.level, partial.residuals){
+  if (!missing(partial.residuals)) residuals <- partial.residuals
+  partial.residuals <- residuals
   if (missing(fixed.predictors)) fixed.predictors <- NULL
   fixed.predictors <- applyDefaults(fixed.predictors,
                                     list(given.values=NULL, typical=mean,
@@ -561,7 +563,8 @@ Effect.svyglm <- function(focal.predictors, mod, fixed.predictors, ...){
     svymean(x, design=mod$survey.design)
   }
   ellipses.list <- list(...)
-  if (!is.null(ellipses.list$partial.residuals) && !isFALSE(ellipses.list$partial.residuals)){
+  if ((!is.null(ellipses.list$residuals) && !isFALSE(residuals)) || 
+      (!is.null(ellipses.list$partial.residuals) && !isFALSE(ellipses.list$partial.residuals))){
     stop("partial residuals are not available for svy.glm models")
   }
   if (missing(fixed.predictors)) fixed.predictors <- NULL

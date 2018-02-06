@@ -105,6 +105,8 @@ For \code{Effect} methods:
 \item{\code{typical={function}}}{\code{fixed.predictors=list(typical={function})}}
 
 \item{\code{offset={function}}}{\code{fixed.predictors=list(offset={function})}}
+
+\item{\code{partial.residuals=TRUE/FALSE}}{\code{residuals=TRUE/FALSE}}
 }
 
 }

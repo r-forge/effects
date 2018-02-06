@@ -52,10 +52,11 @@ Effect(focal.predictors, mod, ...)
     fixed.predictors, vcov. = vcov, se=TRUE,
     transformation = list(link = family(mod)$linkfun,
         inverse = family(mod)$linkinv),
-    partial.residuals=FALSE, quantiles=seq(0.2, 0.8, by=0.2),
+    residuals=FALSE, quantiles=seq(0.2, 0.8, by=0.2),
     x.var=NULL,  ...,
     #legacy arguments:
-    given.values, typical, offset, confint, confidence.level)
+    given.values, typical, offset, confint, confidence.level,
+    partial.residuals)
 
 \method{Effect}{multinom}(focal.predictors, mod,
     xlevels=list(), fixed.predictors,
@@ -164,17 +165,17 @@ allEffects(mod, ...)
     when they are printed or plotted; the link may be used in positioning
     axis labels (see below). If the link is not given, an attempt will be
     made to approximate it from the inverse-link.}
-  \item{partial.residuals}{if \code{TRUE}, residuals for a linear or generalized linear model
+  \item{residuals}{if \code{TRUE}, residuals for a linear or generalized linear model
     will be computed and saved; if \code{FALSE}
     (the default), residuals are suppressed. If residuals are saved, partial residuals are computed when
-    the effect is plotted: see \code{\link{plot.eff}}. This argument may also be used for mixed-effects models.}
+    the effect is plotted: see \code{\link{plot.eff}}. This argument may also be used for mixed-effects and some other models.}
   \item{quantiles}{quantiles at which to evaluate numeric focal predictors \emph{not} on the
     horizontal axis, used only when partial residuals are displayed; superceded if the \code{xlevels} argument
     gives specific values for a predictor.}
   \item{x.var}{the name or index of the numeric predictor to define the horizontal axis of an effect
     plot for a linear or generalized linear model; the default is \code{NULL}, in which case the first
     numeric predictor in the effect will be used \emph{if} partial residuals are to be computed. This argument
-    is intended to be used when \code{partial.residuals} is \code{TRUE}; otherwise, the variable on the horizontal
+    is intended to be used when \code{residuals} is \code{TRUE}; otherwise, the variable on the horizontal
     axis can be chosen when the effect object is plotted: see \code{\link{plot.eff}}.}
   \item{latent}{if \code{TRUE}, effects in a proportional-odds logit model
   	are computed on the scale of the latent response; if \code{FALSE}
@@ -186,10 +187,11 @@ allEffects(mod, ...)
   \item{row.names, optional}{not used.}
   \item{object}{an object of class \code{"eff"} for which the covariance matrix of the effects is desired.}
   \item{...}{arguments to be passed down.}
-  \item{confint, confidence.level, given.values, typical, offset}{legacy arguments retained for backwards compatability; if present, these arguments take precedence
+  \item{confint, confidence.level, given.values, typical, offset, partial.residuals}{legacy arguments retained for backwards compatability; if present, these arguments take precedence
   over \code{level} element of the \code{confint} list argument and the
   \code{given.values}, \code{typical}, and \code{offset} elements of the \code{fixed.predictors}
-  list argument; \code{confint} may be used in place of the \code{se} argument. See \code{\link{LegacyArguments}} for details.}
+  list argument; \code{confint} may be used in place of the \code{se} argument;
+  \code{partial.residuals} may be use din place of the \code{residuals} argument. See \code{\link{LegacyArguments}} for details.}
 }
 
 \details{
@@ -589,15 +591,15 @@ if (require(survey)){
 Prestige$type <- factor(Prestige$type, levels=c("bc", "wc", "prof"))
 
 mod.prestige.1 <- lm(prestige ~ income + education, data=Prestige)
-plot(allEffects(mod.prestige.1, partial.residuals=TRUE)) # standard C+R plots
-plot(allEffects(mod.prestige.1, partial.residuals=TRUE,
+plot(allEffects(mod.prestige.1, residuals=TRUE)) # standard C+R plots
+plot(allEffects(mod.prestige.1, residuals=TRUE,
     se=list(type="scheffe"))) # with Scheffe-type confidence bands
 
 mod.prestige.2 <- lm(prestige ~ type*(income + education), data=Prestige)
-plot(allEffects(mod.prestige.2, partial.residuals=TRUE))
+plot(allEffects(mod.prestige.2, residuals=TRUE))
 
 mod.prestige.3 <- lm(prestige ~ type + income*education, data=Prestige)
-plot(Effect(c("income", "education"), mod.prestige.3, partial.residuals=TRUE),
+plot(Effect(c("income", "education"), mod.prestige.3, residuals=TRUE),
      partial.residuals=list(span=1))
 }
 
@@ -613,9 +615,9 @@ mod.1 <- lm(y ~ poly(x1, x2, degree=2, raw=TRUE), data=Data)
 mod.2 <- lm(y ~ x1*x2, data=Data)
 mod.3 <- lm(y ~ x1 + x2, data=Data)
 
-plot(Effect(c("x1", "x2"), mod.1, partial.residuals=TRUE)) # correct model
-plot(Effect(c("x1", "x2"), mod.2, partial.residuals=TRUE)) # wrong model
-plot(Effect(c("x1", "x2"), mod.3, partial.residuals=TRUE)) # wrong model
+plot(Effect(c("x1", "x2"), mod.1, residuals=TRUE)) # correct model
+plot(Effect(c("x1", "x2"), mod.2, residuals=TRUE)) # wrong model
+plot(Effect(c("x1", "x2"), mod.3, residuals=TRUE)) # wrong model
 }
 
 \keyword{hplot}

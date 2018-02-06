@@ -31,6 +31,7 @@
 #                draw a blank tile. Needed for rank-deficient models.  S. Weisberg.
 # 2018-01-02: Changed the default key:  see lines 240-241
 # 2018-01-02: Rewrote find.legend columns, lines 41-44
+# 2018-01-30: enlarged text in key titles
 
 # the following functions aren't exported
 
@@ -248,7 +249,7 @@ plot.eff <- function(x, x.var, z.var=which.min(levels),
     arg="lattice"
   ))
   lattice$key.args <- applyDefaults(lattice$key.args, defaults=list(
-    space="top", border=FALSE, fontfamily="sans", cex=.75, cex.title=.7, 
+    space="top", border=FALSE, fontfamily="sans", cex=.75, cex.title=1, 
     arg="key.args"
   ))
   if("x" %in% names(lattice$key.args)) lattice$key.args[["space"]] <- NULL

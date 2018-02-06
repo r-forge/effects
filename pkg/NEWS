@@ -8,7 +8,7 @@ Version 4.0-1
  
  o Fixed a bug in predictorEffects with polym use to specify multivariate polynomials.
  
- o Replace confint argument to Effect() with se; confint now a legacy argument.
+ o Replace confint and partial.residuals argument to Effect() with se and residuals; confint and partial.residuals now legacy arguments.
  
  o Small fixes/improvements.
 
