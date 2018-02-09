@@ -264,7 +264,7 @@ Other elements:
   	(or, in some cases \code{\link{densityplot}}), which
   	is used to draw the effect display; if not specified, the plot will be formatted so that
   	it appears on a single page.}
-  	\item{\code{key.args}}{a key, or legend, is added to the plot if \code{multiline=TRUE}.  This argument is a list with components that determine the the placement and other characteristics of the key.  The default if not set by the user is \code{key.args = list(space="top", columns=2, border=FALSE, fontfamily="serif", cex.title=.80, cex=0.75)}.  If there are more than 6 groups in the plot, \code{columns} is set to 3.
+  	\item{\code{key.args}}{a key, or legend, is added to the plot if \code{multiline=TRUE}.  This argument is a list with components that determine the the placement and other characteristics of the key.  The default if not set by the user is \code{key.args = list(space="top", columns=2, border=FALSE, fontfamily="serif", cex.title=.80, cex=0.75)}.  If there are more than 6 groups in the plot, \code{columns} is set to 3. For stacked-area plots, the default is a one-column key.
   	\describe{
   	\item{\code{space}}{determines the placement of the key outside the plotting area, with default \code{space="above"} for above the plot and below its title.  Setting \code{space="right"} uses space to the right of the plot for the key.}
   	\item{\code{x, y, corner}}{used to put the key on the graph itself.  For example, \code{x=.05, y=.95, corner=c(0,1)} will locate the upper-left corner of the key at (.05, .95), thinking of the graph as a unit square.}

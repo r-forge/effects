@@ -13,6 +13,7 @@
 # 2017-09-10: use replacement for grid.panel()
 # 2017-11-22: added a check for non-estimable factor combinations with style="stacked"
 # 2018-01-02, 2018-01-30: changed defaults for key.args, lines 140-141
+# 2018-02-99: Use one-column key for stacked plot.
 
 plot.effpoly <- function(x, x.var=which.max(levels), main=paste(effect, "effect plot"),
                          symbols=TRUE, lines=TRUE, axes, confint, lattice, ...,
@@ -495,9 +496,10 @@ plot.effpoly <- function(x, x.var=which.max(levels), main=paste(effect, "effect 
         stop(paste('Not enough colors to plot', n.y.lev, 'regions'))
       key <- list(text=list(lab=rev(y.lev)), 
                   rectangle=list(col=rev(colors[1:n.y.lev])),
-                  columns = if ("x" %in% names(key.args)) 1 else 
-                    find.legend.columns(length(n.y.lev), 
-                          space=if("x" %in% names(key.args)) "top" else key.args$space))
+                  columns = 1)
+                    # if ("x" %in% names(key.args)) 1 else 
+                    # find.legend.columns(length(n.y.lev), 
+                    #       space=if("x" %in% names(key.args)) "top" else key.args$space))
       for (k in names(key.args)) key[k] <- key.args[k]
       if (is.factor(x$data[[predictors[x.var]]])){ # x-variable a factor
 # 11/22/17 check for rank deficient models and if found stop
