@@ -13,7 +13,8 @@
 # 2017-09-10: use replacement for grid.panel()
 # 2017-11-22: added a check for non-estimable factor combinations with style="stacked"
 # 2018-01-02, 2018-01-30: changed defaults for key.args, lines 140-141
-# 2018-02-99: Use one-column key for stacked plot.
+# 2018-02-09: Use one-column key for stacked plot.
+# 2018-02-28: Fix handling of rug arg (error reported by Dave Armstrong).
 
 plot.effpoly <- function(x, x.var=which.max(levels), main=paste(effect, "effect plot"),
                          symbols=TRUE, lines=TRUE, axes, confint, lattice, ...,
@@ -67,8 +68,6 @@ plot.effpoly <- function(x, x.var=which.max(levels), main=paste(effect, "effect 
   }
   if (missing(rotx)) rotx <- x.args$rotate
   if (missing(rug)) rug <- x.args$rug
-  rotx <- x.args$rotate
-  rug <- x.args$rug
   x.args$rotate <- NULL
   x.args$rug <- NULL
   x.pred.names <- names(x.args)
