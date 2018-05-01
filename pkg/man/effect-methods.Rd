@@ -52,9 +52,9 @@
     \describe{
   	  \item{type}{the default is \code{"glm"}, which assumes the modeling method shares characteristics with a generalized linear model, including a univariate response, a linear predictor, and possibly a error family and link function.}
 
-      \item{call}{For S3 objects, the default is \code{ojbect$call}, returning the call that created the object.  This is used to harvest standard arguments like \code{data}, \code{subset}, \code{family} an d\code{weights}.}
+      \item{call}{For S3 objects, the default is \code{ojbect$call}, returning the call that created the object.  This is used to harvest standard arguments like \code{data}, \code{subset} and \code{family}.}
 
-      \item{formula}{the formula for the linear predictor, defaulting to \code{formula(object)}.  If the formula may include terms for random effects that will be ignored.}
+      \item{formula}{the formula for the linear predictor, defaulting to \code{formula(object)}.}
 
       \item{family}{if the model object includes an error family, but it is not returned by \code{family(object)}, specify the family with this argument; otherwise it can be ignored.}
 

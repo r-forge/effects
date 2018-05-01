@@ -27,6 +27,7 @@
 # 2017-12-10: Effect.default. Effect.mer, .merMod, .lme, gls have been replaced to use the default.
 # 2018-01-22: allow given.values="equal" or given.values="default" 
 # 2018-01-25: substitute se for confint arg; make confint a legacy arg
+# 2018-05-01: dropped the use of the weights argument; it wasn't used anyway.
 
 ### Non-exported function added 2018-01-22 to generalize given.values to allow for "equal" weighting of factor levels for non-focal predictors.
 .set.given.equal <- function(m){
@@ -106,11 +107,11 @@ Effect.default <- function(focal.predictors, mod, ..., sources=NULL){
           polr = list(maxit=1),
           multinom = c(maxit=1))
   .m <- switch(type,
-               glm=match(c("formula", "data", "contrasts", "weights", "subset",
+               glm=match(c("formula", "data", "contrasts",  "subset",
                 "family", "control", "offset"), names(cl), 0L),
-               polr=match(c("formula", "data", "contrasts", "weights", "subset",
+               polr=match(c("formula", "data", "contrasts",  "subset",
                 "control"), names(cl), 0L),
-               multinom=match(c("formula", "data", "contrasts", "weights", "subset",
+               multinom=match(c("formula", "data", "contrasts",  "subset",
                 "family", "maxit", "offset"), names(cl), 0L))
   cl <- cl[c(1L, .m)]
   cl[[1L]] <- as.name(type)
