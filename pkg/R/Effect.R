@@ -82,14 +82,15 @@ Effect <- function(focal.predictors, mod, ...){
 # 2017-12-07 added Effects.lme, .mer, gls that work
 
 Effect.default <- function(focal.predictors, mod, ..., sources=NULL){
-  # set sources for type, call, coefficients and vcov
+# set sources for type, call, coefficients and vcov
   formula <- fixFormula(
     if(is.null(sources$formula)) formula(mod) else sources$formula)
-
+# the next line returns the formula if focal.predictors is null
   if(is.null(focal.predictors)) return(formula)
   type <- if(is.null(sources$type)) "glm" else sources$type
-# Effect uses the link funtion and the inverse function.  This ordinarily are found in
-# family(mod)$linkfun and family(mod)$invlinkfun.  Some models, e.g., betareg, have a fixed family,
+# Effect uses the link funtion and the inverse function.  These ordinarily are found in
+# family(mod)$linkfun and family(mod)$invlinkfun.  
+# Some models, e.g., betareg, have a fixed family,
 # and so the link is specified separately, typically by an argument link
 # If neither family nor link are specified in sources do nothing
 # If family is specified use it, and ignore link
@@ -115,6 +116,10 @@ Effect.default <- function(focal.predictors, mod, ..., sources=NULL){
                 "family", "maxit", "offset"), names(cl), 0L))
   cl <- cl[c(1L, .m)]
   cl[[1L]] <- as.name(type)
+# The following eval creates on object of class glm, polr or multinom.  These are crated
+# to avoid writing an Effects method for every type of model.  The only information used
+# from this "fake" object are the coefficients and the variance-covariance matrix, and 
+# these are copied from the original object so Effects plots the right things.
   mod2 <- eval(cl)
   mod2$coefficients <- coefficients
   mod2$vcov <- vcov
