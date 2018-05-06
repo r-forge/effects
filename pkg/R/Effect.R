@@ -28,6 +28,7 @@
 # 2018-01-22: allow given.values="equal" or given.values="default" 
 # 2018-01-25: substitute se for confint arg; make confint a legacy arg
 # 2018-05-01: dropped the use of the weights argument; it wasn't used anyway.
+# 2018-05-06: allow for complete=FALSE arg in potential calls to vcov.lm() and vcov.glm.
 
 ### Non-exported function added 2018-01-22 to generalize given.values to allow for "equal" weighting of factor levels for non-focal predictors.
 .set.given.equal <- function(m){
@@ -99,7 +100,7 @@ Effect.default <- function(focal.predictors, mod, ..., sources=NULL){
     family <- if(is.character(sources$link)) make.link(sources$link) else sources$link
   cl <- if(is.null(sources$call)) {if(isS4(mod)) mod@call else mod$call} else sources$call
   coefficients <- if(is.null(sources$coefficients)) coef(mod) else sources$coefficients
-  vcov <- if(is.null(sources$vcov)) as.matrix(vcov(mod)) else sources$vcov
+  vcov <- if(is.null(sources$vcov)) as.matrix(vcov(mod, complete=TRUE)) else sources$vcov
   # end setting sources
   cl$formula <- fixFormula(formula) # deletes terms with | or ||
 # suppress iterations: suggested by Nate TeGrotenhuis
@@ -283,7 +284,7 @@ Effect.lm <- function(focal.predictors, mod, xlevels=list(), fixed.predictors,
         scheffe(confidence.level, p, mod$df.residual)
       }
     }
-    V <- vcov.(mod)
+    V <- vcov.(mod, complete=FALSE)
     mmat <- mod.matrix[, !is.na(mod$coefficients)] # remove non-cols with NA coeffs
     eff.vcov <- mmat %*% V %*% t(mmat)
     rownames(eff.vcov) <- colnames(eff.vcov) <- NULL
