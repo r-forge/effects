@@ -26,6 +26,7 @@
 # 2017-09-08: small changes to accommodate Effect.svyglm()
 # 2017-09-10: added replacement for ticksGrid()
 # 2018-05-09: fix typo in startup message
+# 2018-05-13: modified Analyze.model() to support partial-residual plots against factors.
 
 has.intercept <- function(model, ...) any(names(coefficients(model))=="(Intercept)")
 
@@ -279,14 +280,14 @@ Analyze.model <- function(focal.predictors, mod, xlevels, default.levels=NULL, f
   }
   if (partial.residuals){
     numeric.predictors <- sapply(focal.predictors, function(predictor) is.numeric.predictor(predictor, mod))
-    if (!any(numeric.predictors)) warning("there are no numeric focal predictors", "\n  partial residuals suppressed")
-    else{
-      x.var <- which(numeric.predictors)[1]
-      x.var.name <- focal.predictors[x.var]
-      if (is.null(mod$xlevels[[x.var.name]])){
-        x.var.range <- range(X[, focal.predictors[x.var]])
-        x[[x.var]][["levels"]] <- seq(from=x.var.range[1], to=x.var.range[2], length=100)
-      }
+    if (is.null(x.var)){
+      x.var <- if (any(numeric.predictors)) which(numeric.predictors)[1]
+      else 1
+    }
+    x.var.name <- focal.predictors[x.var]
+    if (is.numeric(X[, x.var.name]) && is.null(xlevels[[x.var.name]])){
+      x.var.range <- range(X[, focal.predictors[x.var]])
+      x[[x.var]][["levels"]] <- seq(from=x.var.range[1], to=x.var.range[2], length=100)
     }
   }
   x.excluded <- list()

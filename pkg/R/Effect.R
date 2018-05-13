@@ -29,6 +29,7 @@
 # 2018-01-25: substitute se for confint arg; make confint a legacy arg
 # 2018-05-01: dropped the use of the weights argument; it wasn't used anyway.
 # 2018-05-06: allow for complete=FALSE arg in potential calls to vcov.lm() and vcov.glm.
+# 2018-05-13: allow partial residuals to be computed when the x.var is a factor.
 
 ### Non-exported function added 2018-01-22 to generalize given.values to allow for "equal" weighting of factor levels for non-focal predictors.
 .set.given.equal <- function(m){
@@ -205,6 +206,14 @@ Effect.lm <- function(focal.predictors, mod, xlevels=list(), fixed.predictors,
   }
   else stop("offset must be a function or a number")
   formula.rhs <- formula(mod)[[3]]
+  if (!missing(x.var)){
+    if (!is.numeric(x.var)) {
+      x.var.name <- x.var
+      x.var <- which(x.var == focal.predictors)
+    }
+    if (length(x.var) == 0) stop("'", x.var.name, "' is not among the focal predictors")
+    if (length(x.var) > 1) stop("x.var argument must be of length 1")
+  }
   model.components <- Analyze.model(focal.predictors, mod, xlevels, default.levels, formula.rhs,
                                     partial.residuals=partial.residuals, quantiles=quantiles, x.var=x.var, data=data, typical=typical)
   excluded.predictors <- model.components$excluded.predictors

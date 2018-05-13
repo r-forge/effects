@@ -1,5 +1,7 @@
 Version 4.0-2
 
+ o Support partial-residual plots when the predictor ont he horizontal axis is a factor.
+
  o For nonstandard models like lme, the weights argument was obtained from the call that created the object.  This argument was never used by effects, and caused an error with lme models that used weights. The weights argument is now ignored.
  
  o Fixed a bug due to new complete arg in vcov.lm() and vcov.glm().
