@@ -15,7 +15,7 @@ predictorEffect(predictor, mod, xlevels, ...)
 
 \method{predictorEffect}{svyglm}(predictor, mod, xlevels, ...)
 
-\method{predictorEffect}{default}(predictor, mod, ...)
+\method{predictorEffect}{default}(predictor, mod, xlevels, ...)
 
 predictorEffects(mod, predictors, ...)
 

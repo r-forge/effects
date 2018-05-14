@@ -191,7 +191,7 @@ allEffects(mod, ...)
   over \code{level} element of the \code{confint} list argument and the
   \code{given.values}, \code{typical}, and \code{offset} elements of the \code{fixed.predictors}
   list argument; \code{confint} may be used in place of the \code{se} argument;
-  \code{partial.residuals} may be use din place of the \code{residuals} argument. See \code{\link{LegacyArguments}} for details.}
+  \code{partial.residuals} may be used in place of the \code{residuals} argument. See \code{\link{LegacyArguments}} for details.}
 }
 
 \details{

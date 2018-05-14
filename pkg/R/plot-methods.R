@@ -32,7 +32,7 @@
 # 2018-01-02: Changed the default key:  see lines 240-241
 # 2018-01-02: Rewrote find.legend columns, lines 41-44
 # 2018-01-30: enlarged text in key titles
-# 2018-05-13: support plotting partial residuals against a factor on the horizontal axis in plot.lm()
+# 2018-05-14: support plotting partial residuals against a factor on the horizontal axis in plot.lm()
 
 # the following functions aren't exported
 
@@ -360,7 +360,8 @@ plot.eff <- function(x, x.var, z.var=which.min(levels),
           if (has.se){
             if (ci.style == "bars"){
               larrows(x0=x[good], y0=lower[good], x1=x[good], y1=upper[good], angle=90,
-                      code=3, col=colors[.modc(2)], length=0.125*cex/1.5)
+                      code=3, col=if (partial.residuals) band.colors[1] else colors[.modc(2)], 
+                      length=0.125*cex/1.5)
             }
             else if(ci.style == "lines") {
               effect.llines(x[good], lower[good], lty=2, col=colors[.modc(2)])
@@ -463,7 +464,7 @@ plot.eff <- function(x, x.var, z.var=which.min(levels),
             if (ci.style == "bars"){
               larrows(x0=x[good], y0=lower[good],
                       x1=x[good], y1=upper[good],
-                      angle=90, code=3, col=eval(colors[.modc(2)]),
+                      angle=90, code=3, col=if (partial.residuals) band.colors[1] else colors[.modc(2)],
                       length=.125*cex/1.5)
             }
             else if(ci.style == "lines") {
@@ -768,7 +769,8 @@ plot.eff <- function(x, x.var, z.var=which.min(levels),
         if (has.se){
           if (ci.style == "bars"){
             larrows(x0=x[good], y0=lower[subscripts][good], x1=x[good], y1=upper[subscripts][good],
-                    angle=90, code=3, col=colors[.modc(2)], length=0.125*cex/1.5)
+                    angle=90, code=3, col=if (partial.residuals) band.colors[1] else colors[.modc(2)], 
+                    length=0.125*cex/1.5)
           }
           else if(ci.style == "lines") {
             effect.llines(x[good], lower[subscripts][good], lty=2, col=colors[.modc(2)])
@@ -884,7 +886,7 @@ plot.eff <- function(x, x.var, z.var=which.min(levels),
           if (ci.style == "bars"){
             larrows(x0=x[good], y0=lower[subscripts][good],
                     x1=x[good], y1=upper[subscripts][good],
-                    angle=90, code=3, col=eval(colors[.modc(2)]),
+                    angle=90, code=3, col=if (partial.residuals) band.colors[1] else colors[.modc(2)],
                     length=.125*cex/1.5)
           }
           else if(ci.style == "lines") {
