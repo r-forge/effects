@@ -374,10 +374,10 @@ plot.eff <- function(x, x.var, z.var=which.min(levels),
           }
           if (partial.residuals){
             x.fit <- as.numeric(x.data[good, predictor])
-            partial.res <- y[as.numeric(x.fit)] + residuals[good]
+            partial.res <- y[x.fit] + residuals[good]
             lpoints(jitter(x.fit, factor=0.5), partial.res, col=residuals.color, pch=residuals.pch, cex=residuals.cex)
             if (smooth.residuals && length(partial.res) != 0) {
-              lpoints(1:n.lev, tapply(partial.res, x.fit, average.resid), pch=16, cex=1.25, col=residuals.color)
+              lpoints(1:n.lev, tapply(partial.res, x.fit, average.resid), pch=16, cex=residuals.cex*1.25, col=residuals.color)
             }
           }
           effect.llines(x[good], y[good], lwd=lwd, col=colors[1], lty=lines, type='b', pch=19, cex=cex, ...)
@@ -796,7 +796,7 @@ plot.eff <- function(x, x.var, z.var=which.min(levels),
             lpoints(jitter(as.numeric(x.fit[use]), 0.5), partial.res, col=residuals.color, pch=residuals.pch, cex=residuals.cex)
             if (show.fitted) lpoints(x.fit[use], fitted, pch=16, col=residuals.color)  # REMOVE ME
             if (smooth.residuals && n.in.panel != 0) {
-              lpoints(1:n.lev, tapply(partial.res, x.fit[use], average.resid), pch=16, cex=1.25, col=residuals.color)
+              lpoints(1:n.lev, tapply(partial.res, x.fit[use], average.resid), pch=16, cex=1.25*residuals.cex, col=residuals.color)
             }
             if (id.n > 0){
               M <- cbind(trans(x.fit[use]), partial.res)
