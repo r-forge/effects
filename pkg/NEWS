@@ -8,7 +8,7 @@ Version 4.0-2
  
  o lty was ignored for multiplot with factor on x-axis; now fixed (reported by Krisztian Magori).
  
- o Small fixes.
+ o Small fixes and improvements.
 
 Version 4.0-1
  
