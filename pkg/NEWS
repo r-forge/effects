@@ -6,6 +6,8 @@ Version 4.0-2
  
  o Fixed a bug due to new complete arg in vcov.lm() and vcov.glm().
  
+ o lty was ignored for multiplot with factor on x-axis; now fixed (reported by Krisztian Magori).
+ 
  o Small fixes.
 
 Version 4.0-1

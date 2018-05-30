@@ -33,6 +33,7 @@
 # 2018-01-02: Rewrote find.legend columns, lines 41-44
 # 2018-01-30: enlarged text in key titles
 # 2018-05-14: support plotting partial residuals against a factor on the horizontal axis in plot.lm()
+# 2018-05-29: lty was ignored for multiplot with factor on x-axis; fixed (reported by Krisztian Magori)
 
 # the following functions aren't exported
 
@@ -808,7 +809,7 @@ plot.eff <- function(x, x.var, z.var=which.min(levels),
             }
           }
         }
-        effect.llines(x[good], y[good], lwd=lwd, type='b', col=colors[1], pch=19, cex=cex, ...)
+        effect.llines(x[good], y[good], lwd=lwd, lty=lines, type='b', col=colors[1], pch=19, cex=cex, ...)
         if (has.thresholds){
           panel.abline(h=thresholds, lty=3)
           panel.text(rep(current.panel.limits()$xlim[1], length(thresholds)),
