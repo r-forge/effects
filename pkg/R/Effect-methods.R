@@ -7,7 +7,7 @@ Effect.lme <- function(focal.predictors, mod, ...){
     call = mod$call,
     formula = mod$call$fixed,
     coefficients = mod$coefficients$fixed,
-    vcov = as.matrix(vcov(mod)))
+    vcov = mod$varFixed)
   Effect.default(focal.predictors, mod, ..., sources=args)
 }
 

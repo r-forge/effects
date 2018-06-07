@@ -150,7 +150,7 @@ allEffects(nes2a)
 
 # betareg from the betareg package
 library(betareg)
-library(effects4)
+library(lme4)
 data("GasolineYield", package = "betareg")
 gy_logit <- betareg(yield ~ batch + temp, data = GasolineYield)
 summary(gy_logit)

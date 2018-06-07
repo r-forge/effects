@@ -8,6 +8,7 @@
 # 2018-01-09 fixed bug in predictorEffects.default with log() in a formula.
 # 2018-01-24 fixed bug with minus sign in a formula predictorEffects.default
 # 2018-05-14 predictorEffect.default() calls Effect() with x.var=1
+# 2018-06-07 predictorEffects now works with offsets.
 
 predictorEffect <- function(predictor, mod, xlevels, ...){
   UseMethod("predictorEffect", mod)
@@ -45,15 +46,26 @@ predictorEffects <- function(mod, predictors, ...){
   UseMethod("predictorEffects", mod)
 }
 
+
 # rewritten, simplified, 12/08/17, bug in formulas fixed 01/24/2018
 predictorEffects.default <- function(mod, predictors = ~ ., ...) {
-  mform <- Effect.default(NULL, mod)  # returns the fixed-effect formula for any method
+# The next function removes offset(s) from a formula, used for mform and cform
+  no.offset <- function(x, preserve = NULL) {
+    k <- 0
+    proc <- function(x) {
+      if (length(x) == 1) return(x)
+      if (x[[1]] == as.name("offset") && !((k<<-k+1) %in% preserve)) return(x[[1]])
+      replace(x, -1, lapply(x[-1], proc))
+    }
+    update(proc(x), . ~ . - offset)}
+  mform <- no.offset(Effect.default(NULL, mod))  # returns the fixed-effect formula for any method
   cform <- if(is.character(predictors)) 
     as.formula(paste("~", paste(predictors, collapse="+"))) else
       predictors
   cform <- update(as.formula(paste(". ~", 
                 paste(all.vars(formula(mform)[[3]]), collapse="+"))), 
                 cform)
+  cform <- no.offset(cform)
   mvars <- all.vars(mform[[3]])
   cvars <- all.vars(cform[[3]])
 # check that 'cvars' is a subset of 'mvars'. If so apply predictorEffect
