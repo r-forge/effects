@@ -30,8 +30,8 @@
 # 2018-05-01: dropped the use of the weights argument; it wasn't used anyway.
 # 2018-05-06: allow for complete=FALSE arg in potential calls to vcov.lm() and vcov.glm.
 # 2018-05-13: allow partial residuals to be computed when the x.var is a factor.
-# 2018-06-05: Effect.default now makes sure ais and dev.resid elements of 
-#             families are set, for use with non-standard families.
+# 2018-06-05: Effect.default now makes sure family$ais is 
+#             set, for use with non-standard families.
 # 2018-06-05: A test has been added to Effect.default to chech if family$variance
 #             has one parameter.  If not, the function is stopped and an error is
 #             returned.
@@ -88,32 +88,27 @@ Effect <- function(focal.predictors, mod, ...){
 # 2017-12-04 new Effect.default that actually works
 # 2017-12-07 added Effects.lme, .mer, gls that work
 
-Effect.default <- function(focal.predictors, mod, ..., sources=NULL){  
-# get formula from sources if present esle from mod
+Effect.default <- function(focal.predictors, mod, ..., sources=NULL){ 
+# get formula from sources if present else from mod
   formula <- fixFormula(
-    if(is.null(sources$formula)) formula(mod) else sources$formula)
+        if(is.null(sources$formula)) formula(mod) else sources$formula)
 # the next line returns the formula if focal.predictors is null
   if(is.null(focal.predictors)) return(formula)
+# get the call
+  cl <- if(is.null(sources$call)) {if(isS4(mod)) 
+        mod@call else mod$call} else sources$call
+# insert formula into the call
+  cl$formula <- formula
 # set type == 'glm' unless it is set in sources
   type <- if(is.null(sources$type)) "glm" else sources$type
 # glm family from sources if set, else set fam to NULL
   fam <- if(!is.null(sources$family)) sources$family else NULL
-# betareg has a link function but no family.  If link is set, embed it in a family
-# using the make.link function if necessary
-  if(!is.null(sources$link) & is.null(sources$family))
-    fam <- if(is.character(sources$link)) 
-      make.link(sources$link) else sources$link
-# recover the call from sources if present, else from mod
-  cl <- if(is.null(sources$call)) {if(isS4(mod)) 
-    mod@call else mod$call} else sources$call
 # get the coefficient estimates and vcov from sources if present
   coefficients <- if(is.null(sources$coefficients)) 
     coef(mod) else sources$coefficients
   vcov <- if(is.null(sources$vcov)) 
     as.matrix(vcov(mod, complete=TRUE)) else sources$vcov
-# end setting sources
-# update the formula in cl from formula, computed above
-  cl$formula <- formula
+# end reading sources
 # set control parameters: suggested by Nate TeGrotenhuis
   cl$control <- switch(type,
           glm = glm.control(epsilon=1, maxit=1),
@@ -123,8 +118,7 @@ Effect.default <- function(focal.predictors, mod, ..., sources=NULL){
   if(!is.null(fam)) cl$family <- fam
   if(!is.null(cl$family))
     applyDefaults(cl$family,
-                  list(dev.resids=function(...) NULL,
-                       aic=function(...) NULL),
+                  list(aic=function(...) NULL),
                   arg="fix.family")
 # check to be sure the variance function in the family has one argument only,
 # otherwise this method won't work

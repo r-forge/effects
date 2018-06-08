@@ -1,5 +1,7 @@
-# 12/11/2017:  This file contains all the Effect methods that call Effect.default.  S. Weisberg
-#              Excluded are Effect.lm, Effect.polr, and Effect.multinom, and for now Effect.svyglm.
+# 12/11/2017:  S. Weisberg.  This file contains all the Effect methods that call
+# Effect.default.  Excluded are Effect.lm, Effect.polr, and Effect.multinom, 
+# and for now Effect.svyglm.
+# 06/08/2018: rewrote method for betareg, removing the 'link' argument from sources
 
 # new lme method
 Effect.lme <- function(focal.predictors, mod, ...){
@@ -109,13 +111,21 @@ Effect.clmm <- function(focal.predictors, mod, ...){
 Effect.betareg <- function(focal.predictors, mod, ...){
   coef <- mod$coefficients$mean
   vco <- vcov(mod)[1:length(coef), 1:length(coef)]
+# betareg uses beta errors with mean link given in mod$link$mean.  
+# We construct a family function based on the binomial() family with
+  fam <- binomial(link=mod$link$mean)
+# adjust the varince function to account for beta variance
+  fam$variance <- function(mu){
+    f0 <- function(mu, eta) (1-mu)*mu/(1+eta)
+    do.call("f0", list(mu, mod$coefficient$precision))}
+  fam$initialize <- expression({mustart <- y})
+  fam$aic <- function(...) NULL
   args <- list(
     call = mod$call,
     formula = formula(mod),
+    family=fam,
     coefficients = coef,
-    link = mod$link$mean,
     vcov = vco)
   Effect.default(focal.predictors, mod, ..., sources=args)
 }
-
 

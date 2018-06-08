@@ -18,6 +18,7 @@
 \usepackage{alltt}
 \usepackage{fancyvrb}
 \usepackage{natbib}
+\usepackage{amsmath}
 \VerbatimFootnotes
 \bibliographystyle{chicago}
 %\usepackage{amsmath,amsfonts,amssymb}
@@ -109,7 +110,6 @@ Effect.gls <- function(focal.predictors, mod, ...){
     call = mod$call,
     formula = formula(mod),
     family = family(mod),
-    link = NULL,
     coefficients = coef(mod),
     vcov = as.matrix(vcov(mod)))
   Effect.default(focal.predictors, mod, ..., sources=args)
@@ -117,14 +117,13 @@ Effect.gls <- function(focal.predictors, mod, ...){
 @
 This function sets an argument \code{sources} that is then passed to the default \code{Effect.default}.  The argument \code{focal.predictors} will be used to pass the focal predictors to other methods.  The \code{mod} argument is the name of the regression object that has been created.  The \code{...} argument allows passing other arguments to the default method.  
 
-The argument \code{sources} to \code{Effect.default} contains the information needed in a list of up to five arguments:
+The primary purpose of the function shown above is to set the list \code{sources} to be sent to \code{Effect.default}.  The \code{sources} list has up to six named values:
 \begin{description}
-\item[\texttt{type}] The \code{effects} package has three basic modeling functions:  \code{type = "glm"}, the default, is used for functions with a univariate response and a linear predictor and possibly a link function.  This class includes linear models, generalized linear models, robust regression, generalized least squares fitting, linear and generalized linear mixed effects models and many others. The \code{type = "polr"} is used for ordinal regression models, as in the \code{polr} function in the \code{MASS} package, and similar methods in Section~\ref{polr}.  The The \code{type = "multinom"} for multinomial log-linear models as fit by the \code{multinom} function in \code{nnet}, and to polytomous latent class models created with the \code{poLCA} function in the \pkg{poLCA} package.
-\item[\code{call}] The \code{Effect.default} method uses the call to harvest additional arguments that it needs, such as \code{data}, \code{subset} and \code{family}.  These are used to compute fitted values, and to interpret the terms in the formula for the linear predictor.  The default is \code{mod\$call} for S3 objects and \code{mod@call} for S4 objects.
+\item[\texttt{type}] The \code{effects} package has three basic modeling functions:  \code{type = "glm"}, the default, is used for functions with a univariate response and a linear predictor and possibly a link function.  This class includes linear models, generalized linear models, robust regression, generalized least squares fitting, linear and generalized linear mixed effects models and many others. The \code{type = "polr"} is used for ordinal regression models, as in the \code{polr} function in the \code{MASS} package, and similar methods described below in Section~\ref{polr}.  The The \code{type = "multinom"} for multinomial log-linear models as fit by the \code{multinom} function in \code{nnet}, and to polytomous latent class models created with the \code{poLCA} function in the \pkg{poLCA} package.
+\item[\code{call}] The \code{Effect.default} method uses the call to harvest additional arguments that it needs.  For \code{type="glm"}, these arguments are \code{formula}, \code{data}, \code{contrasts},  \code{subset},
+\code{family}, and \code{offset}.  The default is \code{mod\$call} for S3 objects and \code{mod@call} for S4 objects.
 \item[\code{formula}] In most cases the formula for the linear predictor is returned by \code{formula(mod)}, the default, but if this is not the case the value of this argument should be the value of the formula for fixed effects.
-\item[\code{family} and \code{link}] GLM-like models include a \code{family} specifying both an error distrubtion and a link function.  If the call \code{family(mod)} returns a family, you do not need to specify either of these values.  The \code{betareg} function, on the other hand, fixes the error distribution as a Beta distribution, but it does include a link function using a \code{link} arguement.  In this case, you must specify the link function; see the \code{betareg} example in Section~\ref{betareg} below.  If you have a family, but it is not returned by \code{family(mod)}, use the \code{family} argument to specify it.
-
-\textcolor{red}{At present, non-canonical families like the negative binomial with two parameters in the variance function are not supported.  This may be changed in the future.}
+\item[\code{family}] GLM-like models include a \code{family} specifying both an error distrubtion and a link function. If the family is returned by \code{family(mod)}, you do not need to specify this argument.  See the \code{betareg} example in Section~\ref{betareg} below for an example of using this argument.  
 \item[\code{coefficients}] In many cases the (fixed-effect) coefficient estimates are returned by \code{coef(mod)}, the default, but if this is not the case then the value of this argument should be the estimates of the coefficients in the linear predictor. The functions in the \pkg{effects} package do not use estimates of random effects.
 \item[\code{vcov}] In many cases the estimated covariance matrix of the (fixed-effect) coefficient estimates is  returned by \code{vcov(mod)}, the default, but if this is not the case then the value of this argument should be the estimated covariance matrix of the (fixed-effect) coefficient estimates in the linear predictor.
 \end{description}
@@ -135,14 +134,13 @@ The \code{lme} function in the \pkg{nlme} package \citep{nlme} fits linear mixed
 <<eval=FALSE>>=
 Effects.lme <- function(focal.predictors, mod, ...){
   args <- list(
-    call = mod$call,
     formula = mod$call$fixed,
     coefficients = mod$coefficients$fixed,
     vcov = mod$varFix)
   Effect.default(focal.predictors, mod, ..., sources=args)
 }
 @
-The \code{formula}, \code{coefficients} and \code{vcov} arguments do not have the default values, but an be obtained from the fitted model \code{mod} as shown.  The \code{link} entry in \code{sources} is not used b \code{lme} and is given its default value of \code{NULL}.  The \code{call} argument is set to be its default value.  
+The \code{formula}, \code{coefficients} and \code{vcov} arguments are set to non-default values.  The remaining arguments are default values.  
 
 \section{Mixed Effects with the \code{lmer} (\code{lme4} package)}
 The \code{lme4} package \citep{Bates15} fits linear and generalized linear mixed effects models with the \code{lmer} and \code{glmer} functions, respectively.  The same \code{Effect} function can be used for \code{lmer} and \code{glmer} models.  
@@ -163,7 +161,7 @@ Effect.merMod <- function(focal.predictors, mod, ..., KR=FALSE){
   Effect.default(focal.predictors, mod, ..., sources=args)
 }
 @
-Because \code{lmer} is an S4 object (tested using the \code{isS4} function), the default for \code{call} is \code{mod@call}, and this argument would have been set authomatically had we not included it in the above fucntion.  The \code{coefficient} for an object created by a call to \code{lmer} or \code{glimer} are not returned by \code{coef(mod)}, so the value of \code{coefficients} is the value returned by \code{lme4::fixef(mod)}.  The \code{vcov} estimate contains its estimated variance covariance matrix of the fixed effects.
+Because \code{lmer} is an S4 object (tested using the \code{isS4} function), the default for \code{call} is \code{mod@call}, and this argument would have been set automatically had we not included it in the above fucntion.  The \code{coefficient} for an object created by a call to \code{lmer} or \code{glimer} are not returned by \code{coef(mod)}, so the value of \code{coefficients} is the value returned by \code{lme4::fixef(mod)}.  The \code{vcov} estimate contains its estimated variance covariance matrix of the fixed effects.
 
 The \code{formula} for a mixed-effects model in the \code{lme4} package specifies both the linear predictor in the mean function and the linear predictor(s) in the variance functions in terms with parentheses and and vertical bars such as \code{(1 + age | subject)}.  The \code{effects} code will automatically remove any terms like these in any formula.
 
@@ -183,16 +181,29 @@ The \code{betareg} function in the \code{betareg} package \citep{betareg} fits r
 Effect.betareg <- function(focal.predictors, mod, ...){
   coef <- mod$coefficients$mean
   vco <- vcov(mod)[1:length(coef), 1:length(coef)]
+# betareg uses beta errors with mean link given in mod$link$mean.  
+# We construct a family function based on the binomial() family with
+  fam <- binomial(link=mod$link$mean)
+# adjust the varince function to account for beta variance
+  fam$variance <- function(mu){
+    f0 <- function(mu, eta) (1-mu)*mu/(1+eta)
+    do.call("f0", list(mu, mod$coefficient$precision))}
+  fam$initialize <- expression({mustart <- y})
+  fam$aic <- function(...) NULL
   args <- list(
     call = mod$call,
     formula = formula(mod),
+    family=fam,
     coefficients = coef,
-    link = mod$link$mean,
     vcov = vco)
   Effect.default(focal.predictors, mod, ..., sources=args)
 }
 @
-The Beta distributions require estimation of the parameters of the Beta, but these are not used by \code{Effect}.  The relevant coefficients and covariance matrix are extracted by the first two lines of the function.  This method has a link function specified by the \code{link} argument, but no family, so the \code{link} argument is added to \code{sources}.  
+Beta regression has a response $y \in [0,1]$, with the connection between the mean $\mu$ of the Beta and a set for predictors $\x$ through a link function $\x'\bbeta = g(\mu)$.  The variance function for the beta is $\mathrm{var}(y) = \mu(1-\mu)/(1+\phi)$, for a precision parameter $\phi$ estimated by \code{betareg}.
+
+The call to \code{betareg} does not have a family argument, although it does have a link stored in \code{mod\$link\$mean}.  For use with \code{Effect.default}, the function above creates a family from the binomial family generator.  It then adjusts this family by changing from binomial variance to the variance for the beta distribtuion. Since the \code{glm} function expects a variance that is a function of only one parameter, we fix the value of the precision $\phi$ at its estimator from the \code{betareg} fit, as shown in the funciton.  We need to replace the \code{initialize} function to one appropriate for $y \in [0,1]$.  Finally, although the \code{aic} function is not used for computing effects, it is accessed by the call to \code{glm}.  The \code{aic} function for the binomial depends on named parameters not present in the beta regression, and so we substitute a dummy function for binomial version.
+
+   
 
 \section{Ordinal Models (\pkg{ordinal} package)}\label{polr}
 Proportional odds logit and probit regression models fit with the \code{polr} function in the \code{MASS} package \citep{VenablesRipley02} are supported in the \code{effects} package.  The \code{ordinal} package, \citep{Christensen15} contains three functions that are very similar to \code{polr}.  The \code{clm} and \code{clm2} functions allow more link functions and a number of other generalizations.  The \code{clmm} function allows including random effects.
