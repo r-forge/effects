@@ -48,7 +48,7 @@ mfrow <- function(n, max.plots=0){
 }
 
 expand.model.frame <- function (model, extras, envir = environment(formula(model)),
-                                na.expand = FALSE){  # modified version of R base function
+                        na.expand = FALSE){  # modified version of R base function
   f <- formula(model)
   data <- eval(model$call$data, envir)
   ff <- foo ~ bar + baz
