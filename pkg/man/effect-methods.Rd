@@ -116,16 +116,27 @@ gm1 <- glmer(cbind(incidence, size - incidence) ~ period + (1 | herd),
 as.data.frame(predictorEffect("period", gm1))
 
 # rlmer  uses method Effect.rlmerMod
-require(robustlmm)
-fm3 <- rlmer(distance ~ age + Sex + (1 |Subject), data = Orthodont)
+require(lme4)
+fm3 <- robustlmm::rlmer(distance ~ age + Sex + (1 |Subject), data = Orthodont)
 plot(effect("age:Sex", fm3))
 plot(predictorEffects(fm3, ~ age + Sex))
+
+# betareg from the betareg package
+library(betareg)
+library(lme4)
+data("GasolineYield", package = "betareg")
+gy_logit <- betareg(yield ~ batch + temp, data = GasolineYield)
+summary(gy_logit)
+Effect("batch", gy_logit)
+predictorEffects(gy_logit)
 
 # clm in ordinal
 require(ordinal)
 require(MASS)
-mod.wvs1 <- clm(poverty ~ gender + religion + degree + country*poly(age,3),data=WVS)
-plot(Effect(c("country", "age"), mod.wvs1), lines=list(multiline=TRUE))
+mod.wvs1 <- clm(poverty ~ gender + religion + degree + country*poly(age,3),
+    data=WVS)
+plot(Effect(c("country", "age"), mod.wvs1), lines=list(multiline=TRUE),
+    layout=c(2, 2))
 
 # clm2
 require(ordinal)
@@ -148,14 +159,12 @@ f2a <- cbind(MORALG,CARESG,KNOWG,LEADG,DISHONG,INTELG,
 nes2a <- poLCA(f2a,election,nclass=3,nrep=5)    # log-likelihood: -16222.32
 allEffects(nes2a)
 
-# betareg from the betareg package
-library(betareg)
-library(lme4)
-data("GasolineYield", package = "betareg")
-gy_logit <- betareg(yield ~ batch + temp, data = GasolineYield)
-summary(gy_logit)
-Effect("batch", gy_logit)
-predictorEffects(gy_logit)
+# multivariate linear model
+data(Baumann, package="carData")
+b1 <- lm(cbind(post.test.1, post.test.2, post.test.3) ~ group + 
+    pretest.1 + pretest.2, data = Baumann))
+plot(Effect("group", b1)
+
 }
 }
 

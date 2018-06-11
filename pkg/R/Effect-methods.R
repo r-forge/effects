@@ -32,6 +32,7 @@ Effect.merMod <- function(focal.predictors, mod, ..., KR=FALSE){
   args <- list(
     call = mod@call,
     coefficients = lme4::fixef(mod),
+    family=fam,
     vcov = if (fam == "gaussian" && fam$link == "identity" && KR)
       as.matrix(pbkrtest::vcovAdj(mod)) else as.matrix(vcov(mod)))
   Effect.default(focal.predictors, mod, ..., sources=args)
@@ -40,7 +41,8 @@ Effect.merMod <- function(focal.predictors, mod, ..., KR=FALSE){
 # rlmer in robustlmm package
 Effect.rlmerMod <- function(focal.predictors, mod, ...){
   args <- list(
-    coefficients = lme4::fixef(mod))
+    coefficients = lme4::fixef(mod),
+    family=family(mod))
   Effect.default(focal.predictors, mod, ..., sources=args)
 }
 
@@ -112,14 +114,14 @@ Effect.betareg <- function(focal.predictors, mod, ...){
   coef <- mod$coefficients$mean
   vco <- vcov(mod)[1:length(coef), 1:length(coef)]
 # betareg uses beta errors with mean link given in mod$link$mean.  
-# We construct a family function based on the binomial() family with
+# Construct a family based on the binomial() family
   fam <- binomial(link=mod$link$mean)
 # adjust the varince function to account for beta variance
   fam$variance <- function(mu){
     f0 <- function(mu, eta) (1-mu)*mu/(1+eta)
     do.call("f0", list(mu, mod$coefficient$precision))}
+# adjust initialize
   fam$initialize <- expression({mustart <- y})
-  fam$aic <- function(...) NULL
   args <- list(
     call = mod$call,
     formula = formula(mod),

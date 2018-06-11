@@ -102,7 +102,16 @@ Effect.default <- function(focal.predictors, mod, ..., sources=NULL){
 # set type == 'glm' unless it is set in sources
   type <- if(is.null(sources$type)) "glm" else sources$type
 # glm family from sources if set, else set fam to NULL
-  fam <- if(!is.null(sources$family)) sources$family else NULL
+  if(!is.null(sources$family)){
+    fam <- sources$family
+    fam$aic <- function(...) NULL
+    # check to be sure the variance function in the family has one argument only,
+    # otherwise this method won't work
+    if(!is.null(fam$variance)){
+      if(length(formals(fam$variance)) > 1)
+        stop("Effect plots are not implemented for families with more than
+             one parameter in the variance function (e.g., negitave binomials).")}
+  } else {fam <- NULL}
 # get the coefficient estimates and vcov from sources if present
   coefficients <- if(is.null(sources$coefficients)) 
     coef(mod) else sources$coefficients
@@ -114,27 +123,17 @@ Effect.default <- function(focal.predictors, mod, ..., sources=NULL){
           glm = glm.control(epsilon=1, maxit=1),
           polr = list(maxit=1),
           multinom = c(maxit=1))
-# set the family argument in cl, and add functions to make glm.fit succeed
-  if(!is.null(fam)) cl$family <- fam
-  if(!is.null(cl$family))
-    applyDefaults(cl$family,
-                  list(aic=function(...) NULL),
-                  arg="fix.family")
-# check to be sure the variance function in the family has one argument only,
-# otherwise this method won't work
-  if(!is.null(cl$family$variance)){
-  if(length(formals(cl$family$variance)) > 1)
-    stop("Effect plots are not implemented for families with more than
-  one parameter in the variance function (e.g., negitave binomials).")}
   .m <- switch(type,
                glm=match(c("formula", "data", "contrasts",  "subset",
-                "family", "control", "offset"), names(cl), 0L),
+                "control", "offset"), names(cl), 0L),
                polr=match(c("formula", "data", "contrasts",  "subset",
                 "control"), names(cl), 0L),
                multinom=match(c("formula", "data", "contrasts",  "subset",
                 "family", "maxit", "offset"), names(cl), 0L))
   cl <- cl[c(1L, .m)]
+  if(!is.null(fam)) cl$family <- fam
   cl[[1L]] <- as.name(type)
+  if(!is.null(fam)) cl$family <- fam
 # The following eval creates on object of class glm, polr or multinom.  
 # These are crated to avoid writing an Effects method for every type of model.  
 # The only information used from this "fake" object are the coefficients and 
