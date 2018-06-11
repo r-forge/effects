@@ -103,7 +103,7 @@ Effect.clmm <- function(focal.predictors, mod, ...){
   vcov[1:numBeta, 1:numBeta] <- vcov(mod)[sel, sel]
   args <- list(
     type = "polr",
-    formula = fixFormula(as.formula(mod$formula)),
+    formula = mod$formula,
     coefficients = mod$beta,
     vcov = as.matrix(vcov))
   Effect.default(focal.predictors, mod, ..., sources=args)
