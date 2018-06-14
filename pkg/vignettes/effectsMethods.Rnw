@@ -284,8 +284,8 @@ require(ordinal)
 require(MASS)
 mod.wvs1 <- clm(poverty ~ gender + religion + degree + country*poly(age,3),
     data=WVS)
-plot(Effect(c("country", "age"), mod.wvs1), lines=list(multiline=TRUE),
-    layout=c(2, 2))
+plot(Effect(c("country", "age"), mod.wvs1), 
+     lines=list(multiline=TRUE), layout=c(2, 2))
 @
 
 \subsection{\code{clm2}}

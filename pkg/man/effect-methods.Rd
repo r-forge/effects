@@ -58,7 +58,7 @@
 
       \item{family}{if the model object includes an error family, but it is not returned by \code{family(object)}, specify the family with this argument; otherwise it can be ignored.}
 
-      \item{link}{if the model object has a link function but not a family, specify the link with this argument; otherwise it can be ignored.}
+      \item{method}{For ordinal response models only, see the \code{method} argument to \code{\link{polr}}.}
 
       \item{coefficients}{The estimates of the coefficents in the linear predictor, with default \code{coef(object)}.}
 
@@ -135,21 +135,21 @@ require(ordinal)
 require(MASS)
 mod.wvs1 <- clm(poverty ~ gender + religion + degree + country*poly(age,3),
     data=WVS)
-plot(Effect(c("country", "age"), mod.wvs1), lines=list(multiline=TRUE),
-    layout=c(2, 2))
+plot(Effect(c("country", "age"), mod.wvs1), 
+     lines=list(multiline=TRUE), layout=c(2, 2))
 
 # clm2
 require(ordinal)
 require(MASS)
 v2 <- clm2(poverty ~ gender + religion + degree + country*poly(age,3),data=WVS)
-as.data.frame(emod2 <- Effect(c("country", "age"), v2))
+plot(emod2 <- Effect(c("country", "age"), v2))
 
 # clmm
 require(ordinal)
 require(MASS)
-mm1 <- clmm(SURENESS ~ PROD + (1|RESP) + (1|RESP:PROD), data = soup,
-            link = "logit", threshold = "flexible")
-plot(Effect("PROD", mm1))
+mm1 <- clmm(SURENESS ~ PROD + (1|RESP) + (1|RESP:PROD), 
+        data = soup, link = "logit", threshold = "flexible")
+plot(Effect("PROD", mm1),lines=list(multiline=TRUE))
 
 # poLCA
 library(poLCA)
