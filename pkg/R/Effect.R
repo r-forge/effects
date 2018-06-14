@@ -27,7 +27,6 @@
 # 2017-12-10: Effect.default. Effect.mer, .merMod, .lme, gls have been replaced to use the default.
 # 2018-01-22: allow given.values="equal" or given.values="default" 
 # 2018-01-25: substitute se for confint arg; make confint a legacy arg
-# 2018-05-01: dropped the use of the weights argument; it wasn't used anyway.
 # 2018-05-06: allow for complete=FALSE arg in potential calls to vcov.lm() and vcov.glm.
 # 2018-05-13: allow partial residuals to be computed when the x.var is a factor.
 # 2018-06-05: Effect.default now makes sure family$ais is 
@@ -35,6 +34,7 @@
 # 2018-06-05: A test has been added to Effect.default to chech if family$variance
 #             has one parameter.  If not, the function is stopped and an error is
 #             returned.
+# 2018-06-12: Fixed bug with vcov in Effect.default
 
 ### Non-exported function added 2018-01-22 to generalize given.values to allow for "equal" weighting of factor levels for non-focal predictors.
 .set.given.equal <- function(m){
@@ -123,11 +123,12 @@ Effect.default <- function(focal.predictors, mod, ..., sources=NULL){
           glm = glm.control(epsilon=1, maxit=1),
           polr = list(maxit=1),
           multinom = c(maxit=1))
+  cl$method <- sources$method # NULL except forntype=="polr"
   .m <- switch(type,
                glm=match(c("formula", "data", "contrasts",  "subset",
                 "control", "offset"), names(cl), 0L),
                polr=match(c("formula", "data", "contrasts",  "subset",
-                "control"), names(cl), 0L),
+                "control", "method"), names(cl), 0L),
                multinom=match(c("formula", "data", "contrasts",  "subset",
                 "family", "maxit", "offset"), names(cl), 0L))
   cl <- cl[c(1L, .m)]
@@ -147,9 +148,10 @@ Effect.default <- function(focal.predictors, mod, ..., sources=NULL){
                         prior.weights * (family$mu.eta(linear.predictors)^2 /
                                         family$variance(fitted.values))))}
   class(mod2) <- c("fakeeffmod", class(mod2))
-  vcov.fakeeffmod <- function(object, ...) object$vcov
-  Effect(focal.predictors, mod2, ...)  # call the glm method
+  Effect(focal.predictors, mod2, ...)  # call the glm/polr/multinom method
 }
+
+vcov.fakeeffmod <- function(object, ...) object$vcov
 
 ## This function removes terms with "|" or "||" in the formula, assumking these
 ## correspond to random effects.

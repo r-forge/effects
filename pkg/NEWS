@@ -1,6 +1,6 @@
 Version 4.0-2
 
- o Fixed bug with offsets in predictorEffects.
+ o Fixed bug with offsets in predictorEffects and a bug with variances in Effect.default.
  
  o Support partial-residual plots when the predictor on the horizontal axis is a factor.
 

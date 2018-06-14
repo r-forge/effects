@@ -49,9 +49,15 @@ Effect.rlmerMod <- function(focal.predictors, mod, ...){
 # clm in the ordinal package
 Effect.clm <- function(focal.predictors, mod, ...){
   if (requireNamespace("MASS", quietly=TRUE)){
-    polr <- MASS::polr}
-  if(mod$link != "logit") stop("Effects only supports the logit link")
-  if(mod$threshold != "flexible") stop("Effects only supports the flexible threshold")
+    polr <- MASS::polr} else stop("MASS package is required")
+  polr.methods <- c("logistic", "probit", "loglog", 
+                    "cloglog", "cauchit")
+  method <- mod$link
+  if(method == "logit") method <- "logistic"
+  if(!(method %in% polr.methods)) 
+    stop("'link' must be a 'method' supported by polr; see help(polr)")
+  if(mod$threshold != "flexible") 
+    stop("Effects only supports the 'flexible' threshold")
   if(is.null(mod$Hessian)){
     message("\nRe-fitting to get Hessian\n")
     mod <- update(mod, Hess=TRUE)}
@@ -61,6 +67,7 @@ Effect.clm <- function(focal.predictors, mod, ...){
   args <- list(
     type = "polr",
     coefficients = mod$beta,
+    method=method,
     vcov = as.matrix(vcov(mod)[or, or]))
   Effect.default(focal.predictors, mod, ..., sources=args)
 }
@@ -69,11 +76,16 @@ Effect.clm <- function(focal.predictors, mod, ...){
 Effect.clm2 <- function(focal.predictors, mod, ...){
   if (requireNamespace("MASS", quietly=TRUE)){
       polr <- MASS::polr}
+  polr.methods <- c("logistic", "probit", "loglog", 
+                    "cloglog", "cauchit")
+  method <- mod$link
+  if(!(method %in% polr.methods)) 
+    stop("'link' must be a 'method' supported by polr; see help(polr)")
   if(is.null(mod$Hessian)){
      message("\nRe-fitting to get Hessian\n")
      mod <- update(mod, Hess=TRUE)}
-  if(mod$link != "logistic") stop("Effects only supports the logit link")
-  if(mod$threshold != "flexible") stop("Effects only supports the flexible threshold")
+  if(mod$threshold != "flexible") 
+    stop("Effects only supports the flexible threshold")
   numTheta <- length(mod$Theta)
   numBeta <- length(mod$beta)
   or <- c( (numTheta+1):(numTheta + numBeta), 1:(numTheta))
@@ -81,31 +93,37 @@ Effect.clm2 <- function(focal.predictors, mod, ...){
     type = "polr",
     formula = mod$call$location,
     coefficients = mod$beta,
+    method=method,
     vcov = as.matrix(vcov(mod)[or, or]))
   Effect.default(focal.predictors, mod, ..., sources=args)
 }
 
 #clmm in ordinal package
-Effect.clmm <- function(focal.predictors, mod, ...){
+Effect.clmm <- function(focal.predictors, mod, ...){ 
   if (requireNamespace("MASS", quietly=TRUE)){
     polr <- MASS::polr}
+  else stop("The MASS package must be installed")
+  polr.methods <- c("logistic", "probit", "loglog", 
+                    "cloglog", "cauchit")
+  method <- mod$link
+  if(method == "logit") method <- "logistic"
+  if(!(method %in% polr.methods)) 
+    stop("'link' must be a 'method' supported by polr; see help(polr)")
   if(is.null(mod$Hessian)){
     message("\nRe-fitting to get Hessian\n")
     mod <- update(mod, Hess=TRUE)}
-  if(mod$link != "logit") stop("Only the logistic link is supported by Effects")
-  if(mod$threshold != "flexible") stop("Only threshold='flexible supported by Effects")
+  if(mod$threshold != "flexible") 
+    stop("Only threshold='flexible supported by Effects")
   numTheta <- length(mod$Theta)
   numBeta <- length(mod$beta)
   or <- c( (numTheta+1):(numTheta + numBeta), 1:(numTheta))
-  skip <- length(unique(model.frame(mod)[,1])) - 1
-  vcov <- matrix(NA, nrow=numBeta + skip, ncol=numBeta + skip)
-  sel <- rownames(vcov(mod)) %in% names(mod$beta)
-  vcov[1:numBeta, 1:numBeta] <- vcov(mod)[sel, sel]
+  Vcov <- as.matrix(vcov(mod)[or, or])
   args <- list(
     type = "polr",
-    formula = mod$formula,
+    formula = formula(mod),
     coefficients = mod$beta,
-    vcov = as.matrix(vcov))
+    method=method,
+    vcov = as.matrix(Vcov))
   Effect.default(focal.predictors, mod, ..., sources=args)
 }
 

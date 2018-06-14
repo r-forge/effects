@@ -149,7 +149,7 @@ require(ordinal)
 require(MASS)
 mm1 <- clmm(SURENESS ~ PROD + (1|RESP) + (1|RESP:PROD), data = soup,
             link = "logit", threshold = "flexible")
-as.data.frame(Effect("PROD", mm1))
+plot(Effect("PROD", mm1))
 
 # poLCA
 library(poLCA)
