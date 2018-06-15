@@ -4,7 +4,6 @@
 %%\VignetteEngine{knitr::knitr}
 %%\VignetteIndexEntry{Effects with other models}
 %%\VignettePackage{effects}
-%%\VignetteDepends{effects}
 
 \documentclass{article}
 
@@ -202,7 +201,7 @@ Effect.rlmerMod <- function(focal.predictors, mod, ...){
 }
 @
 
-<<fig.height=4, fig.width=8>>=
+<<eval=FALSE,fig.height=4, fig.width=8>>=
 require(lme4)
 fm3 <- robustlmm::rlmer(distance ~ age * Sex + (1 |Subject), 
                         data = Orthodont)
@@ -237,7 +236,7 @@ Beta regression has a response $y \in [0,1]$, with the connection between the me
 
 The call to \code{betareg} does not have a family argument, although it does have a link stored in \code{mod\$link\$mean}.  For use with \code{Effect.default}, the function above creates a family from the binomial family generator.  It then adjusts this family by changing from binomial variance to the variance for the beta distribtuion. Since the \code{glm} function expects a variance that is a function of only one parameter, we fix the value of the precision $\phi$ at its estimator from the \code{betareg} fit, as shown in the funciton.  We need to replace the \code{initialize} function to one appropriate for $y \in [0,1]$.  Finally, although the \code{aic} function is not used for computing effects, it is accessed by the call to \code{glm}.  The \code{aic} function for the binomial depends on named parameters not present in the beta regression, and so we substitute a dummy function for binomial version.
 
-<<fig.height=4,fig.width=8,cache=FALSE>>=
+<<eval=FALSE,fig.height=4,fig.width=8,cache=FALSE>>=
 library(betareg)
 require(lme4)
 data("GasolineYield", package = "betareg")
