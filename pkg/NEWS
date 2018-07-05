@@ -1,3 +1,7 @@
+Version 4.0-3
+
+Added cex sub-args for x and y axes (suggestion of Charles Leger) and for lattice strips.
+
 Version 4.0-2
 
  o Fixed bug with offsets in predictorEffects and a bug with variances in Effect.default.
