@@ -1,6 +1,8 @@
 Version 4.0-3
 
-Added cex sub-args for x and y axes (suggestion of Charles Leger) and for lattice strips.
+ o xlevels argument now works with predictorEffects.
+ 
+ o Added cex sub-args for x and y axes (suggestion of Charles Leger) and for lattice strips.
 
 Version 4.0-2
 
