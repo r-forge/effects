@@ -19,5 +19,5 @@ Description:
   Graphical and tabular effect displays, e.g., of interactions, for 
   various statistical models with linear predictors.
 License: GPL (>= 2)
-URL: https://www.r-project.org, http://socserv.socsci.mcmaster.ca/jfox/
+URL: https://www.r-project.org, https://socialsciences.mcmaster.ca/jfox/
 VignetteBuilder: knitr
