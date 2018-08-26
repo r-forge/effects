@@ -199,7 +199,7 @@ The call to \code{betareg} does not have a family argument, although it does hav
 require(lme4)
 @
 <<fig.height=4,fig.width=8,cache=FALSE>>=
-library(betareg)
+require(betareg)
 require(lme4)
 data("GasolineYield", package = "betareg")
 gy_logit <- betareg(yield ~ batch + temp, data = GasolineYield)

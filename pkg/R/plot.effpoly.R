@@ -15,6 +15,8 @@
 # 2018-01-02, 2018-01-30: changed defaults for key.args, lines 140-141
 # 2018-02-09: Use one-column key for stacked plot.
 # 2018-02-28: Fix handling of rug arg (error reported by Dave Armstrong).
+# 2019-07-08: add cex sub-args for x and y axes (suggestion of Charles Leger).
+# 2019-07-08: add cex sub-arg for strips.
 
 plot.effpoly <- function(x, x.var=which.max(levels), main=paste(effect, "effect plot"),
                          symbols=TRUE, lines=TRUE, axes, confint, lattice, ...,
@@ -43,12 +45,12 @@ plot.effpoly <- function(x, x.var=which.max(levels), main=paste(effect, "effect 
   
   if (missing(axes)) axes <- NULL
   axes <- applyDefaults(axes, defaults=list(
-    x=list(rotate=0, rug=TRUE),
-    y=list(lab=NULL, lim=c(NA, NA), ticks=list(at=NULL, n=5), type="probability", rotate=0),
+    x=list(rotate=0, cex=1, rug=TRUE),
+    y=list(lab=NULL, lim=c(NA, NA), ticks=list(at=NULL, n=5), type="probability", rotate=0, cex=1),
     alternating=TRUE, grid=FALSE),
     arg="axes")
   
-  x.args <- applyDefaults(axes$x, defaults=list(rotate=0, rug=TRUE), arg="axes$x")
+  x.args <- applyDefaults(axes$x, defaults=list(rotate=0, cex=1, rug=TRUE), arg="axes$x")
   
   if (missing(xlab)) {
     xlab.arg <- FALSE
@@ -68,8 +70,10 @@ plot.effpoly <- function(x, x.var=which.max(levels), main=paste(effect, "effect 
   }
   if (missing(rotx)) rotx <- x.args$rotate
   if (missing(rug)) rug <- x.args$rug
+  cex.x <- x.args$cex
   x.args$rotate <- NULL
   x.args$rug <- NULL
+  x.args$cex <- NULL
   x.pred.names <- names(x.args)
   if (length(x.pred.names) > 0){
     for (pred.name in x.pred.names){
@@ -87,7 +91,7 @@ plot.effpoly <- function(x, x.var=which.max(levels), main=paste(effect, "effect 
   if (length(ticks.x) == 0) ticks.x <- NULL
   if (length(transform.x) == 0) transform.x <- NULL
   
-  y.args <- applyDefaults(axes$y, defaults=list(lab=NULL, lim=c(NA, NA), ticks=list(at=NULL, n=5), type="probability", style="lines", rotate=0), arg="axes$y")
+  y.args <- applyDefaults(axes$y, defaults=list(lab=NULL, lim=c(NA, NA), ticks=list(at=NULL, n=5), type="probability", style="lines", rotate=0, cex=1), arg="axes$y")
   if (missing(ylim)) ylim <- y.args$lim
   if (missing(ticks)) ticks <- y.args$ticks
   if (missing(type)) type <- y.args$type
@@ -95,6 +99,7 @@ plot.effpoly <- function(x, x.var=which.max(levels), main=paste(effect, "effect 
   if (missing(ylab)) ylab <- y.args$lab
   if (is.null(ylab)) ylab <- paste0(x$response, " (", type, ")")
   if (missing(roty)) roty <- y.args$rotate
+  cex.y <- y.args$cex
   if (missing(alternating)) alternating <- axes$alternating
   if (missing(grid)) grid <- axes$grid
   if (missing(style)) style <- match.arg(y.args$style, c("lines", "stacked"))
@@ -138,7 +143,7 @@ plot.effpoly <- function(x, x.var=which.max(levels), main=paste(effect, "effect 
   if (missing(lattice)) lattice <- NULL
   lattice <- applyDefaults(lattice, defaults=list(
     layout=NULL, #key.args=list(),  #New default added 1/2/2017 by sw
-    strip=list(factor.names=TRUE, values=TRUE),
+    strip=list(factor.names=TRUE, values=TRUE, cex=1),
     array=list(row=1, col=1, nrow=1, ncol=1, more=FALSE),
     arg="lattice"
   ))
@@ -148,9 +153,11 @@ plot.effpoly <- function(x, x.var=which.max(levels), main=paste(effect, "effect 
   ))
   if (missing(layout)) layout <- lattice$layout
   if (missing(key.args)) key.args <- lattice$key.args
-  strip.args <- applyDefaults(lattice$strip, defaults=list(factor.names=TRUE, values=TRUE), arg="lattice$strip")
+  strip.args <- applyDefaults(lattice$strip, defaults=list(factor.names=TRUE, values=TRUE, cex=1), arg="lattice$strip")
   factor.names <- strip.args$factor.names
   if (missing(show.strip.values)) show.strip.values <- strip.args$values
+  cex.strip <- strip.args$cex
+  height.strip <- max(1, cex.strip)
   array.args <- applyDefaults(lattice$array, defaults=list(row=1, col=1, nrow=1, ncol=1, more=FALSE), arg="lattice$array")
   row <- array.args$row
   col <- array.args$col
@@ -241,7 +248,8 @@ plot.effpoly <- function(x, x.var=which.max(levels), main=paste(effect, "effect 
                          paste(predictors[-x.var], collapse="*"), 
                          paste("*", x$response)))),
             par.strip.text=list(cex=0.8),							
-            strip=function(...) strip.default(..., strip.names=c(factor.names, TRUE), sep=" = "),
+            strip=strip.custom(strip.names=c(factor.names, TRUE), sep=" = ", par.strip.text=list(cex=cex.strip),
+                               par.strip.text=list(cex=cex.strip)),
             panel=function(x, y, subscripts, x.vals, rug, ... ){
               if (grid) ticksGrid(x=1:length(levs), y=tickmarks$at)
               good <- !is.na(y)
@@ -254,12 +262,12 @@ plot.effpoly <- function(x, x.var=which.max(levels), main=paste(effect, "effect 
             ylim=if (is.null(ylim))
               if (type == "probability") range(prob) else range(logit)
             else ylim,
-            xlab=if (is.null(xlab)) predictors[x.var] else xlab,
+            xlab=if (is.null(xlab)) predictors[x.var] else xlab[[x.var]],
             main=main,
             x.vals=x$data[[predictors[x.var]]],
             rug=rug,
-            scales=list(x=list(at=1:length(levs), labels=levs, rot=rotx), 
-                        y=list(at=tickmarks$at, labels=tickmarks$labels, rot=roty), alternating=alternating),
+            scales=list(x=list(at=1:length(levs), labels=levs, rot=rotx, cex=cex.x), 
+                        y=list(at=tickmarks$at, labels=tickmarks$labels, rot=roty, cex=cex.y), alternating=alternating),
             layout=layout,
             data=Data, ...)
           result$split <- split
@@ -312,7 +320,8 @@ plot.effpoly <- function(x, x.var=which.max(levels), main=paste(effect, "effect 
                          paste("*", x$response)))
           ),
           par.strip.text=list(cex=0.8),							
-          strip=function(...) strip.default(..., strip.names=c(factor.names, TRUE), sep=" = "),
+          strip=strip.custom(strip.names=c(factor.names, TRUE), sep=" = ", par.strip.text=list(cex=cex.strip),
+                             par.strip.text=list(cex=cex.strip)),
           panel=function(x, y, subscripts, x.vals, rug, ... ){
             if (grid) ticksGrid(x=tickmarks.x$at, y=tickmarks$at)
             if (rug) lrug(trans(x.vals))
@@ -325,12 +334,12 @@ plot.effpoly <- function(x, x.var=which.max(levels), main=paste(effect, "effect 
           ylim= if (is.null(ylim))
             if (type == "probability") range(prob) else range(logit)
           else ylim,
-          xlab=if (is.null(xlab)) predictors[x.var] else xlab,
+          xlab=if (is.null(xlab)) predictors[x.var] else xlab[[x.var]],
           main=main,
           x.vals=x$data[[predictors[x.var]]],
           rug=rug,
-          scales=list(y=list(at=tickmarks$at, labels=tickmarks$labels, rot=roty), 
-                      x=list(at=tickmarks.x$at, labels=tickmarks.x$labels, rot=rotx),
+          scales=list(y=list(at=tickmarks$at, labels=tickmarks$labels, rot=roty, cex=cex.y), 
+                      x=list(at=tickmarks.x$at, labels=tickmarks.x$labels, rot=rotx, cex=cex.x),
                       alternating=alternating),
           layout=layout,
           data=Data, ...)
@@ -375,7 +384,8 @@ plot.effpoly <- function(x, x.var=which.max(levels), main=paste(effect, "effect 
               paste("logit ~ as.numeric(", predictors[x.var], ")")
               else paste("logit ~ as.numeric(", predictors[x.var],") | ", 
                          paste(predictors[-x.var], collapse="*")))), 
-            strip=function(...) strip.default(..., strip.names=c(factor.names, TRUE), sep=" = "),
+            strip=strip.custom(strip.names=c(factor.names, TRUE), sep=" = ", par.strip.text=list(cex=cex.strip),
+                               par.strip.text=list(cex=cex.strip)),
             panel=function(x, y, subscripts, rug, z, x.vals, ...){
               if (grid) ticksGrid(x=1:length(levs), y=tickmarks$at)
               for (i in 1:n.y.lev){
@@ -389,12 +399,12 @@ plot.effpoly <- function(x, x.var=which.max(levels), main=paste(effect, "effect 
             ylim= if (is.null(ylim))
               if (type == "probability") range(prob) else range(logit)
             else ylim,
-            xlab=if (is.null(xlab)) predictors[x.var] else xlab,
+            xlab=if (is.null(xlab)) predictors[x.var] else xlab[[x.var]],
             x.vals=x$data[[predictors[x.var]]], 
             rug=rug,
             z=response,
-            scales=list(x=list(at=1:length(levs), labels=levs, rot=rotx),
-                        y=list(at=tickmarks$at, labels=tickmarks$labels, rot=roty),  
+            scales=list(x=list(at=1:length(levs), labels=levs, rot=rotx, cex=cex.x),
+                        y=list(at=tickmarks$at, labels=tickmarks$labels, rot=roty, cex=cex.y),  
                         alternating=alternating),
             main=main,
             key=key,
@@ -451,7 +461,8 @@ plot.effpoly <- function(x, x.var=which.max(levels), main=paste(effect, "effect 
             else parse(text=if (n.predictors==1) paste("logit ~ trans(", predictors[x.var], ")")
                        else paste("logit ~ trans(", predictors[x.var],") | ", 
                                   paste(predictors[-x.var], collapse="*")))), 
-            strip=function(...) strip.default(..., strip.names=c(factor.names, TRUE), sep=" = "),
+            strip=strip.custom(strip.names=c(factor.names, TRUE), sep=" = ", par.strip.text=list(cex=cex.strip),
+                               par.strip.text=list(cex=cex.strip)),
             panel=function(x, y, subscripts, rug, z, x.vals, ...){
               if (grid) ticksGrid(x=tickmarks.x$at, y=tickmarks$at)
               if (rug) lrug(trans(x.vals))
@@ -466,12 +477,12 @@ plot.effpoly <- function(x, x.var=which.max(levels), main=paste(effect, "effect 
             ylim= if (is.null(ylim))
               if (type == "probability") range(prob) else range(logit)
             else ylim,
-            xlab=if (is.null(xlab)) predictors[x.var] else xlab,
+            xlab=if (is.null(xlab)) predictors[x.var] else xlab[[x.var]],
             x.vals=x$data[[predictors[x.var]]], 
             rug=rug,
             z=response,
-            scales=list(x=list(at=tickmarks.x$at, labels=tickmarks.x$labels, rot=rotx), 
-                        y=list(at=tickmarks$at, labels=tickmarks$labels, rot=roty),
+            scales=list(x=list(at=tickmarks.x$at, labels=tickmarks.x$labels, rot=rotx, cex=cex.x), 
+                        y=list(at=tickmarks$at, labels=tickmarks$labels, rot=roty, cex=cex.y),
                         alternating=alternating),
             main=main,
             key=key,
@@ -507,7 +518,8 @@ plot.effpoly <- function(x, x.var=which.max(levels), main=paste(effect, "effect 
           paste("prob ~ ", predictors[x.var], sep="")
           else paste("prob ~ ", predictors[x.var]," | ", 
                      paste(predictors[-x.var], collapse="*")))), 
-          strip=function(...) strip.default(..., strip.names=c(factor.names, TRUE), sep=" = "),
+          strip=strip.custom(strip.names=c(factor.names, TRUE), sep=" = ", par.strip.text=list(cex=cex.strip),
+                             par.strip.text=list(cex=cex.strip)),
           panel=function(x, y, ...){
             panel.barchart(x, y, ...)
             if (grid) ticksGrid(x=NA, y=tickmarks$at, col="white")
@@ -519,9 +531,9 @@ plot.effpoly <- function(x, x.var=which.max(levels), main=paste(effect, "effect 
           data=Data, 
           ylim=ylim, # if (is.null(ylim)) 0:1 else ylim,
           ylab=ylab, 
-          xlab=if (is.null(xlab)) predictors[x.var] else xlab,
-          scales=list(x=list(rot=rotx, at=1:length(levs), labels=levs), 
-                      y=list(rot=roty, at=tickmarks$at, labels=tickmarks$labels), 
+          xlab=if (is.null(xlab)) predictors[x.var] else xlab[[x.var]],
+          scales=list(x=list(rot=rotx, at=1:length(levs), labels=levs, cex=cex.x), 
+                      y=list(rot=roty, at=tickmarks$at, labels=tickmarks$labels, cex=cex.y), 
                       alternating=alternating),
           main=main,
           key=key,
@@ -564,7 +576,8 @@ plot.effpoly <- function(x, x.var=which.max(levels), main=paste(effect, "effect 
           else paste("~ trans(", predictors[x.var], ") | ",
                      paste(predictors[-x.var], collapse="*")))),
           probs=x$prob,
-          strip=function(...) strip.default(..., strip.names=c(factor.names, TRUE), sep=" = "),
+          strip=strip.custom(strip.names=c(factor.names, TRUE), sep=" = ", par.strip.text=list(cex=cex.strip),
+                             par.strip.text=list(cex=cex.strip)),
           panel =  function(x, subscripts, rug, x.vals, probs=probs, col=colors, ...){
             fill <- function(x, y1, y2, col){
               if (length(y2) == 1) y2 <- rep(y2, length(y1))
@@ -586,9 +599,9 @@ plot.effpoly <- function(x, x.var=which.max(levels), main=paste(effect, "effect 
           xlim=suppressWarnings(trans(xlm)),
           ylim= c(0, 1), # if (is.null(ylim)) 0:1 else ylim,
           ylab=ylab,
-          xlab=if (is.null(xlab)) predictors[x.var] else xlab,
-          scales=list(x=list(at=tickmarks.x$at, labels=tickmarks.x$labels, rot=rotx), 
-                      y=list(rot=roty, at=tickmarks$at, labels=tickmarks$labels),
+          xlab=if (is.null(xlab)) predictors[x.var] else xlab[[x.var]],
+          scales=list(x=list(at=tickmarks.x$at, labels=tickmarks.x$labels, rot=rotx, cex=cex.x), 
+                      y=list(rot=roty, at=tickmarks$at, labels=tickmarks$labels, cex=cex.y),
                       alternating=alternating),
           main=main,
           key=key,
@@ -636,7 +649,8 @@ plot.effpoly <- function(x, x.var=which.max(levels), main=paste(effect, "effect 
                        paste(predictors[-x.var], collapse="*"), 
                        paste("*", x$response)))),
           par.strip.text=list(cex=0.8),							
-          strip=function(...) strip.default(..., strip.names=c(factor.names, TRUE), sep=" = "),
+          strip=strip.custom(..., strip.names=c(factor.names, TRUE), sep=" = ", par.strip.text=list(cex=cex.strip),
+                             par.strip.text=list(cex=cex.strip)),
           panel=function(x, y, subscripts, x.vals, rug, lower, upper, ... ){
             if (grid) ticksGrid(x=1:length(levs), y=tickmarks$at)
             good <- !is.na(y)
@@ -661,14 +675,14 @@ plot.effpoly <- function(x, x.var=which.max(levels), main=paste(effect, "effect 
           
           ylab=ylab,
           ylim= if (is.null(ylim)) c(min(lower), max(upper)) else ylim,
-          xlab=if (is.null(xlab)) predictors[x.var] else xlab,
+          xlab=if (is.null(xlab)) predictors[x.var] else xlab[[x.var]],
           main=main,
           x.vals=x$data[[predictors[x.var]]],
           rug=rug,
           lower=lower,
           upper=upper, 
-          scales=list(x=list(at=1:length(levs), labels=levs, rot=rotx), 
-                      y=list(at=tickmarks$at, labels=tickmarks$labels, rot=roty), 
+          scales=list(x=list(at=1:length(levs), labels=levs, rot=rotx, cex=cex.x), 
+                      y=list(at=tickmarks$at, labels=tickmarks$labels, rot=roty, cex=cex.y), 
                       alternating=alternating),
           layout=layout,
           data=Data, ...)
@@ -722,7 +736,8 @@ plot.effpoly <- function(x, x.var=which.max(levels), main=paste(effect, "effect 
                        paste("*", x$response)))
         ),
         par.strip.text=list(cex=0.8),							
-        strip=function(...) strip.default(..., strip.names=c(factor.names, TRUE), sep=" = "),
+        strip=strip.custom(strip.names=c(factor.names, TRUE), sep=" = ", par.strip.text=list(cex=cex.strip),
+                           par.strip.text=list(cex=cex.strip)),
         panel=function(x, y, subscripts, x.vals, rug, lower, upper, ... ){
           if (grid) ticksGrid(x=tickmarks.x$at, y=tickmarks$at)
           if (rug) lrug(trans(x.vals))
@@ -747,14 +762,14 @@ plot.effpoly <- function(x, x.var=which.max(levels), main=paste(effect, "effect 
         ylab=ylab,
         xlim=suppressWarnings(trans(xlm)),
         ylim= if (is.null(ylim)) c(min(lower), max(upper)) else ylim,
-        xlab=if (is.null(xlab)) predictors[x.var] else xlab,
+        xlab=if (is.null(xlab)) predictors[x.var] else xlab[[x.var]],
         main=main,
         x.vals=x$data[[predictors[x.var]]],
         rug=rug,
         lower=lower,
         upper=upper, 
-        scales=list(y=list(at=tickmarks$at, labels=tickmarks$labels, rot=roty), 
-                    x=list(at=tickmarks.x$at, labels=tickmarks.x$labels, rot=rotx),
+        scales=list(y=list(at=tickmarks$at, labels=tickmarks$labels, rot=roty, cex=cex.y), 
+                    x=list(at=tickmarks.x$at, labels=tickmarks.x$labels, rot=rotx, cex=cex.x),
                     alternating=alternating),
         layout=layout,
         data=Data, ...)
@@ -800,7 +815,8 @@ plot.effpoly <- function(x, x.var=which.max(levels), main=paste(effect, "effect 
             paste("logit ~ as.numeric(", predictors[x.var], ")")
             else paste("logit ~ as.numeric(", predictors[x.var],") | ", 
                        paste(predictors[-x.var], collapse="*")))), 
-          strip=function(...) strip.default(..., strip.names=c(factor.names, TRUE), sep=" = "),
+          strip=strip.custom(strip.names=c(factor.names, TRUE), sep=" = ", par.strip.text=list(cex=cex.strip),
+                             par.strip.text=list(cex=cex.strip)),
           panel=function(x, y, subscripts, rug, z, x.vals, lower, upper, ...){
             if (grid) ticksGrid(x=1:length(levs), y=tickmarks$at)
             for (i in 1:n.y.lev){
@@ -826,14 +842,14 @@ plot.effpoly <- function(x, x.var=which.max(levels), main=paste(effect, "effect 
           },
           ylab=ylab,
           ylim= if (is.null(ylim)) c(min(lower), max(upper)) else ylim,
-          xlab=if (is.null(xlab)) predictors[x.var] else xlab,
+          xlab=if (is.null(xlab)) predictors[x.var] else xlab[[x.var]],
           x.vals=x$data[[predictors[x.var]]], 
           rug=rug,
           z=response,
           lower=lower,
           upper=upper,
-          scales=list(x=list(at=1:length(levs), labels=levs, rot=rotx),
-                      y=list(at=tickmarks$at, labels=tickmarks$labels, rot=roty),  
+          scales=list(x=list(at=1:length(levs), labels=levs, rot=rotx, cex=cex.x),
+                      y=list(at=tickmarks$at, labels=tickmarks$labels, rot=roty, cex=cex.y),  
                       alternating=alternating),
           main=main,
           key=key,
@@ -890,7 +906,8 @@ plot.effpoly <- function(x, x.var=which.max(levels), main=paste(effect, "effect 
           else parse(text=if (n.predictors==1) paste("logit ~ trans(", predictors[x.var], ")")
                      else paste("logit ~ trans(", predictors[x.var],") | ", 
                                 paste(predictors[-x.var], collapse="*")))), 
-          strip=function(...) strip.default(..., strip.names=c(factor.names, TRUE), sep=" = "),
+          strip=strip.custom(strip.names=c(factor.names, TRUE), sep=" = ", par.strip.text=list(cex=cex.strip),
+                             par.strip.text=list(cex=cex.strip)),
           panel=function(x, y, subscripts, rug, z, x.vals, lower, upper, ...){
             if (grid) ticksGrid(x=tickmarks.x$at, y=tickmarks$at)
             if (rug) lrug(trans(x.vals))
@@ -917,14 +934,14 @@ plot.effpoly <- function(x, x.var=which.max(levels), main=paste(effect, "effect 
           ylab=ylab,
           xlim=suppressWarnings(trans(xlm)),
           ylim= if (is.null(ylim)) c(min(lower), max(upper)) else ylim,
-          xlab=if (is.null(xlab)) predictors[x.var] else xlab,
+          xlab=if (is.null(xlab)) predictors[x.var] else xlab[[x.var]],
           x.vals=x$data[[predictors[x.var]]], 
           rug=rug,
           z=response,
           lower=lower,
           upper=upper,
-          scales=list(x=list(at=tickmarks.x$at, labels=tickmarks.x$labels, rot=rotx), 
-                      y=list(at=tickmarks$at, labels=tickmarks$labels, rot=roty),
+          scales=list(x=list(at=tickmarks.x$at, labels=tickmarks.x$labels, rot=rotx, cex=cex.x), 
+                      y=list(at=tickmarks$at, labels=tickmarks$labels, rot=roty, cex=cex.y),
                       alternating=alternating),
           main=main,
           key=key,

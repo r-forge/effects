@@ -177,7 +177,9 @@ The \code{x} and \code{y} elements may themselves be lists.
 
 The \code{x} entry is a list with elements named for predictors, with each predictor element itself a list with the following elements:
     \describe{
-    \item{\code{lab}}{axis label, defaults to the name of the predictor.}
+    \item{\code{lab}}{axis label, defaults to the name of the predictor; may either
+    be a text string or a list with the text label (optionally named \code{label}) 
+    as its first element and the named element \code{cex} as its second element.}
     \item{\code{lim}}{a two-element vector giving the axis limits, with the default determined from the data.}
     \item{\code{ticks}}{a list with either element \code{at}, a vector specifying locations for the ticks marks, or \code{n}, the number
         of tick marks.}
