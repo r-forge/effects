@@ -284,8 +284,7 @@ Other elements:
     \item{\code{array}}{a list with elements \code{row}, \code{col}, \code{nrow}, \code{ncol}, and \code{more},
     used to graph an effect as part of an array of plots; \code{row}, \code{col}, \code{nrow}, and \code{ncol} are used to compose
     the \code{split} argument and \code{more} the \code{more} argument to \code{\link{print.trellis}}.
-    The \code{array} argument is automatically by \code{plot.efflist} and will be ignored if used with
-    that function.}
+    The \code{array} argument is automatically set by \code{plot.efflist} and will be ignored if used with that function.}
 }
 
 }
