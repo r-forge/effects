@@ -37,6 +37,7 @@
 # 2018-06-12: Fixed bug with vcov in Effect.default
 # 2018-06-20: Added a check to Effect.default to handle family args that
 #             are character or an unevaluated function
+# 2018-10-01: Avoid warnings when testing given.values == "equal" or "default".
 
 ### Non-exported function added 2018-01-22 to generalize given.values to allow for "equal" weighting of factor levels for non-focal predictors.
 .set.given.equal <- function(m){
@@ -202,8 +203,8 @@ Effect.lm <- function(focal.predictors, mod, xlevels=list(), fixed.predictors,
   if (missing(given.values)) given.values <- fixed.predictors$given.values
 # new 1/22/18 to allow for automatical equal weighting of factor levels
   if(!is.null(given.values)){
-   if (given.values == "default") given.values <- NULL
-   if (given.values == "equal") given.values <- .set.given.equal(mod)}
+   if (given.values[1] == "default") given.values <- NULL
+   if (given.values[1] == "equal") given.values <- .set.given.equal(mod)}
 # end new code
   if (missing(typical)) typical <- fixed.predictors$typical
   if (missing(offset)) offset <- fixed.predictors$offset
@@ -351,8 +352,8 @@ Effect.multinom <- function(focal.predictors, mod,
   if (missing(given.values)) given.values <- fixed.predictors$given.values
   # new 1/22/18 to allow for automatical equal weighting of factor levels
   if(!is.null(given.values)){
-    if (given.values == "default") given.values <- NULL
-    if (given.values == "equal") given.values <- .set.given.equal(mod)}
+    if (given.values[1] == "default") given.values <- NULL
+    if (given.values[1] == "equal") given.values <- .set.given.equal(mod)}
   # end new code
   # end new code
   if (missing(typical)) typical <- fixed.predictors$typical
@@ -490,8 +491,8 @@ Effect.polr <- function(focal.predictors, mod,
   # new 1/22/18 to allow for automatical equal weighting of factor levels
   # new 1/22/18 to allow for automatical equal weighting of factor levels
   if(!is.null(given.values)){
-    if (given.values == "default") given.values <- NULL
-    if (given.values == "equal") given.values <- .set.given.equal(mod)}
+    if (given.values[1] == "default") given.values <- NULL
+    if (given.values[1] == "equal") given.values <- .set.given.equal(mod)}
   # end new code
   if (missing(typical)) typical <- fixed.predictors$typical
   if (!missing(confint)) se <- confint

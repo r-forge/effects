@@ -1,6 +1,8 @@
 Version 4.0-4
 
  o Extend use of cex sub-args for x and y axes and lattice strips to plot.effpoly().
+ 
+ o Avoid warnings when testing given.values == "default" or "equal".
 
 Version 4.0-3
 
