@@ -20,18 +20,23 @@
 # 2018-10-05: modified plot.effpoly() so that multiline plots don't show confidence limits 
 #             by default, and so that confidence bars for a factor are staggered.
 
-plot.effpoly <- function(x, x.var=which.max(levels), main=paste(effect, "effect plot"),
+plot.effpoly <- function(x, x.var=which.max(levels), 
+                         main=paste(effect, "effect plot"),
                          symbols=TRUE, lines=TRUE, axes, confint, lattice, ...,
                          # legacy arguments:
-                         type, multiline, rug, xlab, ylab, colors, cex, lty, lwd, factor.names, show.strip.values,
-                         ci.style, band.colors, band.transparency, style, transform.x, ticks.x, xlim,
-                         ticks, ylim, rotx, roty, alternating, grid, layout, key.args, use.splines){
+                         type, multiline, rug, xlab, ylab, colors, cex, lty, lwd, 
+                         factor.names, show.strip.values,
+                         ci.style, band.colors, band.transparency, style, 
+                         transform.x, ticks.x, xlim,
+                         ticks, ylim, rotx, roty, alternating, grid, layout, 
+                         key.args, use.splines){
   
   if (!is.logical(lines) && !is.list(lines)) lines <- list(lty=lines)
   lines <- applyDefaults(lines, 
-                         defaults=list(lty=trellis.par.get("superpose.line")$lty, 
-                                       lwd=trellis.par.get("superpose.line")$lwd[1], col=NULL, splines=TRUE, multiline=NULL), 
-                         arg="lines")
+              defaults=list(lty=trellis.par.get("superpose.line")$lty, 
+                            lwd=trellis.par.get("superpose.line")$lwd[1], 
+                            col=NULL, splines=TRUE, multiline=FALSE), 
+              arg="lines")
   if (missing(multiline)) multiline <- lines$multiline
   if (missing(lwd)) lwd <- lines$lwd
   if (missing(use.splines)) use.splines <- lines$splines
@@ -40,7 +45,9 @@ plot.effpoly <- function(x, x.var=which.max(levels), main=paste(effect, "effect 
  
   if (!is.logical(symbols) && !is.list(symbols)) symbols <- list(pch=symbols)
   symbols <- applyDefaults(symbols,
-                           defaults= list(pch=trellis.par.get("superpose.symbol")$pch, cex=trellis.par.get("superpose.symbol")$cex[1]),
+                           defaults= list(
+                             pch=trellis.par.get("superpose.symbol")$pch, 
+                             cex=trellis.par.get("superpose.symbol")$cex[1]),
                            arg="symbols")
   cex <- symbols$cex
   symbols <- symbols$pch
@@ -48,11 +55,13 @@ plot.effpoly <- function(x, x.var=which.max(levels), main=paste(effect, "effect 
   if (missing(axes)) axes <- NULL
   axes <- applyDefaults(axes, defaults=list(
     x=list(rotate=0, cex=1, rug=TRUE),
-    y=list(lab=NULL, lim=c(NA, NA), ticks=list(at=NULL, n=5), type="probability", rotate=0, cex=1),
+    y=list(lab=NULL, lim=c(NA, NA), ticks=list(at=NULL, n=5), 
+           type="probability", rotate=0, cex=1),
     alternating=TRUE, grid=FALSE),
     arg="axes")
   
-  x.args <- applyDefaults(axes$x, defaults=list(rotate=0, cex=1, rug=TRUE), arg="axes$x")
+  x.args <- applyDefaults(axes$x, defaults=list(rotate=0, cex=1, rug=TRUE), 
+                          arg="axes$x")
   
   if (missing(xlab)) {
     xlab.arg <- FALSE

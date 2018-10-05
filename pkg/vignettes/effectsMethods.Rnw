@@ -239,7 +239,8 @@ print(Effect.clm2)
 
 <<fig.height=6,fig.width=8>>=
 v2 <- clm2(poverty ~ gender + religion + degree + country*poly(age,3),data=WVS)
-plot(emod2 <- Effect(c("country", "age"), v2))
+plot(emod2 <- Effect(c("country", "age"), v2), 
+     lines=list(multiline=TRUE), layout=c(2,2))
 @
 
 \subsection{\code{clmm}}
