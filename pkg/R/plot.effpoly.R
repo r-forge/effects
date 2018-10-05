@@ -15,8 +15,10 @@
 # 2018-01-02, 2018-01-30: changed defaults for key.args, lines 140-141
 # 2018-02-09: Use one-column key for stacked plot.
 # 2018-02-28: Fix handling of rug arg (error reported by Dave Armstrong).
-# 2019-07-08: add cex sub-args for x and y axes (suggestion of Charles Leger).
-# 2019-07-08: add cex sub-arg for strips.
+# 2018-07-08: add cex sub-args for x and y axes (suggestion of Charles Leger).
+# 2018-07-08: add cex sub-arg for strips.
+# 2018-10-05: modified plot.effpoly() so that multiline plots don't show confidence limits 
+#             by default, and so that confidence bars for a factor are staggered.
 
 plot.effpoly <- function(x, x.var=which.max(levels), main=paste(effect, "effect plot"),
                          symbols=TRUE, lines=TRUE, axes, confint, lattice, ...,
@@ -114,7 +116,7 @@ plot.effpoly <- function(x, x.var=which.max(levels), main=paste(effect, "effect 
   
   if (missing(confint)) confint <- NULL
   confint <- applyDefaults(confint,
-                           defaults=list(style=if (style == "lines" && !is.null(x$se.prob)) "auto" else "none", alpha=0.15, col=colors),
+                           defaults=list(style=if (style == "lines" && !multiline && !is.null(x$se.prob)) "auto" else "none", alpha=0.15, col=colors),
                            onFALSE=list(style="none", alpha=0, col="white"),
                            arg="confint")
   if (missing(ci.style)) ci.style <- confint$style
@@ -825,8 +827,9 @@ plot.effpoly <- function(x, x.var=which.max(levels), main=paste(effect, "effect 
               effect.llines(x[sub][good], y[sub][good], lwd=lwd, type="b", col=colors[.modc(i)], lty=lines[.modl(i)],
                             pch=symbols[i], cex=cex, ...)
               if (ci.style == "bars"){
-                larrows(x0=x[sub][good], y0=lower[subscripts][sub][good], 
-                        x1=x[sub][good], y1=upper[subscripts][sub][good], 
+                os <- (i - (n.y.lev + 1)/2) * (2/(n.y.lev-1)) * .01 * (n.y.lev - 1)
+                larrows(x0=x[sub][good] + os, y0=lower[ ][sub][good], 
+                        x1=x[sub][good] + os, y1=upper[subscripts][sub][good], 
                         angle=90, code=3, col=colors[.modc(i)], length=0.125*cex/1.5)
               }
               else  if(ci.style == "lines"){

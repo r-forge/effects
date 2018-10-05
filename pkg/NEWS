@@ -3,6 +3,8 @@ Version 4.0-4
  o Extend use of cex sub-args for x and y axes and lattice strips to plot.effpoly().
  
  o Avoid warnings when testing given.values == "default" or "equal".
+ 
+ o Modified plot.effpoly() so that multiline plots don't show confidence limits by default, and so that confidence bars for a factor are staggered.
 
 Version 4.0-3
 
