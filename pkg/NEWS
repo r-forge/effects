@@ -5,6 +5,7 @@ Version 4.0-4
  o Avoid warnings when testing given.values == "default" or "equal".
  
  o Modified plot.effpoly() so that multiline plots don't show confidence limits by default, and so that confidence bars for a factor are staggered.
+ o Added effectsHexsticker().
 
 Version 4.0-3
 
