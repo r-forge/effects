@@ -831,12 +831,16 @@ plot.effpoly <- function(x, x.var=which.max(levels),
           panel=function(x, y, subscripts, rug, z, x.vals, lower, upper, ...){
             if (grid) ticksGrid(x=1:length(levs), y=tickmarks$at)
             for (i in 1:n.y.lev){
+              os <- if (ci.style == "bars"){
+                (i - (n.y.lev + 1)/2) * (2/(n.y.lev-1)) * .01 * (n.y.lev - 1)
+              } else {
+                0
+              }
               sub <- z[subscripts] == y.lev[i]
               good <- !is.na(y[sub])
-              effect.llines(x[sub][good], y[sub][good], lwd=lwd, type="b", col=colors[.modc(i)], lty=lines[.modl(i)],
+              effect.llines(x[sub][good] + os, y[sub][good], lwd=lwd, type="b", col=colors[.modc(i)], lty=lines[.modl(i)],
                             pch=symbols[i], cex=cex, ...)
               if (ci.style == "bars"){
-                os <- (i - (n.y.lev + 1)/2) * (2/(n.y.lev-1)) * .01 * (n.y.lev - 1)
                 larrows(x0=x[sub][good] + os, y0=lower[ ][sub][good], 
                         x1=x[sub][good] + os, y1=upper[subscripts][sub][good], 
                         angle=90, code=3, col=colors[.modc(i)], length=0.125*cex/1.5)
