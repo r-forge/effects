@@ -151,7 +151,7 @@ plot.eff <- function(x, x.var, z.var=which.min(levels),
   if (missing(axes)) axes <- NULL
   axes <- applyDefaults(axes, defaults=list(
     x=list(rotate=0, rug=TRUE, cex=1),
-    y=list(lab=NA, lim=NA, cex=1, ticks=list(at=NULL, n=5), type="rescale", rotate=0),
+    y=list(lab=NA, lim=NA, cex=1, ticks=list(at=NULL, n=5), type="rescale", rotate=0, custom=NULL),
     alternating=TRUE, grid=FALSE),
     arg="axes")
   x.args <- applyDefaults(axes$x, defaults=list(rotate=0, rug=TRUE, cex=1), arg="axes$x")
@@ -195,7 +195,7 @@ plot.eff <- function(x, x.var, z.var=which.min(levels),
   if (length(ticks.x) == 0) ticks.x <- NA
   if (length(transform.x) == 0) transform.x <- NA
   
-  y.args <- applyDefaults(axes$y, defaults=list(lab=NA, lim=NA, cex=1, ticks=list(at=NULL, n=5), type="rescale", rotate=0), arg="axes$y")
+  y.args <- applyDefaults(axes$y, defaults=list(lab=NA, lim=NA, cex=1, ticks=list(at=NULL, n=5), type="rescale", rotate=0, custom=NULL), arg="axes$y")
   if (missing(ylab)) ylab <- y.args$lab
   if (missing(ylim)) ylim <- y.args$lim
   if (missing(ticks)) ticks <- y.args$ticks
@@ -204,6 +204,8 @@ plot.eff <- function(x, x.var, z.var=which.min(levels),
   type <- match.arg(type, c("rescale", "response", "link"))
   if (missing(roty)) roty <- y.args$rotate
   cex.y <- y.args$cex
+  custom <- y.args$custom
+  if(!is.null(custom)) type="response" 
   if (missing(alternating)) alternating <- axes$alternating
   if (missing(grid)) grid <- axes$grid
   
@@ -313,8 +315,10 @@ plot.eff <- function(x, x.var, z.var=which.min(levels),
                               paste(threshold.labels[-length(threshold.labels)], threshold.labels[-1], sep=" - "),
                               " ", sep="")
   }
-  original.link <- trans.link <- x$transformation$link
-  original.inverse <- trans.inverse <- x$transformation$inverse
+  original.link <- trans.link <- 
+    if(!is.null(custom)) I else x$transformation$link
+  original.inverse <- trans.inverse <-
+    if(!is.null(custom)) custom else  x$transformation$inverse
   residuals <- if (partial.residuals) x$residuals else NULL
   if (!is.null(residuals) && !is.null(id.labels)) names(residuals) <- id.labels
   partial.residuals.range <- x$partial.residuals.range
@@ -332,7 +336,8 @@ plot.eff <- function(x, x.var, z.var=which.min(levels),
   x.data <- x$data
   effect <- paste(sapply(x$variables, "[[", "name"), collapse="*")
   vars <- x$variables
-  x <- as.data.frame(x, transform=I)
+#  x <- as.data.frame(x, transform=I)
+  x <- as.data.frame(x)
   for (i in 1:length(vars)){
     if (!(vars[[i]]$is.factor)) next
     x[,i] <- factor(x[,i], levels=vars[[i]]$levels, exclude=NULL)

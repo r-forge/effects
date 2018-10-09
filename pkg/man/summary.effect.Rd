@@ -197,7 +197,7 @@ Two additional elements may appear in the \code{x} list, and apply to all predic
     }
 
 The \code{y} list contains \code{lab}, \code{lim}, \code{ticks}, and \code{rotate} elements
-(similar to those specified for individual predictors in the \code{x} list), along with the additional \code{type} and \code{style} elements:
+(similar to those specified for individual predictors in the \code{x} list), along with the additional \code{type}, \code{custom}, and \code{style} elements:
     \describe{
     \item{\code{type}}{for plotting linear or generalized linear models, \code{"rescale"} (the default) plots the vertical
     axis on the link scale (e.g., the logit scale for a logit model) but labels the axis on the response
@@ -205,6 +205,7 @@ The \code{y} list contains \code{lab}, \code{lim}, \code{ticks}, and \code{rotat
     \code{"response"} plots and labels the vertical axis on the scale of the response (e.g., the probability scale for a logit model); and
     \code{"link"} plots and labels the vertical axis on the scale of the link (e.g., the logit scale for a logit model).
     For polytomous logit models, this element is either \code{"probability"} or \code{"logit"}, with the former as the default.}
+    \item{custom}{primarily for linear or linear mixed models, this argument is used to apply an arbitrary transformation to the vertical axis.  For example, if fitting a linear model with response \code{log(y)}, then setting \code{custom=exp} would plot \code{exp(log(y)) = y} on the vertical axis.  If the response were \code{1/y}, then use \code{custom=function(x) 1/x}, since the reciprocal is its own inverse.  In general, \code{custom} would be set to the name of a function that will return the inverse of the function used to transform the response.  The \code{lab} argument will then geneally be used to get the correct label for the axis that matches the untransformed response.  If this argument is used with a generalized linear model or another model with a non-identity link function, the function is applied to the linear predictor, and will probably not be of interest.}
     \item{\code{style}}{for polytomous logit models, this element can take on the value \code{"lines"}
     (the default) or \code{"stacked"} for line plots or stacked-area plots, respectively.}
     }

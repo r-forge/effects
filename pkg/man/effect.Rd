@@ -50,13 +50,11 @@ Effect(focal.predictors, mod, ...)
 
 \method{Effect}{lm}(focal.predictors, mod, xlevels=list(),
     fixed.predictors, vcov. = vcov, se=TRUE,
-    transformation = list(link = family(mod)$linkfun,
-        inverse = family(mod)$linkinv),
     residuals=FALSE, quantiles=seq(0.2, 0.8, by=0.2),
     x.var=NULL,  ...,
     #legacy arguments:
     given.values, typical, offset, confint, confidence.level,
-    partial.residuals)
+    partial.residuals, transformation)
 
 \method{Effect}{multinom}(focal.predictors, mod,
     xlevels=list(), fixed.predictors,
@@ -76,8 +74,8 @@ allEffects(mod, ...)
 
 \method{allEffects}{default}(mod, ...)
 
-\method{as.data.frame}{eff}(x, row.names=NULL, optional=TRUE,
-    transform=x$transformation$inverse, ...)
+\method{as.data.frame}{eff}(x, row.names=NULL, optional=TRUE, 
+        type=c("response", "link"), ...)
 
 \method{as.data.frame}{effpoly}(x, row.names=NULL, optional=TRUE, ...)
 
@@ -156,15 +154,6 @@ allEffects(mod, ...)
     whether to compute confidence limits with specified coverage at each point for an effect or to compute limits
     for a Scheffe-type confidence envelope. For \code{mer}, \code{merMod}, and \code{lme} objects, the
     normal distribution is used to get confidence limits.}
-  \item{transformation}{a two-element list with elements \code{link} and
-    \code{inverse}. For a generalized linear model, these are by default
-    the link function and inverse-link (mean) function. For a linear model,
-    these default to \code{NULL}. If \code{NULL}, the identity (or inhibit) function,
-    \code{\link{I}}, is used; this effect can also be achieved by setting the
-    argument to \code{NULL}. The inverse-link may be used to transform effects
-    when they are printed or plotted; the link may be used in positioning
-    axis labels (see below). If the link is not given, an attempt will be
-    made to approximate it from the inverse-link.}
   \item{residuals}{if \code{TRUE}, residuals for a linear or generalized linear model
     will be computed and saved; if \code{FALSE}
     (the default), residuals are suppressed. If residuals are saved, partial residuals are computed when
@@ -182,12 +171,11 @@ allEffects(mod, ...)
   	(the default) effects are computed as individual-level probabilities
   	and logits.}
   \item{x}{an object of class \code{"eff"}, \code{"effpoly"}, or \code{"efflatent"}.}
-  \item{transform}{a transformation to be applied to the effects and confidence limits,
-    by default taken from the inverse link function saved in the \code{"eff"} object.}
   \item{row.names, optional}{not used.}
+  \item{type}{\code{type="response"} returns results in response scale; \code{type="link"} returns results in link, or linear predictor, scale}
   \item{object}{an object of class \code{"eff"} for which the covariance matrix of the effects is desired.}
   \item{...}{arguments to be passed down.}
-  \item{confint, confidence.level, given.values, typical, offset, partial.residuals}{legacy arguments retained for backwards compatability; if present, these arguments take precedence
+  \item{confint, confidence.level, given.values, typical, offset, partial.residuals, transformation}{legacy arguments retained for backwards compatability; if present, these arguments take precedence
   over \code{level} element of the \code{confint} list argument and the
   \code{given.values}, \code{typical}, and \code{offset} elements of the \code{fixed.predictors}
   list argument; \code{confint} may be used in place of the \code{se} argument;
@@ -215,10 +203,7 @@ allEffects(mod, ...)
   \code{A}, \code{B}, and \code{C} main effects, and the three two-way interactions. In either of these
   cases, a warning is printed.
 
-  The \code{as.data.frame} methods convert effect objects to data frames to facilitate the construction
-  of custom displays. In the case of \code{"eff"} objects, the \code{se} element in the data frame is always
-  on the scale of the linear predictor, and the transformation used for the fit and confidence limits is saved in
-  a \code{"transformation"} attribute.
+  The \code{as.data.frame} methods reformat effect objects as a data frame, giving the fitted values in either the scale of the linea predictor, \code{type="link"}, or in the scale of the response, \code{type="response"}. The values returned are the fitted values, standard errors and 95 percent confidence intervalsin either link or response scale. If the family object did not have  \code{mu.eta} function, then the standard error is \code{NA} in response scale.  The returned data frame has an attribute \code{type} giving the type of output.
 
   See \code{\link{predictorEffects}} for an alternative paradigm for getting effects.
 }
@@ -268,6 +253,7 @@ allEffects(mod, ...)
   \item{family}{for a \code{"glm"} model, the name of the distributional family of the model;
     for an \code{"lm"} model, this is \code{"gaussian"}; otherwise \code{NULL}. The \code{family} controls
     how partial residuals are smoothed in plots.}
+  \item{link}{the value returned by \code{family(mod)}.  Down-stream methods may need the link, inverse link and derivative functions.}
 
   \code{allEffects} returns an \code{"efflist"} object, a list of \code{"eff"} or \code{"effpoly"} objects
   corresponding to the high-order terms of the model.
