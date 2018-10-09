@@ -416,14 +416,16 @@ plot(eff.pres[1],
          
 mod <- lm(log(prestige) ~ income:type + education, data=Prestige)
 p1 <- predictorEffects(mod, ~ income)
-plot(p1, lines=list(multiline=TRUE)) # log-scale for response
-plot(p1, lines=list(multiline=TRUE), # log-scale, with arithmetic tick marks
+# log-scale for response
+plot(p1, lines=list(multiline=TRUE)) 
+# log-scale, with arithmetic tick marks
+plot(p1, lines=list(multiline=TRUE), 
      axes=list(y=list(transform=list(link=log, inverse = exp), 
                       lab="prestige", type="rescale")))
+# arithmetic scale and tick marks, with other arguments
 plot(p1, lines=list(multiline=TRUE), grid=TRUE,
      lattice=list(key.args=list(space="right", border=TRUE)),
-     axes=list(y=list(transform=list(link=log, inverse = exp), 
-                      type="response", lab="prestige")))
+     axes=list(y=list(transform=exp, lab="prestige")))
 }
 
 \keyword{hplot}
