@@ -35,8 +35,9 @@
 # 2018-05-14: support plotting partial residuals against a factor on the horizontal axis in plot.lm()
 # 2018-05-29: lty was ignored for multiplot with factor on x-axis; fixed (reported by Krisztian Magori)
 # 2018-05-30: don't use hard-coded pch=19 when plotting a factor on the x-axis.
-# 2019-06-30: add cex sub-args for x and y axes (suggestion of Charles Leger).
-# 2019-07-04: add cex sub-arg for strips.
+# 2018-06-30: add cex sub-args for x and y axes (suggestion of Charles Leger).
+# 2018-07-04: add cex sub-arg for strips.
+# 2018-10-09: moved transform arg from Effect to axes=list(y=list(transform=))
 
 # the following functions aren't exported
 
@@ -151,7 +152,7 @@ plot.eff <- function(x, x.var, z.var=which.min(levels),
   if (missing(axes)) axes <- NULL
   axes <- applyDefaults(axes, defaults=list(
     x=list(rotate=0, rug=TRUE, cex=1),
-    y=list(lab=NA, lim=NA, cex=1, ticks=list(at=NULL, n=5), type="rescale", rotate=0, custom=NULL),
+    y=list(lab=NA, lim=NA, cex=1, ticks=list(at=NULL, n=5), type="rescale", rotate=0, transform=NULL),
     alternating=TRUE, grid=FALSE),
     arg="axes")
   x.args <- applyDefaults(axes$x, defaults=list(rotate=0, rug=TRUE, cex=1), arg="axes$x")
@@ -195,7 +196,7 @@ plot.eff <- function(x, x.var, z.var=which.min(levels),
   if (length(ticks.x) == 0) ticks.x <- NA
   if (length(transform.x) == 0) transform.x <- NA
   
-  y.args <- applyDefaults(axes$y, defaults=list(lab=NA, lim=NA, cex=1, ticks=list(at=NULL, n=5), type="rescale", rotate=0, custom=NULL), arg="axes$y")
+  y.args <- applyDefaults(axes$y, defaults=list(lab=NA, lim=NA, cex=1, ticks=list(at=NULL, n=5), type="rescale", rotate=0, transform=NULL), arg="axes$y")
   if (missing(ylab)) ylab <- y.args$lab
   if (missing(ylim)) ylim <- y.args$lim
   if (missing(ticks)) ticks <- y.args$ticks
@@ -204,8 +205,12 @@ plot.eff <- function(x, x.var, z.var=which.min(levels),
   type <- match.arg(type, c("rescale", "response", "link"))
   if (missing(roty)) roty <- y.args$rotate
   cex.y <- y.args$cex
-  custom <- y.args$custom
-  if(!is.null(custom)) type="response" 
+  custom <- y.args$transform
+  if(inherits(custom, "function")){
+    custom <- list(link=I, inverse=custom)
+    type <- "response"
+  }
+#  if(!is.null(custom)) type="response" 
   if (missing(alternating)) alternating <- axes$alternating
   if (missing(grid)) grid <- axes$grid
   
@@ -286,7 +291,6 @@ plot.eff <- function(x, x.var, z.var=which.min(levels),
     loess.family <- if (x$family == "gaussian") "symmetric" else "gaussian"
     average.resid <- if (loess.family == "gaussian") mean else median
   }
-  
   switch(type,
          rescale = {
            type <- "response"
@@ -316,9 +320,9 @@ plot.eff <- function(x, x.var, z.var=which.min(levels),
                               " ", sep="")
   }
   original.link <- trans.link <- 
-    if(!is.null(custom)) I else x$transformation$link
+    if(!is.null(custom)) custom$link else x$transformation$link
   original.inverse <- trans.inverse <-
-    if(!is.null(custom)) custom else  x$transformation$inverse
+    if(!is.null(custom)) custom$inverse else  x$transformation$inverse
   residuals <- if (partial.residuals) x$residuals else NULL
   if (!is.null(residuals) && !is.null(id.labels)) names(residuals) <- id.labels
   partial.residuals.range <- x$partial.residuals.range
