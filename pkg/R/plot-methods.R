@@ -207,7 +207,7 @@ plot.eff <- function(x, x.var, z.var=which.min(levels),
   cex.y <- y.args$cex
   custom <- y.args$transform
   if(inherits(custom, "function")){
-    custom <- list(link=I, inverse=custom)
+    custom <- list(trans=I, inverse=custom)
     type <- "response"
   }
 #  if(!is.null(custom)) type="response" 
@@ -320,7 +320,7 @@ plot.eff <- function(x, x.var, z.var=which.min(levels),
                               " ", sep="")
   }
   original.link <- trans.link <- 
-    if(!is.null(custom)) custom$link else x$transformation$link
+    if(!is.null(custom)) custom$trans else x$transformation$link
   original.inverse <- trans.inverse <-
     if(!is.null(custom)) custom$inverse else  x$transformation$inverse
   residuals <- if (partial.residuals) x$residuals else NULL

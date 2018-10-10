@@ -205,7 +205,7 @@ The \code{y} list contains \code{lab}, \code{lim}, \code{ticks}, and \code{rotat
     \code{"response"} plots and labels the vertical axis on the scale of the response (e.g., the probability scale for a logit model); and
     \code{"link"} plots and labels the vertical axis on the scale of the link (e.g., the logit scale for a logit model).
     For polytomous logit models, this element is either \code{"probability"} or \code{"logit"}, with the former as the default.}
-    \item{\code{transform}}{primarily for linear or linear mixed models, this argument is used to apply an arbitrary transformation to the vertical axis.  For example, if fitting a linear model with response \code{log(y)}, then setting \code{transform=exp} would plot \code{exp(log(y)) = y} on the vertical axis.  If the response were \code{1/y}, then use \code{transform=function(yt) 1/yt}, since the reciprocal is its own inverse.  The \code{transform} argument can also be a list of two functions.  For example with a response \code{log(y)}, the specification \code{transform=list(link=log, inverse=log), type="rescale"} will plot in log-scale, but will label tick marks in arithmetic scale; see the example below.  The specification \code{transform=list(link=log, inverse=exp), type="response"} is equivalent to \code{transform=exp}.   When \code{type="response"} the \code{lab} argument will geneally be used to get a label for the axis that matches the untransformed response.  If this argument is used with a generalized linear model or another model with a non-identity link function, the function is applied to the linear predictor, and will probably not be of interest.}
+    \item{\code{transform}}{primarily for linear or linear mixed models, this argument is used to apply an arbitrary transformation to the vertical axis.  For example, if fitting a linear model with response \code{log(y)}, then setting \code{transform=exp} would plot \code{exp(log(y)) = y} on the vertical axis.  If the response were \code{1/y}, then use \code{transform=function(yt) 1/yt}, since the reciprocal is its own inverse.  The \code{transform} argument can also be a list of two functions.  For example with a response \code{log(y)}, the specification \code{transform=list(trans=log, inverse=log), type="rescale"} will plot in log-scale, but will label tick marks in arithmetic scale; see the example below.  The specification \code{transform=list(trans=log, inverse=exp), type="response"} is equivalent to \code{transform=exp}.   When \code{type="response"} the \code{lab} argument will geneally be used to get a label for the axis that matches the untransformed response.  If this argument is used with a generalized linear model or another model with a non-identity link function, the function is applied to the linear predictor, and will probably not be of interest.}
     \item{\code{style}}{for polytomous logit models, this element can take on the value \code{"lines"}
     (the default) or \code{"stacked"} for line plots or stacked-area plots, respectively.}
     }
@@ -420,7 +420,7 @@ p1 <- predictorEffects(mod, ~ income)
 plot(p1, lines=list(multiline=TRUE)) 
 # log-scale, with arithmetic tick marks
 plot(p1, lines=list(multiline=TRUE), 
-     axes=list(y=list(transform=list(link=log, inverse = exp), 
+     axes=list(y=list(transform=list(trans=log, inverse = exp), 
                       lab="prestige", type="rescale")))
 # arithmetic scale and tick marks, with other arguments
 plot(p1, lines=list(multiline=TRUE), grid=TRUE,
