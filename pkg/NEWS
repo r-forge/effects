@@ -1,12 +1,13 @@
-Version 4.0-4
+Version 4.1-0
 
- o Removed the 'transform' arguments from as.data.frame.eff, and added type argument.  Removed transformation argument from Effect an added 'custom' argument as sub-arg to axes=list(y=list(custom=...)) in plot.eff 
+ o Removed the transform argument from as.data.frame.eff(), and added type argument.  Made the transformation argument to Effect() a legacy argument and added transform as sub-argument to axes=list(y=list(transform=...)) in plot.eff(). 
  
  o Extend use of cex sub-args for x and y axes and lattice strips to plot.effpoly().
  
  o Avoid warnings when testing given.values == "default" or "equal".
  
  o Modified plot.effpoly() so that multiline plots don't show confidence limits by default, and so that confidence bars for a factor are staggered.
+ 
  o Added effectsHexsticker().
 
 Version 4.0-3

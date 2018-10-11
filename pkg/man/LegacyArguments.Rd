@@ -108,7 +108,7 @@ For \code{Effect} methods:
 
 \item{\code{partial.residuals=TRUE/FALSE}}{\code{residuals=TRUE/FALSE}}
 
-\item{\code{transformation}}{This argument to \code{Effect} is not needed to compute effects.  It can now be set directly with the \code{plot} method with the argument \code{axes = list(y = list(transformation=specification))}.}
+\item{\code{transformation}}{This argument to \code{Effect} is not needed to compute effects.  Transformation of the response can now be set directly in the \code{plot} method with the argument \code{axes=list(y=list(transform={specification}))}.}
 
 }}
 
