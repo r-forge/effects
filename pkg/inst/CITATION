@@ -1,5 +1,34 @@
 citHeader("To cite effects in publications use:")
 
+citEntry(entry = "Book",
+  title        = "An R Companion to Applied Regression",
+  edition      = "3rd",
+  author       = personList(as.person("John Fox"), as.person("Sanford Weisberg")),
+  year         = "2019",
+  publisher    = "Sage",
+  address      = "Thousand Oaks CA",
+  url          = "http://tinyurl.com/carbook",
+  textVersion =  paste("John Fox and Sanford Weisberg (2019).",
+        "An R Companion to Applied Regression, 3rd Edition,",
+        "Thousand Oaks, CA",
+        "<http://tinyurl.com/carbook>"
+        ))
+        
+citEntry(entry = "Article",
+  title        = "Visualizing Fit and Lack of Fit in Complex Regression Models with Predictor Effect Plots and Partial Residualsr Multinomial and Proportional-Odds Logit Models: Extensions to the effects Package",
+  author       = personList(as.person("John Fox"), as.person("Sanford Weisberg")),
+  journal      = "Journal of Statistical Software",
+  year         = "in press",
+
+  textVersion  =
+  paste("John Fox and Sanford Weisberg (in press).",
+        "Visualizing Fit and Lack of Fit in Complex Regression Models with Predictor Effect Plots and Partial Residuals.",
+        "Journal of Statistical Software"),
+
+  header = "For predictor effects or using residuals also cite:"
+)
+
+
 citEntry(entry = "Article",
   title        = "Effect Displays in {R} for Generalised Linear Models",
   author       = as.person("John Fox"),
@@ -14,7 +43,8 @@ citEntry(entry = "Article",
   paste("John Fox (2003).",
         "Effect Displays in R for Generalised Linear Models.",
         "Journal of Statistical Software, 8(15), 1-27.",
-        "URL http://www.jstatsoft.org/v08/i15/.")
+        "URL http://www.jstatsoft.org/v08/i15/."),
+  header = "For generalized linear models also cite:"
 )
 
 citEntry(entry = "Article",
