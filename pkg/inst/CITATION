@@ -9,7 +9,7 @@ citEntry(entry = "Book",
   address      = "Thousand Oaks CA",
   url          = "http://tinyurl.com/carbook",
   textVersion =  paste("John Fox and Sanford Weisberg (2019).",
-        "An R Companion to Applied Regression, 3rd Edition,",
+        "An R Companion to Applied Regression, 3rd Edition.",
         "Thousand Oaks, CA",
         "<http://tinyurl.com/carbook>"
         ))

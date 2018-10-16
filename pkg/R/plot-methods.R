@@ -38,6 +38,7 @@
 # 2018-06-30: add cex sub-args for x and y axes (suggestion of Charles Leger).
 # 2018-07-04: add cex sub-arg for strips.
 # 2018-10-09: moved transform arg from Effect to axes=list(y=list(transform=))
+# 2018-10-15: moved z.var to lines=list(z.var)
 
 # the following functions aren't exported
 
@@ -110,12 +111,12 @@ panel.bands <- function(x, y, upper, lower, fill, col,
 
 spline.llines <- function(x, y, ...) llines(spline(x, y), ...)
 
-plot.eff <- function(x, x.var, z.var=which.min(levels), 
+plot.eff <- function(x, x.var,  
           main=paste(effect, "effect plot"),
           symbols=TRUE, lines=TRUE, axes, confint, partial.residuals, id, lattice,
           ...,
         # legacy arguments:
-          multiline, rug, xlab, ylab, colors, cex, lty, lwd, ylim, xlim, 
+          multiline, z.var, rug, xlab, ylab, colors, cex, lty, lwd, ylim, xlim, 
           factor.names, ci.style, band.transparency, band.colors, type, ticks, 
           alternating, rotx, roty, grid, layout,
           rescale.axis, transform.x, ticks.x, show.strip.values, key.args, 
@@ -130,12 +131,18 @@ plot.eff <- function(x, x.var, z.var=which.min(levels),
   .modb <- function(a) .mod(a, length(band.colors))
   
   if (!is.logical(lines) && !is.list(lines)) lines <- list(lty=lines)
+  levels <- sapply(x$variables, function(z) length(as.vector(z[["levels"]])))
   lines <- applyDefaults(lines,
-                         defaults=list(multiline=is.null(x$se), lty=trellis.par.get("superpose.line")$lty,
-                                       lwd=trellis.par.get("superpose.line")$lwd[1], col=trellis.par.get("superpose.line")$col, splines=TRUE),
+              defaults=list(multiline=is.null(x$se), 
+                            z.var=which.min(levels),
+                            lty=trellis.par.get("superpose.line")$lty,
+                            lwd=trellis.par.get("superpose.line")$lwd[1], 
+                            col=trellis.par.get("superpose.line")$col, 
+                            splines=TRUE),
                          onFALSE=list(multiline=FALSE, lty=0, lwd=0, col=rgb(1, 1, 1, alpha=0), splines=FALSE),
                          arg="lines")
   if (missing(multiline)) multiline <- lines$multiline
+  if (missing(z.var)) z.var <- lines$z.var
   if (missing(lwd)) lwd <- lines$lwd
   if (missing(colors)) colors <- lines$col
   if (missing(use.splines)) use.splines <- lines$splines
@@ -305,7 +312,7 @@ plot.eff <- function(x, x.var, z.var=which.min(levels),
            rescale.axis <- TRUE
          }
   )
-  levels <- sapply(x$variables, function(z) length(as.vector(z[["levels"]])))
+#  levels <- sapply(x$variables, function(z) length(as.vector(z[["levels"]])))
   thresholds <- x$thresholds
   has.thresholds <- !is.null(thresholds)
   effect.llines <- llines
@@ -563,7 +570,7 @@ plot.eff <- function(x, x.var, z.var=which.min(levels),
     if (length(which.z) == 0) stop(paste("z.var = '", z.var, "' is not in the effect.", sep=""))
     z.var <- which.z
   }
-  if (x.var == z.var) z.var <- z.var + 1
+if (x.var == z.var) z.var <- z.var + 1
   ### multiline
   if (multiline){
     if (!is.null(residuals)) warning("partial residuals are not displayed in a multiline plot")

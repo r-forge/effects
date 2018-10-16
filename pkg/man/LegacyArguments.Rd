@@ -26,6 +26,8 @@ For \code{plot} methods:
 \describe{
 \item{\code{multiline=TRUE/FALSE}}{\code{lines=list(multiline=TRUE/FALSE)}}
 
+\item{\code{z.var=which.min(levels)}}{\code{lines=list(z.var=which.min(levels))} relevant only when \code{lines=list(multiline=TRUE)}}
+
 \item{\code{colors={vector of colors}}}{\code{lines=list(col={vector of colors})}}
 
 \item{\code{lty={vector of line types}}}{\code{lines=list(lty={vector of line types})}}
@@ -108,7 +110,7 @@ For \code{Effect} methods:
 
 \item{\code{partial.residuals=TRUE/FALSE}}{\code{residuals=TRUE/FALSE}}
 
-\item{\code{transformation}}{This argument to \code{Effect} is not needed to compute effects.  Transformation of the response can now be set directly in the \code{plot} method with the argument \code{axes=list(y=list(transform={specification}))}.}
+\item{\code{transformation}}{This argument to \code{Effect} is not needed to compute effects.  It can now be set directly with the \code{plot} method with the argument \code{axes = list(y = list(transformation=specification))}.}
 
 }}
 
