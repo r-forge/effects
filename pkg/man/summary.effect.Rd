@@ -280,9 +280,9 @@ Other elements:
   	\item{\code{cex, cex.title}}{the default relative size of the font for labels and the title, respectively.  To save space set these to be smaller than 1.}
   	}
 }
-    \item{\code{strip}}{a list with two elements: \code{factor.names}, which if \code{TRUE}, the default, shows conditioning
-    variable names in the panel headers; and \code{values}, which if \code{TRUE}, the default unless partial residuals are plotted,
-    displays conditioning variable values in the panel headers.}
+    \item{\code{strip}}{a list with three elements: \code{factor.names}, which if \code{TRUE}, the default, shows conditioning
+    variable names in the panel headers;  \code{values}, which if \code{TRUE}, the default unless partial residuals are plotted,
+    displays conditioning variable values in the panel headers, and \code{cex}, the relative size of the text displayed in the strip.}
     \item{\code{array}}{a list with elements \code{row}, \code{col}, \code{nrow}, \code{ncol}, and \code{more},
     used to graph an effect as part of an array of plots; \code{row}, \code{col}, \code{nrow}, and \code{ncol} are used to compose
     the \code{split} argument and \code{more} the \code{more} argument to \code{\link{print.trellis}}.
