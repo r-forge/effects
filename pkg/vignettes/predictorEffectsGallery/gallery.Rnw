@@ -1,0 +1,121 @@
+%\VignetteEngine{knitr::knitr}
+%\VignetteIndexEntry{Effects Galery}
+%% vignette index specifications need to be *after* \documentclass{}
+%%\VignetteEngine{knitr::knitr}
+%%\VignetteIndexEntry{Effects Gallery}
+%%\VignettePackage{effects}
+
+\documentclass[12pt]{article}
+
+
+\usepackage[left=1.25in, right=1.25in, top=1in, bottom=1in]{geometry}
+\usepackage[utf8]{inputenc}
+\usepackage{graphicx}
+\usepackage[american]{babel}
+\newcommand{\R}{{\sf R}}
+\usepackage{url}
+\usepackage{hyperref}
+\usepackage{xcolor}
+\hypersetup{
+    colorlinks,
+    linkcolor={red!50!black},
+    citecolor={blue!50!black},
+    urlcolor={blue!80!black}
+}
+\usepackage{alltt}
+\usepackage{fancyvrb}
+\usepackage{natbib}
+\usepackage{amsmath}
+\VerbatimFootnotes
+\bibliographystyle{chicago}
+%\usepackage{amsmath,amsfonts,amssymb}
+%\usepackage{natbib}
+%\bibliographystyle{abbrvnat}
+%\usepackage[margin=1in]{geometry}
+
+\newcommand{\x}{\mathbf{x}}
+\newcommand{\code}[1]{\normalfont\texttt{\hyphenchar\font45\relax #1}}
+\newcommand{\lcode}[1]{\mbox{$\log($}\normalfont\texttt{\hyphenchar\font45\relax #1}\mbox{$)$}}
+\newcommand{\E}{\mathrm{E}}
+\newcommand{\link}[1]{#1}
+\newcommand{\tild}{\symbol{126}}
+\newcommand{\Rtilde}{\,\raisebox{-.5ex}{\code{\tild{}}}\,}
+\newcommand{\captilde}{\mbox{\protect\Rtilde}} % use in figure captions.
+\newcommand{\Rmod}[2]{\code{#1 \raisebox{-.5ex}{\tild{}} #2}}
+\newcommand{\Rmoda}[2]{\code{#1} &\code{\raisebox{-.5ex}{\tild{}} #2}}
+\newcommand{\Rmodb}[2]{\code{#1 &\raisebox{-.5ex}{\tild{}}& #2}}
+\newcommand{\aab}[2]{\code{#1}\mbox{$*$}\code{#2}}
+\newcommand{\acb}[2]{\code{#1}\mbox{$:$}\code{#2}}
+\newcommand{\C}{\mathbf{C}}
+\newcommand{\betahat}{\widehat{\beta}}
+\newcommand{\bbetahat}{\widehat{\boldsymbol{\beta}}}
+\newcommand{\bbeta}{\boldsymbol{\beta}}
+\newcommand{\xbf}{\x_{\backslash{}f}}
+\newcommand{\hbf}{h_{\backslash{}f}}
+\newcommand{\xtb}{\x_{2\backslash{}f}}
+\newcommand{\xbfi}{\x_{\backslash{}f,i}}
+\newcommand{\inter}[2]{\mbox{$#1$:$#2$}}
+\newcommand{\cross}[2]{\mbox{$#1$\code{*}$#2$}}
+\newcommand{\N}{\mathrm{N}}
+\newcommand{\fn}{\texttt}
+\newcommand{\ar}{\texttt}
+\newcommand{\pkg}[1]{\code{#1}}
+\newcommand{\proglang}[1]{\code{#1}}
+\newcommand{\yx}{\widehat{y}(\x)}
+\newcommand{\lvn}[1]{\mbox{$\log(\mbox{\texttt{#1}})$}}
+\newcommand{\vn}[1]{\mbox{\texttt{#1}}}
+
+\begin{document}
+
+\title{Predictor Effects Gallery}
+
+\author{John Fox and Sanford Weisberg}
+
+\date{\today}
+
+\maketitle
+
+\tableofcontents
+
+\begin{abstract}
+Predictor effect displays visualize the response surface of complex regression models by averaging and conditioning, producing a sequence of 2D line graphs, one graph or set of graphs for each predictor in the regression problem \citep{fw19b, fw19}.  In this vignette we give examples of the use of the \pkg{effects} package in \R{} for drawing effects plots, including many of the optional arguments.
+\end{abstract}
+
+<<setopts,echo=FALSE>>=
+library("knitr")
+opts_chunk$set(fig.width=5,fig.height=5,#tidy=TRUE,
+               out.width="0.8\\textwidth",echo=TRUE)
+#options(prompt=" ")
+options(continue="+    ", prompt="R> ", width=76)
+options(show.signif.stars=FALSE, scipen=3)
+@
+
+<<setup, include=FALSE, cache=FALSE, results='hide', echo=FALSE>>=
+library(car)
+library(effects)
+render_sweave()
+options(width=80, digits=5, str=list(strict.width="cut"))
+strOptions(strict.width="cut")
+@
+
+
+<<gallery1, child='gallery1.Rnw'>>=
+@
+
+<<gallery2, child='gallery2.Rnw'>>=
+@
+
+<<gallery3, child='gallery3.Rnw'>>=
+@
+
+<<gallery4, child='gallery4.Rnw'>>=
+@
+
+\bibliography{gallery}
+
+\end{document}
+
+
+
+
+

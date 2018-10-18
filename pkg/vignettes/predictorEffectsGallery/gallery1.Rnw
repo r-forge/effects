@@ -1,0 +1,168 @@
+% !Rnw root = gallery.Rnw
+
+
+
+\section{Introduction}\label{sec:intro}
+Predictor effect plots \citep{fw19b} provide graphical summaries for fitted models with a linear predictor, including linear models, generalized linear models, linear mixed models and many others.  They provide an alternative to tables of fitted coefficients that are can be much harder to interpret than are effects plots. These plots are implemented in \R{} in the \pkg{effects} package documented in \citet{fw19}.  This vignette provides many examples of variations on these graphical displays that an be obtained with the \pkg{effects} package.  Many of the details, and more complete description of the data sets used as examples, are provided in the references cited at the end of the vignette.
+
+
+
+\subsection{Effects and Predictor Effect Plots}\label{sec:intro2}
+
+
+We begin with an example of a multiple linear regression, using a data set in the \pkg{carData} package.
+<<>>=
+require(car) # also loads the carData package for the data set
+lm1 <- lm(prestige ~ education + poly(women, 2) +
+                     log(income) * type, data=Prestige)
+@
+The model \code{lm1} is a linear model with response \vn{prestige}, and continuous predictors \vn{income}, \vn{education}, \vn{women}, and a factor predictor \vn{type} with three levels.  The predictor \vn{education} represents itself in the linear model, and so it is both a predictor and a \emph{regressor}, as defined in \citet[Sec.~4.1]{fw19}.  The predictor \vn{income} is represented by the regressor \lcode{income}. The variable \vn{women}, a percentage between 0 and 100, is represented by regressors that define a polynomial of degree two using \R{}'s default orthogonal polynomials.  The variable \vn{type} is a factor with three levels so it is represented by two dummy variables defined using \R{}'s default.  Finally the formula includes an interaction between \vn{income} and \vn{type} defined by multiplying each of the regressors that represent \vn{income} by each of the regressors that represent \vn{type}.
+
+A usual numeric summary of the fit of \code{lm1} is a table of estimated coefficients, using the \fn{S} function in the \pkg{car} package,
+<<>>=
+S(lm1)
+@
+Interpretation of this output is straightforward only for the predictor \vn{education}, where an increase of \vn{education} by one year holding other predictors fixed corresponds to an estimated expected increase in the response of \Sexpr{round(coef(lm1)[2], 3)} units.  Even ignoring the interaction, the logarithm complicates the interpretation of the effect of \vn{income}. The predictor \vn{women} is represented by two regressors, so the effect of \vn{women} requires examining two coefficient estimates that are interpretable only by experts, and even if raw polynomials were used, via \code{poly(women, 2, raw=TRUE)} in place of \code{poly(women, 2)}, interpretation of the effect of \vn{women} is complicated.  Understanding the coefficients for the main effect of \vn{type} depends on the contrasts used  to define the effect.  The contrasts can be changed by the user, and the default contrasts in \R{} are different from the default contrasts used by \code{SAS} or other programs, so the coefficients cannot be reliably interpreted without information not present in the summary shown.  Finally, the interaction further complicates the interpretation of the effect of either \vn{income} or \vn{type} because the interaction coefficients need to be interpreted along with the main effect coefficients. In other words, summarization of the effects of predictors using tables of coefficient estimates is often incomplete.  Effects, and particularly plots of effects, can in many instances  visualize effects clearly.  This conclusion is even clearer with linear predictors including interactions, as illustrated later in this \emph{Gallery}.
+
+Predictor effects summarize the role of a selected \emph{focal} predictor in a fitted regression model.  The \fn{predictorEffect} function is used to compute and summary of the regression that is needed, and then the \fn{plot} method is used to draw the plot.
+<<fig11,include=TRUE,fig.width=5,fig.height=4,fig.show='hide'>>=
+require(effects)
+e1.lm1 <- predictorEffect("education", lm1)
+plot(e1.lm1)
+@
+
+\centerline{\includegraphics[width=2.5in]{figure/fig11-1.pdf}}
+
+\noindent
+This plot visualizes the partial slope for \vn{education}, that for each year increase in \vn{education}, the fitted \vn{prestige} increases by \Sexpr{round(coef(lm1)[2], 3)} points, when the other predictors are held fixed.  The intercept of the line is determined by the choices for averaging over the fixed variables, but for any choice of averaging method the slope of the line would be the same.  The shaded area is a pointwise confidence band for the fitted values computed using the standard errors.
+
+The information that is needed to draw the plot is computed by the \fn{predictorEffect} method.
+The minimal syntax for \fn{predictorEffect} is the quoted name of a predictor followed by the name of the fitted model.  The essential purpose of this function is to compute fitted values from the model with \vn{education} varying and all other predictors fixed at some typical value \citep[Sec.~4.3]{fw19}.  The command below displays the values of the regressors for which fitted values were computed, including the column of ones for the intercept:
+<<>>=
+e1.lm1$model.matrix
+@
+Only five fitted values were computed, each with a different value of the focal predictor \vn{education}.  The remaining regressors have the same value for each fitted value.  The value for \lvn{income} is the logarithm of the sample mean \vn{income}, the values for the regressors for \vn{women} are computed at the average of \vn{women} in the data, and the fixed value for the regressors for \vn{type} are effectively taking a weighted average of the fitted values for the three levels of \vn{type}, with weights proportional to the number of observations in each level of the factor.  Differences in the fitted values are due to \vn{education} alone because all the other predictors, and their corresponding regressors, are fixed.  Thus the output gives the marginal effect of \vn{education} with all other predictors fixed.
+
+The computed fitted values can be viewed using
+<<>>=
+as.data.frame(e1.lm1)
+@
+The values in the column \vn{education} are the values of \vn{education}.  The remaining columns are the fitted values, their standard errors, and lower and upper end points of confidence intervals for the fitted values.
+The {predictor effects plot} is simply a plot of the fitted values on the vertical axis versus the focal predictor on the horizontal axis.  When the focal predictor is continuous, as it is here, a line is drawn between the fitted values that represents the fitted \vn{prestige} for any value of \vn{education}.
+
+
+
+
+We turn next to the predictor effects plot for \vn{income}.  According to the fitted model, the effect of \vn{income} may depend on \vn{type} due to the interaction between them, so simply averaging over \vn{type} would be incorrect.  Rather, we must allow both \vn{income} and \vn{type} to vary, fixing the other predictors at their mean or other typical value.
+<<>>=
+e2.lm1 <- predictorEffect("income", lm1)
+as.data.frame(e2.lm1)
+@
+The fitted values are now evaluated at 15 points, five selected values of \vn{income} for each level of \vn{type}.  The predictor effects plot is
+<<fig12,include=TRUE,fig.width=5,fig.height=5,fig.show='hide'>>=
+plot(e2.lm1, lines=list(multiline=TRUE))
+@
+
+\centerline{\includegraphics[width=2.5in]{figure/fig12-1.pdf}}
+
+\noindent
+The focal predictor is displayed on the horizontal axis.  There is a separate line fit to the fitted values for each level of \vn{type}.  The lines are curves rather than straight lines because \vn{income} is used in the model in log-scale, but displayed in the predictor effects plot in arithmetic scale.  The lines are not parallel because of the interaction.  For \code{type=prof} the fitted values of \vn{prestige} are relatively high for lower values of \vn{income}, and are relatively unaffected by increasing values of \vn{income}.
+
+The predictor effects plot for \vn{type} uses the same fitted values as the plot for \vn{income}, but we now get five lines, one for each of the values of \vn{income} selected by the program.
+<<fig13,include=TRUE,fig.width=5,fig.height=5,fig.show='hide'>>=
+plot(predictorEffect("type", lm1),
+     lines=list(multiline=TRUE))
+@
+
+\centerline{\includegraphics[width=2.5in]{figure/fig13-1.pdf}}
+
+\noindent
+We applied both the \fn{predictorEffect} and \fn{plot} functions in the same command.
+Since the horizontal axis is now a factor, the fitted values are displayed explicitly, and the lines that join them are merely a visual aid.  Fitted \vn{prestige} increases with \vn{income} for all levels of \vn{type}, but as we found before when \vn{type=prof} the fitted \vn{prestige} is relatively high for lower \vn{income}.
+
+These first plots used only defaults to computing \fn{predictorEffects}, and, apart from the \code{multiline} argument to put all the lines in the same graph, used defaults for drawing the plots.  We further elaborate the plots in this \emph{Gallery}.
+
+\subsection{General Outline of Using Predictor Effects Plots}
+
+Using the \vn{effects} package to draw plots usually follows this outline:
+\begin{enumerate}
+\item Fit a regression model with a linear predictor.  The package supports models created with \fn{lm}, \fn{glm}, \fn{lmer}, \fn{lme}, \fn{glmer}, and many others.
+\item The regression model created at the first step is then used as input to either  \fn{predictorEffect}, to get the effects for one predictor, or \vn{predictorEffects}, to get effects for one or more predictors, to do the averaging needed to get the values that will ultimately be plotted.  There are many arguments for customizing the computation of the effects.
+
+\item Use the generic \fn{plot} function to draw the graph or graphs based on the object created in Step 2.
+\end{enumerate}
+
+In Section~\ref{sec:eff} we discuss the functions described at step 2 above, and many of the arguments for their use.  In Section~\ref{sec:plot} we discuss and provide examples of the many arguments to the \fn{plot} method for effects objects.  Adding residuals to effects plots is discussed in Section~\ref{sec:res}  Finally in Section~\ref{sec:emmeans} we discuss the connection between the \pkg{effects} package and the \pkg{emmeans} package \citep{lenth18} that provides tests that can complement predictor effects plots.
+
+\subsection{How \vn{predictorEffect} Chooses Conditioning Predictors}\label{sec:eff}
+Suppose you select one {focal} predictor for which you want to draw a predictor effects plot.  The function \fn{predictorEffects} divides the predictors in a formula into three groups:
+\begin{enumerate}
+\item The focal predictor
+\item The \emph{conditioning group}, consisting of all predictors with at least one interaction in common with the focal predictor.
+\item The \emph{fixed group}, consisting of all predictors with no interactions in common with the focal predictor.
+\end{enumerate}
+The predictors in the fixed group are all evaluated at a typical value, usually a mean, effectively averaging out the influence of these variables on fitted value.  Fitted values are computed for all combinations of levels of the predictors in the conditioning group, with continuous predictors in the conditioning group replaced a discrete version with a few levels spanning the range of the continuous predictor, for example replacing years of \vn{education} by a discrete variable with levels 8, 12, 16 years.
+
+Suppose we have a fitted model with \R{} formula
+\begin{equation}
+\Rmod{y}{x1 + x2 + x3 + x4 + x2:x3 + x2:x4}\label{eq1}
+\end{equation}
+There are four possible predictor effects plots, one for each predictor selected as the focal predictor:
+
+\begin{center}
+\begin{tabular}{ccc}\hline
+Focal & Conditioning & Fixed\\
+Predictor & Group & Group\\ \hline
+\vn{x1} &  none& \vn{x2}, \vn{x3}, \vn{x4} \\
+\vn{x2} & \vn{x3}, \vn{x4} & \vn{x1} \\
+\vn{x3} &  \vn{x2} & \vn{x1}, \vn{x4} \\
+\vn{x4} &  \vn{x2}& \vn{x1} \vn{x3} \\ \hline
+\end{tabular}
+\end{center}
+
+\noindent
+The predictor \vn{x1} does not interact with anything, so its conditioning set is empty and all the remaining predictors are averaged over. \vn{x2} interacts with both \vn{x3} and \vn{x4}, \vn{x3} interacts only with \vn{x2} and \vn{x4} interacts with \code{x2}.
+
+\subsection{The \fn{Effect} Function}
+Prior to late 2018 the primary function in \pkg{effects} for computing and displaying effects was the \fn{Effect} function.  Whereas the \fn{predictorEffect} function automatically determines the condition group and the fixed group, the \fn{Effect} function puts that burden on the user.
+Each call to \fn{predictorEffect} is equivalent to a specific call the the \fn{Effect} function as follows.  Suppose the \vn{m} is the name of a fitted model
+<<eval=FALSE>>=
+predictorEffect("x1", m) # equivalent to Effect("x1", m)
+predictorEffect("x2", m) # equivalent to Effect(c("x2", "x3", "x4"), m)
+predictorEffect("x3", m) # equivalent to Effect(c("x3", "x2"), m)
+predictorEffect("x4", m) # equivalent to Effect(c("x4", "x2"), m)
+@
+
+The \fn{predictorEffect} function determines the correct call to \vn{Effect} based on the choice of focal predictor and on the formula of main effects and interactions.  It then uses the \vn{Effect} function to do the computing.  As a result most of the option for using \fn{predictorEffect} are shown on the help page for \code{help("Effect")} rather than the help page for \fn{predictorEffect}.
+
+\subsection{The \vn{predictorEffects} Function}
+This function, ending with an ``s", computes the values needed for one or more predictor effects plots.  For example,
+<<fig14,include=TRUE,fig.width=7,fig.height=8,fig.show='hide'>>=
+eall.lm1 <- predictorEffects(lm1)
+plot(eall.lm1)
+@
+
+\centerline{\includegraphics[width=5in]{figure/fig14-1.pdf}}
+
+\noindent
+This presents all predictor effects plots for this model in an array of plots.  The plots for \vn{income} and \vn{type} have a separate plot for each level of the conditioning variable because the default option \code{lines=list(multiline=FALSE)} was used.  Confidence bounds are shown for all the variables by default when \ar{multilines=FALSE}.
+
+The result \vn{eall.lm1} is a list with four elements, so \code{eall.lm1[[1]]} is the summary needed for the first predictor effects plot, \code{eall.lm1[[2]]} for the second plot, and so on.  The following equivalent commands will draw an array of predictor effects plots:
+<<eval=FALSE>>=
+plot(eall.lm1)
+plot(predictorEffects(lm1))
+plot(predictorEffects(lm1, ~ income + education + women + type))
+@
+If you want only predictor effects plots for \vn{type} and \vn{education}, in that order, you could enter
+<<eval=FALSE>>=
+plot(predictorEffects(lm1, ~ type + education))
+@
+The commands
+<<eval=FALSE>>=
+plot(predictorEffects(lm1, ~ women))
+plot(predictorEffects(lm1)[[3]])
+plot(predictorEffect("women",lm1))
+@
+would all produce the same plot.
+
+Predictor effects plots in an array can be a useful shortcut for drawing many plots quickly, but can lead to problems with the displayed graphs. For example, the horizontal axis labels for the plot for \vn{income} are overprinted, and the labels at the top of the plots for \vn{type} with conditioning variable \vn{income} are larger than the available space.  These problems can often be fixed using the arguments we describe later in this \emph{Gallery}.
