@@ -1,4 +1,6 @@
 \name{plot.effects}
+\alias{plot.effect}
+\alias{plot.effects}
 \alias{plot.predictoreff}
 \alias{plot.predictorefflist}
 \alias{plot.eff}
