@@ -2,6 +2,8 @@ Version 4.1-0
 
  o Removed the transform argument from as.data.frame.eff(), and added type argument.  Made the transformation argument to Effect() a legacy argument and added transform as sub-argument to axes=list(y=list(transform=...)) in plot.eff(). 
  
+ o Rearanged man files.
+ 
  o Extend use of cex sub-args for x and y axes and lattice strips to plot.effpoly().
  
  o Avoid warnings when testing given.values == "default" or "equal".
