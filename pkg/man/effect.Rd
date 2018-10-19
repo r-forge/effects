@@ -8,10 +8,6 @@
 \alias{Effect.svyglm}
 \alias{allEffects}
 \alias{allEffects.default}
-\alias{as.data.frame.eff}
-\alias{as.data.frame.effpoly}
-\alias{as.data.frame.efflatent}
-\alias{vcov.eff}
 
 \title{Functions For Constructing Effect Displays}
 \description{
@@ -73,15 +69,6 @@ Effect(focal.predictors, mod, ...)
 allEffects(mod, ...)
 
 \method{allEffects}{default}(mod, ...)
-
-\method{as.data.frame}{eff}(x, row.names=NULL, optional=TRUE, 
-        type=c("response", "link"), ...)
-
-\method{as.data.frame}{effpoly}(x, row.names=NULL, optional=TRUE, ...)
-
-\method{as.data.frame}{efflatent}(x, row.names=NULL, optional=TRUE, ...)
-
-\method{vcov}{eff}(object, ...)
 }
 
 \arguments{
@@ -171,9 +158,6 @@ allEffects(mod, ...)
   	(the default) effects are computed as individual-level probabilities
   	and logits.}
   \item{x}{an object of class \code{"eff"}, \code{"effpoly"}, or \code{"efflatent"}.}
-  \item{row.names, optional}{not used.}
-  \item{type}{\code{type="response"} returns results in response scale; \code{type="link"} returns results in link, or linear predictor, scale}
-  \item{object}{an object of class \code{"eff"} for which the covariance matrix of the effects is desired.}
   \item{...}{arguments to be passed down.}
   \item{confint, confidence.level, given.values, typical, offset, partial.residuals, transformation}{legacy arguments retained for backwards compatability; if present, these arguments take precedence
   over \code{level} element of the \code{confint} list argument and the
@@ -202,8 +186,6 @@ allEffects(mod, ...)
   compute the effect corresponding to the absent term \code{A:B:C}, which absorbs the constant, the
   \code{A}, \code{B}, and \code{C} main effects, and the three two-way interactions. In either of these
   cases, a warning is printed.
-
-  The \code{as.data.frame} methods reformat effect objects as a data frame, giving the fitted values in either the scale of the linea predictor, \code{type="link"}, or in the scale of the response, \code{type="response"}. The values returned are the fitted values, standard errors and 95 percent confidence intervalsin either link or response scale. If the family object did not have  \code{mu.eta} function, then the standard error is \code{NA} in response scale.  The returned data frame has an attribute \code{type} giving the type of output.
 
   See \code{\link{predictorEffects}} for an alternative paradigm for getting effects.
 }

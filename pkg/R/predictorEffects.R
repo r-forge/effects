@@ -10,6 +10,7 @@
 # 2018-05-14 predictorEffect.default() calls Effect() with x.var=1
 # 2018-06-07 predictorEffects now works with offsets.
 # 2018-08-09 removed explicit 'xlevels' argument from predictorEffects, so the argument is correctly passed with ...
+# 2018-10-19: changed class of predictorefflist to c("predictorefflist", "efflist", "list")
 
 
 # removed xlevels argument 8/9/18
@@ -79,7 +80,7 @@ predictorEffects.default <- function(mod, predictors = ~ ., ...) {
     result <- list()
     for(p in cvars) result[[p]] <- predictorEffect(p, mod, ...)
     }
-  class(result) <- c("predictorefflist", "list")
+  class(result) <- c("predictorefflist", "efflist", "list")
   result
 }
 

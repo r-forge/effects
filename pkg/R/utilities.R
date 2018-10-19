@@ -29,6 +29,7 @@
 # 2018-05-13: modified Analyze.model() to support partial-residual plots against factors.
 # 2018-08-17: modified .onAttach() so that trellis device doesn't open, suggestion of Kurt Hornik.
 # 2018-10-06: modified as.data.frame, adding a 'type' argument and deleting the 'transformation' argument, using the mu.eta function from the defining family
+# 2018-10-19:  added as.data.frame.efflist
 
 has.intercept <- function(model, ...) any(names(coefficients(model))=="(Intercept)")
 
@@ -176,6 +177,10 @@ as.data.frame.eff <- function(x, row.names=NULL, optional=TRUE, type=c("response
                                   upper= x$upper)})
   attr(result, "type") <- type
   result 
+}
+
+as.data.frame.efflist <- function(x, row.names=NULL, optional=TRUE, type, ...){
+  lapply(x, as.data.frame, type)
 }
 
 as.data.frame.effpoly <- function(x, row.names=NULL, optional=TRUE, ...){
