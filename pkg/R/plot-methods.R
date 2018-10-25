@@ -39,6 +39,8 @@
 # 2018-07-04: add cex sub-arg for strips.
 # 2018-10-09: moved transform arg from Effect to axes=list(y=list(transform=))
 # 2018-10-15: moved z.var to lines=list(z.var)
+# 2018-10-25: check number of points used for spline interpolation
+# 2018-10-25: fixed bug in plot.eff() introduced by previous modification to as.data.frame.eff().
 
 # the following functions aren't exported
 
@@ -92,6 +94,7 @@ panel.bands <- function(x, y, upper, lower, fill, col,
     lower <- lower[subscripts]
   }
   if (use.splines){
+    if (length(x) < 5) warning("spline interpolation may be unstable with only ", length(x), " points")
     up <- spline(x, upper)
     down <- spline(x, lower)
     x <- up$x
@@ -109,7 +112,10 @@ panel.bands <- function(x, y, upper, lower, fill, col,
 # modified by Michael Friendly: added lwd= argument for llines (not used elsewhere)
 # modified by Michael Friendly: added alpha.band= argument for ci.style="bands"
 
-spline.llines <- function(x, y, ...) llines(spline(x, y), ...)
+spline.llines <- function(x, y, ...) {
+  if (length(x) < 5) warning("spline interpolation may be unstable with only ", length(x), " points")
+  llines(spline(x, y), ...)
+}
 
 plot.eff <- function(x, x.var,  
           main=paste(effect, "effect plot"),
@@ -347,8 +353,7 @@ plot.eff <- function(x, x.var,
   x.data <- x$data
   effect <- paste(sapply(x$variables, "[[", "name"), collapse="*")
   vars <- x$variables
-#  x <- as.data.frame(x, transform=I)
-  x <- as.data.frame(x)
+  x <- as.data.frame(x, type="link")
   for (i in 1:length(vars)){
     if (!(vars[[i]]$is.factor)) next
     x[,i] <- factor(x[,i], levels=vars[[i]]$levels, exclude=NULL)

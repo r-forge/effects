@@ -30,6 +30,7 @@
 # 2018-08-17: modified .onAttach() so that trellis device doesn't open, suggestion of Kurt Hornik.
 # 2018-10-06: modified as.data.frame, adding a 'type' argument and deleting the 'transformation' argument, using the mu.eta function from the defining family
 # 2018-10-19:  added as.data.frame.efflist
+# 2018-10-25: as.data.frame.eff() fixed so that deletion of the transformation argument doesn't break plot.eff(). J. Fox
 
 has.intercept <- function(model, ...) any(names(coefficients(model))=="(Intercept)")
 
@@ -147,10 +148,11 @@ matrix.to.df <- function(matrix, colclasses){
 
 # the following function is a modification of code contributed by Steve Taylor
 # as.data.frame rewritten, 2018-10-06
+# fixed 2018-10-25 so that plot.eff() isn't broken by the rewrite
 
 as.data.frame.eff <- function(x, row.names=NULL, optional=TRUE, type=c("response", "link"), ...){ 
   type <- match.arg(type)
-  linkinv <- x$link$linkinv
+  linkinv <- if (is.null(x$link$linkinv)) I else x$link$linkinv
   linkmu.eta <- if(is.null(x$link$mu.eta)) function(x) NA else x$link$mu.eta
   xx <- x$x
   for (var in names(xx)){

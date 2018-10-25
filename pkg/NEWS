@@ -1,5 +1,7 @@
 Version 4.1-0
 
+ o Added predictor effects graphics gallery vignette.
+
  o Removed the transform argument from as.data.frame.eff(), and added type argument.  Made the transformation argument to Effect() a legacy argument and added transform as sub-argument to axes=list(y=list(transform=...)) in plot.eff(). 
  
  o Rearanged man files.
@@ -11,6 +13,8 @@ Version 4.1-0
  o Modified plot.effpoly() so that multiline plots don't show confidence limits by default, and so that confidence bars for a factor are staggered.
  
  o Added effectsHexsticker().
+ 
+ o Small fixes and improvements.
 
 Version 4.0-3
 
