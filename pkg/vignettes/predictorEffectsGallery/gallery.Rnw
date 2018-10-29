@@ -5,7 +5,7 @@
 %%\VignetteIndexEntry{Effects Gallery}
 %%\VignettePackage{effects}
 
-\documentclass[12pt]{article}
+\documentclass[10pt]{article}
 
 
 \usepackage[left=1.25in, right=1.25in, top=1in, bottom=1in]{geometry}
@@ -57,17 +57,21 @@
 \newcommand{\inter}[2]{\mbox{$#1$:$#2$}}
 \newcommand{\cross}[2]{\mbox{$#1$\code{*}$#2$}}
 \newcommand{\N}{\mathrm{N}}
-\newcommand{\fn}{\texttt}
+\newcommand{\fn}[1]{\texttt{#1()}}
 \newcommand{\ar}{\texttt}
-\newcommand{\pkg}[1]{\code{#1}}
-\newcommand{\proglang}[1]{\code{#1}}
+\newcommand{\pkg}[1]{\textbf{#1}}
+\newcommand{\proglang}[1]{\textsf{#1}}
 \newcommand{\yx}{\widehat{y}(\x)}
 \newcommand{\lvn}[1]{\mbox{$\log(\mbox{\texttt{#1}})$}}
 \newcommand{\vn}[1]{\mbox{\texttt{#1}}}
+\newcommand{\level}[1]{\texttt{"#1"}}
+\newcommand{\class}[1]{\texttt{"#1"}}
+
+
 
 \begin{document}
 
-\title{Predictor Effects Gallery}
+\title{Predictor Effects Graphics Gallery}
 
 \author{John Fox and Sanford Weisberg}
 
@@ -78,7 +82,7 @@
 \tableofcontents
 
 \begin{abstract}
-Predictor effect displays visualize the response surface of complex regression models by averaging and conditioning, producing a sequence of 2D line graphs, one graph or set of graphs for each predictor in the regression problem \citep{fw19b, fw19}.  In this vignette we give examples of the use of the \pkg{effects} package in \R{} for drawing effects plots, including many of the optional arguments.
+Predictor effect displays visualize the response surface of complex regression models by averaging and conditioning, producing a sequence of 2D line graphs, one graph or set of graphs for each predictor in the regression problem \citep{fw19, fw19b}.  In this vignette, we give examples of effect plots produced by the \pkg{effects} package, and in the process systematically illustrate the optional arguments to functions in the package.
 \end{abstract}
 
 <<setopts,echo=FALSE>>=
@@ -86,7 +90,7 @@ library("knitr")
 opts_chunk$set(fig.width=5,fig.height=5,#tidy=TRUE,
                out.width="0.8\\textwidth",echo=TRUE)
 #options(prompt=" ")
-options(continue="+    ", prompt="R> ", width=76)
+options(continue="+    ", prompt="R> ", width=70)
 options(show.signif.stars=FALSE, scipen=3)
 @
 

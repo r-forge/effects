@@ -1,71 +1,80 @@
 % !Rnw root = gallery.Rnw
 
-\section{Options for the \fn{predictorEffect} Function}\label{sec:peopts}
-The help page \code{help("Effect")} describes the options that are available for the \fn{Effect} function.  The following is a list of the arguments available to modify the behavior of the \fn{predictorEffect} and \fn{Effect} functions.  The help file \code{help("Effect")} is somewhat more comprehensive, for example giving exceptions for use with \fn{svyglm} objects, or when plotting residuals.
+\section{Optional Arguments for the \fn{predictorEffect} and \fn{Effect} Functions}\label{sec:peopts}
+
+This section comprises a catalog of the arguments available to modify the behavior of the \fn{predictorEffect} and \fn{Effect} functions.  The \code{help("Effect")} help page is somewhat more comprehensive, for example, explaining exceptions for use with \class{svyglm} objects or when plotting residuals.
 
 \subsection{Options for Predictors in the Conditioning Group:  \ar{xlevels}}
 
-Numeric predictors in the conditioning group need to be discretized to draw the predictor effects plot.  For example the predictor effects plot for \vn{type} will consist of a separate line, or separate graph, for each discrete value of \vn{income},
-<<fig21,include=TRUE,fig.width=3.5,fig.height=4,fig.show='hide'>>=
+Numeric predictors in the conditioning group need to be discretized to draw a predictor effect plot.  For example the predictor effect plot for \vn{type} consists of a separate line, or a separate panel, for each discrete value of \vn{income}:
+<<fig21,include=TRUE,fig.width=6,fig.height=5,fig.show='hide'>>=
 e3.lm1 <- predictorEffect("type", lm1)
 plot(e3.lm1, lines=list(multiline=TRUE))
-plot(e3.lm1, lines=list(multiline=FALSE))
+plot(e3.lm1, lines=list(multiline=FALSE)) # the default
 @
 
-\centerline{\includegraphics[width=2.5in]{figure/fig21-1.pdf}
-            \includegraphics[width=2.5in]{figure/fig21-2.pdf}}
+\centerline{\includegraphics[width=3in]{figure/fig21-1.pdf}}
+            
+\centerline{\includegraphics[width=4in]{figure/fig21-2.pdf}}
 
 \noindent
-The numeric conditioning predictor \vn{income} was evaluated by default at five
-equally spaced values \vn{income}, and then rounded to ``nice" numbers.  In this example using two values of 5000 and 25000 might display the graph more clearly,
-<<fig22,include=TRUE,fig.width=3.5,fig.height=4,fig.show='hide'>>=
+The numeric conditioning predictor \vn{income} is evaluated by default at five
+equally spaced values \vn{income}, and then rounded to ``nice" numbers.  In this example using three values of 5000, 15000, 25000 might produce a graph that's easier to decode:
+<<fig22,include=TRUE,fig.width=5.5,fig.height=5,fig.show='hide'>>=
 e3.lm1 <- predictorEffect("type", lm1,
-                          xlevels=list(income=c(5000, 25000)))
+                          xlevels=list(income=c(5000, 15000, 25000)))
 plot(e3.lm1, lines=list(multiline=TRUE),
      confint=list(style="bars"))
 plot(e3.lm1,
-     lines=list(multiline=FALSE))
+     lines=list(multiline=FALSE),
+     lattice=list(layout=c(3, 1)))
 @
 
-\centerline{\includegraphics[width=2.5in]{figure/fig22-1.pdf}
-            \includegraphics[width=2.5in]{figure/fig22-2.pdf}}
+\centerline{\includegraphics[width=3in]{figure/fig22-1.pdf}
+            \includegraphics[width=3.5in]{figure/fig22-2.pdf}}
 
 \noindent
 The argument \ar{xlevels} is a list of sub-arguments that control how numeric predictors are discretized when used in the conditioning group.  For example, \code{xlevels=list(x1=c(2, 4, 7), x2=6)} would use the values 2, 4 and 7 for the levels of a predictor named \code{x1}, use six
-equally spaced levels for the levels of a predictor named \code{x2}, and use the default for any other numeric predictors.  Numeric predictors in the fixed group are not affected by the \ar{xlevels} argument.
+equally spaced values for the the predictor \code{x2}, and use the default of five values for any other numeric predictors.  Numeric predictors in the fixed group are not affected by the \ar{xlevels} argument. We use the \ar{layout} sub-argument of the \ar{lattice} argument to arrange the panels of the second graph in 3 columns and 1 row (see Section~\ref{sec:layout}).
 
-The number of points at which the focal predictor will be evaluated is also controlled by the \ar{xlevels} argument. Increasing the number of points may make plotted lines smoother.  See \code{help("plot.eff")} for information on the \ar{quantiles} argument that provides an alterntive method of setting \ar{xlevels}.
+The number of points at which the focal predictor is evaluated is also controlled by the \ar{xlevels} argument. Increasing the number of points may make plotted lines smoother or more accurate.  See \code{help("plot.eff")} for information on the \ar{quantiles} argument that provides an alterntive method of setting \ar{xlevels} when partial residuals are displayed (as discussed in Section~\ref{sec:res}).
 
 \subsection{Predictors in the Fixed Group}
+
 \subsubsection{Factor Predictors}\label{sec:facpred}
-Predictors in the fixed group are replaced by a fixed ``typical" value.  Fitted values are then computed using the fixed values for the fixed group, and varying the values in the conditioning group and for the focal predictor. The user can control how the fixed values are determined  using the \ar{fixed.predictors} argument.  This argument has a list of sub-arguments to allow for controlling each predictor in the fixed group, with different rules for factors and numeric predictors.
 
-For a fixed factor, imagine computing the fitted values evaluting the fixed factor at each of its levels.  The fitted value that is used is the weighed average of this within-level fitted values, with weights proportional to the number of observations at each level of the factor.   This is an appropriate notion of ``typical" if the data at hand are viewed as a random sample from a population, and so the sample fraction at each level estimates the population fraction.  A second approach is to average with equal weighting at each level. This may be particularly appropriate in designed experiments in which the levels of a factor are assigned by an investigator.  This latter method  obtained by setting \code{fixed.predictors=list(given.values="equal")}.
+Predictors in the fixed group are replaced by fixed ``typical" values.  Fitted values are then computed using these fixed values for the fixed group, varying the values in the conditioning group and for the focal predictor. The user can control how the fixed values are determined  by specifying the \ar{fixed.predictors} argument.  This argument takes a list of sub-arguments that allow for controlling each predictor in the fixed group individually, with different rules for factors and numeric predictors.
 
-You can construct other weighting schemes for averaging over the levels of a factor, as described on the help page for \fn{Effect}.
+For a fixed factor, imagine computing the fitted values evaluting the factor at each of its levels.  The fitted value that is used is the weighed average of these within-level fitted values, with weights proportional to the number of observations at each level of the factor. This is an appropriate notion of ``typical" if the data at hand are viewed as a random sample from a population, and so the sample fraction at each level estimates the population fraction.  
+
+A second approach is to average the level-specific fitted values with equal weights at each level. This may be  appropriate, for example, in designed experiments in which the levels of a factor are assigned by an investigator.  The latter method is invoked by setting \code{fixed.predictors=list(given.values="equal")}.
+
+You can construct other weighting schemes for averaging over the levels of a factor, as described on the help page for the \fn{Effect} function.
 
 \subsubsection{Numeric Predictors}
-For numeric predictors in the fixed group the default method of selecting a typical value is the \fn{mean} function.  The specification \code{fixed.predictors = list(typical=median)} would use the median; in general \ar{typical} can be any function that evaluates a vector and return a single number.
 
-Other sub-arguments to \ar{fixed.predictors} apply to the use of offsets, and to the \pkg{survey} package; see the help file for \fn{Effect}.
+For numeric predictors in the fixed group, the default method of selecting a typical value is to apply the \fn{mean} function.  The specification \code{fixed.predictors=list(typical=median)} would use the \fn{median} function; in general, \ar{typical} can be any function that evaluates a vector and return a single number.
+
+Other sub-arguments to \ar{fixed.predictors} apply to the use of offsets, and to the \pkg{survey} package; see the help page for the \fn{Effect} function.
 
 \subsection{Standard Errors and Confidence Intervals}\label{sec:se}
-Standard errors  and confidence intervals for fitted values are are computed by default.  The default corresponds to setting the argument \code{se = list(compute=TRUE, type="pointwise", level=.95)}.  Setting \code{se=FALSE} omits standard errors, \ar{type= "scheffe"} uses wider Scheff\'{e} intervals that adjust for multiple testing, \code{level=.8} gives 80\% intervals.
 
-Standard errors are based on the ``usual" estimated variance matrix of the regression coefficient estimates. You can replace this with some other estimate of variance, such as from a bootstrap or a sandwich estimator, by setting the argument \ar{vcov.} to equal either the name of a function that returns a sample covariance matrix  such as \fn{hccm} for linear models, or equal to a matrix of the correct size.
+Standard errors and confidence intervals for fitted values are computed by default.  The default corresponds to setting the argument \code{se=list(compute=TRUE, type="pointwise", level=.95)}.  Setting \code{se=FALSE} omits standard errors, \ar{type="scheffe"} uses wider Scheff\'{e} intervals that adjust for multiple testing, and \code{level=.8} produces 80\% intervals.
+
+Standard errors are based by default on the ``usual" estimated covariance matrix of the estimated regression coefficients. You can replace the default coefficient covariance matrix with some other estimate, such as one obtained from the bootstrap or a sandwich coefficient covariance matrix estimator, by setting the argument \ar{vcov.} either to a function that returns a coefficient covariance matrixsuch as \fn{hccm} in the \pkg{car} package for linear models, or to a matrix of the correct size; for example:
 <<fig23,include=TRUE,fig.width=5,fig.height=4,fig.show='hide'>>=
-require(effects)
 e4.lm1 <- predictorEffect("education", lm1,
                           se=list(type="scheffe", level=.99),
                           vcov. = hccm)
 plot(e4.lm1)
 @
 
-\centerline{\includegraphics[width=2.5in]{figure/fig23-1.pdf}}
+\centerline{\includegraphics[width=4in]{figure/fig23-1.pdf}}
 
 \noindent
-This plot displays 99\% Scheff\'{e} intervals based on the robust covariance matrix computed with the sandwich method; see \code{help("hccm")}.
+This plot displays 99\% Scheff\'{e} intervals based on a robust coefficient covariance matrix computed by the sandwich method; see \code{help("hccm")}.
 
 \subsection{Residuals}
-The argument \ar{residuals}, or \ar{partial.residuals}< is used to add partial to  effects plots; see Section~\ref{sec:res}.
+
+The argument \ar{residuals=TRUE} adds partial residuals to subsequent effect plots, a topic that we discuss in Section~\ref{sec:res}.
 
