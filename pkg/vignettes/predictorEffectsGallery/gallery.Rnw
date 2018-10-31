@@ -82,7 +82,7 @@
 \tableofcontents
 
 \begin{abstract}
-Predictor effect displays visualize the response surface of complex regression models by averaging and conditioning, producing a sequence of 2D line graphs, one graph or set of graphs for each predictor in the regression problem \citep{fw19, fw19b}.  In this vignette, we give examples of effect plots produced by the \pkg{effects} package, and in the process systematically illustrate the optional arguments to functions in the package.
+Predictor effect displays visualize the response surface of complex regression models by averaging and conditioning, producing a sequence of 2D line graphs, one graph or set of graphs for each predictor in the regression problem \citep{fw19, fw19b}.  In this vignette, we give examples of effect plots produced by the \pkg{effects} package, and in the process systematically illustrate the optional arguments to functions in the package, which can be used to customize predictor effect plots.
 \end{abstract}
 
 <<setopts,echo=FALSE>>=

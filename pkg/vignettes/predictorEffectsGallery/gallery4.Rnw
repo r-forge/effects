@@ -1,10 +1,10 @@
 % !Rnw root = gallery.Rnw
 
-\section{Displaying Residuals in Predictor Effect and Effect Plots}\label{sec:res}
+\section{Displaying Residuals in Predictor Effect Plots}\label{sec:res}
 
 \citet{fw19b} introduce methodology for adding partial residuals to a predictor effect or effect plot.  This can be desirable to display variation in data around a fitted partial regression surface or to diagnose possible lack of fit, as the resulting plots are similar to traditional component-plus-residual plots \citep[Sec.~8.4]{fw19}.
 
-The predictor effect plot for a focal predictor that does not interact with other predictors is equivalent to a standard component-plus-residual plot; for example:
+The predictor effect plot for a numeric focal predictor that does not interact with other predictors is equivalent to a standard component-plus-residual plot; for example:
 <<fig51,include=TRUE,fig.width=10,fig.height=9,fig.show='hide'>>=
 lm5 <- lm(prestige ~ log(income) + education + women + type,
           Prestige)
@@ -12,12 +12,17 @@ plot(predictorEffects(lm5, residuals=TRUE),
      axes=list(grid=TRUE,
                x=list(rotate=30)),
      partial.residuals=list(smooth=TRUE,
+                            span=2/3,
                             lty="dashed"))
 @
 \centerline{\includegraphics[width=.99\textwidth]{figure/fig51-1.pdf}}
 
 \noindent
-The partial residuals to be plotted are computed using the \ar{residuals} argument to the \fn{predictorEffect}, \fn{predictorEffects}, or \fn{Effect} function.  For the numeric predictors \vn{income}, \vn{education} and \vn{women}, the plotted points are each equal to a point on the fitted (blue) line, representing the partial fit, plus the corresponding residual. For \vn{income}, the fitted partial-regression line in curved because of the log transformation of the predictor, but the partial-regregression function is a straight line for the other two numeric predictors.  The dashed line, in the same magenta color as the plotted points on the graph, is a nonparametric-regression smooth of the points.  If the model adequately represents the data, then the dashed line should approximately match the fitted partial-regression line from the model.  For the factor \vn{type}, the points have been jittered horizontally to separate them visually, because the only possible horizontal coordiantes are at the three distinct factor levels. Smooths are not fit to factors and instead the conditional means of the partial residuals are plotted as magenta dots; in the current model, the magenta dots and the blue dots representing the fitted adjusted means of the response at the levels of \vn{name} necessarily match.
+The partial residuals to be plotted are computed using the \ar{residuals} argument to the \fn{predictorEffect}, \fn{predictorEffects}, or \fn{Effect} function.  For the numeric predictors \vn{income}, \vn{education}, and \vn{women}, the plotted points are each equal to a point on the fitted (blue) line, representing the partial fit, plus the corresponding residual. For \vn{income}, the fitted partial-regression line in curved because of the log transformation of the predictor, but the partial-regregression function is a straight line for the other two numeric predictors.  
+
+The dashed line (produced by \code{lty="dashed"}---the fault is \code{"solid"}), in the same magenta color as the plotted points on the graph, is a loess nonparametric-regression smooth of the points. The sub-argument \code{smooth=TRUE} is the default if residuals are present in the effect object to be plotted. The sub-argument \code{span=0.75} adjust the span of the loess smoother from the default of \code{2/3}---an unnecessary adjustment here specified simply to illustrate how to set the span. If the model adequately represents the data, then the dashed  magenta line should approximately match the solid blue partial-regression line, which represents the fitted model. 
+
+For the factor \vn{type}, the points have been jittered horizontally to separate them visually, because the only possible horizontal coordiantes are at the three distinct factor levels. Smooths are not fit to factors and instead the conditional means of the partial residuals are plotted as magenta dots; in the current model, the magenta dots and the blue dots representing the fitted adjusted means of the response at the levels of \vn{name} necessarily match.
 
 The \fn{plot} method for effect objects has a \ar{partial.residuals} argument, with several sub-arguments that control how partial residuals are displayed.  In the command above, we used the sub-argument \vn{smooth=TRUE} to add the smoother (which is the default when residuals are included in the effect object), and \ar{lty="dashed"} to change the line type for the smooth from the default solid line to a dashed line.  All the \vn{smooth} sub-arguments are described in \code{help("plot.eff")}.
 
@@ -34,11 +39,11 @@ plot(predictorEffects(lm6, ~ ppgdp, partial.residuals=TRUE),
 \centerline{\includegraphics[width=.99\textwidth]{figure/fig52-1.pdf}}
 
 \noindent
-The predictor effect plot for \vn{ppgdp} conditions on the factor \ar{group} because of the interaction between these two predictors. Several problems are apparent in this plot: The \ar{id} argument is used to identify the most unusual point in each panel, as described in detail in \code{help("plot.eff")}.  Turkey has higher than predicted infant mortality for the \level{oecd} group, Equatorial Guinea is clearly unusual for the \level{africa} group, and Afghanistan, in the \level{other} group, has infant mortality much higher than predicted.  In addition, the smooths through the points do not match the fitted lines in the \level{other} and \level{africa} groups.  We use the command \code{options(scipen=10)} to suppress annoying cientific notation in the axis labels, and instead rotate these labels so that they fit without over-plotting.
+The predictor effect plot for \vn{ppgdp} conditions on the factor \ar{group} because of the interaction between these two predictors. Several problems are apparent in this plot: The \ar{id} argument is used to identify the most unusual point in each panel, as described in detail in \code{help("plot.eff")}.  Turkey has higher than predicted infant mortality for the \level{oecd} group; Afghanistan, in the \level{other} group, has infant mortality much higher than predicted; and Equatorial Guinea is clearly unusual for the \level{africa} group.  In addition, the smooths through the points do not match the fitted lines in the \level{other} and \level{africa} groups.  We use the command \code{options(scipen=10)} to suppress annoying scientific notation in the tick-mark labels, and instead rotate these labels so that they fit without over-plotting.
 
 Log-transforming both the predictor \vn{ppgdp} and the response \vn{infantMortality} produces a better fit to the data:
 <<fig53,include=TRUE,fig.width=10,fig.height=5,fig.show='hide'>>=
-lm7 <- lm(log(infantMortality) ~ group*log(ppgdp), dat=UN)
+lm7 <- lm(log(infantMortality) ~ group*log(ppgdp), data=UN)
 plot(predictorEffects(lm7, ~ ppgdp, partial.residuals=TRUE),
      axes=list(x=list(rotate=25)),
      id=list(n=1),
@@ -59,7 +64,7 @@ plot(predictorEffects(lm7, ~ ppgdp, partial.residuals=TRUE),
 @
 \centerline{\includegraphics[width=.99\textwidth]{figure/fig54-1.pdf}}
 
-Partial residual plots can be added to linear or linear mixed models or to generalized linear  or generalized linear mixed models in the default link scale.
+Partial residuals can be added to effect plots for linear or generalized linear models in the default link scale, and to effect plots for linear or generalized linear mixed models.
 
 % \section{Predictor Effect Plots with Multivariate Responses}
 % \subsection{Multivariate Regression}
@@ -70,19 +75,19 @@ Partial residual plots can be added to linear or linear mixed models or to gener
 \section{Polytomous Categorical Responses}
 
 The \pkg{effects} package produces special graphs for ordered and unordered polytomous categorical response variables.
-In an ordinal regression the response is an ordered categorical variable.  For example, in a study of labor force participation the response could be not working, working part time, or working full time.  The proportional-odds model \citep[Sec.~6.9]{fw19} estimates the probability of a response in each of these three categories given a linear combination of regressors defined by a set of predictors, assuming a logit link function.  
+In an ordinal regression, the response is an ordered categorical variable with three or more levels.  For example, in a study of women's labor force participation that we introduce below, the response is not working outside the home, working part time, or working full time.  The proportional-odds model \citep[Sec.~6.9]{fw19} estimates the probability of a response in each of these three categories given a linear combination of regressors defined by a set of predictors, assuming a logit link function.  
 
-We illustrate the proportional-odds model with the \code{Womenlf} data set, for young married Canadian women, in the \pkg{carData} package and the \fn{polr} function in the \pkg{MASS} package:
+We illustrate the proportional-odds model with the \code{Womenlf} data set in the \pkg{carData} package, for young married Canadian women's labor-force participation,  using the \fn{polr} function in the \pkg{MASS} package to fit the model:
 <<>>=
-library("MASS") # for the the polr() function
+library("MASS") # for polr()
 Womenlf$partic <- factor(Womenlf$partic,
     levels=c("not.work", "parttime", "fulltime")) # order response levels
 or1 <- polr(partic ~ log(hincome) + children, data=Womenlf)
 S(or1)
 @
-The response variable \code{partic} had its levels in alphabetical order, which does not correspond to their natural ordering.  We therefore start by reordering the levels to increase from \level{not.work}, to \level{parttime} work, to \level{fulltime} work.  The printed summary is  relatively complex, and is explained in \citep[Sec.~6.9]{fw19}.
+The response variable \code{partic} initially has its levels in alphabetical order, which does not correspond to their natural ordering.  We therefore start by reordering the levels to increase from \level{not.work}, to \level{parttime} work, to \level{fulltime} work. The predictors are the numeric variable \vn{hincome} (husband's income), which enters the model in log-scale, and the factor \vn{children}, presence of children in the household.
 
-Predictor effect plots greatly simplify interpretation of the fitted model:
+The model summary is relatively complex, and is explained in \citet[Sec.~6.9]{fw19}. Predictor effect plots greatly simplify interpretation of the fitted model:
 <<fig41,include=TRUE,fig.width=6.5,fig.height=6.5,fig.show='hide'>>=
 plot(predictorEffects(or1, xlevels=50),
      axes=list(grid=TRUE),
@@ -91,36 +96,36 @@ plot(predictorEffects(or1, xlevels=50),
 \centerline{\includegraphics[width=.9\textwidth]{figure/fig41-1.pdf}}
 
 \noindent
-Unlike predictor effect plots for generalized linear models, the default scaling for the vertical axis is the probability scale, equivalent to \code{axes=list(y=list(type="response"))} for a GLM, and the alternative is \code{axes=list(y=list(type="logit"))}, which is analogous to \code{type="link"} for a GLM.\footnote{The logits plotted, however, correspond to the individual-level probabilities and are not the adjacent-category logits in the definition of the proportional-odds model.}  Confidence bands are present by default, unless turned off with the argument \code{confint=list(style="none")}. We specify the argument \code{xlevels=50} to \fn{predictorEffects} to draw smoother lines for the \vn{hincome} predictor; the default number of values to plot is five.  The plot for \vn{hincome} suggests high probability of full time work if husband's income is low, with the probability of full time work sharply decreasing to about \$15,000 and then leveling off at about .1 to .2.  The probability of not working  rapidly increases with husband's income, while the probability of working part time is fairly flat.  A similar pattern is apparent for children present in the home, with full time work much less prevalent and not working much more prevalent when children are present than when they are absent.
+Unlike predictor effect plots for generalized linear models, the default scaling for the vertical axis is the probability scale, equivalent to \code{axes=list(y=list(type="response"))} for a GLM, and the alternative is \code{axes=list(y=list(type="logit"))}, which is analogous to \code{type="link"} for a GLM.\footnote{The logits plotted, however, correspond to the individual-level probabilities and are not the ordered logits in the definition of the proportional-odds model.}  Confidence bands are present by default, unless turned off with the argument \code{confint=list(style="none")}. We specify the argument \code{xlevels=50} to \fn{predictorEffects} to draw smoother lines for the \vn{hincome} predictor; the default number of values to plot is five.  The plot for \vn{hincome} suggests high probability of full-time work if husband's income is low, with the probability of full-time work sharply decreasing to about \$15,000 and then nearly leveling off at about .1 to .2.  The probability of not working  rapidly increases with husband's income, while the probability of working part time is fairly flat.  A similar pattern is apparent for children present in the home, with full-time work much less prevalent and not working much more prevalent when children are present than when they are absent.
 
 \emph{Stacked area plots} are sometimes more useful for examining polytomous response models; for example:
-<<fig62,include=TRUE,fig.width=6.5,fig.height=4,fig.show='hide'>>=
+<<fig62,include=TRUE,fig.width=6,fig.height=4,fig.show='hide'>>=
 plot(predictorEffects(or1, xlevels=50),
      axes=list(grid=TRUE, y=list(style="stacked")),
      lattice=list(key.args=list(columns=1)))
 @
 
-\centerline{\includegraphics[width=.7\textwidth]{figure/fig62-1.pdf}}
+\centerline{\includegraphics[width=.95\textwidth]{figure/fig62-1.pdf}}
 
 
 \noindent
-For each fixed value on the horizontal axis, the vertical axis ``stacks" the probabilities in the three response categories.  For example, with children absent from the household and \vn{hincome} set to its mean, about 30\% of women did not work outside the home, about 20\% worked part time, and the remaining 50\% worked full time.  The \ar{xlevels} argument was again used to evaluate \vn{hincome} over a fine grid to get smoother curves in the plot.
+For each fixed value on the horizontal axis, the vertical axis ``stacks" the probabilities in the three response categories.  For example, with children absent from the household and \vn{hincome} set to its mean, nearly 30\% of women did not work outside the home, about 20\% worked part time, and the remaining approximate 50\% worked full time.  The \ar{xlevels} argument is again used to evaluate \vn{hincome} over a fine grid to get smoother curves in the plot.
 
-Some models produced by the functions \fn{clm}, \fn{clm2}, and \fn{clmm} in the \pkg{ordinal} package can be used with the \pkg{effects} package.  To work with model objects produced by these functions, you must also load the \pkg{MASS} package
+Some ordinal-response models produced by the functions \fn{clm}, \fn{clm2}, and \fn{clmm} in the \pkg{ordinal} package can be used with the \pkg{effects} package.  To work with model objects produced by these functions, you must also load the \pkg{MASS} package
 
-The \pkg{effects} package can produced similar graphs for the more general
- multinomial logit model, in which the polytomous categorical response has unordered categories \citep[see][Sec.~6.7]{fw19}.  The details of the model, its parameters, and its assumptions are different from the proportional-odds model and from other ordered-response models, but predictor effect plots for these models are similar.
+The \pkg{effects} package can also draw similar graphs for the more general
+ multinomial logit model, in which the polytomous categorical response has unordered levels \citep[see][Sec.~6.7]{fw19}.  The details of the model, its parameters, and its assumptions are different from those of the proportional-odds model and other ordered-response models, but predictor effect plots for these models are similar.
 
 As an example, we use the \code{BEPS} data set in the \pkg{carData} package, consisting of about 1,500 observations from the 1997-2001 British Election Panel Study.  The response variable, \vn{vote}, is party choice, one of \level{Liberal Democrat}, \level{Labour}, or \level{Conservative}.  There are numerous predictors of \vn{vote} in the data set, and we fit the model
 <<>>=
-library("nnet")
+library("nnet") # for multinom()
 mr1 <- multinom(vote ~ age + gender + economic.cond.national +
                        economic.cond.household + Blair + Hague + Kennedy +
                        Europe*political.knowledge, data=BEPS)
 @
-There are nine predictors, seven of which are scales with values between 0 and 5 concerning respondents' attitudes; these predictors enter the model as main effects. The remaining two predictors are scales between 0 and 3 for \code{political.knowledge} and between 1 and 11 for \code{Europe} (attitude toward European integration of the UK in the European Union, with high values representing ``Euroscepticism''---i.e., a negative attitude toward Europe); these predictors enter the model with a two-factor interaction.  
+There are nine predictors, seven of which are scales with values between 0 and 5 concerning respondents' attitudes; these predictors enter the model as main effects. The remaining two predictors are scales between 0 and 3 for \code{political.knowledge} and between 1 and 11 for \code{Europe} (attitude toward European integration of the UK in the European Union, with high values representing ``Euroscepticism''---i.e., a \emph{negative} attitude toward Europe); these predictors enter the model with a two-factor interaction.  
 
-Drawing all nine predictor effect plots simultaneously is not productive is not a good idea because the plots won't fit reasonably in a single display.  We therefore draw only a few of these plots at a time.
+Drawing all nine predictor effect plots simultaneously is not a good idea because the plots won't fit reasonably in a single display.  We therefore draw only a few of t phelots at a time:
 <<fig42,include=TRUE,fig.width=6.5,fig.height=6.5,fig.show='hide'>>=
 plot(predictorEffects(mr1, ~ age + Blair + Hague + Kennedy),
      axes=list(grid=TRUE, x=list(rug=FALSE)),
@@ -131,32 +136,42 @@ plot(predictorEffects(mr1, ~ age + Blair + Hague + Kennedy),
 \centerline{\includegraphics[width=.9\textwidth]{figure/fig42-1.pdf}}
 
 \noindent
-We use optional arguments to get a multiline plot, with a grid and no rug plot, and to modify the key. The color specification for the lines represents the traditional colors of the three parties. Interpreting these plots is challenging:  The probability of preferring Labour decreases with age, increases with attitude toward the Labour leader Blair, strongly decreases with attitude toward the Conservative leader Hague, and is relatively unaffected by attitude toward the Liberal Democrat leader Kennedy.  In general a positive attitude toward a party leader increases the probability of favoring that leader's party, as one would expect. Of course, the causal direction of these relationships is unclear.
+We use optional arguments to get a multiline plot, with a grid and no rug plot, and to modify the key. The color specification for the lines represents the traditional colors of the three parties. Interpreting these plots is challenging: For example, the probability of voting Labour decreases with age, increases with attitude toward the Labour leader Blair, strongly decreases with attitude toward the Conservative leader Hague, and is relatively unaffected by attitude toward the Liberal Democrat leader Kennedy.  In general, a positive attitude toward a party leader increases the probability of voting for that leader's party, as one would expect. Of course, the causal direction of these relationships is unclear.
 
-We next turn to the interaction between \vn{Europe} and \vn{political.knowledge}, this time using a stacked area display.  We also use the \code{xlevels} argument to control the number of panels in each effect plot:
+We next turn to the interaction between \vn{Europe} and \vn{political.knowledge}, this time drawing a stacked area display.  We also use the \code{xlevels} argument to control the number of panels in each effect plot:
 
-<<fig43,include=TRUE,fig.width=8.5,fig.height=6,fig.show='hide'>>=
-plot(predictorEffects(mr1, ~ Europe + political.knowledge,
-                      xlevels=list(political.knowledge=0:3, Europe=c(1, 6, 11))),
+<<fig43a,include=TRUE,fig.width=6,fig.height=6,fig.show='hide'>>=
+plot(predictorEffects(mr1, ~ Europe,
+                      xlevels=list(political.knowledge=0:3, Europe=50)),
      axes=list(grid=TRUE, 
                x=list(rug=FALSE, 
-                      political.knowledge=list(ticks=list(at=0:3)),
                       Europe=list(ticks=list(at=c(1, 6, 11)))),
                y=list(style="stacked")),
      lines=list(col=c("blue", "red", "orange")),
      lattice=list(key.args=list(columns=1),
                   strip=list(factor.names=FALSE)))
 @
-
-\centerline{\includegraphics[width=1.1\textwidth]{figure/fig43-1.pdf}}
+\centerline{\includegraphics[width=5in]{figure/fig43a-1.pdf}}
+<<fig43b,include=TRUE,fig.width=6,fig.height=6,fig.show='hide'>>=
+plot(predictorEffects(mr1, ~ political.knowledge,
+                      xlevels=list(political.knowledge=50, Europe=c(1, 6, 11))),
+     axes=list(grid=TRUE, 
+               x=list(rug=FALSE, 
+                      political.knowledge=list(ticks=list(at=0:3))),
+               y=list(style="stacked")),
+     lines=list(col=c("blue", "red", "orange")),
+     lattice=list(key.args=list(columns=1),
+                  strip=list(factor.names=FALSE)))
+@
+\centerline{\includegraphics[width=5in]{figure/fig43b-1.pdf}}
 
 
 \noindent
-The \ar{lines} argument is used to specify the colors for the stacked areas representing the parties. Both effect plots are of the same fitted values, in the first graph with \code{Europe} varying and conditioning on \code{political.knowledge}, and in the second with \code{political.knowledge} varying and conditioning on \code{Europe}.  Setting \code{strip=list(factor.names=FALSE} suppresses the names of the conditioning predictor in each effect plot; these names are too long for the strips at the tops of the panels. Concentrating on the first graph, we see, for example, that preference for the Conservative Party increases with \vn{Europe} (i.e., with Euroscepticism) for respondents with high political knowledge, but not for those with low political knowledge. More generally, voters with high political knowledge are more likely to align their votes with the positions of the parties (Eurosceptic for the COnvervatives, pro-Europe for Labour and the Liberal Democrats) than are voters with low policial knowledge.
+We draw the graphs separately so that we can use 50 values for the focal predictor in each plot, producing smoother curves separating the stacked areas. The \ar{lines} argument is used to specify the colors for the stacked areas representing the parties. Both effect plots are of nearly the same fitted values,\footnote{Not exactly the same because in each plot the focal predictor takes on 50 values and the conditioning predictor 3 values.} in the first graph with \code{Europe} varying and conditioning on \code{political.knowledge}, and in the second with \code{political.knowledge} varying and conditioning on \code{Europe}.  Setting \code{strip=list(factor.names=FALSE} suppresses the names of the conditioning predictor in each effect plot; these names are too long for the strips at the tops of the panels. Concentrating on the first graph, we see, for example, that preference for the Conservative Party increases with \vn{Europe} (i.e., with Euroscepticism) for respondents with high political knowledge, but not for those with low political knowledge. More generally, voters with high political knowledge are more likely to align their votes with the positions of the parties (Eurosceptic for the Convervatives, pro-Europe for Labour and the Liberal Democrats) than are voters with low policial knowledge.
 
 \section{The Lattice Theme for the effects Package}
 
-The \pkg{effects} package uses the \fn{xyplot} and \fn{barchart} functions in the standard \pkg{lattice} package \citep{sarkar08} to draw graphs.  The \pkg{lattice} package has many options for customizing the appearance of graphs that are collected into a \emph{lattice theme}.  We have created a custom theme for use with the \code{effects} package that automatically replaced the default theme, \emph{unless the} \pkg{lattice} \emph{package has been previously loaded}.  You can load the \pkg{effects} package theme directly by the command
+The \pkg{effects} package uses the \fn{xyplot} and \fn{barchart} functions in the standard \pkg{lattice} package \citep{sarkar08} to draw effect plots.  The \pkg{lattice} package has many options for customizing the appearance of graphs that are collected into a \emph{lattice theme}.  We have created a custom theme for use with the \code{effects} package that automatically supercedes the default Lattice theme when the \pkg{effects} package is loaded, \emph{unless the} \pkg{lattice} \emph{package has been previously loaded}.  You can invoke the \pkg{effects} package theme directly by the command
 <<eval=FALSE>>=
 effectsTheme()
 @
