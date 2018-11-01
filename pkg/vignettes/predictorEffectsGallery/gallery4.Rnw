@@ -66,6 +66,21 @@ plot(predictorEffects(lm7, ~ ppgdp, partial.residuals=TRUE),
 
 Partial residuals can be added to effect plots for linear or generalized linear models in the default link scale, and to effect plots for linear or generalized linear mixed models.
 
+\subsection{Using the \fn{Effect} Function With Partial Residuals}
+
+In most instances, predictor effect plots produced by \fn{predictorEffect} or \fn{predictorEffects} visualize a fitted model in the most natural manner, but sometimes in looking for lack of fit, we want to plot against arbitrary combinations of predictors. The more general \fn{Effect} function is capable of doing that.
+
+Recall, for example, the additive model \code{lm2} fit to the \code{Prestige} data:
+<<>>=
+S(lm2)
+@
+Plotting partial residuals for the predictors \vn{income} and \vn{type} simultaneously reveals an unmodeled $\vn{income} \times \vn{type}$ interaction:
+<<fig55,include=TRUE,fig.width=8,fig.height=4,fig.show='hide'>>=
+plot(Effect(c("income", "type"), lm2, residuals=TRUE),
+     partial.residuals=list(span=0.9), layout=c(3, 1))
+@
+\centerline{\includegraphics[width=0.85\textwidth]{figure/fig55-1.pdf}}
+
 % \section{Predictor Effect Plots with Multivariate Responses}
 % \subsection{Multivariate Regression}
 % Not written.  Please add.
