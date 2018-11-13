@@ -21,7 +21,7 @@ plot(e3.lm1, lines=list(multiline=FALSE)) # the default
 The numeric conditioning predictor \vn{income} is evaluated by default at five
 equally spaced values, and then rounded to ``nice" numbers.  
 
-In this example using three values of 5000, 15000, 25000 might produce a graph that's easier to decode:
+In this example using three values of 5000, 15000, 25000 might produce a simpler graph:
 <<fig22a,include=TRUE,fig.width=5,fig.height=4.5,fig.show='hide'>>=
 e3.lm1 <- predictorEffect("type", lm1,
                           xlevels=list(income=c(5000, 15000, 25000)))
@@ -40,7 +40,7 @@ plot(e3.lm1,
 The argument \ar{xlevels} is a list of sub-arguments that control how numeric predictors are discretized when used in the conditioning group.  For example, \code{xlevels=list(x1=c(2, 4, 7), x2=6)} would use the values 2, 4, and 7 for the levels of the predictor  \code{x1}, use 6
 equally spaced values for the predictor \code{x2}, and use the default of 5 values for any other numeric predictors.  Numeric predictors in the \emph{fixed} group are not affected by the \ar{xlevels} argument. We use the \ar{layout} sub-argument of the \ar{lattice} argument to arrange the panels of the second graph in 3 columns and 1 row (see Section~\ref{sec:layout}).
 
-The number of points at which the focal predictor is evaluated is also controlled by the \ar{xlevels} argument. Increasing the number of points may make plotted lines smoother or more accurate.  See \code{help("plot.eff")} for information on the \ar{quantiles} argument, which provides an alternative method of setting \ar{xlevels} when partial residuals are displayed (as discussed in Section~\ref{sec:res}).
+The number of points at which the focal predictor is evaluated is also controlled by the \ar{xlevels} argument. Increasing the number of points may make plotted lines smoother or more accurate.  See \code{help("plot.eff")} for information on the \ar{quantiles} argument, which provides an alternative method of setting \ar{xlevels} when partial residuals are displayed, as discussed in Section~\ref{sec:res}.
 
 \subsection{\ar{fixed}: Options for Predictors in the Fixed Group}
 
