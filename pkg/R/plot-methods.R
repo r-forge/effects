@@ -41,6 +41,7 @@
 # 2018-10-15: moved z.var to lines=list(z.var)
 # 2018-10-25: check number of points used for spline interpolation
 # 2018-10-25: fixed bug in plot.eff() introduced by previous modification to as.data.frame.eff().
+# 2018-11-03: fixed bug in plotting partial residuals when a factor focal predictor had empty levels.
 
 # the following functions aren't exported
 
@@ -347,20 +348,28 @@ plot.eff <- function(x, x.var,
     trans.link <- trans.inverse <- I
   }
   x.all <- x$x.all
+  if (!is.null(x.all)){
+    for (i in 1:ncol(x.all)){
+      if (is.factor(x.all[, i]))  x.all[, i] <- droplevels(x.all[, i])
+    }
+  }
   split <- c(col, row, ncol, nrow)
   if (missing(x.var)) x.var <- x$x.var
   if (!is.null(x.var) && is.numeric(x.var)) x.var <- colnames(x$x)[x.var] 
   x.data <- x$data
+  for (i in 1:ncol(x.data)){
+    if (is.factor(x.data[, i]))  x.data[, i] <- droplevels(x.data[, i])
+  }
   effect <- paste(sapply(x$variables, "[[", "name"), collapse="*")
   vars <- x$variables
   x <- as.data.frame(x, type="link")
   for (i in 1:length(vars)){
     if (!(vars[[i]]$is.factor)) next
     x[,i] <- factor(x[,i], levels=vars[[i]]$levels, exclude=NULL)
+    x[, i] <- droplevels(x[, i])
   }
   has.se <- !is.null(x$se)
   n.predictors <- ncol(x) - 1 - 3*has.se
-
   if (n.predictors == 1){
     predictor <- names(x)[1]
     if (is.list(xlab)) xlab <- xlab[[predictor]]
@@ -918,7 +927,7 @@ if (x.var == z.var) z.var <- z.var + 1
       strip=strip.custom(strip.names=c(factor.names, TRUE), sep=" = ",
         par.strip.text=list(cex=cex.strip)),
       par.settings=list(layout.heights=list(strip=height.strip)),
-      panel=function(x, y, subscripts, x.vals, rug, lower, upper, has.se, ...){ 
+      panel=function(x, y, subscripts, x.vals, rug, lower, upper, has.se, ...){
         if (grid) ticksGrid(x=tickmarks.x$at, y=tickmarks$at)
         good <- !is.na(y)
         if(!all(!good)){
