@@ -1,8 +1,10 @@
 \name{predictorEffects}
 \alias{predictorEffect}
+\alias{predictorEffect.poLCA}
 \alias{predictorEffect.svyglm}
 \alias{predictorEffect.default}
 \alias{predictorEffects}
+\alias{predictorEffects.poLCA}
 \alias{predictorEffects.default}
 \title{
 Functions For Computing Predictor Effects
@@ -11,13 +13,17 @@ Functions For Computing Predictor Effects
 Alternatives to the \code{Effect} and \code{allEffects} functions that use a different paradigm for conditioning in an effect display.  The user specifies one predictor, either continuous or a factor, for the horizontal axis of a plot, and the function determines the appropriate plot to display (which is drawn by \code{plot}).
 }
 \usage{
-predictorEffect(predictor, mod, xlevels=c(50, 5), ...)
+predictorEffect(predictor, mod, focal.levels=50, xlevels=5, ...)
 
-\method{predictorEffect}{svyglm}(predictor, mod, xlevels=c(50, 5), ...)
+\method{predictorEffect}{poLCA}(predictor, mod, focal.levels=50, xlevels=5, ...)
 
-\method{predictorEffect}{default}(predictor, mod, xlevels=c(50, 5), ...)
+\method{predictorEffect}{svyglm}(predictor, mod, focal.levels=50, xlevels=5, ...)
+
+\method{predictorEffect}{default}(predictor, mod, focal.levels=50, xlevels=5, ...)
 
 predictorEffects(mod, predictors, ...)
+
+\method{predictorEffects}{poLCA}(mod, predictors = ~ ., ...)
 
 \method{predictorEffects}{default}(mod, predictors = ~ ., ...)
 
@@ -30,9 +36,14 @@ A model object.  Supported models include all those described on the help page f
   \item{predictors}{
 If the default \code{~ .}, a predictor effect plot is drawn for each predictor (not regressor) in a model.  Otherwise, this should be a one-sided formula listing the first-order predictors for which predictor effect plots should be drawn.
 }
-  \item{xlevels}{this argument is used to set the number of levels (i.e., values) for any focal predictor that is not a factor. It is similar to the \code{xlevels} argument of \code{\link{Effect}}, except that it may be a numeric vector with two elements, the first of which applies to the focal numeric predictor and the second to
-  any conditioning numeric predictors. The default is \code{c(50, 5)}, that is, 50 levels of the focal predictor and 5 levels of conditioning predictors. If a single number is given, it applies \emph{both} to the focal numeric predictor and conditioning numeric predictors. The
-  \code{xlevels} argument may also be a list with named elements, as explained in the help for \code{\link{Effect}}.}
+  \item{focal.levels}{the number of values (the default is 50) for the focal predictor or a vector of values for the
+  focal predictor.}
+  \item{xlevels}{this argument is used to set the levels of conditioning predictors; it may either
+  be a single number specifying the number of levels (the default is 5) to which each focal predictor is to be set, 
+  or it may be be a list with elements named for predictors giving the number of values or a vector of values to which
+  conditioning predictors are to be set, as explained in the help for \code{\link{Effect}}. If the
+  focal predictor is included in the \code{xlevels} list, it is disregarded; if any conditioning predictor
+  is omitted from the list, its number of values is set to 5.}
   \item{\dots}{
 Additional arguments passed to \code{\link{Effect}}.
 }
@@ -53,7 +64,7 @@ If \code{mod} has the formula \code{y ~ x1 + x2 + x3 + x1:x2 + x1:x3}, then \cod
 See \code{\link{Effect}}.
 }
 \author{
-S. Weisberg, \email{sandy@umn.edu}
+S. Weisberg \email{sandy@umn.edu} and J. Fox
 }
 
 

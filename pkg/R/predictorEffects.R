@@ -11,23 +11,24 @@
 # 2018-06-07 predictorEffects now works with offsets.
 # 2018-08-09 removed explicit 'xlevels' argument from predictorEffects, so the argument is correctly passed with ...
 # 2018-10-19: changed class of predictorefflist to c("predictorefflist", "efflist", "list")
-# 2018-11-17: added xlevels argument with default c(50, 5). J. Fox
+# 2018-11-18: added xlevels argument with default 5 to be applied to conditioning predictors and
+#             focal.levels argument to be applied to focal predictor. J. Fox
 
 
 # removed xlevels argument 8/9/18
-predictorEffect <- function(predictor, mod, xlevels=c(50, 5), ...){  
+predictorEffect <- function(predictor, mod, focal.levels=50, xlevels=5, ...){  
   UseMethod("predictorEffect", mod)
 }
 
 # removed xlevels argument 8/9/18
-predictorEffect.svyglm <- function(predictor, mod, xlevels=c(50, 5), ...){
+predictorEffect.svyglm <- function(predictor, mod, focal.levels=50, xlevels=5, ...){
   mod$call <- list(mod$call, data=mod$data)
   NextMethod(object=mod, ...)
 }
 
 #simplified 12/10/17
 # removed xlevels argument 8/9/18
-predictorEffect.default <- function(predictor, mod, xlevels=c(50, 5), ...){
+predictorEffect.default <- function(predictor, mod, focal.levels=50, xlevels=5, ...){
   form <- Effect.default(NULL, mod) #returns the fixed-effects formula
   all.vars <- all.vars(parse(text=form))
   # find the right effect to use
@@ -36,20 +37,16 @@ predictorEffect.default <- function(predictor, mod, xlevels=c(50, 5), ...){
   predictors <- all.vars(parse(text=terms))
   sel <- which(predictors == predictor)
   if(length(sel) != 1) stop("First argument must be the quoted name of one predictor in the formula")
-  xlevels <- if (is.numeric(xlevels)){
-    if (length(xlevels) == 1) xlevels
-    else if (length(xlevels) == 2) {
-      xlevs <- list()
-      xlevs[[predictor]] <- xlevels[1]
-      for (pred in predictors[-sel]){
-        xlevs[[pred]] <- xlevels[2]
-      }
-      xlevs
+  
+  if (is.numeric(xlevels)){
+    if (length(xlevels) > 1) stop("xlevels must be a single number or a list")
+    xlevs <- list()
+    for (pred in predictors[-sel]){
+      xlevs[[pred]] <- xlevels
     }
-    else stop("xlevels is a numeric vector with more than 2 elements")
-  } else {
-    xlevels
+    xlevels <- xlevs
   }
+  xlevels[[predictor]] <- focal.levels
   # create correspondence table
   decode <- function(name) all.vars(parse(text=unlist(strsplit(name, ":"))))
   tab <- rep(FALSE, length(terms))

@@ -16,7 +16,7 @@ Version 4.1-0
  
  o Fixed bug in plotting partial residuals when a factor focal predictor had empty levels.
  
- o predictorEffect() has a new xlevels argument with default c(50, 5), the first element for a focal numeric predictor.
+ o predictorEffect() has new xlevels and focal.levels arguments.
  
  o Small fixes and improvements.
 
