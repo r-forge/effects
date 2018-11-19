@@ -95,6 +95,7 @@ plot(predictorEffect("neuroticism", mod.cowles, xlevels=list(extraversion=seq(5,
                y=list(lab="Probability of Vounteering")),
      lines=list(multiline=TRUE), 
      type="response")
+predictorEffects(mod.cowles, focal.levels=4, xlevels=4)
 
 # svyglm() example (adapting an example from the survey package)
 \donttest{
