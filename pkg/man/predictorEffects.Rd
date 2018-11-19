@@ -41,19 +41,21 @@ A model object.  Supported models include all those described on the help page f
   \item{predictors}{
 If the default \code{~ .}, a predictor effect plot is drawn for each predictor (not regressor) in a model.  Otherwise, this should be a one-sided formula listing the first-order predictors for which predictor effect plots should be drawn.
 }
-  \item{focal.levels}{for \code{predictorEffect} the number of evently-spaced values (the default is 50) for the focal predictor or a vector of values for the
+  \item{focal.levels}{for \code{predictorEffect}, the number of evenly-spaced values (the default is 50) for the focal predictor or a vector of values for the
   focal predictor. 
   
-  For \code{predictorEffects} the number of values (default 50) to use for each focal predictor in turn or a named list,
-  similar to \code{xlevels}, giving the number of values individually or the values themselves for each predictor to be used when it is the
+  For \code{predictorEffects}, the number of evenly-spaced values (default 50) to use for each focal predictor in turn or a named list,
+  similar to \code{xlevels}, giving the number of values or the values themselves for each predictor individually, to be used when that predictor is the
   focal predictor; if a focal predictor doesn't appear in the list, the default of 50 values is used.}
   
   \item{xlevels}{this argument is used to set the levels of conditioning predictors; it may either
-  be a single number specifying the number of equally-spaced levels (the default is 5) to which each conditioning predictor is to be set, 
-  or it may be be a list with elements named for predictors giving the number of values or a vector of values to which
-  conditioning predictors are to be set, as explained in the help for \code{\link{Effect}}. If the
+  be a single number specifying the number of evenly-spaced values (the default is 5) to which each conditioning predictor is to be set, 
+  or it may be a list with elements named for the predictors giving the number of values or a vector of values to which each
+  conditioning predictor is to be set, as explained in the help for \code{\link{Effect}}. If the
   focal predictor is included in the \code{xlevels} list, it is disregarded; if any conditioning predictor
-  is omitted from the list, its number of values is set to 5. The \code{xlevels} argument works similar for \code{predictorEffect} and \code{predictorEffects}.}
+  is omitted from the list, its number of values is set to 5. 
+  
+  The \code{xlevels} argument works similarly for \code{predictorEffect} and \code{predictorEffects}.}
   \item{\dots}{
 Additional arguments passed to \code{\link{Effect}}.
 }
