@@ -1,6 +1,8 @@
 Version 4.1-0
 
  o Added predictor effects graphics gallery vignette.
+ 
+ o predictorEffect() and predictorEffects() have new xlevels and focal.levels arguments.
 
  o Removed the transform argument from as.data.frame.eff(), and added type argument.  Made the transformation argument to Effect() a legacy argument and added transform as sub-argument to axes=list(y=list(transform=...)) in plot.eff(). 
  
@@ -15,8 +17,6 @@ Version 4.1-0
  o Added effectsHexsticker().
  
  o Fixed bug in plotting partial residuals when a factor focal predictor had empty levels.
- 
- o predictorEffect() has new xlevels and focal.levels arguments.
  
  o Small fixes and improvements.
 
