@@ -2,7 +2,7 @@
 
 \section{Arguments for Plotting Predictor Effects}\label{sec:plot}
 
-The arguments described in Section~\ref{sec:peopts} are for the \fn{predictorEffect} function or the \fn{Effect} function, and modify the computations that are performed, such as methods for averaging and fixing predictors, and for computing standard errors.  Arguments to the \fn{plot} methods for the predictor effect and effect objects produced by the \fn{predictorEffect} and \fn{Effect} functions  are described in this section, and these change the appearance of an effect plot or modify the quantities that are plotted. These optional arguments are described in more detail in \code{help("plot.eff")}.%\footnote{The \fn{Effect} function produces an \proglang{S3} object of class \class{eff}; \fn{predictorEffect} produces an \proglang{S3} object of class \class{predictoreff} inheriting from class \class{eff}. The \fn{plot} method for class \class{predictoreffect} sets up a call to the method for class \class{eff}, and the latter does most of the work of creating a predictor-effect plot.}
+The arguments described in Section~\ref{sec:peopts} are for the \fn{predictorEffect} function or the \fn{Effect} function.  Those arguments modify the computations that are performed, such as methods for averaging and fixing predictors, and for computing standard errors.  Arguments to the \fn{plot} methods for the predictor effect and effect objects produced by the \fn{predictorEffect} and \fn{Effect} functions  are described in this section, and these change the appearance of an effect plot or modify the quantities that are plotted. These optional arguments are described in more detail in \code{help("plot.eff")}.%\footnote{The \fn{Effect} function produces an \proglang{S3} object of class \class{eff}; \fn{predictorEffect} produces an \proglang{S3} object of class \class{predictoreff} inheriting from class \class{eff}. The \fn{plot} method for class \class{predictoreffect} sets up a call to the method for class \class{eff}, and the latter does most of the work of creating a predictor-effect plot.}
 
 In late 2018, we reorganized the \fn{plot} method for effect objects by combining arguments into five major groups of related sub-arguments, with the goal of simplifying the specification of effect plots.  For example, the \ar{lines} argument group is a list of sub-arguments for determining line type, color, and width, whether or not multiple lines should be drawn on the same graph, and whether plotted lines should be smoothed.  The defaults for these sub-arguments are the choices we generally find the most useful, but they will not be the best choices in all circumstances.  The cost of reorganizing the arguments in this manner is the necessity of specifying arguments as lists, some of whose elements are themselves lists, requiring the user to make sure that parentheses specifying the possibly nested lists properly balanced.
 
@@ -231,13 +231,13 @@ plot(predictorEffects(gm3, ~ s + d),
 \centerline{\includegraphics[width=0.75\textwidth]{figure/fig37-1.pdf}}
 
 \noindent
-Setting the sub-argument \code{type="response"} for the \ar{y} axis plots the response on the probability scale. Setting \code{layout=c(1, 5)} arranges each predictor effect plot in 1 column of 5 rows. see the description of the \ar{lattice} argument in Section~\ref{sec:lattice}.
+Setting the sub-argument \code{type="response"} for the \ar{y} axis plots the response on the probability scale. Setting \code{layout=c(1, 5)} arranges each predictor effect plot in 1 column of 5 rows. See the description of the \ar{lattice} argument in Section~\ref{sec:lattice}.
 
 The predictor effect plot for \vn{s} conditions on the level of \vn{d}, and displays the plot of the fitted values for \vn{y} versus \vn{s} in a separate panel for each value of \vn{d}.  Similarly, the predictor effect plot for \vn{d} displays a separate panel for each conditioning level of \vn{s}.  Confidence bands are displayed by default around each fitted line.  These two graphs are based on the same fitted values, with the values of the interacting predictors \vn{s} and \vn{d} varying, and fixing the factor predictor \vn{spp} to its distribution in the data, as described in Section~\ref{sec:facpred}. Concentrating on the graph at the right for the focal predictor \vn{d}, when \vn{s} is very small the probability of blowdown is estimated to be in the range of about .05 to .3 for any value of \vn{d}, but for larger values of \vn{s}, the probability of blowdown increases rapidly with \vn{d}. Similar comments can be made concerning the predictor effect plot for \vn{s}.
 
-Setting \code{multiline=TRUE} superimposes the lines for all the conditioning values in a single graph. In the example below, we reduce the number of levels of the conditioning variable for each predictor effect plot to three each to produce simpler graphs, although this is not required. We draw the plots for each predictor separately because we don't want to reduce the number of values for the \emph{focal} predictor in each plot to just three values, and indeed increase the number of values for the focal predictor to 50 from the default of five to obtain smoother plotted curves. Using only three values doesn't adequate support drawing smooth curves connecting the plotted points for the values of the focal predictor: Try it! If you look closely at the separate panels produced in the non-multiline version of the predictor effect plots shown previously, you'll see inaccuracies in the plotted curves at the high end of the response probabilities produced by evaluating the probabilities at only five values of the focal predictor in each plot.
+Setting \code{multiline=TRUE} superimposes the lines for all the conditioning values in a single graph. In the example below, we reduce the number of levels of the conditioning variable for each predictor effect plot to three each to produce simpler graphs, although this is not required. The \ar{xlevels} argument changes the number of levels for the conditioning predictors, but does not affect the number of levels for the focal predictor.  This latter quantity could be changed with the \ar{focal.levels} argument, but the default value of 50 evaluations is apparopriate for graphing effects. 
 <<fig38a,include=TRUE,fig.width=6,fig.height=5,fig.show='hide'>>=
-plot(predictorEffects(gm3, ~ s, xlevels=list(s=50, d=c(5, 40, 80))),
+plot(predictorEffects(gm3, ~ s, xlevels=list(d=c(5, 40, 80))),
      axes=list(grid=TRUE,
                x=list(rug=FALSE),
                y=list(type="response", lab="Blowdown probability")),
@@ -245,7 +245,7 @@ plot(predictorEffects(gm3, ~ s, xlevels=list(s=50, d=c(5, 40, 80))),
 @
 \centerline{\includegraphics[width=4in]{figure/fig38a-1.pdf}}
 <<fig38b,include=TRUE,fig.width=6,fig.height=5,fig.show='hide'>>=
-plot(predictorEffects(gm3, ~ d, xlevels=list(s=c(0.1, 0.5, 0.9), d=50)),
+plot(predictorEffects(gm3, ~ d, xlevels=list(s=c(0.1, 0.5, 0.9))),
      axes=list(grid=TRUE,
                x=list(rug=FALSE),
                y=list(type="response", lab="Blowdown probability")),
@@ -260,7 +260,7 @@ When the conditioning group includes two or more predictors, and certainly when 
 
 <<fig39,include=TRUE,fig.width=7,fig.height=7,fig.show='hide'>>=
 gm4 <- update(gm3, ~ . + spp:log(d))
-plot(predictorEffects(gm4, ~ d, xlevels=list(s=c(0.1, 0.5, 0.9), d=50)),
+plot(predictorEffects(gm4, ~ d, xlevels=list(s=c(0.1, 0.5, 0.9))),
      axes=list(grid=TRUE,
                y=list(type="response"),
                x=list(rug=FALSE)),
@@ -270,11 +270,12 @@ plot(predictorEffects(gm4, ~ d, xlevels=list(s=c(0.1, 0.5, 0.9), d=50)),
 \centerline{\includegraphics[width=\textwidth]{figure/fig39-1.pdf}}
 
 \noindent
-This plot now displays the lines for all conditioning values of \vn{s} within the panel for each level of the conditioning factor \vn{spp}. Compare this graph to the much more confusing plot in which different lines are drawn for the nine levels of the conditioning factor \vn{spp}:
+This plot now displays the lines for all conditioning values of \vn{s} within the panel for each level of the conditioning factor \vn{spp}. Compare this graph to the much more confusing plot in which different lines are drawn for the nine levels of the conditioning factor \vn{spp}, obtained by using the \ar{z.var} sub-argument in the \ar{lines} group:
 <<fig310,include=TRUE,fig.width=7,fig.height=5,fig.show='hide'>>=
-plot(predictorEffects(gm4, ~ d, xlevels=list(s=c(0.1, 0.5, 0.9), d=50)),
-     x=list(rug=FALSE),
-     axes=list(grid=TRUE, y=list(type="response")),
+plot(predictorEffects(gm4, ~ d, xlevels=list(s=c(0.1, 0.5, 0.9))),
+     axes=list(grid=TRUE, 
+               y=list(type="response"), 
+               x=list(rug=FALSE)),
      lines=list(multiline=TRUE, z.var="spp", lty=1:9),
      lattice=list(layout=c(3, 1)))
 @
@@ -289,13 +290,14 @@ The \ar{z.var} sub-argument for \ar{lines} selects the predictor that determines
 
 Different lines in the same plot are differentiated by default using color.  This can be modified by the sub-arguments \ar{lty}, \ar{lwd} and \ar{col} to set line types, widths, and colors, respectively.  For example, in the last graph shown you can get all black lines of different line types using \code{lines=list(multiline=TRUE, col="black", lty=1:9)}, or using a gray scale, \code{lines=list(multiline=TRUE, col=gray((1:9)/10))}.
 
-The \fn{plot} method for effect objects by default uses smoothing splines to interpolate between plotted points.  Smoothing can be turned off with \code{splines=FALSE} in the \ar{lines} argument, but we rarely expect this to be a good idea. The number of values at which the focal predictor is evaluated should be more than three to support a reasonable spline approximation, and even more points of evaluation will give a better result.
+The \fn{plot} method for effect objects by default uses smoothing splines to interpolate between plotted points.  Smoothing can be turned off with \code{splines=FALSE} in the \ar{lines} argument, but we rarely expect this to be a good idea. The number of values at which the focal predictor is evaluated is set with the \ar{focal.levels} argument, and it defaults to 50. In any case more than three evaluations shoould be used for a reasonable spline approximation.
 
 \subsection{\ar{confint}: Specifying Confidence Interval Inclusion and Style}\label{sec:confint}
 
-The \ar{confint} argument group controls the inclusion and appearance of confidence intervals and regions.  This argument has three sub-arguments. The \ar{style} sub-argument is either \code{"bars"}, for confidence bars typically around the adjusted fitted value for a factor, \code{"bands"} for shaded confidence bands typically for numeric focal predictors, \code{"auto"} to let the program automatically choose between \code{"bars"} and \code{"bands"}, \code{"lines"} to draw only the edges of confidence bands with no shading, or \code{"none"} to suppress confidence intervals.  The default is \code{"auto"} when \code{multiline=FALSE} and \code{"none"} when \code{multiline=TRUE}. Setting \code{confint="auto"} produces bars for factors and bands for numeric predictors. For example:
+The \ar{confint} argument group controls the inclusion and appearance of confidence intervals and regions.  This argument has three sub-arguments. The \ar{style} sub-argument is either \code{"bars"}, for confidence bars typically around the estimated adjusted mean for a factor level, \code{"bands"} for shaded confidence bands typically for numeric focal predictors, \code{"auto"} to let the program automatically choose between \code{"bars"} and \code{"bands"}, \code{"lines"} to draw only the edges of confidence bands with no shading, or \code{"none"} to suppress confidence intervals.  The default is \code{"auto"} when \code{multiline=FALSE} and \code{"none"} when \code{multiline=TRUE}. Setting \code{confint="auto"} produces bars for factors and bands for numeric predictors. For example:
 <<fig311,include=TRUE,fig.width=5.5,fig.height=5.5,fig.show='hide'>>=
-plot(predictorEffects(gm3, ~ d, xlevels=list(s=c(0.1, 0.5, 0.9), d=50)),
+plot(predictorEffects(gm3, ~ d, 
+                      xlevels=list(s=c(0.1, 0.5, 0.9))),
      axes=list(grid=TRUE,
                x=list(rug=FALSE),
                y=list(type="response")),
@@ -379,7 +381,7 @@ If you create several predictor effect objects with the  \fn{predictorEffects} f
 
 Lattice graphics with more than one panel typically provide a title at the top of each panel in an area called the \emph{strip}.  The default strip title contains the name of the conditioning predictor and the value to which it is set in the panel; if there are more than one conditioning predictor, then all of their names and corresponding values are shown. For example:
 <<fig316,include=TRUE,fig.width=7,fig.height=5,fig.show='hide'>>=
-plot(predictorEffects(gm4, ~ d, xlevels=list(s=c(0.1, 0.5, 0.9), d=50)),
+plot(predictorEffects(gm4, ~ d, xlevels=list(s=c(0.1, 0.5, 0.9)),
      axes=list(grid=TRUE,
                x=list(rug=FALSE),
                y=list(type="response")),

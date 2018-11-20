@@ -104,18 +104,18 @@ The response variable \code{partic} initially has its levels in alphabetical ord
 
 The model summary is relatively complex, and is explained in \citet[Sec.~6.9]{fw19}. Predictor effect plots greatly simplify interpretation of the fitted model:
 <<fig41,include=TRUE,fig.width=6.5,fig.height=6.5,fig.show='hide'>>=
-plot(predictorEffects(or1, xlevels=50),
+plot(predictorEffects(or1),
      axes=list(grid=TRUE),
      lattice=list(key.args=list(columns=1)))
 @
 \centerline{\includegraphics[width=.9\textwidth]{figure/fig41-1.pdf}}
 
 \noindent
-Unlike predictor effect plots for generalized linear models, the default scaling for the vertical axis is the probability scale, equivalent to \code{axes=list(y=list(type="response"))} for a GLM, and the alternative is \code{axes=list(y=list(type="logit"))}, which is analogous to \code{type="link"} for a GLM.\footnote{The logits plotted, however, correspond to the individual-level probabilities and are not the ordered logits in the definition of the proportional-odds model.}  Confidence bands are present by default, unless turned off with the argument \code{confint=list(style="none")}. We specify the argument \code{xlevels=50} to \fn{predictorEffects} to draw smoother lines for the \vn{hincome} predictor; the default number of values to plot is five.  The plot for \vn{hincome} suggests high probability of full-time work if husband's income is low, with the probability of full-time work sharply decreasing to about \$15,000 and then nearly leveling off at about .1 to .2.  The probability of not working  rapidly increases with husband's income, while the probability of working part time is fairly flat.  A similar pattern is apparent for children present in the home, with full-time work much less prevalent and not working much more prevalent when children are present than when they are absent.
+Unlike predictor effect plots for generalized linear models, the default scaling for the vertical axis is the probability scale, equivalent to \code{axes=list(y=list(type="response"))} for a GLM, and the alternative is \code{axes=list(y=list(type="logit"))}, which is analogous to \code{type="link"} for a GLM.\footnote{The logits plotted, however, correspond to the individual-level probabilities and are not the ordered logits in the definition of the proportional-odds model.}  Confidence bands are present by default, unless turned off with the argument \code{confint=list(style="none")}. Numeric focal predictors are by default evaluated at 50 points.  The plot for \vn{hincome} suggests high probability of full-time work if husband's income is low, with the probability of full-time work sharply decreasing to about \$15,000 and then nearly leveling off at about .1 to .2.  The probability of not working  rapidly increases with husband's income, while the probability of working part time is fairly flat.  A similar pattern is apparent for children present in the home, with full-time work much less prevalent and not working much more prevalent when children are present than when they are absent.
 
 \emph{Stacked area plots} are sometimes more useful for examining polytomous response models; for example:
 <<fig62,include=TRUE,fig.width=6,fig.height=4,fig.show='hide'>>=
-plot(predictorEffects(or1, xlevels=50),
+plot(predictorEffects(or1),
      axes=list(grid=TRUE, y=list(style="stacked")),
      lattice=list(key.args=list(columns=1)))
 @
@@ -124,7 +124,7 @@ plot(predictorEffects(or1, xlevels=50),
 
 
 \noindent
-For each fixed value on the horizontal axis, the vertical axis ``stacks" the probabilities in the three response categories.  For example, with children absent from the household and \vn{hincome} set to its mean, nearly 30\% of women did not work outside the home, about 20\% worked part time, and the remaining approximate 50\% worked full time.  The \ar{xlevels} argument is again used to evaluate \vn{hincome} over a fine grid to get smoother curves in the plot.
+For each fixed value on the horizontal axis, the vertical axis ``stacks" the probabilities in the three response categories.  For example, with children absent from the household and \vn{hincome} set to its mean, nearly 30\% of women did not work outside the home, about 20\% worked part time, and the remaining approximate 50\% worked full time.  
 
 Some ordinal-response models produced by the functions \fn{clm}, \fn{clm2}, and \fn{clmm} in the \pkg{ordinal} package can be used with the \pkg{effects} package.  To work with model objects produced by these functions, you must also load the \pkg{MASS} package.
 
@@ -153,11 +153,11 @@ plot(predictorEffects(mr1, ~ age + Blair + Hague + Kennedy),
 \noindent
 We use optional arguments to get a multiline plot, with a grid and no rug plot, and to modify the key. The color specification for the lines represents the traditional colors of the three parties. Interpreting these plots is challenging: For example, the probability of voting Labour decreases with age, increases with attitude toward the Labour leader Blair, strongly decreases with attitude toward the Conservative leader Hague, and is relatively unaffected by attitude toward the Liberal Democrat leader Kennedy.  In general, a positive attitude toward a party leader increases the probability of voting for that leader's party, as one would expect. Of course, the causal direction of these relationships is unclear.
 
-We next turn to the interaction between \vn{Europe} and \vn{political.knowledge}, this time drawing a stacked area display.  We also use the \code{xlevels} argument to control the number of panels in each effect plot:
+We next turn to the interaction between \vn{Europe} and \vn{political.knowledge}, this time drawing a stacked area display. 
 
 <<fig43a,include=TRUE,fig.width=6,fig.height=6,fig.show='hide'>>=
 plot(predictorEffects(mr1, ~ Europe,
-                      xlevels=list(political.knowledge=0:3, Europe=50)),
+                      xlevels=list(political.knowledge=0:3)),
      axes=list(grid=TRUE, 
                x=list(rug=FALSE, 
                       Europe=list(ticks=list(at=c(1, 6, 11)))),
@@ -169,7 +169,7 @@ plot(predictorEffects(mr1, ~ Europe,
 \centerline{\includegraphics[width=5in]{figure/fig43a-1.pdf}}
 <<fig43b,include=TRUE,fig.width=6,fig.height=6,fig.show='hide'>>=
 plot(predictorEffects(mr1, ~ political.knowledge,
-                      xlevels=list(political.knowledge=50, Europe=c(1, 6, 11))),
+                      xlevels=list(Europe=c(1, 6, 11))),
      axes=list(grid=TRUE, 
                x=list(rug=FALSE, 
                       political.knowledge=list(ticks=list(at=0:3))),

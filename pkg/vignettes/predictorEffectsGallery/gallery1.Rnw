@@ -29,7 +29,7 @@ S(lm1)
 
 \item Even ignoring the interaction, the log transformation complicates the interpretation of the effect of \vn{income}.%\footnote{An alternative here is to use logs-base-2 rather than natural logs, in which case the coefficient of log-\vn{income}, again ignoring the interaction, would represent the effect of doubling \vn{income} holding other predictors constant.}
 
-\item The predictor \vn{women} is represented by two regressors, so the effect of \vn{women} requires examining two coefficient estimates that are interpretable only by those knowledgeable about polynomial regression analysis; moreover, even if raw rather than orthogonal polynomial regressors were used, via \code{poly(women, 2, raw=TRUE)} in place of \code{poly(women, 2)}, interpretation of the effect of \vn{women} is complicated.  
+\item The predictor \vn{women} is represented by two regressors, so the effect of \vn{women} requires examining two coefficient estimates that are interpretable only by those knowledgeable about polynomial regression analysis. Even if raw rather than orthogonal polynomial regressors were used, via \code{poly(women, 2, raw=TRUE)} in place of \code{poly(women, 2)}, interpretation of the effect of \vn{women} is complicated.  
 
 \item Understanding the coefficients for the main effect of \vn{type} depends on the contrasts used  to define the effect.  The contrasts can be changed by the user, and the default contrasts in \R{} are different from the default contrasts used by \proglang{SAS} or other programs, so the coefficients cannot be reliably interpreted without information not present in the regression summary.  
 
@@ -37,7 +37,7 @@ S(lm1)
 
 \end{itemize}
 
-\noindent As a consequence, summarization of the effects of predictors using tables of coefficient estimates is often incomplete.  Effects, and particularly plots of effects, can in many instances  reveal the relationship of the response to the predictors more clearly.  This conclusion is especially true for models with linear predictors that include interactions and multiple-coefficient terms such as regression splines and polynomials, as illustrated in this vignette.
+\noindent Summarization of the effects of predictors using tables of coefficient estimates is often incomplete.  Effects, and particularly plots of effects, can in many instances  reveal the relationship of the response to the predictors more clearly.  This conclusion is especially true for models with linear predictors that include interactions and multiple-coefficient terms such as regression splines and polynomials, as illustrated in this vignette.
 %JF: We don't have an example using regression splines and it would be nice to add one or modify one of the existing examples.
 
 A predictor effect plot summarizes the role of a selected \emph{focal} predictor in a fitted regression model.  The \fn{predictorEffect} function is used to compute the appropriate summary of the regression, and then the \fn{plot} function may be used to graph the resulting object, as in the following example:
@@ -50,15 +50,15 @@ plot(e1.lm1)
 \centerline{\includegraphics[width=4in]{figure/fig11-1.pdf}}
 
 \noindent
-This graph visualizes the partial slope for \vn{education}, that for each year increase in \vn{education}, the fitted \vn{prestige} increases by \Sexpr{round(coef(lm1)[2], 3)} points, when the other predictors are held fixed.  The intercept of the line, affecting only the height of the line, is determined by the choices for averaging over the fixed predictors, but for any choice of averaging method, the slope of the line would be the same.%\footnote{The intercept doesn't actually appear in the graph, because the horizontal axis doesn't extend to $\code{education} = 0$.}  
-The shaded area is a pointwise confidence band for the fitted values, based on standard errors computed from the covariance matrix of the fitted regression coefficients. The rug-plot at the bottom of the graph shows the location of the \vn{education} values.
+This graph visualizes the partial slope for \vn{education}, that for each year increase in \vn{education}, the fitted \vn{prestige} increases by \Sexpr{round(coef(lm1)[2], 3)} points, when the other predictors are held fixed.  The intercept of the line, which is outside the range of \vn{education} on the graph, affects only the height of the line, is determined by the choices for averaging over the fixed predictors, but for any choice of averaging method, the slope of the line would be the same. %\footnote{The intercept doesn't actually appear in the graph, because the horizontal axis doesn't extend to $\code{education} = 0$.}  
+The shaded area is a pointwise confidence band for the fitted values, based on standard errors computed from the covariance matrix of the fitted regression coefficients. The rug plot at the bottom of the graph shows the location of the \vn{education} values.
 
 The information that is needed to draw the plot is computed by the \fn{predictorEffect} function.
 The minimal arguments for \fn{predictorEffect} are the quoted name of a predictor in the model followed by the fitted model object.  The essential purpose of this function is to compute fitted values from the model with \vn{education} varying and all other predictors fixed at typical values \citep[Sec.~4.3]{fw19}.  The command below displays the values of the regressors for which fitted values are computed, including a column of 1s for the intercept:
 <<>>=
 e1.lm1$model.matrix
 @
-Only five fitted values are computed by default, each for a different value of the focal predictor \vn{education}.  The remaining regressors have the same fixed values for each fitted value.  The fixed value for \lvn{income} is the logarithm of the sample mean \vn{income}, the fixed values for the regressors for \vn{women} are computed at the mean of \vn{women} in the data, and the fixed values for the regressors for \vn{type} effectively take a weighted average of the fitted values at the three levels of \vn{type}, with weights proportional to the number of cases in each level of the factor.%\footnote{Although the treatment of the factor \vn{type} sounds complicated, weighting averaging is achieved simply by computing the mean of each dummy regressor, which then corresponds to the proportion of cases coded 1 for that dummy regressor. This approach works more generally for other kinds of contrasts.}  
+The focal predictor \vn{education} was evaluated by default at 50 points covering the observed range of values of \vn{education}.  For each value of \vn{education} the remaining regressors have the same fixed values for each fitted value.  The fixed value for \lvn{income} is the logarithm of the sample mean \vn{income}, the fixed values for the regressors for \vn{women} are computed at the mean of \vn{women} in the data, and the fixed values for the regressors for \vn{type} effectively take a weighted average of the fitted values at the three levels of \vn{type}, with weights proportional to the number of cases in each level of the factor.%\footnote{Although the treatment of the factor \vn{type} sounds complicated, weighting averaging is achieved simply by computing the mean of each dummy regressor, which then corresponds to the proportion of cases coded 1 for that dummy regressor. This approach works more generally for other kinds of contrasts.}  
 Differences in the fitted values are due to \vn{education} alone because all the other predictors, and their corresponding regressors, are fixed.  Thus the output gives the partial effect of \vn{education} with all other predictors fixed.%\footnote{Such effects are often called \emph{marginal effects}. We prefer the term \emph{partial effects} because it implies holding other predictors constant.}
 
 The computed fitted values can be viewed by printing the \class{eff} object returned by \fn{predictorEffect}, by summarizing the object, or by converting it to a data frame:
@@ -70,20 +70,22 @@ as.data.frame(e1.lm1)
 The values in the column \vn{education} are the values the focal predictor.  The remaining columns are the fitted values, their standard errors, and lower and upper end points of 95\% confidence intervals for the fitted values.
 The \emph{predictor effect plot} is simply a graph of the fitted values on the vertical axis versus the focal predictor on the horizontal axis.  For a continuous focal predictor such as \vn{education}, a line, in this case, a straight line, is drawn connecting the fitted values.
 
-We turn next to the predictor effect plot for \vn{income}.  According to the regression model, the effect of \vn{income} may depend on \vn{type} due to the interaction between the two predictors, so simply averaging over \vn{type} would be misleading.  Rather, we should allow both \vn{income} and \vn{type} to vary, fixing the other predictors at their means or other typical values:
+We turn next to the predictor effect plot for \vn{income}.  According to the regression model, the effect of \vn{income} may depend on \vn{type} due to the interaction between the two predictors, so simply averaging over \vn{type} would be misleading.  Rather, we should allow both \vn{income} and \vn{type} to vary, fixing the other predictors at their means or other typical values.  This would require evaluating the model at $50 \times 3 = 150$ combinations of the predictors, but to save space we will only evaluate \vn{income} at five values using the \ar{focal.levels} argument, thus evaluating only $5 \times 3 = 15$ fitted values.
 <<>>=
-e2.lm1 <- predictorEffect("income", lm1)
+e2.lm1 <- predictorEffect("income", lm1, focal.levels=5)
 as.data.frame(e2.lm1)
 @
-The fitted values are now evaluated at 15 points, five selected values of \vn{income} for each of the three levels of \vn{type}.  The predictor effect plot is
+
+To draw the predictor effects plot we recalucluate the fitted values using the default \code{focal.values=50} to get more accurate curves:
 <<fig12,include=TRUE,fig.width=5,fig.height=5,fig.show='hide'>>=
-plot(e2.lm1, lines=list(multiline=TRUE))
+plot(predictorEffect("income", lm1, focal.levels=50), 
+     lines=list(multiline=TRUE))
 @
 
 \centerline{\includegraphics[width=4in]{figure/fig12-1.pdf}}
 
 \noindent
-The focal predictor \vn{income} is displayed on the horizontal axis.  There is a separate line shown for the fitted values at each level of \vn{type}.  The lines are curved rather than straight  because \vn{income} appears in the model in log-scale but is displayed in the predictor effect plot in arithmetic (i.e., dollar) scale.  The lines in the graph are not parallel because of the interaction between \lvn{income} and \vn{type}.  For $\vn{type} = \level{prof}$, the fitted values of \vn{prestige} are relatively high for lower values of \vn{income}, and are relatively less affected by increasing values of \vn{income}.%\footnote{The predictors \vn{type} and \vn{income} are related, however, with for example \level{prof} having relatively high incomes. As a consequence, some regions of the graph, such as high-income \level{bc} occupations, are essentially devoid of data, and the fitted regression lines in these regions represent extrapolation beyond the data. We can effectively visualize this characteristic of the data by adding partial residuals to the predictor effect plot, a subject that we address in Section~\ref{sec:res}. We invite the reader to do this for the predictor \vn{income} in model \code{e2.lm1}.}
+The focal predictor \vn{income} is displayed on the horizontal axis.  There is a separate line shown for the fitted values at each level of \vn{type}.  The lines are curved rather than straight  because \vn{income} appears in the model in log-scale but is displayed in the predictor effect plot in arithmetic (i.e., dollar) scale.  The lines in the graph are not parallel because of the interaction between \lvn{income} and \vn{type}.  For $\vn{type} = \level{prof}$, the fitted values of \vn{prestige} are relatively high for lower values of \vn{income}, and are relatively less affected by increasing values of \vn{income}.  If the number of levels for evaluating \vn{income} were five rather than 50 the lines on the plot would be somewhat less accurate.%\footnote{The predictors \vn{type} and \vn{income} are related, however, with for example \level{prof} having relatively high incomes. As a consequence, some regions of the graph, such as high-income \level{bc} occupations, are essentially devoid of data, and the fitted regression lines in these regions represent extrapolation beyond the data. We can effectively visualize this characteristic of the data by adding partial residuals to the predictor effect plot, a subject that we address in Section~\ref{sec:res}. We invite the reader to do this for the predictor \vn{income} in model \code{e2.lm1}.}
 
 The predictor effect plot for \vn{type} uses the same fitted values as the plot for \vn{income}, but we now get five lines, one for each of the values of \vn{income} selected by the \fn{predictorEffect} function:
 <<fig13,include=TRUE,fig.width=5,fig.height=5,fig.show='hide'>>=
@@ -185,7 +187,7 @@ plot(eall.lm1)
 \noindent
 The predictor effect plots for this model are displayed in an array of graphs.  The plots for \vn{income} and \vn{type} have a separate panel for each level of the conditioning variable because the default argument \ar{lines=list(multiline=FALSE)} was used.  Confidence bounds are shown by default when \ar{multiline=FALSE}.
 
-The resulting object \code{eall.lm1} is a list with four elements, where \code{eall.lm1[[1]]} is the summary for the first predictor effect plot, \code{eall.lm1[[2]]} for the second plot, and so on.  The following equivalent commands each draws an array of predictor effect plots:
+The resulting object \code{eall.lm1} is a list with four elements, where \code{eall.lm1[[1]]} is the summary for the first predictor effect plot, \code{eall.lm1[[2]]} for the second plot, and so on.  The following equivalent commands draw the same array of predictor effect plots:
 <<eval=FALSE>>=
 plot(eall.lm1)
 plot(predictorEffects(lm1))
