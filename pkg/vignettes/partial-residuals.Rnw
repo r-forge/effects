@@ -1,5 +1,5 @@
 %\VignetteEngine{knitr::knitr}
-%\VignetteIndexEntry{Partial Residuals}
+%\VignetteIndexEntry{Effect Displays with Partial Residuals}
 
 \documentclass{article}
 
