@@ -2,9 +2,9 @@
 
 \section{Optional Arguments for the \fn{predictorEffect} and \fn{Effect} Functions}\label{sec:peopts}
 
-This section comprises a catalog of the arguments available to modify the behavior of the \fn{predictorEffect} and \fn{Effect} functions.  The information provided by \code{help("Effect")} is somewhat more comprehensive, if terser, explaining for example exceptions applying to \class{svyglm} objects or for plotting residuals.
+This section comprises a catalog of the arguments available to modify the behavior of the \fn{predictorEffect} and \fn{Effect} functions. These arguments may also be specified to the \fn{predictorEffects} function. The information provided by \code{help("Effect")} is somewhat more comprehensive, if terser, explaining for example exceptions applying to \class{svyglm} objects or for plotting residuals.
 
-\subsection{\ar{focal.levels} and \ar{xlevels}: Options for the Focal Predictor and Predictors in the Conditioning Group}
+\subsection{\ar{focal.levels} and \ar{xlevels}: Options for the Values of the Focal Predictor and Predictors in the Conditioning Group}\label{sec-focal.levels-xlevels}
 
 Numeric predictors in the conditioning group need to be discretized to draw a predictor effect plot.  For example the predictor effect plot for \vn{type} in model \code{lm1} consists of a separate line, or a separate panel, for each discrete value of \vn{income}:
 <<fig21a,include=TRUE,fig.width=5,fig.height=4.5,fig.show='hide'>>=
@@ -19,9 +19,9 @@ plot(e3.lm1, lines=list(multiline=FALSE)) # the default
 
 \noindent
 The numeric conditioning predictor \vn{income} is evaluated by default at five
-equally spaced values, and then rounded to ``nice" numbers.  
+equally spaced values, when are then rounded to ``nice" numbers.  
 
-In this example using three values of 5000, 15000, 25000 for the conditioning predictor \vn{income}  produces a simpler graph:
+In this example, using the three values of 5000, 15000, 25000 for the conditioning predictor \vn{income} produces a simpler graph:
 <<fig22a,include=TRUE,fig.width=5,fig.height=4.5,fig.show='hide'>>=
 e3.lm1 <- predictorEffect("type", lm1,
                           xlevels=list(income=c(5000, 15000, 25000)))
@@ -38,9 +38,9 @@ plot(e3.lm1,
 
 \noindent
 The argument \ar{xlevels} is a list of sub-arguments that control how numeric predictors are discretized when used in the conditioning group.  For example, \code{xlevels=list(x1=c(2, 4, 7), x2=6)} would use the values 2, 4, and 7 for the levels of the predictor  \code{x1}, use 6
-equally spaced values for the predictor \code{x2}, and use the default of 5 values for any other numeric predictors.  Numeric predictors in the \emph{fixed} group are not affected by the \ar{xlevels} argument. We use the \ar{layout} sub-argument of the \ar{lattice} argument to arrange the panels of the second graph in 3 columns and 1 row (see Section~\ref{sec:layout}).  See \code{help("plot.eff")} for information on the \ar{quantiles} argument, which provides an alternative method of setting \ar{xlevels} when partial residuals are displayed, as discussed in Section~\ref{sec:res}.
+equally spaced values for the predictor \code{x2}, and use the default of 5 values for any other numeric conditioning predictors.  Numeric predictors in the \emph{fixed} group are not affected by the \ar{xlevels} argument. We use the \ar{layout} sub-argument of the \ar{lattice} argument to arrange the panels of the second graph in 3 columns and 1 row (see Section~\ref{sec:layout}).  See \code{help("plot.eff")} for information on the \ar{quantiles} argument, which provides an alternative method of setting \ar{xlevels} when partial residuals are displayed, as discussed in Section~\ref{sec:res}.
 
-The number of points at which a numeric focal predictor is evaluated is controlled by the \ar{focal.levels} argument. The default of \vn{focal.levels=50} is recommended for drawing graphs, but if the goal is to produce a table of fitted values a smaller value such as \code{focal.values=5} produces more compact output.  With the \code{predictorEffects} function the \ar{focal.levels} can be set separately for each focal predictor; see \code{help("predictorEffects")}.    
+The points at which a numeric focal predictor is evaluated is controlled by the \ar{focal.levels} argument. The default of \vn{focal.levels=50} is recommended for drawing graphs, but if the goal is to produce a table of fitted values a smaller value such as \code{focal.values=5} produces more compact output. The focal predictor can also be set to a vector of particular values, as in \code{focal.values=c(30, 50, 70)}. Used with the \code{predictorEffects} function, the \ar{focal.levels} argument can be set separately for each focal predictor, similarly to the \ar{xlevels} argument; see \code{help("predictorEffects")}.    
 
 \subsection{\ar{fixed}: Options for Predictors in the Fixed Group}
 
@@ -60,14 +60,14 @@ For numeric predictors in the fixed group, the default method of selecting a typ
 
 Other sub-arguments to \ar{fixed.predictors} apply to the use of offsets, and to the \pkg{survey} package; see the help page for the \fn{Effect} function.
 
-\subsection{\ar{se}: Standard Errors and Confidence Intervals}\label{sec:se}
+\subsection{\ar{se} and \ar{vcov.}: Standard Errors and Confidence Intervals}\label{sec:se}
 
 Standard errors and confidence intervals for fitted values are computed by default.  The default corresponds to setting the argument \code{se=list(compute=TRUE, type="pointwise", level=.95)}.  Setting \code{se=FALSE} omits standard errors, \ar{type="scheffe"} uses wider Scheff\'{e} intervals that adjust for simultaneous inference, and \code{level=.8}, for example, produces 80\% intervals.
 
 Standard errors are based by default on the ``usual" sample covariance matrix of the estimated regression coefficients. You can replace the default coefficient covariance matrix with some other estimate, such as one obtained from the bootstrap or a sandwich coefficient covariance matrix estimator, by setting the  \ar{vcov.}~argument either to a function that returns a coefficient covariance matrix, such as \fn{hccm} in the \pkg{car} package for linear models, or to a matrix of the correct size; for example:
 <<fig23,include=TRUE,fig.width=5,fig.height=4,fig.show='hide'>>=
 e4.lm1 <- predictorEffect("education", lm1,
-                          se=list(type="scheffe", level=.99),
+                          se=list(type="scheffe", level=.99), 
                           vcov.=hccm)
 plot(e4.lm1)
 @
@@ -77,7 +77,7 @@ plot(e4.lm1)
 \noindent
 This plot displays 99\% Scheff\'{e} intervals based on a robust coefficient covariance matrix computed by the sandwich method; see \code{help("hccm")}.
 
-\subsection{\ar{residuals}: Computing Residuals}
+\subsection{\ar{residuals}: Computing Residuals for Partial Residual Plots}
 
 The argument \ar{residuals=TRUE} computes and saves residuals, providing the basis for adding partial residuals to subsequent effect plots, a topic that we discuss in Section~\ref{sec:res}.
 

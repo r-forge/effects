@@ -4,13 +4,13 @@
 
 The arguments described in Section~\ref{sec:peopts} are for the \fn{predictorEffect} function or the \fn{Effect} function.  Those arguments modify the computations that are performed, such as methods for averaging and fixing predictors, and for computing standard errors.  Arguments to the \fn{plot} methods for the predictor effect and effect objects produced by the \fn{predictorEffect} and \fn{Effect} functions  are described in this section, and these change the appearance of an effect plot or modify the quantities that are plotted. These optional arguments are described in more detail in \code{help("plot.eff")}.%\footnote{The \fn{Effect} function produces an \proglang{S3} object of class \class{eff}; \fn{predictorEffect} produces an \proglang{S3} object of class \class{predictoreff} inheriting from class \class{eff}. The \fn{plot} method for class \class{predictoreffect} sets up a call to the method for class \class{eff}, and the latter does most of the work of creating a predictor-effect plot.}
 
-In late 2018, we reorganized the \fn{plot} method for effect objects by combining arguments into five major groups of related sub-arguments, with the goal of simplifying the specification of effect plots.  For example, the \ar{lines} argument group is a list of sub-arguments for determining line type, color, and width, whether or not multiple lines should be drawn on the same graph, and whether plotted lines should be smoothed.  The defaults for these sub-arguments are the choices we generally find the most useful, but they will not be the best choices in all circumstances.  The cost of reorganizing the arguments in this manner is the necessity of specifying arguments as lists, some of whose elements are themselves lists, requiring the user to make sure that parentheses specifying the possibly nested lists properly balanced.
+In 2018, we reorganized the \fn{plot} method for effect objects by combining arguments into five major groups of related sub-arguments, with the goal of simplifying the specification of effect plots.  For example, the \ar{lines} argument group is a list of sub-arguments for determining line type, color, and width, whether or not multiple lines should be drawn on the same graph, and whether plotted lines should be smoothed.  The defaults for these sub-arguments are the choices we generally find the most useful, but they will not be the best choices in all circumstances.  The cost of reorganizing the arguments in this manner is the necessity of specifying arguments as lists, some of whose elements are themselves lists, requiring the user to make sure that parentheses specifying the possibly nested lists properly balanced.
 
-In addition to the five argument groups that we describe below, the \fn{plot} method for effect objects accepts the arguments \ar{main} for the main title of the graph and \ar{id} for identifying points in effect plots that include residuals as discussed in Section~\ref{sec:res}.
+In addition to the five argument groups that we describe below, the \fn{plot} method for effect objects accepts the arguments \ar{main} for the main title of the graph and \ar{id} for identifying points in effect plots that include residuals, as discussed in Section~\ref{sec:res}.
 
 Finally, the \fn{plot} method for effect objects retains a number of ``legacy" arguments shown in \code{help("plot.eff")}.  These arguments have been kept so existing scripts using the \pkg{effects} package would not break, but they are all duplicated as sub-arguments of the five argument groups.  The legacy arguments work but they may not be supported forever, so we encourage you to use the newer argument groups and sub-arguments.
 
-\subsection{\ar{axes} Group: Specify Axis Characteristics}
+\subsection{The \ar{axes} Group: Specify Axis Characteristics}
 
 The \ar{axes} argument group has two major sub-arguments, \ar{x} for the horizontal axis, \ar{y} for the vertical axis, and two minor sub-arguments, the \ar{grid} argument, which adds a background grid to the plot, and the \ar{alternating} argument, for changing the placement of axis-tick labels in multi-panel plots.
 
@@ -42,7 +42,7 @@ plot(predictorEffects(lm2, ~ income),
 \noindent
 The transformation changes the scale on the horizontal axis to log-scale, but leaves the tick labels in arithmetic scale, and the graph is now a straight line because of the change to log-scale.  This plot has several obviously undesirable features with regard to the range of the horizontal axis and over-printing of tick marks.  We show next that additional arguments to \fn{plot} can correct these defects.
 
-A more elaborate version of the graph illustrates all the sub-arguments to \ar{x} in \ar{lines}:
+A more elaborate version of the graph illustrates all the sub-arguments to \ar{x} in \ar{axis} argument group:
 <<fig32,include=TRUE,fig.width=5,fig.height=5,fig.show='hide'>>=
 plot(predictorEffects(lm2, ~ income),
  main="Transformed Plot",
@@ -70,7 +70,7 @@ This is admittedly a \emph{complex command}, but it allows you to fine-tune the 
 
 The model \code{lm2} has a transformed response \lcode{prestige}, and ``untransforming" the response to arithmetic scale may be desirable.  This can be accomplished with  the \ar{y} sub-argument, which has two sub-arguments named \vn{transform} and \vn{type} that together control the scale and labeling of the vertical axis.  
 
-There are three options for drawing the predictor effect plot for a numeric response like \lvn{prestige}:
+There are three options for drawing the predictor effect plot for a numeric response like\linebreak \lvn{prestige}:
 <<fig33,include=TRUE,fig.width=4,fig.height=4,fig.show='hide'>>=
 # default:
 plot(predictorEffects(lm2, ~ education),
@@ -112,18 +112,17 @@ plot(e1.mm1, lines=list(multiline=TRUE), confint=list(style="auto"))
 \centerline{\includegraphics[width=4in]{figure/fig33a-1.pdf}}
 
 \noindent
-The plot clearly shows the difference between the \level{control} and \level{patient} groups, with the fitted response for the latter having a larger slope.  The graph is hard to decode, however, because the vertical axis is approximately in the scale of the fourth-root of hours of exercise, so untransforming the response may produce a more informative plot.  Because the \fn{bcnPower} transformation is complex, the \pkg{car} package includes the function \fn{bcnPowerInverse} to reverse the transformation:
+The plot clearly shows the difference in the average \vn{age} trajectory between the \level{control} and \level{patient} groups, with the fitted response for the latter having a larger slope.  The graph is hard to decode, however, because the vertical axis is approximately in the scale of the fourth-root of hours of exercise, so untransforming the response may produce a more informative plot.  Because the \fn{bcnPower} transformation is complex, the \pkg{car} package includes the function \fn{bcnPowerInverse} to reverse the transformation:
 <<fig33b,include=TRUE,fig.width=5,fig.height=5,fig.show='hide'>>=
 f.trans <- function(x) bcnPower(x, lambda=0.25, gamma=0.1)
 f.inverse <- function(x) bcnPowerInverse(x, lambda=0.25, gamma=0.1)
 plot(e1.mm1, lines=list(multiline=TRUE),
      confint=list(style="auto"),
      axes=list(x=list(age=list(lab="Age (years)")),
-               y=list(transform=list(trans=f.trans,
-                                     inverse=f.inverse),
+               y=list(transform=list(trans=f.trans, inverse=f.inverse),
                       type="response",
                       lab="Exercise (hours/week)")),
-     lattice=list(key.args=list(x=.20, y=.75, corner=c(0, 0),
+     lattice=list(key.args=list(x=.20, y=.75, corner=c(0, 0), 
                                 padding.text=1.25)),
      main=""
 )
@@ -137,10 +136,10 @@ The response scale is now in hours per week, and we see that hours of exercise i
 
 \subsubsection{\ar{y}: Vertical Axis Specification for Generalized Linear Models}
 
-Transforming the vertical axis for generalized linear models also uses the \ar{y} sub-argument to the \ar{axes} argument. You typically do not need to specify the \ar{transform} argument because \fn{plot} obtains the right functions from the regression model's \ar{family} component.  The \ar{type} sub-argument has the same three possible values as for linear models, but their interpretation is somewhat different:
+Transforming the vertical axis for generalized linear models also uses the \ar{y} sub-argument to the \ar{axes} argument. You typically do not need to specify the \ar{transform} sub-argument because \fn{plot} obtains the right functions from the regression model's \ar{family} component.  The \ar{type} sub-argument has the same three possible values as for linear models, but their interpretation is somewhat different:
 \begin{enumerate}
 
-\item Effect plots in \code{type="link"} or linear predictor scale, in which the horizontal axis of each plot is a predictor and the vertical axis is in the scale of the linear predictor.  For logistic regression, for example, the vertical axis is in log-odds (logit) scale.  For Poisson regression with the log-link, the vertical axis is in log-mean (log-count) scale.
+\item Effect plots in \code{type="link"}, in which the horizontal axis of each plot is a predictor and the vertical axis is in the scale of the linear predictor.  For logistic regression, for example, the vertical axis is in log-odds (logit) scale.  For Poisson regression with the log-link, the vertical axis is in log-mean (log-count) scale.
 
 \item Predictor effect plots in \code{type="response"} or mean scale are obtained by ``untransforming" the $y$ axis using the inverse of the link function.  For the log-link, this corresponds to transforming the $y$ axis and plotting $\exp(y)$.  For logistic regression, $y = \log[p/(1-p)]$ and, solving for $p$, $p=\exp(y)/[1+\exp(y)] = 1/[1 + \exp(-y)]$, so the plot in mean scale uses $1/[1+\exp(-y)]$ on the vertical axis.
 
@@ -148,7 +147,7 @@ Transforming the vertical axis for generalized linear models also uses the \ar{y
 
 \end{enumerate}
 
-We use the \code{Blowdown} data from the \code{alr4} package to provide examples.  These data concern the probability of \emph{blowdown} \vn{y}, a tree being uprooted as the result of a major straight-line wind storm in the Boundary Waters Canoe Area Wilderness in 1999, modeled as a function of the diameter \code{d} of the tree, the local severity \code{s} of the storm, and the species \code{spp} of the tree.  We fit a main-effects model and then display all three predictor effect plots:
+We use the \code{Blowdown} data from the \pkg{alr4} package to provide examples.  These data concern the probability of \emph{blowdown} \vn{y}, a tree being uprooted as the result of a major straight-line wind storm in the Boundary Waters Canoe Area Wilderness in 1999, modeled as a function of the diameter \code{d} of the tree, the local severity \code{s} of the storm, and the species \code{spp} of the tree.  We fit a main-effects model and then display all three predictor effect plots:
 <<>>=
 library("alr4") # for the data
 gm1 <- glm(y ~ log(d) + s + spp, family=binomial, data=Blowdown)
@@ -164,7 +163,7 @@ plot(predictorEffects(gm1),
 \noindent
 The \ar{rug=FALSE} sub-argument to \ar{x} suppresses the rug plot that appears by default at the bottom of graphs for numeric predictors, and the \ar{grid} sub-argument to \ar{axes} adds background grids.  The \ar{rotate} sub-argument prints the horizontal tick labels at an angle to avoid overprinting.
 
-Interpretation of GLM predictor effect plots in link scale is similar to predictor effect plots for linear models, and all the modifications previously described can be used for these plots.  Because the default is \code{type="rescale"}, the vertical axis is in linear predictor scale, which is the log-odds for logit for this logistic regression example, but the vertical axis labels are in probability scale, so the tick-marks are not equally spaced.
+Interpretation of GLM predictor effect plots in link scale is similar to predictor effect plots for linear models, and all the modifications previously described can be used for these plots.  Because the default is \code{type="rescale"}, the vertical axis is in linear predictor scale, which is the log-odds or logit for this logistic regression example, but the vertical axis labels are in mean (probability) scale, so the tick-marks are not equally spaced.
 
 The next three graphs illustrate the possible values of the argument \ar{type}:
 <<fig35,include=TRUE,fig.width=3.5,fig.height=3.5,fig.show='hide'>>=
@@ -191,15 +190,15 @@ plot(e1.gm1, main="type='response'",
 \includegraphics[width=.33\textwidth]{figure/fig35-3.pdf}
 
 \noindent
-The first two graphs show the same plot, but in the first the tick-marks on the vertical axis are unequally spaced and are in probability scale, while in the second the tick-marks are equally spaced and are in log-odds scale.  In the third graph, the vertical axis as been transformed to probability scale, and the corresponding tick-marks are now equally spaced.
+The first two graphs show the same plot, but in the first the tick-marks on the vertical axis are unequally spaced and are in probability scale, while in the second the tick-marks are equally spaced and are in log-odds scale.  In the third graph, the vertical axis has been transformed to probability scale, and the corresponding tick-marks are now equally spaced.
 
 The plot for species would be easier to understand if the levels of the factor were ordered according to the estimated log-odds of blowdown.  First, we need to recover the fitted values in link scale, which are log-odds of blowdown for a logistic model.  The fitted log-odds are stored in \code{as.data.frame(e1.gm1)\$fit} using the \code{e1.gm1} object previously computed:
 
 <<fig36,include=TRUE,fig.width=5.5,fig.height=4.5,fig.show='hide'>>=
 or <- order(as.data.frame(e1.gm1)$fit) # order smallest to largest
-Blowdown$spp1 <- factor(Blowdown$spp,
+Blowdown$spp1 <- factor(Blowdown$spp,  # reorder levels of spp
                         levels=levels(Blowdown$spp)[or])
-gm2 <- update(gm1, ~ . - spp + spp1)
+gm2 <- update(gm1, ~ . - spp + spp1)   # refit model
 plot(predictorEffects(gm2, ~ spp1), main="type='response', ordered",
      axes=list(y=list(type="response",
                       lab="probabilty scale, probability labels"),
@@ -212,13 +211,13 @@ plot(predictorEffects(gm2, ~ spp1), main="type='response', ordered",
 \noindent
 The separation of species into two groups of lower and higher probability species is reasonably clear after ordering, with paper birch more susceptible to blowdown than the other species and possibly in a group by itself.
 
-\subsection{\ar{lines} Group: Specifying Plotted Lines}
+\subsection{The \ar{lines} Group: Specifying Plotted Lines}
 
 The \ar{lines} argument group allows the user to specify the color, type, thickness, and smoothness of lines.  This can be useful, for example, if the colors used by \pkg{effects} by default are for some reason unacceptable, such as for publications in which only black or gray-scale lines are permitted.  The most common use of this argument group is to allow more than one line to be plotted on the same graph or panel via the \ar{multiline} sub-argument.
 
 \subsubsection{\ar{multiline} and \ar{z.var}:  Multiple Lines in a Plot}
 
-Default predictor effect plots with conditioning predictors generate a separate plot for each level of the conditioning variable,  or each combination of levels if there is more than one conditioning variable. For an example, we add the \code{log(d):s} interaction to the model \code{gm1}, and generate the predictor effect plots for \vn{s} and for \vn{d}:
+Default predictor effect plots with conditioning predictors generate a separate plot for each level of the conditioning variable,  or for each combination of levels if there is more than one conditioning variable. For an example, we add the \code{log(d):s} interaction to the model \code{gm1}, and generate the predictor effect plots for \vn{s} and for \vn{d}:
 
 <<fig37,include=TRUE,fig.width=9,fig.height=12,fig.show='hide'>>=
 gm3 <- update(gm2, ~ . + s:log(d)) # add an interaction
@@ -233,30 +232,31 @@ plot(predictorEffects(gm3, ~ s + d),
 \noindent
 Setting the sub-argument \code{type="response"} for the \ar{y} axis plots the response on the probability scale. Setting \code{layout=c(1, 5)} arranges each predictor effect plot in 1 column of 5 rows. See the description of the \ar{lattice} argument in Section~\ref{sec:lattice}.
 
-The predictor effect plot for \vn{s} conditions on the level of \vn{d}, and displays the plot of the fitted values for \vn{y} versus \vn{s} in a separate panel for each value of \vn{d}.  Similarly, the predictor effect plot for \vn{d} displays a separate panel for each conditioning level of \vn{s}.  Confidence bands are displayed by default around each fitted line.  These two graphs are based on the same fitted values, with the values of the interacting predictors \vn{s} and \vn{d} varying, and fixing the factor predictor \vn{spp} to its distribution in the data, as described in Section~\ref{sec:facpred}. Concentrating on the graph at the right for the focal predictor \vn{d}, when \vn{s} is very small the probability of blowdown is estimated to be in the range of about .05 to .3 for any value of \vn{d}, but for larger values of \vn{s}, the probability of blowdown increases rapidly with \vn{d}. Similar comments can be made concerning the predictor effect plot for \vn{s}.
+The predictor effect plot for \vn{s} conditions on the level of \vn{d}, and displays the plot of the fitted values for \vn{y} versus \vn{s} in a separate panel for each value of \vn{d}.  Similarly, the predictor effect plot for \vn{d} displays a separate panel for each conditioning level of \vn{s}.  Confidence bands are displayed by default around each fitted line.  These two graphs are based on essentially the same fitted values, with the values of the interacting predictors \vn{s} and \vn{d} varying, and fixing the factor predictor \vn{spp} to its distribution in the data, as described in Section~\ref{sec:facpred}. Concentrating on the graph at the right for the focal predictor \vn{d}, when \vn{s} is very small the probability of blowdown is estimated to be in the range of about .05 to .3 for any value of \vn{d}, but for larger values of \vn{s}, the probability of blowdown increases rapidly with \vn{d}. Similar comments can be made concerning the predictor effect plot for \vn{s}.
 
-Setting \code{multiline=TRUE} superimposes the lines for all the conditioning values in a single graph. In the example below, we reduce the number of levels of the conditioning variable for each predictor effect plot to three each to produce simpler graphs, although this is not required. The \ar{xlevels} argument changes the number of levels for the conditioning predictors, but does not affect the number of levels for the focal predictor.  This latter quantity could be changed with the \ar{focal.levels} argument, but the default value of 50 evaluations is apparopriate for graphing effects. 
-<<fig38a,include=TRUE,fig.width=6,fig.height=5,fig.show='hide'>>=
-plot(predictorEffects(gm3, ~ s, xlevels=list(d=c(5, 40, 80))),
+Setting \code{multiline=TRUE} superimposes the lines for all the conditioning values in a single graph. In the example below, we reduce the number of levels of the conditioning variable for each predictor effect plot to three explicit values each to produce simpler graphs, although this is not required. The \ar{xlevels} argument changes the number of levels for the conditioning predictors, but does not affect the number of levels for the focal predictor.  This latter quantity could be changed with the \ar{focal.levels} argument, but the default value of 50 evaluations is appropriate for graphing effects. 
+<<fig38,include=TRUE,fig.width=9,fig.height=5,fig.show='hide'>>=
+plot(predictorEffects(gm3, ~ s + d, xlevels=list(d=c(5, 40, 80),
+                                                 s=c(0.1, 0.5, 0.9))),
      axes=list(grid=TRUE,
                x=list(rug=FALSE),
                y=list(type="response", lab="Blowdown probability")),
      lines=list(multiline=TRUE))
 @
-\centerline{\includegraphics[width=4in]{figure/fig38a-1.pdf}}
-<<fig38b,include=TRUE,fig.width=6,fig.height=5,fig.show='hide'>>=
-plot(predictorEffects(gm3, ~ d, xlevels=list(s=c(0.1, 0.5, 0.9))),
-     axes=list(grid=TRUE,
-               x=list(rug=FALSE),
-               y=list(type="response", lab="Blowdown probability")),
-     lines=list(multiline=TRUE))
-@
-\centerline{\includegraphics[width=4in]{figure/fig38b-1.pdf}}
+\centerline{\includegraphics[width=\textwidth]{figure/fig38-1.pdf}}
+% <<fig38b,include=TRUE,fig.width=6,fig.height=5,fig.show='hide'>>=
+% plot(predictorEffects(gm3, ~ d, xlevels=list(s=c(0.1, 0.5, 0.9))),
+%      axes=list(grid=TRUE,
+%                x=list(rug=FALSE),
+%                y=list(type="response", lab="Blowdown probability")),
+%      lines=list(multiline=TRUE))
+% @
+%\centerline{\includegraphics[width=4in]{figure/fig38b-1.pdf}}
 
 \noindent
 In each graph, we kept, more or less, the lowest, middle, and highest values of the conditional predictor for the interaction. We also added a grid to each graph.  Multiline plots by default omit confidence bands or intervals, but these can be included using the \ar{confint} argument discussed in Section~\ref{sec:confint}.  By default, different values of the conditioning predictor are distinguished by color, and a key is provided.  The placement and appearance of the key are controlled by the \ar{key.args} sub-argument in the \ar{lattice} group discussed in Section~\ref{sec:key}.
 
-When the conditioning group includes two or more predictors, and certainly when it includes three or more predictors, multiline plots are almost always helpful because otherwise the resulting array of panels becomes too complicated.  Suppose that we add the \code{spp:log(d)} interaction to the model.  The predictor effect plot for \vn{d} now includes both \vn{s} and \vn{spp} in the conditioning set because \vn{d} interacts with both of these predictors:
+When the conditioning group includes two or more predictors, and certainly when it includes three or more predictors, multiline plots are almost always helpful because otherwise the resulting array of panels becomes too complicated.  Suppose that we add the \code{spp:log(d)} interaction to the illustrative model.  The predictor effect plot for \vn{d} now includes both \vn{s} and \vn{spp} in the conditioning set because \vn{d} interacts with both of these predictors:
 
 <<fig39,include=TRUE,fig.width=7,fig.height=7,fig.show='hide'>>=
 gm4 <- update(gm3, ~ . + spp:log(d))
@@ -288,13 +288,13 @@ The \ar{z.var} sub-argument for \ar{lines} selects the predictor that determines
 
 \subsubsection{\ar{col}, \ar{lty}, \ar{lwd}, \ar{spline}: Line Color, Type, Width, Smoothness}\label{sec:line.color.etc}
 
-Different lines in the same plot are differentiated by default using color.  This can be modified by the sub-arguments \ar{lty}, \ar{lwd} and \ar{col} to set line types, widths, and colors, respectively.  For example, in the last graph shown you can get all black lines of different line types using \code{lines=list(multiline=TRUE, col="black", lty=1:9)}, or using a gray scale, \code{lines=list(multiline=TRUE, col=gray((1:9)/10))}.
+Different lines in the same plot are differentiated by default using color.  This can be modified by the sub-arguments \ar{lty}, \ar{lwd} and \ar{col} to set line types, widths, and colors, respectively.  For example, in the last graph shown you can get all black lines of different line types using \code{lines=list(multiline=TRUE, col="black", lty=1:9)}, or using a gray scale, \code{lines=}\linebreak \code{list(multiline=TRUE, col=gray((1:9)/10))}.
 
-The \fn{plot} method for effect objects by default uses smoothing splines to interpolate between plotted points.  Smoothing can be turned off with \code{splines=FALSE} in the \ar{lines} argument, but we rarely expect this to be a good idea. The number of values at which the focal predictor is evaluated is set with the \ar{focal.levels} argument, and it defaults to 50. In any case more than three evaluations shoould be used for a reasonable spline approximation.
+The \fn{plot} method for effect objects by default uses smoothing splines to interpolate between plotted points.  Smoothing can be turned off with \code{splines=FALSE} in the \ar{lines} argument, but we rarely expect this to be a good idea. The number of values at which the focal predictor is evaluated is set with the \ar{focal.levels} argument, and it defaults to 50. In any case, more than three evaluations, and possibly many more, should be used for a reasonable spline approximation.
 
-\subsection{\ar{confint}: Specifying Confidence Interval Inclusion and Style}\label{sec:confint}
+\subsection{The \ar{confint} Group: Specifying Confidence Interval Inclusion and Style}\label{sec:confint}
 
-The \ar{confint} argument group controls the inclusion and appearance of confidence intervals and regions.  This argument has three sub-arguments. The \ar{style} sub-argument is either \code{"bars"}, for confidence bars typically around the estimated adjusted mean for a factor level, \code{"bands"} for shaded confidence bands typically for numeric focal predictors, \code{"auto"} to let the program automatically choose between \code{"bars"} and \code{"bands"}, \code{"lines"} to draw only the edges of confidence bands with no shading, or \code{"none"} to suppress confidence intervals.  The default is \code{"auto"} when \code{multiline=FALSE} and \code{"none"} when \code{multiline=TRUE}. Setting \code{confint="auto"} produces bars for factors and bands for numeric predictors. For example:
+The \ar{confint} argument group controls the inclusion and appearance of confidence intervals and regions.  This argument has three sub-arguments. The \ar{style} sub-argument is either \code{"bars"}, for confidence bars, typically around the estimated adjusted mean for a factor level; \code{"bands"}, for shaded confidence bands, typically for numeric focal predictors; \code{"auto"}, to let the program automatically choose between \code{"bars"} and \code{"bands"}; \code{"lines"}, to draw only the edges of confidence bands with no shading; or \code{"none"}, to suppress confidence intervals.  The default is \code{"auto"} when \code{multiline=FALSE} and \code{"none"} when \code{multiline=TRUE}. Setting \code{confint="auto"} produces bars for factors and bands for numeric predictors. For example:
 <<fig311,include=TRUE,fig.width=5.5,fig.height=5.5,fig.show='hide'>>=
 plot(predictorEffects(gm3, ~ d, 
                       xlevels=list(s=c(0.1, 0.5, 0.9))),
@@ -328,7 +328,7 @@ The error bars for the various levels of \vn{s} are slightly staggered to reduce
 
 Two additional arguments, \vn{col} and \vn{alpha}, control respectively the color of confidence bars and regions and the transparency of confidence regions.  Users are unlikely to need these options.  Finally, the type of confidence interval shown, either pointwise or Scheff\'{e} corrected for multiple comparisons, is controlled by the \ar{se} argument to the \fn{predictorEffect} or \fn{Effect} function (see Section~\ref{sec:se}).
 
-\subsection{\ar{lattice}: Specifying Standard lattice Package Arguments}\label{sec:lattice}
+\subsection{The \ar{lattice} Group: Specifying Standard \textbf{lattice} Package Arguments}\label{sec:lattice}
 
 The \fn{plot} methods defined in the \pkg{effects} package use functions in the \pkg{lattice} package \citep{sarkar08}, such as \fn{xyplot}, to draw effect plots, which often comprise rectangular arrays of panels. In particular, the \fn{plot} method for the \class{eff} objects returned by the \fn{Effect} function are \class{trellis} objects, which can be manipulated in the normal manner. ``Printing'' a returned effect-plot object displays the plot in the current \R{} graphics device.
 
@@ -358,7 +358,7 @@ plot(predictorEffects(gm5, ~ spp, xlevels=list(s=c(0.1, 0.5, 0.9))),
 \noindent
 The sub-argument \code{space="right"} moves the key to the right of the graph, overriding the default \code{space="top"}.  Alternatively the key can be placed inside the graph using the \ar{x}, \ar{y}, and \ar{corner} sub-arguments, as illustrated in the graph on page~\pageref{corner}. The choices for \ar{fontfamily} are \code{"sans"} and \code{"serif"}, and affect only the key; the rest of the plot uses \code{"sans"}.  The sub-arguments \ar{cex} and \ar{cex.title} control the relative sizes of the key entries and the key title, respectively.  Finally, any argument documented in \code{help("xyplot")} in the \code{key} section can be set with this argument. If you use the default \code{space="top"} for placement of the key, you may wish to adjust the number of columns in the key, particularly if the level names are long.
 
-\subsubsection{\ar{layout}}\label{sec:layout}
+\subsubsection{\ar{layout}: Controlling Panel Placement}\label{sec:layout}
 
 The \ar{layout} sub-argument to the \ar{lattice} argument allows a user to customize the layout of multiple panels in an effect plot; for example:
 <<fig313,include=TRUE,fig.width=13,fig.height=5.5,fig.show='hide'>>=
@@ -375,13 +375,33 @@ Here, the \ar{layout} sub-argument specifies an array of 3 columns and 2 rows fo
 
 \subsubsection{\ar{array}: Multiple Predictor Effect Plots}\label{sec:array}
 
-If you create several predictor effect objects with the  \fn{predictorEffects} function, the \fn{plot} method for the resulting object uses the \pkg{lattice} \ar{array} argument to divide the plotting region into sub-plots so that the predictor effect plots, each potentially with several panels, are drawn without overlapping. The user can also supply this argument directly to create a custom meta-array of predictor effect plots; see \code{help("plot.eff")} for details.
+If you create several predictor effect objects with the  \fn{predictorEffects} function, the \fn{plot} method for the resulting \class{predictorefflist} object divides the \pkg{lattice} graphics device into a rectangular array of sub-plots, so that the individual predictor effect plots, each potentially with several panels, are drawn without overlapping. An alternative is for the user to generate the predictor effect plots separately, subsequently supplying the \ar{array} sub-argument to \fn{plot} directly to create a custom meta-array of predictor effect plots; this argument is ignored, however, for \class{predictorefflist} objects produced by \fn{predictorEffects}.
 
-\subsubsection{\ar{strip}}\label{sec:strip}
+Suppose, for example, that we want to arrange the two predictor effect plots for the previous example vertically rather than horizontally. One way to do that is to save the object produced by \fn{predictorEffects} and to plot each of its two components individually, specifying the \ar{position} or \ar{split} and \ar{more} arguments to the \fn{print} method for \class{trellis} objects: see \code{help("print.trellis")}. 
 
-Lattice graphics with more than one panel typically provide a title at the top of each panel in an area called the \emph{strip}.  The default strip title contains the name of the conditioning predictor and the value to which it is set in the panel; if there are more than one conditioning predictor, then all of their names and corresponding values are shown. For example:
+Another approach is to generate the plots individually using \fn{predictorEffect} and to specify the \ar{array} sub-argument to \fn{plot}, as follows:
+
+<<fig313b,include=TRUE,fig.width=6,fig.height=10,fig.show='hide'>>=
+plot(predictorEffect("s", gm3, xlevels=list(d=6)),
+     axes=list(x=list(rug=FALSE, rotate=90),  
+               y=list(ticks=list(at=c(.999, .99, .95, .8, .5, .2, .05)))),
+     lattice=list(layout=c(3, 2),
+                  array=list(row=1, col=1, nrow=2, ncol=1, more=TRUE)))
+plot(predictorEffect("d", gm3, xlevels=list(s=6)),
+     axes=list(x=list(rug=FALSE, rotate=90),  
+               y=list(ticks=list(at=c(.999, .99, .95, .8, .5, .2, .05)))),
+     lattice=list(layout=c(3, 2),
+                  array=list(row=2, col=1, nrow=2, ncol=1, more=FALSE)))
+@
+\centerline{\includegraphics[width=.65\textwidth]{figure/fig313b-1.pdf}}
+
+\noindent In each case, the \ar{row} and \ar{col} sub-arguments indicate the position of the current graph in the meta-array; \ar{nrow} and \ar{ncol} give the dimensions of the meta-array, here 2 rows and 1 column; and \ar{more} indicates whether there are more elements of the meta-array after the current graph.
+
+\subsubsection{\ar{strip}: Modifying the Text at the Tops of Panels}\label{sec:strip}
+
+Lattice graphics with more than one panel typically provide a text label at the top of each panel in an area called the \emph{strip}.  The default strip text contains the name of the conditioning predictor and the value to which it is set in the panel; if there are more than one conditioning predictor, then all of their names and corresponding values are shown. For example:
 <<fig316,include=TRUE,fig.width=7,fig.height=5,fig.show='hide'>>=
-plot(predictorEffects(gm4, ~ d, xlevels=list(s=c(0.1, 0.5, 0.9)),
+plot(predictorEffects(gm4, ~ d, xlevels=list(s=c(0.1, 0.5, 0.9))),
      axes=list(grid=TRUE,
                x=list(rug=FALSE),
                y=list(type="response")),
