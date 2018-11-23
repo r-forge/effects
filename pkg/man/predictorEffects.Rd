@@ -10,7 +10,7 @@
 Functions For Computing Predictor Effects
 }
 \description{
-Alternatives to the \code{Effect} and \code{allEffects} functions that use a different paradigm for conditioning in an effect display.  The user specifies one predictor, either continuous or a factor, for the horizontal axis of a plot, and the function determines the appropriate plot to display (which is drawn by \code{plot}).
+Alternatives to the \code{Effect} and \code{allEffects} functions that use a different paradigm for conditioning in an effect display.  The user specifies one predictor, either continuous or a factor, for the horizontal axis of a plot, and the function determines the appropriate plot to display (which is drawn by \code{plot}). See the vignette \href{../doc/predictor-effects-gallery.pdf}{Predictor Effects Graphics Gallery} for details and examples.
 }
 \usage{
 predictorEffect(predictor, mod, focal.levels=50, xlevels=5, ...)
@@ -82,7 +82,7 @@ S. Weisberg \email{sandy@umn.edu} and J. Fox
 
 
 \seealso{
-\code{\link{Effect}}, \code{\link{plot.predictoreff}}
+\code{\link{Effect}}, \code{\link{plot.predictoreff}}, the \href{../doc/predictor-effects-gallery.pdf}{Predictor Effects Graphics Gallery} vignette, and the \href{../doc/partial-residuals.pdf}{Effect Displays with Partial Residuals} vignette.
 }
 \examples{
 mod <- lm(prestige ~ type*(education + income) + women, Prestige)

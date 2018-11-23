@@ -12,7 +12,7 @@
 \title{Plots of Effects and Predictor Effects}
 
 \description{
-\code{plot} methods for \code{predictoreff}, \code{predictorefflist}, \code{eff}, \code{efflist} and \code{effpoly} objects created by calls other methods in the \code{effects} package.  The plot arguments were substantially changed in mid-2017.
+\code{plot} methods for \code{predictoreff}, \code{predictorefflist}, \code{eff}, \code{efflist} and \code{effpoly} objects created by calls other methods in the \code{effects} package.  The plot arguments were substantially changed in mid-2017. For more details and many examples, see the \href{../doc/predictor-effects-gallery.pdf}{Predictor Effects Graphics Gallery} vignette.
 }
 
 \usage{
@@ -68,7 +68,7 @@
   
   \item{confint}{an optional list of specifications for plotting confidence regions and intervals; if not given, generally reasonable default values are used. See Detailed Argument Descriptions under Details for more information.}
   
-  \item{partial.residuals}{an optional list of specifications for plotting partial residuals for linear and generalized linear models; if not given, generally reasonable default values are used. See Detailed Argument Descriptions under Details for more information.}
+  \item{partial.residuals}{an optional list of specifications for plotting partial residuals for linear and generalized linear models; if not given, generally reasonable default values are used. See Detailed Argument Descriptions under Details for more information, along with the \href{../doc/partial-residuals.pdf}{Effect Displays with Partial Residuals} vignette.}
   \item{id}{an optional list of specifications for identifying points when partial residuals are plotted; if not specified, no points are labelled. See Detailed Argument Descriptions under Details for more information.}
   
   \item{lattice}{an optional list of specifications for various lattice properties, such as legend placement; if not given, generally reasonable default values are used. See Detailed Argument Descriptions under Details for more information.}
@@ -103,6 +103,8 @@ In a polytomous multinomial or proportional-odds logit model, by default effects
 All of the arguments to plot objects created by \code{Effect} or \code{allEffects} can also be used with objects created by \code{predictorEffect} or \code{predictorEffects}.  
 
 \bold{Detailed Argument Descriptions}
+
+For more information about these arguments and many examples, see the \href{../doc/predictor-effects-gallery.pdf}{Predictor Effects Graphics Gallery} vignette.
 
 Maximizing the flexibility of these plot commands requires inclusion of a myriad of options.  In an attempt to simplify the use of these options, they have been organized into just a few arguments that each accept a list of specifications as an argument.  In a few cases the named entries in the list are themselves lists.
 
@@ -279,7 +281,8 @@ Other elements:
 
 \seealso{\code{\link{LegacyArguments}}, \code{\link{effect}}, \code{\link{allEffects}}, \code{\link{effectsTheme}},
     \code{\link{xyplot}}, \code{\link{densityplot}}, \code{\link{print.trellis}}, \code{\link{loess}},
-	\code{\link[colorspace]{sequential_hcl}}
+	\code{\link[colorspace]{sequential_hcl}},
+	and the \href{../doc/predictor-effects-gallery.pdf}{Predictor Effects Graphics Gallery} and \href{../doc/partial-residuals.pdf}{Effect Displays with Partial Residuals} vignettes.
 }
 
 \examples{

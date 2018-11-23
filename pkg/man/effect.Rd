@@ -27,7 +27,7 @@
   \code{effect}, and will succeed with some models for which \code{effect} fails.  The \code{effect} function
   works by constructing a call to \code{Effect}.
 
-  The \code{Effect} and \code{effect} functions can also be used with many other models; see \code{\link{Effect.default}} and a vignette for this package.
+  The \code{Effect} and \code{effect} functions can also be used with many other models; see \code{\link{Effect.default}} and the \href{../doc/adding-Effect-methods.pdf}{Defining Effect Methods for Other Models} vignette.
 
   \code{allEffects} identifies all of the high-order terms in a model and returns
   a list of \code{"eff"} or \code{"effpoly"} objects (i.e., an object of type \code{"efflist"}).
@@ -144,7 +144,7 @@ allEffects(mod, ...)
   \item{residuals}{if \code{TRUE}, residuals for a linear or generalized linear model
     will be computed and saved; if \code{FALSE}
     (the default), residuals are suppressed. If residuals are saved, partial residuals are computed when
-    the effect is plotted: see \code{\link{plot.eff}}. This argument may also be used for mixed-effects and some other models.}
+    the effect is plotted: see \code{\link{plot.eff}} and the vignette \href{../doc/partial-residuals.pdf}{Effect Displays with Partial Residuals}. This argument may also be used for mixed-effects and some other models.}
   \item{quantiles}{quantiles at which to evaluate numeric focal predictors \emph{not} on the
     horizontal axis, used only when partial residuals are displayed; superceded if the \code{xlevels} argument
     gives specific values for a predictor.}
@@ -332,7 +332,7 @@ and Jangman Hong.}
     \code{\link{print.effpoly}}, \code{\link{summary.effpoly}}, \code{\link{plot.effpoly}},
     \code{\link{print.efflist}}, \code{\link{summary.efflist}},
     \code{\link{plot.efflist}}, \code{\link{xyplot}},
-    \code{\link{densityplot}}.}
+    \code{\link{densityplot}}, and the \href{../doc/partial-residuals.pdf}{Effect Displays with Partial Residuals} and \href{../doc/adding-Effect-methods.pdf}{Defining Effect Methods for Other Models} vignettes.}
 
 \examples{
 mod.cowles <- glm(volunteer ~ sex + neuroticism*extraversion,
