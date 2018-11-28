@@ -1,5 +1,7 @@
 Version 4.1-0
 
+ o Fixed a bug in Effect.gls to ignore the 'weights' argument on the call to gls.
+ 
  o Added predictor effects graphics gallery vignette.
  
  o predictorEffect() and predictorEffects() have new xlevels and focal.levels arguments.

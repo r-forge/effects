@@ -2,6 +2,8 @@
 # Effect.default.  Excluded are Effect.lm, Effect.polr, and Effect.multinom, 
 # and for now Effect.svyglm.
 # 06/08/2018: rewrote method for betareg, removing the 'link' argument from sources
+# 11/28/2018:  modified Effect.gls to ignore the weights argument by 
+#              deleting it from sources$call.
 
 # new lme method
 Effect.lme <- function(focal.predictors, mod, ...){
@@ -15,8 +17,10 @@ Effect.lme <- function(focal.predictors, mod, ...){
 
 # new gls method
 Effect.gls <- function(focal.predictors, mod, ...){
+  cl <- mod$call
+  cl$weights <- NULL
   args <- list(
-    call = mod$call,
+    call = cl,
     formula = formula(mod),
     coefficients = coef(mod),
     vcov = as.matrix(vcov(mod)))
