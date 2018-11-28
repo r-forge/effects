@@ -1,0 +1,22 @@
+Proposed changes to JSS manuscript
+
+1.
+page 23 second bullet argument, replace as follows:
+
+Change "Least-squares means" to "Expected marginal means"
+Change "lsmeans package" to "emmeans package"
+Delete reference to Lengh 2016
+Change reference to Lenth 2018 to
+
+@Manual{lenth18,
+    title = {emmeans: Estimated Marginal Means, aka Least-Squares Means},
+    author = {Russell Lenth},
+    year = {2018},
+    note = {R package version 1.3.0},
+    url = {https://CRAN.R-project.org/package=emmeans},
+  }
+
+2.  On page 24 before Acknoledgements add the following paragraph.
+
+Between the acceptance of this article and its appearance, we have revised the syntax for drawing complex predictor effects plots.  The current recommended syntax is described and illustrated in a vignette called \emph{Predictor Effects Graphics Gallery} [insert reference and citation to a vignette]. 
+  
