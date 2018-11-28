@@ -14,18 +14,22 @@ citEntry(entry = "Book",
         "<http://tinyurl.com/carbook>"
         ))
         
-citEntry(entry = "Article",
-  title        = "Visualizing Fit and Lack of Fit in Complex Regression Models with Predictor Effect Plots and Partial Residualsr Multinomial and Proportional-Odds Logit Models: Extensions to the effects Package",
-  author       = personList(as.person("John Fox"), as.person("Sanford Weisberg")),
+bibentry(bibtype = "Article",
+  title        = "Visualizing Fit and Lack of Fit in Complex Regression Models with Predictor Effect Plots and Partial Residuals",
+  author       = c(person(given = "John",
+                          family = "Fox",
+                          email = "jfox@mcmaster.ca"),
+                   person(given = "Sanford",
+                          family = "Weisberg",
+                          email = "sandy@umn.edu")),
   journal      = "Journal of Statistical Software",
-  year         = "in press",
+  year         = "2018",
+  volume       = "87",
+  number       = "9",
+  pages        = "1--27",
+  doi          = "10.18637/jss.v087.i09",
 
-  textVersion  =
-  paste("John Fox and Sanford Weisberg (in press).",
-        "Visualizing Fit and Lack of Fit in Complex Regression Models with Predictor Effect Plots and Partial Residuals.",
-        "Journal of Statistical Software"),
-
-  header = "For predictor effects or using residuals also cite:"
+  header       = "To cite effects in publications use:"
 )
 
 
