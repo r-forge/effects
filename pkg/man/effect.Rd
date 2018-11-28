@@ -300,15 +300,16 @@ and of class \code{"effpoly"} with more than 2 categories.
   	\bold{36}, 225--255.
 
   	Fox, J. and J. Hong (2009).
-    Effect displays in R for multinomial and proportional-odds logit models:
+    Effect displays in R for multinomial and proportional-odds logit models:?
     	    Extensions to the effects package.
     \emph{Journal of Statistical Software}
     \bold{32:1}, 1--24, <\url{http://www.jstatsoft.org/v32/i01/}>.
 
-    Fox, J. and S. Weisberg (forthcoming).
-    Visualizing Fit and Lack of Fit in Complex Regression Models:
-        Effect Plots with Partial Residuals.
-    \emph{Journal of Statistical Software}.
+    Fox, J. and S. Weisberg (2018).
+    Visualizing Fit and Lack of Fit in Complex Regression Models
+        with Predictor Effect Plots with Partial Residuals.
+    \emph{Journal of Statistical Software}
+    \bold{87:9}, 1--27, <\url{http://www.jstatsoft.org/v87/i09/}>
 
     Hastie, T. J. (1992).
     Generalized additive models.
