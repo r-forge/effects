@@ -4,6 +4,7 @@
 # 06/08/2018: rewrote method for betareg, removing the 'link' argument from sources
 # 11/28/2018:  modified Effect.gls to ignore the weights argument by 
 #              deleting it from sources$call.
+# 11/30/2018: fixed bug in Effect.merMod() specifying fam$family explicitly.
 
 # new lme method
 Effect.lme <- function(focal.predictors, mod, ...){
@@ -37,7 +38,7 @@ Effect.merMod <- function(focal.predictors, mod, ..., KR=FALSE){
     call = mod@call,
     coefficients = lme4::fixef(mod),
     family=fam,
-    vcov = if (fam == "gaussian" && fam$link == "identity" && KR)
+    vcov = if (fam$family == "gaussian" && fam$link == "identity" && KR)
       as.matrix(pbkrtest::vcovAdj(mod)) else as.matrix(vcov(mod)))
   Effect.default(focal.predictors, mod, ..., sources=args)
 }
