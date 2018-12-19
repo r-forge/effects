@@ -597,7 +597,7 @@ is.factor <- function(x) inherits(x, "factor") || ((is.character(x) || is.logica
 
 levels.character <- function(x) {
   levs <- unique(x)
-  levs[!is.na(levs)]
+  sort(levs[!is.na(levs)])
 }
 
 levels.logical <- function(x) {
