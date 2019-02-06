@@ -4,6 +4,7 @@ Date: 2018-12-19
 Title: Effect Displays for Linear, Generalized Linear, and Other Models
 Authors@R: c(person("John", "Fox", role = c("aut", "cre"), email = "jfox@mcmaster.ca"),
 	person("Sanford", "Weisberg", role = "aut", email = "sandy@umn.edu"),
+		person("Brad", "Price", role = "aut", email = "brad.price@mail.wvu.edu"),
     person("Michael", "Friendly", role = "aut", email = "friendly@yorku.ca"),
     person("Jangman", "Hong", role = "aut"),
     person("Robert", "Andersen", role = "ctb"),
