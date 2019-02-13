@@ -1,6 +1,8 @@
 Version 4.1-1
 
  o Accommodate character and logical predictors.
+ 
+ o Make sure that lty argument to plot() is not ignored.
 
 Version 4.1-0
 
