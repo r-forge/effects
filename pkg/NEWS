@@ -3,6 +3,8 @@ Version 4.1-1
  o Accommodate character and logical predictors.
  
  o Make sure that lty argument to plot() is not ignored.
+ 
+ o Change behavior of default levels argument to predictorEffect.default() and predictorEffects.default() when residuals=TRUE to match that of Effect.lm().
 
 Version 4.1-0
 
