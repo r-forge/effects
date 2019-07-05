@@ -221,7 +221,7 @@ Proportional odds logit and probit regression models fit with the \code{polr} fu
 print(Effect.clm)
 @
 
-This method first checks that the \code{MASS} package is available.  Since the \code{clm} function allows suppressing the computation of the Hessian, the function checks and computes it if needed to get the estimated covariance matrix.  The \code{clm} function orders the parameters in the order (threshold parameters, linear predictor parameters), so the next few lines identify the elements of  \code{vcov} that are needed by \code{Effects}.  Since the \code{polr} function does not allow thresholds other than \code{flexible}, we don't allow them either. The \code{polr} argument \code{method} is equivalent to the \code{clm} argument \code{link}, except that the \code{clm} link \code{"logit"} is equivalen to the \code{polr} method \code{"logit"logistic"}.  
+This method first checks that the \code{MASS} package is available.  The \code{clm} function orders the parameters in the order (threshold parameters, linear predictor parameters), so the next few lines identify the elements of  \code{vcov} that are needed by \code{Effects}.  Since the \code{polr} function does not allow thresholds other than \code{flexible}, we don't allow them either. The \code{zeta} argument supplies the estimated threshholds, which are called \code{zeta} in \code{polr}, and \code{Alpha} in \code{clm}. The \code{polr} argument \code{method} is equivalent to the \code{clm} argument \code{link}, except that the \code{clm} link \code{"logit"} is equivalen to the \code{polr} method \code{"logit"logistic"}.  
 
 <<echo=FALSE,results='hide', include=FALSE>>=
 require(ordinal)

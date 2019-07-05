@@ -1,0 +1,284 @@
+\begin{thebibliography}{42}
+\newcommand{\enquote}[1]{``#1''}
+\providecommand{\natexlab}[1]{#1}
+\providecommand{\url}[1]{\texttt{#1}}
+\providecommand{\urlprefix}{URL }
+\expandafter\ifx\csname urlstyle\endcsname\relax
+  \providecommand{\doi}[1]{doi:\discretionary{}{}{}#1}\else
+  \providecommand{\doi}{doi:\discretionary{}{}{}\begingroup
+  \urlstyle{rm}\Url}\fi
+\providecommand{\eprint}[2][]{\url{#2}}
+
+\bibitem[{Bates \emph{et~al.}(2015)Bates, M{\"a}chler, Bolker, and
+  Walker}]{Bates15}
+Bates D, M{\"a}chler M, Bolker B, Walker S (2015).
+\newblock \enquote{Fitting Linear Mixed-Effects Models Using \pkg{lme4}.}
+\newblock \emph{Journal of Statistical Software}, \textbf{67}(1), 1--48.
+\newblock \doi{10.18637/jss.v067.i01}.
+
+\bibitem[{Becker and Cleveland(1996)}]{BeckerCleveland96}
+Becker RA, Cleveland WS (1996).
+\newblock \emph{{\proglang{S-PLUS}} {Trellis} User's Manual}.
+\newblock MathSoft, Inc., Seattle.
+
+\bibitem[{Becker \emph{et~al.}(1996)Becker, Cleveland, and Shyu}]{becker96}
+Becker RA, Cleveland WS, Shyu MJ (1996).
+\newblock \enquote{The Visual Design and Control of Trellis Display.}
+\newblock \emph{Journal of Computational and Graphical Statistics},
+  \textbf{5}(2), 123--155.
+\newblock \doi{10.2307/1390777}.
+
+\bibitem[{Blishen and McRoberts(1976)}]{BlishenMcRoberts76}
+Blishen BR, McRoberts HA (1976).
+\newblock \enquote{A Revised Socioeconomic Index for Occupations in {C}anada.}
+\newblock \emph{Canadian Review of Sociology and Anthropology}, \textbf{13}(1),
+  71--79.
+\newblock \doi{10.1111/j.1755-618x.1976.tb00759.x}.
+
+\bibitem[{Breheny and Burchett(2018)}]{visreg}
+Breheny P, Burchett W (2018).
+\newblock \emph{\pkg{visreg}: Visualization of Regression Models}.
+\newblock \proglang{R} package version 2.5-0,
+  \urlprefix\url{https://CRAN.R-project.org/package=visreg}.
+
+\bibitem[{Chambers and Hastie(1992)}]{ChambersHastie92}
+Chambers JM, Hastie TJ (1992).
+\newblock \enquote{Statistical Models.}
+\newblock In JM~Chambers, TJ~Hastie (eds.), \emph{Statistical Models in
+  {\proglang{S}}}, pp. 13--44. Wadsworth, Pacific Grove.
+
+\bibitem[{Christensen(2018)}]{Christensen15}
+Christensen RHB (2018).
+\newblock \emph{\pkg{ordinal}: Regression Models for Ordinal Data}.
+\newblock \proglang{R} package version 2018.8-25,
+  \urlprefix\url{https://CRAN.R-project.org/package=ordinal}.
+
+\bibitem[{Cleveland(1993)}]{Cleveland93}
+Cleveland WS (1993).
+\newblock \emph{Visualizing Data}.
+\newblock Hobart Press, Summit.
+
+\bibitem[{Cleveland(1994)}]{Cleveland94}
+Cleveland WS (1994).
+\newblock \emph{The Elements of Graphing Data}.
+\newblock Revised edition. Hobart Press, Summit.
+
+\bibitem[{Cleveland \emph{et~al.}(1992)Cleveland, Grosse, and
+  Shyu}]{ClevelandGrosseShyu92}
+Cleveland WS, Grosse E, Shyu WM (1992).
+\newblock \enquote{Local Regression Models.}
+\newblock In JM~Chambers, TJ~Hastie (eds.), \emph{Statistical Models in
+  {\proglang{S}}}, chapter~8, pp. 201--309. Wadsworth \& Brooks/Cole, Pacific
+  Grove.
+
+\bibitem[{Cook(1993)}]{Cook93}
+Cook RD (1993).
+\newblock \enquote{Exploring Partial Residual Plots.}
+\newblock \emph{Technometrics}, \textbf{35}(4), 351--362.
+\newblock \doi{10.2307/1270269}.
+
+\bibitem[{Cook and Croos-Dabrera(1998)}]{CookCroos98}
+Cook RD, Croos-Dabrera R (1998).
+\newblock \enquote{Partial Residual Plots in Generalized Linear Models.}
+\newblock \emph{Journal of the American Statistical Association},
+  \textbf{93}(442), 730--739.
+\newblock \doi{10.1080/01621459.1998.10473725}.
+
+\bibitem[{Cowles and Davis(1987)}]{CowlesDavis87}
+Cowles M, Davis C (1987).
+\newblock \enquote{The Subject Matter of Psychology: Volunteers.}
+\newblock \emph{British Journal of Social Psychology}, \textbf{26}(2), 97--102.
+\newblock \doi{10.1111/j.2044-8309.1987.tb00769.x}.
+
+\bibitem[{Fisher(1936)}]{Fisher36}
+Fisher RA (1936).
+\newblock \emph{Statistical Methods for Research Workers}.
+\newblock 6th edition. Oliver and Boyd, Edinburgh.
+
+\bibitem[{Fox(1987)}]{Fox87}
+Fox J (1987).
+\newblock \enquote{Effect Displays for Generalized Linear Models.}
+\newblock In CC~Clogg (ed.), \emph{Sociological Methodology 1987}, volume~17,
+  pp. 347--361. American Sociological Association, Washington, {DC}.
+
+\bibitem[{Fox(2003)}]{Fox03}
+Fox J (2003).
+\newblock \enquote{Effect Displays in \proglang{R} for Generalised Linear
+  Models.}
+\newblock \emph{Journal of Statistical Software}, \textbf{8}(15), 1--27.
+\newblock \doi{10.18637/jss.v008.i15}.
+
+\bibitem[{Fox and Hong(2009)}]{effects2}
+Fox J, Hong J (2009).
+\newblock \enquote{Effect Displays in \proglang{R} for Multinomial and
+  Proportional-Odds Logit Models: Extensions to the \pkg{effects} Package.}
+\newblock \emph{Journal of Statistical Software}, \textbf{32}(1), 1--24.
+\newblock \doi{10.18637/jss.v032.i01}.
+
+\bibitem[{Fox and Suschnigg(1989)}]{FoxSuschnigg89}
+Fox J, Suschnigg C (1989).
+\newblock \enquote{A Note on Gender and the Prestige of Occupations.}
+\newblock \emph{Canadian Journal of Sociology}, \textbf{14}(3), 353--360.
+\newblock \doi{10.2307/3340609}.
+
+\bibitem[{Fox and Weisberg(2011)}]{FoxWeisberg11}
+Fox J, Weisberg S (2011).
+\newblock \emph{An \proglang{R} Companion to Applied Regression}.
+\newblock 2nd edition. Sage, Thousand Oaks.
+
+\bibitem[{Fox \emph{et~al.}(2018{\natexlab{a}})Fox, Weisberg, Friendly, and
+  Hong}]{FoxEtAl16}
+Fox J, Weisberg S, Friendly M, Hong J (2018{\natexlab{a}}).
+\newblock \emph{\pkg{effects}: Effect Displays for Linear, Generalized Linear,
+  and Other Models}.
+\newblock \proglang{R} package version 4.0-3,
+  \urlprefix\url{https://CRAN.R-project.org/package=effects}.
+
+\bibitem[{Fox \emph{et~al.}(2018{\natexlab{b}})Fox, Weisberg, and
+  Price}]{FoxWeisbergPrice17}
+Fox J, Weisberg S, Price B (2018{\natexlab{b}}).
+\newblock \emph{\pkg{carData}: Companion to Applied Regression Data Sets}.
+\newblock \proglang{R} package version 3.0-2,
+  \urlprefix\url{https://CRAN.R-project.org/package=carData}.
+
+\bibitem[{Friedman(2001)}]{Friedman01}
+Friedman JH (2001).
+\newblock \enquote{Greedy Function Approximation: A Gradient Boosting Machine.}
+\newblock \emph{The Annals of Statistics}, \textbf{29}(5), 1189--1232.
+\newblock \doi{10.1214/aos/1013203451}.
+
+\bibitem[{Goldstein \emph{et~al.}(2015)Goldstein, Kapelner, Bleich, and
+  Pitkin}]{ice15}
+Goldstein A, Kapelner A, Bleich J, Pitkin E (2015).
+\newblock \enquote{Peeking Inside the Black Box: Visualizing Statistical
+  Learning with Plots of Individual Conditional Expectation.}
+\newblock \emph{Journal of Computational and Graphical Statistics},
+  \textbf{24}(1), 44--65.
+\newblock \doi{10.1080/10618600.2014.907095}.
+
+\bibitem[{Hastie(2018)}]{gam}
+Hastie T (2018).
+\newblock \emph{\pkg{gam}: Generalized Additive Models}.
+\newblock \proglang{R} package version 1.16,
+  \urlprefix\url{https://CRAN.R-project.org/package=gam}.
+
+\bibitem[{Landwehr \emph{et~al.}(1980)Landwehr, Pregibon, and
+  Shoemaker}]{LandwehrPregibonShoemaker80}
+Landwehr JM, Pregibon D, Shoemaker AC (1980).
+\newblock \enquote{Some Graphical Procedures for Studying a Logistic Regression
+  Fit.}
+\newblock In \emph{Proceedings of the Business and Economics Statistics
+  Section, American Statistical Association}, pp. 15--20.
+
+\bibitem[{Lenth(2016)}]{Lenth16}
+Lenth RV (2016).
+\newblock \enquote{Least-Squares Means: The \proglang{R} Package
+  \pkg{lsmeans}.}
+\newblock \emph{Journal of Statistical Software}, \textbf{69}(1), 1--33.
+\newblock \doi{10.18637/jss.v069.i01}.
+
+\bibitem[{Lenth(2018{\natexlab{a}})}]{lenth18}
+Lenth RV (2018{\natexlab{a}}).
+\newblock \emph{\pkg{emmeans}: Estimated Marginal Means, aka Least-Squares
+  Means}.
+\newblock {R} package version 1.3.0,
+  \urlprefix\url{https://CRAN.R-project.org/package=emmeans}.
+
+\bibitem[{Lenth(2018{\natexlab{b}})}]{LenthHerve15}
+Lenth RV (2018{\natexlab{b}}).
+\newblock \emph{\pkg{lsmeans}: Least-Squares Means}.
+\newblock \proglang{R} package version 2.27-62,
+  \urlprefix\url{https://CRAN.R-project.org/package=lsmeans}.
+
+\bibitem[{Linzer and Lewis(2011)}]{Linzer11}
+Linzer DA, Lewis JB (2011).
+\newblock \enquote{\pkg{poLCA}: An \proglang{R} Package for Polytomous Variable
+  Latent Class Analysis.}
+\newblock \emph{Journal of Statistical Software}, \textbf{42}(10), 1--29.
+\newblock \doi{10.18637/jss.v042.i10}.
+
+\bibitem[{Lumley(2004)}]{Lumley04}
+Lumley T (2004).
+\newblock \enquote{Analysis of Complex Survey Samples.}
+\newblock \emph{Journal of Statistical Software}, \textbf{9}(8), 1--19.
+\newblock \doi{10.18637/jss.v009.i08}.
+
+\bibitem[{Nelder(1977)}]{Nelder77}
+Nelder JA (1977).
+\newblock \enquote{A Reformulation of Linear Models.}
+\newblock \emph{Journal of the Royal Statistical Society A}, \textbf{140}(1),
+  48--77.
+\newblock \doi{10.2307/2344517}.
+
+\bibitem[{Pearson(1907)}]{Pearson07}
+Pearson K (1907).
+\newblock \emph{Mathematical Contributions to the Theory of
+  Evolution.---{XVI}.~On Further Methods of Determining Correlation}.
+\newblock Drapers' Company Research Memoirs. Biometric Series. {IV}. Cambridge
+  University Press, London.
+
+\bibitem[{Pineo and Porter(1967)}]{PineoPorter67}
+Pineo PC, Porter J (1967).
+\newblock \enquote{Occupational Prestige in {Canada}.}
+\newblock \emph{Canadian Review of Sociology and Anthropology}, \textbf{4}(1),
+  24--40.
+\newblock \doi{10.1111/j.1755-618x.1967.tb00472.x}.
+
+\bibitem[{Pinheiro \emph{et~al.}(2018)Pinheiro, Bates, DebRoy, Sarkar, and
+  {\proglang{R} Core Team}}]{Pinheiro16}
+Pinheiro J, Bates D, DebRoy S, Sarkar D, {\proglang{R} Core Team} (2018).
+\newblock \emph{\pkg{nlme}: Linear and Nonlinear Mixed Effects Models}.
+\newblock \proglang{R} package version 3.1-137,
+  \urlprefix\url{https://CRAN.R-project.org/package=nlme}.
+
+\bibitem[{Sarkar(2008)}]{Sarkar08}
+Sarkar D (2008).
+\newblock \emph{\pkg{lattice}: Multivariate Data Visualization with
+  {\proglang{R}}}.
+\newblock Springer-Verlag, New York.
+
+\bibitem[{{\proglang{SAS} Institute Inc.}(2012)}]{sas12}
+{\proglang{SAS} Institute Inc} (2012).
+\newblock \emph{\texttt{LSMEANS} Statement, \proglang{SAS/STAT}~9.3 User's
+  Guide}.
+\newblock
+  \urlprefix\url{http://support.sas.com/documentation/cdl/en/statug/63962/HTML/default/viewer.htm#statug_introcom_a0000003362.htm}.
+
+\bibitem[{Schumann(2009)}]{Schumann15}
+Schumann E (2009).
+\newblock \enquote{Generating Correlated Uniform Variates.}
+\newblock Accessed: 2015-05-21,
+  \urlprefix\url{http://comisef.wikidot.com/tutorial:correlateduniformvariates}.
+
+\bibitem[{{StataCorp.}(2015)}]{Stata15}
+{StataCorp} (2015).
+\newblock \enquote{Margins.}
+\newblock Accessed: 2015-04-09,
+  \urlprefix\url{http://www.stata.com/manuals13/rmargins.pdf}.
+
+\bibitem[{Tukey(1977)}]{Tukey77}
+Tukey JW (1977).
+\newblock \emph{Exploratory Data Analysis}.
+\newblock Addison-Wesley, Reading.
+
+\bibitem[{Venables and Ripley(2002)}]{VenablesRipley02}
+Venables WN, Ripley BD (2002).
+\newblock \emph{Modern Applied Statistics with \proglang{S}}.
+\newblock 4th edition. Springer-Verlag, New York.
+\newblock \doi{10.1007/978-0-387-21706-2}.
+
+\bibitem[{Wilkinson and Rogers(1973)}]{WilkinsonRogers73}
+Wilkinson GN, Rogers CE (1973).
+\newblock \enquote{Symbolic Description of Factorial Models for Analysis of
+  Variance.}
+\newblock \emph{Journal of the Royal Statistical Society C}, \textbf{22}(3),
+  392--399.
+\newblock \doi{10.2307/2346786}.
+
+\bibitem[{Wood(2017)}]{Wood17}
+Wood SN (2017).
+\newblock \emph{Generalized Additive Models: An Introduction with
+  \proglang{R}}.
+\newblock 2nd edition. Chapman \& Hall/CRC.
+
+\end{thebibliography}
