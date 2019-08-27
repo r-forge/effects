@@ -43,6 +43,7 @@
 # 2018-10-25: fixed bug in plot.eff() introduced by previous modification to as.data.frame.eff().
 # 2018-11-03: fixed bug in plotting partial residuals when a factor focal predictor had empty levels.
 # 2019-02-13: made sure lty not ignored.
+# 2019-08-27: make sure that droplevels() not applied to character or logical predictor
 
 # the following functions aren't exported
 
@@ -351,7 +352,7 @@ plot.eff <- function(x, x.var,
   x.all <- x$x.all
   if (!is.null(x.all)){
     for (i in 1:ncol(x.all)){
-      if (is.factor(x.all[, i]))  x.all[, i] <- droplevels(x.all[, i])
+      if (inherits(x.all[, i], "factor"))  x.all[, i] <- droplevels(x.all[, i])
     }
   }
    split <- c(col, row, ncol, nrow)
@@ -359,14 +360,14 @@ plot.eff <- function(x, x.var,
   if (!is.null(x.var) && is.numeric(x.var)) x.var <- colnames(x$x)[x.var] 
   x.data <- x$data
   for (i in 1:ncol(x.data)){
-    if (is.factor(x.data[, i]))  x.data[, i] <- droplevels(x.data[, i])
+    if (inherits(x.data[, i], "factor"))  x.data[, i] <- droplevels(x.data[, i])
   }
   effect <- paste(sapply(x$variables, "[[", "name"), collapse="*")
   vars <- x$variables
   x <- as.data.frame(x, type="link")
   for (i in 1:length(vars)){
     if (!(vars[[i]]$is.factor)) next
-    x[,i] <- factor(x[,i], levels=vars[[i]]$levels, exclude=NULL)
+    x[, i] <- factor(x[,i], levels=vars[[i]]$levels, exclude=NULL)
     x[, i] <- droplevels(x[, i])
   }
   has.se <- !is.null(x$se)
