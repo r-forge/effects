@@ -4,7 +4,7 @@ Version 4.1-2
  
  o Updated "Defining Effects Methods ..." vignette to reflect revisions to Effect.clm, Effect.clm2 and Effect.clmm.
  
- o Fixed a bug in plot.eff() (reported by Julian Gaviria Lopez) that applied drop.levels() to character or logical predictors.
+ o Make sure that Effect() and plot() methods work correctly with character and logical predictors (following bug report by Julian Gaviria Lopez).
 
 Version 4.1-1
  

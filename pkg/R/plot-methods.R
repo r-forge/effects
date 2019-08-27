@@ -43,7 +43,7 @@
 # 2018-10-25: fixed bug in plot.eff() introduced by previous modification to as.data.frame.eff().
 # 2018-11-03: fixed bug in plotting partial residuals when a factor focal predictor had empty levels.
 # 2019-02-13: made sure lty not ignored.
-# 2019-08-27: make sure that droplevels() not applied to character or logical predictor
+# 2019-08-27: correctly handle character or logical predictor
 
 # the following functions aren't exported
 
@@ -416,7 +416,7 @@ plot.eff <- function(x, x.var,
             }}
           }
           if (partial.residuals){
-            x.fit <- as.numeric(x.data[good, predictor])
+            x.fit <- as.numeric(as.factor(x.data[good, predictor]))
             partial.res <- y[x.fit] + residuals[good]
             lpoints(jitter(x.fit, factor=0.5), partial.res, col=residuals.color, pch=residuals.pch, cex=residuals.cex)
             if (smooth.residuals && length(partial.res) != 0) {
@@ -841,10 +841,10 @@ if (x.var == z.var) z.var <- z.var + 1
           }
           n.in.panel <- sum(use)
           if (n.in.panel > 0){
-            fitted <- y[good][as.numeric(x.fit[use])] 
+            fitted <- y[good][as.numeric(as.factor(x.fit[use]))] 
             partial.res <- if (!rescale.axis) original.inverse(original.link(fitted) + residuals[use])
             else fitted + residuals[use]
-            lpoints(jitter(as.numeric(x.fit[use]), 0.5), partial.res, col=residuals.color, pch=residuals.pch, cex=residuals.cex)
+            lpoints(jitter(as.numeric(as.factor(x.fit[use])), 0.5), partial.res, col=residuals.color, pch=residuals.pch, cex=residuals.cex)
             if (show.fitted) lpoints(x.fit[use], fitted, pch=16, col=residuals.color)  # REMOVE ME
             if (smooth.residuals && n.in.panel != 0) {
               lpoints(1:n.lev, tapply(partial.res, x.fit[use], average.resid), pch=16, cex=1.25*residuals.cex, col=residuals.color)
