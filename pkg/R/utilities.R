@@ -33,6 +33,7 @@
 # 2018-10-25: as.data.frame.eff() fixed so that deletion of the transformation argument doesn't break plot.eff(). J. Fox
 # 2018-12-19: accommodate character and logical predictors. J. Fox
 # 2019-08-27: correctly handle logical or character predictor with residuals
+# 2019-08-30: further fixes to character and logical predictors
 
 has.intercept <- function(model, ...) any(names(coefficients(model))=="(Intercept)")
 
@@ -293,8 +294,8 @@ Analyze.model <- function(focal.predictors, mod, xlevels, default.levels=NULL, f
     for(name in focal.predictors) xlevels[[name]] <- levs
   }
   for (name in focal.predictors){
-    levels <- levels(X[, name]) # mod$xlevels[[name]]
-#    if(is.null(levels)) levels <- mod$xlevels[[paste("factor(",name,")",sep="")]]
+    levels <- mod$xlevels[[name]] ## reverted levels <- levels(X[, name]) 
+    if(is.null(levels)) levels <- mod$xlevels[[paste("factor(",name,")",sep="")]] ##reverted deleted
     fac <- !is.null(levels)
     if (!fac) {    
       levels <- if (is.null(xlevels[[name]])){
@@ -329,7 +330,8 @@ Analyze.model <- function(focal.predictors, mod, xlevels, default.levels=NULL, f
   }
   x.excluded <- list()
   for (name in excluded.predictors){
-    levels <- levels(X[, name]) # mod$xlevels[[name]]
+    levels <- mod$xlevels[[name]] ##reverted levels <- levels(X[, name])
+    if (is.logical(X[, name])) levels <- c("FALSE", "TRUE")
     fac <- !is.null(levels)
     level <- if (fac) levels[1] else typical(X[, name])
     if (fac) factor.levels[[name]] <- levels
