@@ -10,6 +10,7 @@
 \alias{Effect.clmm}
 \alias{Effect.mlm}
 \alias{Effect.betareg}
+\alias{Effect.glmmPQL}
 
 \title{Functions For Constructing Effect Displays for Many Modeling Paradigms}
 \description{The \code{Effect}, \code{effect} and \code{predictorEffects} methods are used to draw effects plots to visualize a fitted regression surface.  These plots can be drawn at least in principle for any model that uses a linear predictor.  Methods for modeling paradigms than the basic \code{lm}, \code{glm}, \code{multinom} and \code{polr} methods are documented here. To add methods for new classes of statistical models, see the vignette \href{../doc/adding-Effect-methods.pdf}{Defining Effect Methods for Other Models}.
@@ -40,6 +41,8 @@
 \method{Effect}{mlm}(focal.predictors, mod, response, ...)
 
 \method{Effect}{betareg}(focal.predictors, mod,  ...)
+
+\method{Effect}{glmmPQL}(focal.predictors, mod,  ...)
 }
 
 \arguments{

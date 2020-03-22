@@ -6,6 +6,7 @@
 #              deleting it from sources$call.
 # 11/30/2018: fixed bug in Effect.merMod() specifying fam$family explicitly.
 # 7/5/2019:  clm clm2 and clmm were not passing the estimated threshholds to polr
+# 3/22/2020:  added Effect.glmmPQL (from MASS package)
 
 # new lme method
 Effect.lme <- function(focal.predictors, mod, ...){
@@ -26,6 +27,14 @@ Effect.gls <- function(focal.predictors, mod, ...){
     formula = formula(mod),
     coefficients = coef(mod),
     vcov = as.matrix(vcov(mod)))
+  Effect.default(focal.predictors, mod, ..., sources=args)
+}
+
+# new glmmPQL method 3/22/2020
+Effect.glmmPQL <- function(focal.predictors, mod, ...){
+  args <- list(
+    coefficients = mod$coefficients$fixed,
+    family = mod$family)
   Effect.default(focal.predictors, mod, ..., sources=args)
 }
 

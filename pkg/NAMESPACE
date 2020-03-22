@@ -35,6 +35,7 @@ S3method(predictorEffect, poLCA)
 S3method(Effect, default)
 S3method(Effect, lm)
 S3method(Effect, merMod)
+S3method(Effect, glmmPQL)
 S3method(Effect, lme)
 S3method(Effect, clm2)
 S3method(Effect, clm)
@@ -49,7 +50,7 @@ S3method(Effect, svyglm)
 S3method(Effect, betareg)
 export(Effect.lm,Effect.merMod,Effect.lme,Effect.clm2,Effect.clm,Effect.clmm,
        Effect.rlmerMod,Effect.gls,Effect.multinom,Effect.polr,Effect.poLCA,
-       Effect.mlm,Effect.svyglm,Effect.betareg)
+       Effect.mlm,Effect.svyglm,Effect.betareg,Effect.glmmPQL)
 
 S3method(print, eff)
 S3method(print, efflist)

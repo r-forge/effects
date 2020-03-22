@@ -91,9 +91,9 @@ options(scipen=3)
 
 @
 
-The \code{effects} package in \R{} is designed primarily to draw graphs that visualize a fitted response surface of a fitted model in problems with a linear predictor.  Many modeling paradigms that can be fit with base \R{} or contributed packages fit into this framework, including methods for linear, multivariate linear, and generalized linear models fit by the standard \code{lm} and \code{glm} functions and by the \code{svyglm} function in the \code{survey} package \citep{Lumley04}; linear models fit by generalized least squares using the \code{gls} function in the \pkg{nlme} package \citep{Pinheiro16}; multinomial regression models fit by \code{multinom} in the \pkg{nnet} package \citep{VenablesRipley02};  ordinal regression models using \code{polr} from the \pkg{MASS} package \citep{VenablesRipley02} and \code{clm} and \code{clm2} from the \pkg{ordinal} package \citep{Christensen15}; linear and generalized linear mixed models using the \code{lme} function in the \pkg{nlme} package \citep{Pinheiro16} and the \code{lmer} and \code{glmer} functions in the \pkg{lme4} package \citep{Bates15}; and latent class models fit by \code{poLCA} in the \pkg{poLCA} package \citep{Linzer11}. This is hardly an exhaustive list of fitting methods that are based on a linear predictor, and we have been asked from time to time to write functions to use \code{effects} with this other fitting methods.  The mechanism for this is fairly simple.  This vignette assumes you are familiar with \R{}'s S3 methods.
+The \code{effects} package in \R{} is designed primarily to draw graphs that visualize a fitted response surface of a fitted model in problems with a linear predictor.  Many modeling paradigms that can be fit with base \R{} or contributed packages fit into this framework, including methods for linear, multivariate linear, and generalized linear models fit by the standard \code{lm} and \code{glm} functions and by the \code{svyglm} function in the \code{survey} package \citep{Lumley04}; linear models fit by generalized least squares using the \code{gls} function in the \pkg{nlme} package \citep{Pinheiro16}; multinomial regression models fit by \code{multinom} in the \pkg{nnet} package \citep{VenablesRipley02};  ordinal regression models using \code{polr} from the \pkg{MASS} package \citep{VenablesRipley02} and \code{clm} and \code{clm2} from the \pkg{ordinal} package \citep{Christensen15}; linear and generalized linear mixed models using the \code{lme} function in the \pkg{nlme} package \citep{Pinheiro16} and the \code{lmer} and \code{glmer} functions in the \pkg{lme4} package \citep{Bates15}; linear and generalized linear mixed models fit with penalized quasilikelihood (PQL) \citep{VenablesRipley02}, and latent class models fit by \code{poLCA} in the \pkg{poLCA} package \citep{Linzer11}. This is hardly an exhaustive list of fitting methods that are based on a linear predictor, and we have been asked from time to time to write functions to use \code{effects} with this other fitting methods.  The mechanism for this is fairly simple.  This vignette assumes you are familiar with \R{}'s S3 methods.
 
-The default \code{Effect.default} may work with some modeling functions, as would objects of the class \code{gls} that we describe below in Section~\ref{gls}, but as illustrated in later sections you may need to modify some of the arguments that are sent to \code{Effect.default}.  .
+The default \code{Effect.default} may work with some modeling functions, as would objects of the class \code{gls} that we describe below in Section~\ref{gls}, but as illustrated in later sections you may need to modify some of the arguments that are sent to \code{Effect.default}.  
 
 The \code{effect} package has five functions that create the information needed for drawing effects plots, \code{Effect}, \code{allEffects}, \code{effect} and \code{predictorEffect} and \code{predictorEffects}.  To add new modeling to the package only a new \code{Effect} needs to be written; the package will take care of all the other functions.
 
@@ -182,6 +182,12 @@ data(cbpp, package="lme4")
 gm1 <- lme4::glmer(cbind(incidence, size - incidence) ~ period + (1 | herd),
               data = cbpp, family = binomial)
 as.data.frame(predictorEffect("period", gm1))
+@
+
+\section{Linear and Generalized Linear Mixed Models Fit With \code{glmmPQL}}
+\cite{VenablesRipley02} provide a penalized quasi-likelihood function for fitting linear and generalized linear mixed models in their \code{MASS} package. The following function added to \code{effects} in March 2020 allows these fitted models to be used with the \code{effects} package
+<<>>=
+print(Effect.glmmPQL)
 @
 
 \section{Robust Linear Mixed Models (\pkg{robustlmm} package)}
