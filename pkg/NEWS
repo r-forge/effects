@@ -1,6 +1,8 @@
 Version 4.1-5
 
- o Added Effect.glmmPQL for fitting generalized linear mixed models using the glmmPQL method in the MASS package for penalized quasi-likelihood estimation
+ o Added Effect.glmmPQL() for fitting generalized linear mixed models using the glmmPQL() function in the MASS package for penalized quasi-likelihood estimation.
+ 
+ o Don't ignore lines lty sub-argument to plot.effpoly() (fixing a bug reported by Laura Adamovicz).
  
  o Minor changes to predictor effects gallery vignette.
 
