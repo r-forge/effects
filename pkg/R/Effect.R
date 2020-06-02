@@ -44,6 +44,8 @@
 # 2019-04-20: fixed bug in .set.given.equal() in tests for model class.
 # 2019-07-05: clm, clm2 and clmm were not passing threshholds to the fake polr object, now corrected.
 # 2019-09-04: handle xlevels=n argument correctly
+# 2020-05-22: Removed fixFormula function.  
+# 2020-05-27: Added effCoef generic that uses the 'insight' package to find the formula, coef estimates and vcov for methods supported by insight
 
 ### Non-exported function added 2018-01-22 to generalize given.values to allow for "equal" weighting of factor levels for non-focal predictors.
 .set.given.equal <- function(m){
@@ -71,13 +73,25 @@
   }
   out
 }
+
+# 2020-05-29 Use insight::get_parameters to get a vector of parameter estimates
+# for any model supported by insight.
+
+effCoef <- function(mod, ...){UseMethod("effCoef", mod)}
+effCoef.default <- function(mod, ...){
+  est1 <- insight::get_parameters(mod, ...)
+  est <- est1[,2]
+  names(est) <- est1[,1]
+  est
+}
+
 ### end of non-exported function
 
 checkFormula <- function(object){
 # clm2 does not have a formula,
-  if(inherits(object, "clm2")) formula <- function(x) x$call$location
+#  if(inherits(object, "clm2")) formula <- function(x) x$call$location
   if (!inherits(object, "formula")){
-    object <- formula(object)
+    object <- insight::find_formula(object)$conditional
   }
   formula <- as.character(object)
   rhs <- formula[length(formula)]
@@ -98,9 +112,10 @@ Effect <- function(focal.predictors, mod, ...){
 # 2017-12-07 added Effects.lme, .mer, gls that work
 
 Effect.default <- function(focal.predictors, mod, ..., sources=NULL){ 
-# get formula from sources if present else from mod
-  formula <- fixFormula(
-        if(is.null(sources$formula)) formula(mod) else sources$formula)
+# 2020/05/23 ... uses 'insight' package, else
+# get formula from sources if present 
+   formula <- if(is.null(sources$formula)) 
+     insight::find_formula(mod)$conditional else sources$formula
 # the next line returns the formula if focal.predictors is null
   if(is.null(focal.predictors)) return(formula)
 # get the call
@@ -123,7 +138,7 @@ Effect.default <- function(focal.predictors, mod, ..., sources=NULL){
   } else {fam <- NULL}
 # get the coefficient estimates and vcov from sources if present
   coefficients <- if(is.null(sources$coefficients)) 
-    coef(mod) else sources$coefficients
+    effCoef(mod) else sources$coefficients
 # added 7/5/2019, next line, for models that use polr (e.g, clm, clm2)
   zeta <- if(is.null(sources$zeta)) NULL else sources$zeta
   vcov <- if(is.null(sources$vcov)) 
@@ -168,8 +183,9 @@ Effect.default <- function(focal.predictors, mod, ..., sources=NULL){
 
 vcov.fakeeffmod <- function(object, ...) object$vcov
 
-## This function removes terms with "|" or "||" in the formula, assumking these
-## correspond to random effects.
+## This function removes terms with "|" or "||" in the formula, assuming these
+## correspond to random effects.  As of 2020-05-22 this function is never used.
+
 fixFormula <- function (term)
 {
   if (!("|" %in% all.names(term)) && !("||" %in% all.names(term)))
@@ -194,6 +210,8 @@ fixFormula <- function (term)
   term[[3]] <- nb3
   term
 }
+
+
 
 Effect.lm <- function(focal.predictors, mod, xlevels=list(), fixed.predictors,
         vcov. = vcov, se=TRUE,

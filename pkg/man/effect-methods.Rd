@@ -2,7 +2,6 @@
 \alias{Effect.default}
 \alias{Effect.merMod}
 \alias{Effect.rlmerMod}
-\alias{Effect.lme}
 \alias{Effect.gls}
 \alias{Effect.poLCA}
 \alias{Effect.clm2}
@@ -33,8 +32,6 @@
     KR=FALSE)
 
 \method{Effect}{rlmerMod}(focal.predictors, mod, ...)
-
-\method{Effect}{lme}(focal.predictors, mod, ...)
 
 \method{Effect}{poLCA}(focal.predictors, mod, ...)
 
@@ -76,7 +73,7 @@
   }
 
 \details{
-  Most of these methods simply call the \code{Effect.default} method with the appropriate values in the arguement \code{sources}.  See the vignettte Effect Methods in the vignettes for the effects package.  All the iteresting work is done by the methods described in \code{\link{Effect}}.}
+The defauls method is used for objects created with \code{glm} or \code{lme} in the \code{nlme} package.   Most of these methods simply call the \code{Effect.default} method with the appropriate values in the arguement \code{sources}.  See the vignettte Effect Methods in the vignettes for the effects package.  All the iteresting work is done by the methods described in \code{\link{Effect}}.}
 
 \value{See \code{\link{Effect}}}
 

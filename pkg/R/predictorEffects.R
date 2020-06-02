@@ -13,6 +13,7 @@
 # 2018-11-19: added xlevels argument with default 5 to be applied to conditioning predictors and
 #             focal.levels argument with default 50 to be applied to focal predictor. J. Fox
 # 2019-04-13: changed behavior of xlevels default to match Effect.lm() when residuals=TRUE. J. Fox
+# 2020-05-29: use find_formula in the 'insight' package to find formulas.  S. Weisberg
 
 
 # removed xlevels argument 8/9/18
@@ -35,15 +36,19 @@ predictorEffect.default <- function(predictor, mod, focal.levels=50, xlevels=5, 
   if (length(which.residuals) != 0){
     if (isTRUE(dots[[which.residuals]]) && missing(xlevels)) xlevels <- list()
   }
-  form <- Effect.default(NULL, mod) #returns the fixed-effects formula
+## next line depricated 5/29/2020
+# form <- Effect.default(NULL, mod) #returns the fixed-effects formula
+# next lines uses insight::find_formula
+  form <- find_formula(mod)$conditional
   all.vars <- all.vars(parse(text=form))
+# all.vars <- find_terms(mod, flatten=TRUE)
   # find the right effect to use
   terms <- attr(terms(form), "term.labels")
   # get the predictor names:
   predictors <- all.vars(parse(text=terms))
+# predictors <- find_terms(m2)$conditional
   sel <- which(predictors == predictor)
   if(length(sel) != 1) stop("First argument must be the quoted name of one predictor in the formula")
-  
   if (is.numeric(xlevels)){
     if (length(xlevels) > 1 || round(xlevels != xlevels)) stop("xlevels must be a single whole number or a list")
     xlevs <- list()
@@ -88,7 +93,8 @@ predictorEffects.default <- function(mod, predictors = ~ ., focal.levels=50, xle
       replace(x, -1, lapply(x[-1], proc))
     }
     update(proc(x), . ~ . - offset)}
-  mform <- no.offset(Effect.default(NULL, mod))  # returns the fixed-effect formula for any method
+  mform <- no.offset(find_formula(mod)$conditional) # replacement for next line
+#  mform <- no.offset(Effect.default(NULL, mod))  # returns the fixed-effect formula for any method
   cform <- if(is.character(predictors)) 
     as.formula(paste("~", paste(predictors, collapse="+"))) else
       predictors
@@ -105,7 +111,7 @@ predictorEffects.default <- function(mod, predictors = ~ ., focal.levels=50, xle
     }
   } else{
     if (!is.vector(focal.levels) || !is.numeric(focal.levels) || length(focal.levels) > 1 || round(focal.levels) != focal.levels)
-      stop("focal.levels must be a length 1 positive\nwhole-number numeric vector or a list")
+      stop("focal.levels must be a length 1 positive\nwhole-number, numeric vector or a list")
   }
   if (length(xlevels) > 0){
     if (is.list(xlevels)){
@@ -115,7 +121,7 @@ predictorEffects.default <- function(mod, predictors = ~ ., focal.levels=50, xle
       }
     } else{
       if (!is.vector(xlevels) || !is.numeric(xlevels) || length(xlevels) > 1 || round(xlevels) != xlevels)
-        stop("xlevels must be a length 1 positive\nwhole-number numeric vector or a list")
+        stop("xlevels must be a length 1 positive\nwhole-number, numeric vector or a list")
     }
   }
 # check that 'cvars' is a subset of 'mvars'. If so apply predictorEffect
