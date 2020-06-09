@@ -4,7 +4,7 @@ load("reversion-tests.RData")
 
 reversionTest <- function(old, new){
   test.name <- deparse(substitute(new))
-  if (!isTRUE(all.equal(old, as.data.frame(new)))) {
+  if (!isTRUE(all.equal(old, as.data.frame(new), tolerance=1e-5))) {
     stop("failed reversion test ", test.name)
   } else {
     cat("\n", test.name, ": OK", sep="")
