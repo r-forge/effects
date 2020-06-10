@@ -6,7 +6,7 @@ Version 4.1-5
  
  o Don't ignore lines lty sub-argument to plot.effpoly() (fixing a bug reported by Laura Adamovicz).
  
- o Added regression tests for classes of model objects supported.
+ o Added regression tests for classes of model objects supported. Tests must be enabled in the effects sources at tests/regression-tests.R
  
  o Minor changes to predictor effects gallery vignette.
 

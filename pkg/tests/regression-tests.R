@@ -1,4 +1,6 @@
-if (require("carData") && require("effects")){
+regression.tests <- FALSE
+
+if (regression.tests && require("carData") && require("effects")){
 
   load("regression-tests.RData")
   
