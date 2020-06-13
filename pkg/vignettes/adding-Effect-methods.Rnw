@@ -18,12 +18,11 @@
 \usepackage{fancyvrb}
 \usepackage{natbib}
 \usepackage{amsmath}
+
+\usepackage[margin=1in]{geometry}
+
 \VerbatimFootnotes
 \bibliographystyle{chicago}
-%\usepackage{amsmath,amsfonts,amssymb}
-%\usepackage{natbib}
-%\bibliographystyle{abbrvnat}
-%\usepackage[margin=1in]{geometry}
 
 \newcommand{\x}{\mathbf{x}}
 \newcommand{\code}[1]{\normalfont\texttt{\hyphenchar\font45\relax #1}}
@@ -45,11 +44,14 @@
 \newcommand{\inter}[2]{\mbox{$#1$:$#2$}}
 \newcommand{\cross}[2]{\mbox{$#1$\code{*}$#2$}}
 \newcommand{\N}{\mathrm{N}}
-\newcommand{\fn}{\textbf}
-\newcommand{\pkg}[1]{\code{#1}}
-\newcommand{\proglang}[1]{\code{#1}}
+
 \newcommand{\yx}{\widehat{y}(\x)}
 \newcommand{\lvn}[1]{\mbox{$\log(\mbox{\texttt{#1}})$}}
+
+\newcommand{\fn}[1]{\code{#1()}}
+\newcommand{\pkg}[1]{\textbf{#1}}
+\newcommand{\proglang}[1]{\textsf{#1}}
+\newcommand{\class}[1]{\texttt{"#1"}}
 
 \begin{document}
 
@@ -57,7 +59,7 @@
 
 \author{John Fox and Sanford Weisberg}
 
-\date{Revised, \today}
+\date{Last revision: 2020-06-13}
 
 \maketitle
 
@@ -91,16 +93,17 @@ options(scipen=3)
 
 @
 
-The \code{effects} package in \R{} draws graphs that visualize a fitted response surface of a fitted model in problems with a linear predictor.  Many modeling paradigms that can be fit with base \R{} or contributed packages fit into this framework, including methods for linear, multivariate linear, and generalized linear models fit by the standard \code{lm} and \code{glm} functions and by the \code{svyglm} function in the \code{survey} package \citep{Lumley04}; linear models fit by generalized least squares using the \code{gls} function in the \pkg{nlme} package \citep{Pinheiro16}; multinomial regression models fit by \code{multinom} in the \pkg{nnet} package \citep{VenablesRipley02};  ordinal regression models using \code{polr} from the \pkg{MASS} package \citep{VenablesRipley02} and \code{clm} and \code{clm2} from the \pkg{ordinal} package \citep{Christensen15}; linear and generalized linear mixed models using the \code{lme} function in the \pkg{nlme} package \citep{Pinheiro16} and the \code{lmer} and \code{glmer} functions in the \pkg{lme4} package \citep{Bates15}; linear and generalized linear mixed models fit with penalized quasilikelihood (PQL) \citep{VenablesRipley02}, and latent class models fit by \code{poLCA} in the \pkg{poLCA} package \citep{Linzer11}. This is hardly an exhaustive list of fitting methods that are based on a linear predictor, and we have been asked from time to time to write functions to use \code{effects} with this other fitting methods.  The mechanism for this is fairly simple.  This vignette assumes you are familiar with \R{}'s S3 methods.
+The \pkg{effects} package for \R{} draws graphs that visualize the fitted response surface of a regression model with a linear predictor.  Many modeling paradigms implemented by functions in tthe standard \R{} distribution and in contributed CRAN packages fit into this framework, including functions for linear, multivariate linear, and generalized linear models fit by the standard \fn{lm} and \fn{glm} functions, and by the \fn{svyglm} function in the \pkg{survey} package \citep{Lumley04}; linear models fit by generalized least squares using the \fn{gls} function in the \pkg{nlme} package \citep{nlme}; multinomial regression models fit by \fn{multinom} in the \pkg{nnet} package \citep{VenablesRipley02};  ordinal regression models using \fn{polr} from the \pkg{MASS} package \citep{VenablesRipley02} and \fn{clm} and \fn{clm2} from the \pkg{ordinal} package \citep{Christensen15}; linear and generalized linear mixed models using the \fn{lme} function in the \pkg{nlme} package \citep{nlme} and the \fn{lmer} and \fn{glmer} functions in the \pkg{lme4} package \citep{Bates15}; linear and generalized linear mixed models fit by penalized quasilikelihood (PQL) using the \fn{glmmPQL} function in the \pkg{MASS} package \citep{VenablesRipley02}; and latent class models fit by \fn{poLCA} in the \pkg{poLCA} package \citep{Linzer11}. This is hardly an exhaustive list of regression functions in \R{} that are based on a linear predictor, and we have been asked from time to time to write functions to use \pkg{effects} with additional such functions.  The mechanism for accommodating new classes of models with linear predictors is fairly simple.  This vignette describes that mechanism, assuming familiarity with \R{}'s S3 object-oriented programming system.
 
-The default \code{Effect.default} may work with some modeling functions, as would objects of the class \code{merMod} that we describe below in Section~\ref{merMod}, but as illustrated in this ignette some modification will often be required.
+The default method for the central \fn{Effect} generic function in the \pkg{effects} package, \fn{Effect.default}, works properly without modification for objects produced by \emph{some} modeling functions---for example, objects of class \class{merMod}, which we describe below in Section~\ref{merMod}---but, as illustrated in this vignette, specific adaptations will often be required.
 
-The \code{effect} package has five functions that create the information needed for drawing effects plots, \code{Effect}, \code{allEffects}, \code{effect} and \code{predictorEffect} and \code{predictorEffects}.  To add new modeling to the package only a new \code{Effect} needs to be written; the package will take care of all the other functions.
+The \pkg{effects} package has five generic functions that create the information needed for drawing effects plots: \fn{Effect}, \fn{allEffects}, \fn{effect}, \fn{predictorEffect}, and \fn{predictorEffects}. The other generic functions generate calls to \fn{Effect}, and so to support a new modeling function, only a new \fn{Effect} method is required.
 
-This revision of this vignette is appropriate for Version 4.1-5 of \code{effects}, and includes discussion of the \code{insight} package described at \url{https://easystats.github.io/insight/} that can be used to simplify writing \code{Effect} methods for models we have not included with  \code{effects} package, as we illustrate in the examples below.
+This revision of the vignette describes Version 4.2-0 of \pkg{effects} package (and later versions), which makes use of the \pkg{insight} package  (see \url{https://easystats.github.io/insight/}). The \pkg{insight} package can be used to simplify writing \fn{Effect} methods for classes of models not included directly in the  \pkg{effects} package, as we illustrate in the examples below.
 
-\section{Using \pkg{effects} with Other Modeling Methods, with Generalized Least Squares in the \pkg{nlme} Package as an Example}\label{gls}
-Applying \code{effects} to other than \code{lm} and \code{glm} objects may require writing a method for the \code{Effect} generic function for that type of model object.  For example, the \code{gls} function in the \code{nlme} package \citep{nlme} fits linear models via generalized least squares.  A call to \code{gls} creates an object of class \code{gls}.  The following function \code{Effect.gls} provides a method for \code{gls} objects by finding the information needed to draw effects plots from \code{gls} objects:
+\section{Using  the \pkg{effects} Package with Other Modeling Methods: \fn{gls()} \textbf{in the \pkg{nlme} Package as an Example}}\label{gls}
+
+Applying the functions in the \pkg{effects} package to classes of regression models beyond those generated by \fn{lm} and \fn{glm} may require writing a method for the \fn{Effect} generic function for the corresponding class of model objects.  For example, the \fn{gls} function in the \pkg{nlme} package \citep{nlme} fits linear models by generalized least squares, creating an object of class \class{gls}.  The \fn{Effect.gls} method for this class proceeds by assembling the information required to compute an effect and then calls the default method with the necessary arguments to perform the computation:
 
 <<eval=FALSE>>=
 Effect.gls <- function(focal.predictors, mod, ...){
@@ -117,55 +120,70 @@ Effect.gls <- function(focal.predictors, mod, ...){
   Effect.default(focal.predictors, mod, ..., sources=args)
 }
 @
-The \code{Effect.gls} function has three required arguments, \code{focal.predictors} and \code{mod} that match the first two arguments of \code{Effect.default}, and  \code{...} that matches any other arguments you would like to pass to \code{Effect.default}; see \code{help(Effect)} for a list of these arguments.
+The \fn{Effect.gls} function has three required arguments: \code{focal.predictors} and \code{mod}, which match the named arguments of the \fn{Effect} generatic function and the first two named arguments of \fn{Effect.default}; and  \code{...}, which matches any other arguments to be passed to \fn{Effect.default} (see \code{help("Effect")} for a list of these arguments).
 
-The body of the function simply harvests the needed information from the \code{mod} object, and stores them in a list of named elements called \code{sources}.  The \code{sources} list is then passed as a named argument to the default \code{Effect} method.
+The body of the function simply harvests the required information from the \code{mod} object passed to the function, and stores it in a list of named elements called \code{args}.  The \code{args} list is then passed to the \code{sources} argument of the default \fn{Effect} method.
 
-The named elements in \code{sources} include:
+More generally, the named elements in the \code{sources} argument include:
 \begin{description}
-\item[\texttt{type}] The \code{effects} package has three basic modeling functions:  \code{type = "glm"}, the default, is used for functions with a univariate response and a linear predictor and possibly a link function.  This class includes linear models, generalized linear models, robust regression, generalized least squares fitting, linear and generalized linear mixed effects models, and many others. The \code{type = "polr"} is used for ordinal regression models, as in the \code{polr} function in the \code{MASS} package, and similar methods described below in Section~\ref{polr}.  The The \code{type = "multinom"} for multinomial log-linear models as fit by the \code{multinom} function in \code{nnet}, and to polytomous latent class models created with the \code{poLCA} function in the \pkg{poLCA} package.  The default is \code{type = "glm"}.
 
-\item[\code{call}] The \code{Effect.default} method may use the call to set additional arguments that it needs.  For \code{type="glm"}, for example, these arguments are \code{formula}, \code{data}, \code{contrasts},  \code{subset},
-\code{family}, \code{weights}, and \code{offset}, although only the \code{formula} argument is required.  The \code{gls} function includes an optional \code{weights} argument that is used differently from the \code{weights} argument for a generalized linear model and is not needed for computing effects or predictor effects plots.  In the function shown above the call is modified by setting \code{weights=NULL}.  
+\item[\texttt{type}] The \pkg{effects} package supports three basic types of modeling functions:  
+
+  \begin{itemize}
+  
+  \item \code{type = "glm"}, the default, is used for functions with a univariate response, a linear predictor, and possibly a link function.  This model type includes linear models, generalized linear models, robust regression models, linear models fit by generalized least squares, linear and generalized linear mixed effects models, and many others.  
+  
+  \item \code{type = "polr"} is used for ordinal regression models, exemplified by the \fn{polr} function in the \pkg{MASS} package, and similar functions described below in Section~\ref{polr}.  
+  
+  \item \code{type = "multinom"} is used for multinomial response models, exemplified by the \fn{multinom} function in the \pkg{nnet} package, and for polytomous latent class models created by the \fn{poLCA} function in the \pkg{poLCA} package.  
+  \end{itemize}
+The default is \code{type = "glm"}.
+
+\item[\code{call}] The \fn{Effect.default} method may use the call to set additional arguments.  For \code{type="glm"}, for example, these arguments are \code{formula}, \code{data}, \code{contrasts},  \code{subset},
+\code{family}, \code{weights}, and \code{offset}, although only the \code{formula} argument is required.  The \fn{gls} function includes an optional \code{weights} argument that is used differently from the \code{weights} argument for a generalized linear model and is not needed for computing effects or predictor effects.  In the \fn{Effect.gls} method shown above, the call is therefore modified by setting \code{weights=NULL}.  
 
 The default for \code{call} is \code{mod\$call} for S3 objects and \code{mod@call} for S4 objects.
 
-\item[\code{formula}] This argument should return the formula for the fixed-effects part of the model that is being fit.  For many models the correct formula is returned by  \verb+insight::find_formula(mod)$conditional+ using the \code{insight} package.  This is the default for this argument.  If this does not work for a particular application the user must set the argument to be the value of the formula.  
-
-Should the default not work, try using \code{formula(mod)}. If this works, simply set the argument \code{formula = formula(mod)}. This will likely not work if your model has fixed and random effects, or other types of linear predictors. In that case, you will need to write your own \verb+find_formula+ method.  For example, for a modeling function \code{mymod}, 
+\item[\code{formula}] This element should return the formula for the fixed-effects part of the fitted model.  For many models, the correct formula is returned by the \verb+find_formula()+ function in the \pkg{insight} package as \verb+insight::find_formula(mod)$conditional+, and this is the default for the argument.  If the default does not work for a particular class of models, the user must set \code{formula} to the fixed-effects formula.  In particular, should the default not work, try using \code{formula(mod)}, and if this is successful, simply set \code{formula = formula(mod)}. Direct use of \fn{formula} will likely not work if your model has both fixed and random effects, or another complex type of linear predictor. In that case, you will have to write your own \verb+find_formula()+ method.  For example, for the imaginary regression function \fn{mymod}, we might define
 \begin{alltt}
 find\_formula.mymod <- function(mod, ...)\{
-  formula <- \mbox{\emph{...code to extract the formula}}
-  c(conditional=formula)
+  formula <- \mbox{\emph{code to extract the formula}}
+  list(conditional=formula)
 \}
 \end{alltt}
-This function will then be used by \code{effects} as needed.  In this case you should not set the \code{formula} argument.
+This function will then be used by \fn{Effect} as needed. In this case, you need not set the \code{formula} element of the \code{sources} argument.
 
 \item[\code{family}] 
-This argument is required for GLM-like models that include a \code{family} that specifies both an error distribution and a link function only if \code{family=family(mod)} is not appropriate.  See the \code{betareg} example in Section~\ref{betareg} below for an example that includes a user-selected link function, but a fixed error distribution.
+This element is for GLM-like models that include a \code{family} that specifies both an error distribution and a link function, and is required only if \code{family=family(mod)} is not appropriate.  See the \fn{betareg} example in Section~\ref{betareg} below for an example that includes a user-selected link function along with a fixed error distribution.
 
-\item[\code{coefficients}] For linear, generalized linear and gls models the fixed-effect coefficient estimates are returned by \code{coef(mod)}, but this is usually not adequate for more complicated modeling functions.  The default for this argument if it is not set is \code{effCoef(mod)}, which is defined as a generic function as follows:
+\item[\code{coefficients}] For linear and generalized linear models (including linear models fit by \fn{gls}), the fixed-effect coefficient estimates are returned by \code{coef(mod)}, but this is often not the case for more complicated modeling functions.  The default for this element if it is not explicitly supplied is \code{effCoef(mod)}, where \fn{effCoef} is the following generic function:
 <<eval=FALSE>>=
-effCoef <- function(mod, ...){UseMethod("effCoef", mod)}
+effCoef <- function(mod, ...){
+  UseMethod("effCoef", mod)
+}
+@
+with default method:
+<<eval=FALSE>>=
 effCoef.default <- function(mod, ...){
   est1 <- insight::get_parameters(mod, ...)
-# est1 is a data frame, with labels in col 1 and values in col 2
-# convert to a vector with named elements
-  est <- est1[,2]
-  names(est) <- est1[,1]
+  # est1 is a data frame, with labels in col 1 
+  #     and values in col 2
+  # convert to a vector with named elements:
+  est <- est1[, 2]
+  names(est) <- est1[, 1]
   est
 }
 @
-This function returns fixed-effects coefficients for a variety of models including models with random effects.  You should consult  \verb+help("get_parameters")+ to see if this will work for a particular modeling paradigm.  If it does not work you can write your own \code{effCoef} method.
+This function returns fixed-effects coefficients for a variety of models, including models with random effects.  You should consult  \verb+help("get_parameters")+ to see if \fn{effCoef.default} will work for a particular modeling class, and if it does not work correctly, you can write your own \fn{effCoef} method.
 
+\item[\code{zeta}] Ordinal regression models return both a set of regression coefficients and also a set of \emph{thresholds}.  The \fn{polr} function stores the regression coefficients and the thresholds in separate vectors, but other ordinal regression functions, such as \fn{clm} in the \pkg{ordinal} package, store them as a single vector.  See Section~\ref{polr} for an example of the use of this element for specifying the values of the thresholds. 
 
-\item[\code{zeta}] Ordinal regression models return both a set of regression coefficients and also a set of \emph{threshholds}.  In the \code{polr} function the regression coefficients and the threshholds are stored in separate vectors, but in other ordinal regression programs, such as \code{clm} in the \code{ordinal} package they are stored as a single vector.  See Section~\ref{polr} for an example of the use of this argument for specifying the values of the threshholds. 
+\item[\code{vcov}] The function call \verb+insight::get_varcov(mod)+ is the default for this argument, and it often returns the estimated covariance matrix of the fixed effects, but in some cases users may have to write their own function for this purpose; see \verb+help("get_varcov")+ for more information. 
 
-\item[\code{vcov}] The function \verb+insight::get_varcov(mod)+ is the default for this argument and it will generally return the estimated covariance matrix of the fixed-effects, but in some cases the user may need to write their own function for this purpose; see \verb+help("get_varcov")+ for more information. 
-
-\item[method] This argument is used only for methods that use effects graphics based on the \code{polr} function, where the argument \code{method} is the name of a link function; see \code{help("polr")} for a list of the accepted links, and see Section~\ref{clm} below for an example.
+\item[method] This element is only for methods that produce effects similar to those for the \fn{polr} function, where the \code{method} argument is the name of a link function; see \code{help("polr")} for a list of the accepted links and Section~\ref{clm} below for an example.
 \end{description}
-The only non-default argument in \code{sources} in \code{Effect.gls} is the modification of the \code{call} to omit weights in the call to \code{gls}.  Had this change not been needed, there would be no need to have written the \code{Effect.gls} method, as the default method would have worked. The function with all the defaults omitted is
+
+The only non-default element in \code{sources} for \fn{Effect.gls} is the modification of the \code{call} to remove weights from the call to \fn{gls}.  Had this adaptation not been necessary, we would not have needed an \fn{Effect.gls} method, as the default method would have worked. The \fn{Effect.gls} method with all the default elements in \code{sources} omitted is therefore much more compact than the version given above:
 <<eval=FALSE>>=
 Effect.gls <- function(focal.predictors, mod, ...){
   cl <- mod$call
@@ -175,17 +193,18 @@ Effect.gls <- function(focal.predictors, mod, ...){
 }
 @
 
+An example:
 <<fig.height=4,fig.width=8>>=
-library(effects)
-require(nlme)
+library("effects")
+library("nlme")
 g1 <- gls(Employed ~ GNP + Population,
          correlation=corAR1(form= ~ Year), data=longley)
 plot(predictorEffects(g1))
 @
 
-\section{Mixed Effects with \code{lme} (\pkg{nlme} package)}\label{merMod}
-With the inclusion of functions in the \code{insight} package, models created with the
-\code{lme} function in the \pkg{nlme} package \citep{nlme} for linear mixed models can be fit by the default \code{Effect} method because the functions in the \code{insight} package get the correct quantities.
+\section{Linear Mixed Effects Models with \fn{lme} \textbf{in the} \pkg{nlme} \textbf{package}}\label{merMod}
+
+With the use of functions in the \pkg{insight} package (as described above), linear mixed models created by the \fn{lme} function in the \pkg{nlme} package \citep{nlme} can be accommodated by the default \fn{Effect} method because the functions in the \pkg{insight} package extract the correct quantities:
 <<>>=
 data(Orthodont, package="nlme")
 m1 <- nlme::lme(distance ~ age + Sex, data=Orthodont, 
@@ -193,16 +212,17 @@ m1 <- nlme::lme(distance ~ age + Sex, data=Orthodont,
 as.data.frame(Effect("age", m1))
 @
 
-\section{Mixed Effects with the \code{lmer} (\code{lme4} package)}\label{sec:lmer}
-The \code{lme4} package \citep{Bates15} fits linear and generalized linear mixed effects models with the \code{lmer} and \code{glmer} functions, respectively.  The same \code{Effect} function can be used for \code{lmer} and \code{glmer} models. 
+\section{Mixed Effects with \fn{lmer} \textbf{and} \fn{glmer} \textbf{in} the \pkg{lme4} \textbf{package}}\label{sec:lmer}
 
-The \code{effects} method for these models allows two choices for computing an estimated covariance matrix, using the Kenward-Roger estimate if the argument \code{KR = TRUE}, and the usual estimate from the fit when \code{KR = FALSE}.  The default is \code{FALSE} because the KR computation is very slow.  If \code{KR = TRUE}, the function also checks if the \pkg{pbkrtest} package is present.  The family needs to be explicitly set, but all the defaults for other arguments are appropriate for this model.  
+The \pkg{lme4} package \citep{Bates15} fits linear and generalized linear mixed effects models with the \fn{lmer} and \fn{glmer} functions, respectively.  The same \fn{Effect} method can be used for \fn{lmer} and \fn{glmer}, both of which produce \class{merMod} objects. 
+
+The \fn{Effect} method for \fn{lmer} models allows two choices for computing the estimated coefficient covariance matrix, using the Kenward-Roger estimate if the argument \code{KR = TRUE}, and the usual asymptotic estimate from the information matrix when \code{KR = FALSE}.  The default is \code{FALSE} because the KR computation can be very slow.  If \code{KR = TRUE}, then the function also checks if the \pkg{pbkrtest} package is present.  The \code{family} component of \code{sources} needs to be explicitly set, but the defaults for all other components are appropriate for \class{merMod} models.  
 
 <<>>=
 print(Effect.merMod)
 @
 
-
+Usage examples:
 <<fig.height=4,fig.width=8>>=
 fm2 <- lme4::lmer(distance ~ age + Sex + (1 |Subject), data
                   = Orthodont)
@@ -216,112 +236,132 @@ gm1 <- lme4::glmer(cbind(incidence, size - incidence) ~ period + (1 | herd),
 as.data.frame(predictorEffect("period", gm1))
 @
 
-\section{Linear and Generalized Linear Mixed Models Fit With \code{glmmPQL}}
-\cite{VenablesRipley02} provide a penalized quasi-likelihood function for fitting linear and generalized linear mixed models in their \code{MASS} package. The \code{Effect} package only provides the family argument.
+\section{Linear and Generalized Linear Mixed Models Fit With \fn{glmmPQL} \textbf{in the} \pkg{MASS} \textbf{package}}
+
+\cite{VenablesRipley02} provide a penalized quasi-likelihood function for fitting linear and generalized linear mixed models in the \pkg{MASS} package. The \fn{Effect.glmmPQL} method only has to explicitly provide the \code{family} component of \code{sources}:
 
 
 <<>>=
 print(Effect.glmmPQL)
 @
 
-\section{Robust Linear Mixed Models (\pkg{robustlmm} package)}
-The \code{rlmer} function in the \code{robustlmm} package \citep{koller16} fits linear mixed models with a robust estimation method.  As \code{rlmer} closely parallels the \code{lmer} function, an object created by \code{rlmer} is easily used with \code{effects}:
+\section{Robust Linear Mixed Models with \fn{rlmer} in the \pkg{robustlmm} Package)}
+
+The \fn{rlmer} function in the \pkg{robustlmm} package \citep{koller16} fits linear mixed models robustly.  As \fn{rlmer} closely parallels the \fn{lmer} function,  objects created by \fn{rlmer} are easily used with functions in the \pkg{effects} package:
 <<>>=
 print(Effect.rlmerMod)
 @
 
-<<eval=FALSE,fig.height=4, fig.width=8>>=
-require(lme4)
+
+For example:
+<<fig.height=4, fig.width=8>>=
+library("lme4")
 fm3 <- robustlmm::rlmer(distance ~ age * Sex + (1 |Subject), 
                         data = Orthodont)
 plot(predictorEffects(fm3))
 @
 
-\section{Beta Regression}\label{betareg}
-The \code{betareg} function in the \code{betareg} package \citep{betareg} fits regressions with a link function but with Beta distributed errors.
+\section{Beta Regression with \fn{betareg} \textbf{in the} \pkg{betareg} \textbf{Package}}\label{betareg}
+
+The \fn{betareg} function in the \pkg{betareg} package \citep{betareg} fits regressions with Beta distributed errors. Beta regression has a response $y \in [0,1]$, with the connection between the mean $\mu$ of the Beta distribution and a set of regressors $\x$ given by a link function $\x'\bbeta = g(\mu)$.  The variance function for the Beta distribution is $\mathrm{var}(y) = \mu(1-\mu)/(1+\phi)$, for the precision parameter $\phi$ estimated by \fn{betareg}.
+
+The \fn{Effect.betareg} method is more complicated than the methods previously described:
 <<>>=
 print(Effect.betareg)
 @
-Beta regression has a response $y \in [0,1]$, with the connection between the mean $\mu$ of the Beta and a set for predictors $\x$ through a link function $\x'\bbeta = g(\mu)$.  The variance function for the beta is $\mathrm{var}(y) = \mu(1-\mu)/(1+\phi)$, for a precision parameter $\phi$ estimated by \code{betareg}.
 
-The method \code{Effect.betareg} is more complicated than the methods previously described:
 \begin{description}
-\item[coef] The default for this argument is \verb+insight::find_parameters(mod)+ returns the coefficients for the linear predictor and for the precision parameter, as shown on its help page.  The correct call is\\ \verb+insight::find_parameters(mod, component="conditional")+.
-\item[vcov] Similarly, the estimated covariance matrix of the linear predictor components is \verb+insight::get_varcov(mod, component="conditional")+.
-\item[family] The call to \code{betareg} does not have a family argument, although it does have a link stored in \code{mod\$link\$mean}.  For use with \code{Effect.default}, the method above creates a family from the binomial family generator.  It then adjusts this family by changing from binomial variance to the variance for the beta distribution. Since the \code{glm} function expects a variance that is a function of only one parameter, we fix the value of the precision $\phi$ at its estimator from the \code{betareg} fit.  We need to replace the \code{initialize} method in the family to one appropriate for $y \in [0,1]$.
+
+\item[coefficients] The default, \verb+insight::find_parameters(mod)+, returns the coefficients for the linear predictor and for the precision parameter, as shown on the help page for \verb+insight::find_parameters+.  The correct call is \verb+insight::find_parameters(mod, component="conditional")+.
+
+\item[vcov] Similarly, the estimated covariance matrix of the coefficients in the linear predictor is\newline 
+\verb+insight::get_varcov(mod, component="conditional")+.
+
+\item[family] \fn{betareg} does not have a family argument, although it does store a link in \code{mod\$link\$mean}.  The \fn{Effect.betareg} method creates a family object suitable for use with \fn{Effect.default} from the \fn{binomial} family generator function.  It then adjusts the family object by changing the binomial variance to the variance for the Beta distribution. Because the \fn{glm} function expects a variance that is a function of only one parameter, we fix the value of the precision $\phi$ at its estimator from the \fn{betareg} fit.  We also must replace the \code{initialize} method in the family to one appropriate for $y \in [0,1]$.
+
 \end{description}
 
+For example:
 <<echo=FALSE,results='hide', include=FALSE>>=
-require(lme4)
+library("lme4")
 @
 <<fig.height=4,fig.width=8,cache=FALSE>>=
-require(betareg)
-require(lme4)
+library("betareg")
+library("lme4")
 data("GasolineYield", package = "betareg")
 gy_logit <- betareg(yield ~ batch + temp, data = GasolineYield)
 summary(gy_logit)
 plot(predictorEffects(gy_logit))
 @
 
-\section{Ordinal Models (\pkg{ordinal} package)}\label{polr}
-Proportional odds logit and probit regression models fit with the \code{polr} function in the \code{MASS} package \citep{VenablesRipley02} are supported in the \code{effects} package.  The \code{ordinal} package, \citep{Christensen15} contains three functions that are very similar to \code{polr}.  The \code{clm} and \code{clm2} functions allow more link functions and a number of other generalizations.  The \code{clmm} function allows including random effects.
+\section{Ordinal Regression Models Via the  (\pkg{ordinal} Package)}\label{polr}
 
-The methods for ordinal models are considerably more complex than are the preceding examples.  In particular, the function \code{clm} is not supported by the \code{insight} package, although \code{clm2} and \code{clmm} are supported.
+Proportional odds logit and probit regression models fit with the \fn{polr} function in the \pkg{MASS} package \citep{VenablesRipley02} are supported by the \pkg{effects} package.  The \pkg{ordinal} package, \citep{Christensen15} contains three functions that are very similar to \fn{polr}: The \fn{clm} and \fn{clm2} functions provide more link functions and a number of other generalizations.  The \fn{clmm} function fits mixed models that include random as well as fixed effects.
 
-\subsection{\code{clm}}\label{clm}
+\fn{Effect} methods for ordinal models are considerably more complex than the preceding examples.  In particular, the function \fn{clm} is not supported by the \pkg{insight} package, although \fn{clm2} and \fn{clmm} are supported, and thus \fn{Effect.clm} has a relatively complicated definition:
+
+\subsection{\fn{clm}}\label{clm}
+
 <<>>=
 print(Effect.clm)
 @
+This method first checks that the \pkg{MASS} package is available.  The \fn{clm} function returns parameters in the order (threshold parameters, linear-predictor parameters), so the next few lines of code identify the elements of\code{vcov} that are needed by \fn{Effects}.  Because the \fn{polr} function does not support thresholds other than \code{flexible}, we don't support them either. The \code{zeta} element of \code{source} supplies the estimated thresholds, which are called \code{zeta} in \fn{polr}, and \code{Alpha} in \fn{clm}. The \fn{polr} \code{method} argument is equivalent to the \fn{clm} \code{link} argument, with the \fn{clm} \code{"logit"} link equivalent to the \fn{polr} \code{"logistic"} method.  
 
-This method first checks that the \code{MASS} package is available.  The \code{clm} function orders the parameters in the order (threshold parameters, linear predictor parameters), so the next few lines identify the elements of  \code{vcov} that are needed by \code{Effects}.  Since the \code{polr} function does not allow thresholds other than \code{flexible}, we don't allow them either. The \code{zeta} argument supplies the estimated threshholds, which are called \code{zeta} in \code{polr}, and \code{Alpha} in \code{clm}. The \code{polr} argument \code{method} is equivalent to the \code{clm} argument \code{link}, except that the \code{clm} link \code{"logit"} is equivalent to the \code{polr} method \code{"logistic"}.  
 
+An example:
 <<echo=FALSE,results='hide', include=FALSE>>=
-require(ordinal)
-require(MASS)
+library("ordinal")
+library("MASS")
 @
 <<fig.height=6,fig.width=6>>=
-require(ordinal)
-require(MASS)
+library("ordinal")
+library("MASS")
 mod.wvs1 <- clm(poverty ~ gender + religion + degree + country*poly(age,3),
     data=WVS)
 plot(Effect(c("country", "age"), mod.wvs1), 
      lines=list(multiline=TRUE), layout=c(2, 2))
 @
 
-\subsection{\code{clm2}}
-Although the fitted madels are similar, syntax for \code{clm2} is not the same as \code{clm}, so a separate method is required.
+\subsection{\fn{clm2}}
+
+Although the fitted models are similar, \class{clm2} objects are not the same as \class{clm} objects, so a separate \fn{Effect.clm2}  method is required:
 
 <<>>=
 print(Effect.clm2)
 @
 
+For example:
 <<fig.height=6,fig.width=8>>=
 v2 <- clm2(poverty ~ gender + religion + degree + country*poly(age,3),data=WVS)
 plot(emod2 <- Effect(c("country", "age"), v2), 
      lines=list(multiline=TRUE), layout=c(2,2))
 @
 
-\subsection{\code{clmm}}
-This function allows for random effects in an ordinal model.
+\subsection{\fn{clmm}}
+
+The \fn{clmm} function fits ordinal mixed effects models, and the \fn{Effect.clmm} method is defined as follows:
 <<>>=
 print(Effect.clmm)
 @
-The first few lines of the method check for the presence of the \code{MASS} package that is needed to use \code{polr}, makes sure the link used is supported by \code{polr}, and requires that the argument \code{threshold} has its default value.  The \code{polr} and \code{clmm} functions store the fixed effects estimates of regression and threshold coefficents in different orders, so the next few lines rearrange the variance matrix to match the order that \code{polr} uses.
+The first few lines of the method check for the presence of the \pkg{MASS} package, which is needed for the \fn{polr} function; make sure the link employed is supported by \fn{polr}; and require that the \code{threshold} argument was set to its default value.  The \fn{polr} and \fn{clmm} functions store the fixed effects estimates and threshold coefficients in different orders, and so the next few lines rearrange the coefficient covariance matrix to match the order that \fn{polr} uses.
 
+
+An example:
 <<fig.height=4,fig.width=4,cache=FALSE>>=
-require(ordinal)
-require(MASS)
+library("ordinal")
+library("MASS")
 mm1 <- clmm(SURENESS ~ PROD + (1|RESP) + (1|RESP:PROD), 
         data = soup, link = "logit", threshold = "flexible")
-plot(Effect("PROD", mm1),lines=list(multiline=TRUE))
+plot(Effect("PROD", mm1), lines=list(multiline=TRUE))
 @
 
-\subsection{Others}
-The \code{poLCA} function in the \code{poLCA} package \citep{Linzer11} fits polytomous variable latent class models, which uses the multinomial effects plots.
+\section{Other Regression Functions}
 
-The \code{svyglm} function in the \code{survey} package \citep{Lumley04, Lumley16} fits generalized linear models using survey weights.
+The \fn{poLCA} function in the \pkg{poLCA} package \citep{Linzer11} fits polytomous latent class models, which produce multinomial effect plots.
 
-The \code{lm} function can also be used to create a multivariate linear model.  The \code{Effect.mlm} function, with slightly different syntax, will drow effects plots for these models, with separate plots of each response.
+The \fn{svyglm} function in the \pkg{survey} package \citep{Lumley04, Lumley16} fits generalized linear models to data from complex sample surveys, making provision, for example, for strata, clustering, and sampling weights.
+
+The \fn{lm} function can also be used to fit multivariate linear models.  The \fn{Effect.mlm} method computes effects for these models, producing separate graphs of each response. For example:
 
 <<fig.height=6,fig.width=6>>=
 data(Baumann, package="carData")
@@ -329,8 +369,6 @@ b1 <- lm(cbind(post.test.1, post.test.2, post.test.3) ~ group +
     pretest.1 + pretest.2, data = Baumann)
 plot(Effect("group", b1))
 @
-
-
 
 
 \bibliography{adding-Effect-methods}

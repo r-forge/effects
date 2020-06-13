@@ -9,6 +9,7 @@
 # 3/22/2020:  added Effect.glmmPQL (from MASS package)
 # 4/27/2020:  require 'insight' package for find_formula and get_coefficients
 #             so formula and coefficients are generally not needed
+# 2020-06-13: fix typo (omitted ') in an error message
 
 
 
@@ -121,7 +122,7 @@ Effect.clmm <- function(focal.predictors, mod, ...){
     message("\nRe-fitting to get Hessian\n")
     mod <- update(mod, Hess=TRUE)}
   if(mod$threshold != "flexible") 
-    stop("Only threshold='flexible supported by effects")
+    stop("Only threshold='flexible' is supported by effects")
   numTheta <- length(mod$Theta)
   numBeta <- length(mod$beta)
   or <- c( (numTheta+1):(numTheta + numBeta), 1:(numTheta))
