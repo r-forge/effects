@@ -144,7 +144,7 @@ Effect.betareg <- function(focal.predictors, mod, ...){
 # betareg uses beta errors with mean link given in mod$link$mean.  
 # Construct a family based on the binomial() family
   fam <- binomial(link=mod$link$mean)
-# adjust the varince function to account for beta variance
+# adjust the variance function to account for beta variance
   fam$variance <- function(mu){
     f0 <- function(mu, eta) (1-mu)*mu/(1+eta)
     do.call("f0", list(mu, mod$coefficient$precision))}
