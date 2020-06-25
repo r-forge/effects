@@ -12,9 +12,9 @@
 \title{Functions For Constructing Effect Displays}
 \description{
   \code{Effect} and \code{effect} construct an \code{"eff"} object for a term (usually a high-order term)
-  in a linear model (fit by \code{\link{lm}} or \code{\link[nlme]{gls}}) or generalized linear model (fit by \code{\link{glm}}), or an
+  in a linear model (fit by \code{\link{lm}} or \code{\link{gls}}) or generalized linear model (fit by \code{\link{glm}}), or an
   \code{"effpoly"} object for a term in a
-  multinomial or proportional-odds logit model (fit respectively by \code{\link[nnet]{multinom}} or \code{\link[MASS]{polr}}),
+  multinomial or proportional-odds logit model (fit respectively by \code{\link{multinom}} or \code{\link{polr}}),
   absorbing the lower-order terms marginal
   to the term in question, and averaging over other terms in the model.  For multivariate linear models
   (of class \code{"mlm"}, fit by \code{\link{lm}}), the function constructs a list of \code{"eff"} objects separately for the various
@@ -114,13 +114,13 @@ allEffects(mod, ...)
 
       \item{offset}{a function to be applied to the offset values (if there is an
     offset) in a linear or generalized linear model, or a mixed-effects
-    model fit by \code{\link[lme4]{lmer}} or \code{\link[lme4]{glmer}}; or a numeric value, to which
+    model fit by \code{\link{lmer}} or \code{\link{glmer}}; or a numeric value, to which
     the offset will be set. The default is the \code{\link{mean}} function, and thus
     the offset will be set to its mean; in the case of \code{"svyglm"}
     objects, the default is to use the survey-design weighted mean.
     \emph{Note:} Only offsets defined
-    by the \code{offset} argument to \code{\link{lm}}, \code{\link{glm}}, \code{\link[survey]{svyglm}},
-    \code{\link[lme4]{lmer}}, or \code{\link[lme4]{glmer}} will be handled
+    by the \code{offset} argument to \code{\link{lm}}, \code{\link{glm}}, \code{\link{svyglm}},
+    \code{\link{lmer}}, or \code{\link{glmer}} will be handled
     correctly; use of the \code{offset} function in the model formula is
     not supported.}
 
@@ -260,7 +260,7 @@ and of class \code{"effpoly"} with more than 2 categories.
 
   Empty cells in crossed-factors are now permitted for \code{"lm"}, \code{"glm"}, and \code{"multinom"} models.
   For \code{"multinom"} models with two or more crossed factors with an empty cell, stacked area plots
-  apparently do not work because of a bug in the \code{\link[lattice]{barchart}} function in the \pkg{lattice} package.  However, the default
+  apparently do not work because of a bug in the \code{\link{barchart}} function in the \pkg{lattice} package.  However, the default
   line plots do work.
 
   Offsets in linear and generalized linear models are supported, as are offsets in mixed models fit by
@@ -269,13 +269,13 @@ and of class \code{"effpoly"} with more than 2 categories.
   offsets supplied via calls to the \code{offset} function on the right-hand side
   of the model formula are not supported.
 
-  Fitting ordinal mixed-models using \code{\link[ordinal]{clmm}} or \code{\link[ordinal]{clmm2}} permits many options, including a variety of link functions,
+  Fitting ordinal mixed-models using \code{\link[ordinal]{clmm}} or \code{\link[ordinal:clmmOld]{clmm2}} permits many options, including a variety of link functions,
   scale functions, nominal regressors, and various methods for setting thresholds.  Effects are currently generated
   only for the default values of the arguments \code{scale}, \code{nominal}, \code{link} and \code{threshold},
   which is equivalent to fitting an ordinal response mixed effects model with a logit link.
   The effect methods can also be
-  used with objects created using \code{\link[ordinal]{clm}} or \code{\link[ordinal]{clm2}} fitting ordinal response models with the same links permitted by polr with no random effects, with
-  results similar to those from \code{\link[MASS]{polr}} in the \pkg{MASS} package.
+  used with objects created using \code{\link[ordinal]{clm}} or \code{\link[ordinal:clmOld]{clm2}} fitting ordinal response models with the same links permitted by polr with no random effects, with
+  results similar to those from \code{\link{polr}} in the \pkg{MASS} package.
 
   Calling any of these functions from within a user-written function may result in errors due
   to R's scoping rules.  See the vignette \code{embedding.pdf} for the \pkg{car} package

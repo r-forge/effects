@@ -67,7 +67,7 @@
   }
 \item{KR}{if \code{TRUE} and the \pkg{pbkrtest} package is installed,
     use the Kenward-Roger coefficient covariance
-    matrix to compute effect standard errors for linear mixed models fit with \code{\link[lme4]{lmer}}
+    matrix to compute effect standard errors for linear mixed models fit with \code{\link{lmer}}
     in the \pkg{lme4} package.  The default is \code{FALSE} because the computation can be
     very slow.}
   }
