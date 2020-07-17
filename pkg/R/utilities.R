@@ -279,11 +279,12 @@ Analyze.model <- function(focal.predictors, mod, xlevels, default.levels=NULL, f
   which.matrices <- sapply(X, function(x) is.matrix(x) && ncol(x) == 1)
   if (any(which.matrices)){
     nms <- names(which.matrices[which.matrices])
-    warning((if (length(nms) > 1) "there are one-column matrix predictors in the model: "
-             else "there is a one-column matrix predictor in the model: "),
-            paste(nms, collapse=", "),
-            if (length(nms) > 1) "\n  they have been converted to vectors"
-            else "\n  it has been converted to a vector")
+    msg <- if (length(nms) > 1){
+      paste("the predictors", paste(nms, collapse=", "), "are one-column matrices that were converted to vectors")
+    } else {
+      paste("the predictor", nms, "is a one-column matrix that was converted to a vector")
+    }
+    warning(msg)
     for (nm in nms){
       X[, nm] <- as.vector(X[, nm])
     }
