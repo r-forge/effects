@@ -253,10 +253,11 @@ and of class \code{"effpoly"} with more than 2 categories.
   (as, e.g., in \code{y ~ as.factor(income)}) will cause errors. Instead, create the modified variables outside of the model
   formula (e.g., \code{fincome <- as.factor(income)}) and use these in the model formula.
 
-  Factors cannot have colons in level names (e.g., \code{"level:A"}); the \code{effect} function will confuse the
-  colons with interactions; rename levels to remove or replace the colons (e.g., \code{"level.A"}).
+  Factors cannot have colons in level names (e.g., \code{"level:A"}) if you use the \code{effect} function, which will confuse the
+  colons with interactions; rename levels to remove or replace the colons (e.g., \code{"level.A"}). The \code{Effect} function, however,
+  works correctly in this situation.
 
-  The functions in the \pkg{effects} package work properly with predictors that are numeric variables, factors, character variables, or logical variables; consequently, e.g., convert dates to numeric. Character predictors and logical predictors are treated as factors, the latter with "levels" \code{"FALSE"} and \code{"TRUE"}.
+  The functions in the \pkg{effects} package work properly with predictors that are numeric variables, factors, character variables, or logical variables; consequently, e.g., convert dates to numeric. Character predictors and logical predictors are treated as factors, the latter with "levels" \code{"FALSE"} and \code{"TRUE"}. Matrix predictors (i.e., matrix columns in a data frame used in a model formula) are not supported and will produce a warning message and possibly an error; \code{Effect} tries to convert one-column matrix predictors to vectors, with a warning.
 
   Empty cells in crossed-factors are now permitted for \code{"lm"}, \code{"glm"}, and \code{"multinom"} models.
   For \code{"multinom"} models with two or more crossed factors with an empty cell, stacked area plots

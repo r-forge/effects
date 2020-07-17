@@ -6,7 +6,9 @@ Version 4.2-0
  
  o Don't ignore lines lty sub-argument to plot.effpoly() (fixing a bug reported by Laura Adamovicz).
  
- o Added regression tests for classes of model objects supported. Tests must be enabled in the effects sources at tests/regression-tests.R
+ o One-column matrix predictors trigger a warning and correction (following problem reported by Carla Hendricks).
+ 
+ o Added regression tests for classes of model objects supported. Tests must be enabled in the effects sources at tests/regression-tests.R.
  
  o Rewrite of defining effect method vignette.
  
