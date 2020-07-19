@@ -31,7 +31,7 @@ A vector of coefficient estimates
 }
 \author{Sanford Weisberg \email{sandy@umn.edu}}
 
-\seealso{\code{\link{get_parameters}}, and vignette \href{../doc/adding-Effect_methods.pdf}{Defining Effect Methods for Other Models}}
+\seealso{\code{\link{get_parameters}}, and vignette \href{../doc/methods-supported-by-effects.pdf}{Defining Effect Methods for Other Models}}
 
 %% ~Make other sections like Warning with \section{Warning }{....} ~
 

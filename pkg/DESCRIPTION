@@ -1,6 +1,6 @@
 Package: effects
 Version: 4.2-0
-Date: 2020-07-17
+Date: 2020-07-19
 Title: Effect Displays for Linear, Generalized Linear, and Other Models
 Authors@R: c(person("John", "Fox", role = c("aut", "cre"), email = "jfox@mcmaster.ca"),
 	person("Sanford", "Weisberg", role = "aut", email = "sandy@umn.edu"),

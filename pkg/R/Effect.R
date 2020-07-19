@@ -46,6 +46,8 @@
 # 2019-09-04: handle xlevels=n argument correctly
 # 2020-05-22: Removed fixFormula function.  
 # 2020-05-27: Added effCoef generic that uses the 'insight' package to find the formula, coef estimates and vcov for methods supported by insight
+# 2020-06-23: Added effSources to gather sources for new regression methods.  
+#             Old mechanism of using Effect.method will still work
 
 ### Non-exported function added 2018-01-22 to generalize given.values to allow for "equal" weighting of factor levels for non-focal predictors.
 .set.given.equal <- function(m){
@@ -111,23 +113,27 @@ Effect <- function(focal.predictors, mod, ...){
 # 2017-12-04 new Effect.default that actually works
 # 2017-12-07 added Effects.lme, .mer, gls that work
 
-Effect.default <- function(focal.predictors, mod, ..., sources=NULL){ 
+Effect.default <- function(focal.predictors, mod, ..., sources){ 
 # 2020/05/23 ... uses 'insight' package, else
-# get formula from sources if present 
+# if sources is null, try to construct it
+  sources <- if(missing(sources)) effSources(mod) else sources
+## formula 
    formula <- if(is.null(sources$formula)) 
      insight::find_formula(mod)$conditional else sources$formula
-# the next line returns the formula if focal.predictors is null
+  # the next line returns the formula if focal.predictors is null
   if(is.null(focal.predictors)) return(formula)
-# get the call
+## call
   cl <- if(is.null(sources$call)) {if(isS4(mod)) 
         mod@call else mod$call} else sources$call
-# insert formula into the call
+  # insert formula into the call
   cl$formula <- formula
-# set type == 'glm' unless it is set in sources
+## type == 'glm' unless it is set in sources
   type <- if(is.null(sources$type)) "glm" else sources$type
-# glm family from sources if set, else set fam to NULL
-  if(!is.null(sources$family)){
-    fam <- sources$family
+# family
+  fam <- try(family(mod), silent=TRUE)
+  if(inherits(fam, "try-error")) fam <- NULL
+  if(!is.null(sources$family)){fam <- sources$family}
+  if(!is.null(fam)){
     fam$aic <- function(...) NULL
     # check to be sure the variance function in the family has one argument only,
     # otherwise this method won't work
@@ -135,15 +141,15 @@ Effect.default <- function(focal.predictors, mod, ..., sources=NULL){
       if(length(formals(fam$variance)) > 1)
         stop("Effect plots are not implemented for families with more than
              one parameter in the variance function (e.g., negitave binomials).")}
-  } else {fam <- NULL}
+  }
+  cl$family <- fam
 # get the coefficient estimates and vcov from sources if present
   coefficients <- if(is.null(sources$coefficients)) 
     effCoef(mod) else sources$coefficients
+    vcov <- if(is.null(sources$vcov)) 
+      as.matrix(vcov(mod, complete=TRUE)) else sources$vcov
 # added 7/5/2019, next line, for models that use polr (e.g, clm, clm2)
   zeta <- if(is.null(sources$zeta)) NULL else sources$zeta
-  vcov <- if(is.null(sources$vcov)) 
-    as.matrix(vcov(mod, complete=TRUE)) else sources$vcov
-# end reading sources
 # set control parameters: suggested by Nate TeGrotenhuis
   cl$control <- switch(type,
           glm = glm.control(epsilon=Inf, maxit=1),
@@ -151,18 +157,18 @@ Effect.default <- function(focal.predictors, mod, ..., sources=NULL){
           multinom = c(maxit=1))
   cl$method <- sources$method # NULL except for type=="polr"
   .m <- switch(type,
-               glm=match(c("formula", "data", "contrasts",  "subset",
+               glm=match(c("formula", "data", "family", "contrasts",  "subset",
                 "control", "offset"), names(cl), 0L),
-               polr=match(c("formula", "data", "contrasts",  "subset",
+               polr=match(c("formula", "data", "family", "contrasts",  "subset",
                 "control", "method"), names(cl), 0L),
-               multinom=match(c("formula", "data", "contrasts",  "subset",
+               multinom=match(c("formula", "data", "family", "contrasts", "subset",
                 "family", "maxit", "offset"), names(cl), 0L))
   cl <- cl[c(1L, .m)]
-  if(!is.null(fam)) cl$family <- fam
-  if (is.character(cl$family)) 
-    cl$family <- get(cl$family, mode = "function", envir = parent.frame())
-  if (is.function(cl$family)) 
-    cl$family <- family()
+#  if(!is.null(fam)) cl$family <- fam
+#  if (is.character(cl$family)) 
+#    cl$family <- get(cl$family, mode = "function", envir = parent.frame())
+#  if (is.function(cl$family)) 
+#    cl$family <- family()
   cl[[1L]] <- as.name(type)
 # The following eval creates on object of class glm, polr or multinom.  
 # These are crated to avoid writing an Effects method for every type of model.  
@@ -667,6 +673,19 @@ Effect.polr <- function(focal.predictors, mod,
                            confidence.level=confidence.level))
   class(result) <-'effpoly'
   result
+}
+
+# merMod -- included here to allow addtional KR argument
+Effect.merMod <- function(focal.predictors, mod, ..., KR=FALSE){
+  if (KR && !requireNamespace("pbkrtest", quietly=TRUE)){
+    KR <- FALSE
+    warning("pbkrtest is not available, KR set to FALSE")}
+  fam <- family(mod)
+  args <- list(
+    family=fam,
+    vcov = if (fam$family == "gaussian" && fam$link == "identity" && KR)
+      as.matrix(pbkrtest::vcovAdj(mod)) else insight::get_varcov(mod))
+  Effect.default(focal.predictors, mod, ..., sources=args)
 }
 
 # svyglm

@@ -14,7 +14,7 @@
 #             focal.levels argument with default 50 to be applied to focal predictor. J. Fox
 # 2019-04-13: changed behavior of xlevels default to match Effect.lm() when residuals=TRUE. J. Fox
 # 2020-05-29: use find_formula in the 'insight' package to find formulas.  S. Weisberg
-
+# 2020-06-23: modified predictorEffect.default to get formula using effSources. S Weisberg
 
 # removed xlevels argument 8/9/18
 predictorEffect <- function(predictor, mod, focal.levels=50, xlevels=5, ...){  
@@ -29,17 +29,16 @@ predictorEffect.svyglm <- function(predictor, mod, focal.levels=50, xlevels=5, .
 
 #simplified 12/10/17
 # removed xlevels argument 8/9/18
-predictorEffect.default <- function(predictor, mod, focal.levels=50, xlevels=5, ...){
+predictorEffect.default <- function(predictor, mod, focal.levels=50, xlevels=5, ..., sources){
   dots <- list(...)
   which.residuals <- which(!is.na(sapply(names(dots), 
                                          function(x) pmatch(x, c("residuals", "partial.residuals")))))
   if (length(which.residuals) != 0){
     if (isTRUE(dots[[which.residuals]]) && missing(xlevels)) xlevels <- list()
   }
-## next line depricated 5/29/2020
-# form <- Effect.default(NULL, mod) #returns the fixed-effects formula
-# next lines uses insight::find_formula
-  form <- find_formula(mod)$conditional
+  sources <- if(missing(sources)) effSources(mod) else sources
+  form <- if(is.null(sources$formula)) 
+    find_formula(mod)$conditional else sources$formula
   all.vars <- all.vars(parse(text=form))
 # all.vars <- find_terms(mod, flatten=TRUE)
   # find the right effect to use
@@ -77,10 +76,10 @@ predictorEffects <- function(mod, predictors, focal.levels=50, xlevels=5, ...){
 
 
 # rewritten, simplified, 12/08/17, bug in formulas fixed 01/24/2018
-predictorEffects.default <- function(mod, predictors = ~ ., focal.levels=50, xlevels=5, ...) {
+predictorEffects.default <- function(mod, predictors = ~ ., focal.levels=50, xlevels=5, ..., sources) {
   dots <- list(...)
   which.residuals <- which(!is.na(sapply(names(dots), 
-                                         function(x) pmatch(x, c("residuals", "partial.residuals")))))
+                           function(x) pmatch(x, c("residuals", "partial.residuals")))))
   if (length(which.residuals) != 0){
     if (isTRUE(dots[[which.residuals]]) && missing(xlevels)) xlevels <- list()
   }
@@ -93,7 +92,9 @@ predictorEffects.default <- function(mod, predictors = ~ ., focal.levels=50, xle
       replace(x, -1, lapply(x[-1], proc))
     }
     update(proc(x), . ~ . - offset)}
-  mform <- no.offset(find_formula(mod)$conditional) # replacement for next line
+  sources <- if(missing(sources)) effSources(mod) else sources
+  form <- if(is.null(sources$formula)) {find_formula(mod)$conditional} else sources$formula
+  mform <- no.offset(form) # replacement for next line
 #  mform <- no.offset(Effect.default(NULL, mod))  # returns the fixed-effect formula for any method
   cform <- if(is.character(predictors)) 
     as.formula(paste("~", paste(predictors, collapse="+"))) else
@@ -131,7 +132,8 @@ predictorEffects.default <- function(mod, predictors = ~ ., focal.levels=50, xle
     result <- list()
     for(p in cvars){
       flevs <- if (is.numeric(focal.levels)) focal.levels else focal.levels[[p]]
-      result[[p]] <- predictorEffect(p, mod, focal.levels=flevs, xlevels=xlevels, ...)
+      result[[p]] <- predictorEffect(p, mod, focal.levels=flevs, xlevels=xlevels, ...,
+                                     sources=sources)
     }
   }
   class(result) <- c("predictorefflist", "efflist", "list")

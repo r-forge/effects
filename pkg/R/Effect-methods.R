@@ -10,54 +10,35 @@
 # 4/27/2020:  require 'insight' package for find_formula and get_coefficients
 #             so formula and coefficients are generally not needed
 # 2020-06-13: fix typo (omitted ') in an error message
+# 2020-06-23: All the Effect.* methods previously in this file have been removed
+#             and replaced by effSources.* methods.  
 
+effSources <- function(mod){
+  UseMethod("effSources", mod)
+}
 
+effSources.default <- function(mod){NULL}
 
-# lme method
-#Effect.lme <- function(focal.predictors, mod, ...){
-#  args <- list()
-#  Effect.default(focal.predictors, mod, ..., sources=args)
-#}
+# lme, nlme package - default works
 
-
-
-# new gls method
-Effect.gls <- function(focal.predictors, mod, ...){
+# gls, nlme package
+effSources.gls <- function(mod){
   cl <- mod$call
   cl$weights <- NULL
-  args <- list(
-    call = cl)
-  Effect.default(focal.predictors, mod, ..., sources=args)
+  list(call = cl)
 }
 
-# new glmmPQL method 3/22/2020
-Effect.glmmPQL <- function(focal.predictors, mod, ...){
-  args <- list(
-    family = mod$family)
-  Effect.default(focal.predictors, mod, ..., sources=args)
-}
+# glmmPQL method 3/22/2020
+effSources.glmmPQL <- function(mod) {list(family = mod$family)}
 
-Effect.merMod <- function(focal.predictors, mod, ..., KR=FALSE){
-  if (KR && !requireNamespace("pbkrtest", quietly=TRUE)){
-    KR <- FALSE
-    warning("pbkrtest is not available, KR set to FALSE")}
-  fam <- family(mod)
-  args <- list(
-    family=fam,
-    vcov = if (fam$family == "gaussian" && fam$link == "identity" && KR)
-      as.matrix(pbkrtest::vcovAdj(mod)) else insight::get_varcov(mod))
-  Effect.default(focal.predictors, mod, ..., sources=args)
-}
+# lme4 -- handled via an Effect method to allow for KR argument
+# effSources.merMod <- function(mod){NULL}
 
-# rlmer in robustlmm package
-Effect.rlmerMod <- function(focal.predictors, mod, ...){
-  args <- list(
-    family=family(mod))
-  Effect.default(focal.predictors, mod, ..., sources=args)
-}
+# rlmer in robustlmm package, not really needed
+effSources.rlmerMod <- function(mod){NULL}
 
 # clm in the ordinal package. clm is not supported by insight package
-Effect.clm <- function(focal.predictors, mod, ...){
+effSources.clm <- function(mod){
   if (requireNamespace("MASS", quietly=TRUE)){
     polr <- MASS::polr} else stop("MASS package is required")
   polr.methods <- c("logistic", "probit", "loglog", 
@@ -71,17 +52,16 @@ Effect.clm <- function(focal.predictors, mod, ...){
   numTheta <- length(mod$Theta)
   numBeta <- length(mod$beta)
   or <- c( (numTheta+1):(numTheta + numBeta), 1:(numTheta))
-  args <- list(
+  list(
     type = "polr",
     coefficients = mod$beta,
     zeta = mod$alpha,  
     method=method,
     vcov = as.matrix(vcov(mod)[or, or]))
-  Effect.default(focal.predictors, mod, ..., sources=args)
 }
 
 # clm2, this is supported by insight package
-Effect.clm2 <- function(focal.predictors, mod, ...){
+effSources.clm2 <- function(mod){
   if (requireNamespace("MASS", quietly=TRUE)){
       polr <- MASS::polr}
   polr.methods <- c("logistic", "probit", "loglog", 
@@ -97,18 +77,17 @@ Effect.clm2 <- function(focal.predictors, mod, ...){
   numTheta <- length(mod$Theta)
   numBeta <- length(mod$beta)
   or <- c( (numTheta+1):(numTheta + numBeta), 1:(numTheta))
-  args <- list(
+  list(
     type = "polr",
     formula = mod$call$location,
     coefficients = mod$beta,  
     zeta = mod$Theta,
     method=method,
     vcov = as.matrix(vcov(mod)[or, or]))
-  Effect.default(focal.predictors, mod, ..., sources=args)
 }
 
 #clmm in ordinal package
-Effect.clmm <- function(focal.predictors, mod, ...){ 
+effSources.clmm <- function(mod){ 
   if (requireNamespace("MASS", quietly=TRUE)){
     polr <- MASS::polr}
   else stop("The MASS package must be installed")
@@ -127,18 +106,17 @@ Effect.clmm <- function(focal.predictors, mod, ...){
   numBeta <- length(mod$beta)
   or <- c( (numTheta+1):(numTheta + numBeta), 1:(numTheta))
   Vcov <- as.matrix(vcov(mod)[or, or])
-  args <- list(
+  list(
     type = "polr",
     formula = insight::find_formula(mod)$conditional,
     coefficients = mod$beta,
     zeta=mod$alpha,
     method=method,
     vcov = as.matrix(Vcov))
-  Effect.default(focal.predictors, mod, ..., sources=args)
 }
 
 # betareg from the betareg package
-Effect.betareg <- function(focal.predictors, mod, ...){
+effSources.betareg <- function(mod){
   coef <- mod$coefficients$mean
   vco <- vcov(mod)[1:length(coef), 1:length(coef)]
 # betareg uses beta errors with mean link given in mod$link$mean.  
@@ -157,6 +135,6 @@ Effect.betareg <- function(focal.predictors, mod, ...){
     family=fam,
     coefficients = coef,
     vcov = vco)
-  Effect.default(focal.predictors, mod, ..., sources=args)
+  args
 }
 

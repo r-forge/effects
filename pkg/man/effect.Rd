@@ -2,8 +2,12 @@
 \alias{effect}
 \alias{effect.default}
 \alias{Effect}
+\alias{Effect.default}
 \alias{Effect.lm}
 \alias{Effect.multinom}
+\alias{Effect.merMod}
+\alias{Effect.mlm}
+\alias{Effect.poLCA}
 \alias{Effect.polr}
 \alias{Effect.svyglm}
 \alias{allEffects}
@@ -11,23 +15,23 @@
 
 \title{Functions For Constructing Effect Displays}
 \description{
-  \code{Effect} and \code{effect} construct an \code{"eff"} object for a term (usually a high-order term)
-  in a linear model (fit by \code{\link{lm}} or \code{\link{gls}}) or generalized linear model (fit by \code{\link{glm}}), or an
+  \code{Effect} and \code{effect} construct an \code{"eff"} object for a term (usually a high-order term) models that model a response as a linear function of main effects, covariates and interactions.  These models include
+   linear models (fit by \code{\link{lm}} or \code{\link{gls}}) or generalized linear model (fit by \code{\link{glm}}), or an
   \code{"effpoly"} object for a term in a
   multinomial or proportional-odds logit model (fit respectively by \code{\link{multinom}} or \code{\link{polr}}),
   absorbing the lower-order terms marginal
   to the term in question, and averaging over other terms in the model.  For multivariate linear models
   (of class \code{"mlm"}, fit by \code{\link{lm}}), the function constructs a list of \code{"eff"} objects separately for the various
-  response variables.
+  response variables. 
 
   \code{effect} builds the required object by specifying explicity a focal term like \code{"a:b"}
   for an \code{a} by \code{b} interaction.  \code{Effect} specifies the predictors in
   the term, for example \code{c("a", "b")}, rather than the term itself.  \code{Effect} is consequently
   more flexible and robust than
   \code{effect}, and will succeed with some models for which \code{effect} fails.  The \code{effect} function
-  works by constructing a call to \code{Effect}.
+  works by constructing a call to \code{Effect} and continues to be included in \code{effects} so older code that uses it will not break.
 
-  The \code{Effect} and \code{effect} functions can also be used with many other models; see \code{\link{Effect.default}} and the \href{../doc/adding-Effect-methods.pdf}{Defining Effect Methods for Other Models} vignette.
+  The \code{Effect} and \code{effect} functions can also be used with many other models; see \code{\link{Effect.default}} and the \href{../doc/methods-supported-by-effects.pdf}{Defining Effect Methods for Other Models} vignette.
 
   \code{allEffects} identifies all of the high-order terms in a model and returns
   a list of \code{"eff"} or \code{"effpoly"} objects (i.e., an object of type \code{"efflist"}).
@@ -65,6 +69,12 @@ Effect(focal.predictors, mod, ...)
     confint, confidence.level, given.values, typical)
 
 \method{Effect}{svyglm}(focal.predictors, mod, fixed.predictors, ...)
+
+\method{Effect}{merMod}(focal.predictors, mod, ..., KR=FALSE)
+    
+\method{Effect}{poLCA}(focal.predictors, mod, ...)
+
+\method{Effect}{mlm}(focal.predictors, mod, response, ...)
 
 allEffects(mod, ...)
 
@@ -158,6 +168,11 @@ allEffects(mod, ...)
   	(the default) effects are computed as individual-level probabilities
   	and logits.}
   \item{x}{an object of class \code{"eff"}, \code{"effpoly"}, or \code{"efflatent"}.}
+  \item{KR}{if \code{TRUE} and the \pkg{pbkrtest} package is installed,
+    use the Kenward-Roger coefficient covariance
+    matrix to compute effect standard errors for linear mixed models fit with \code{\link{lmer}}.}
+   \item{response}{for an \code{"mlm"} object, a vector containing the name(s) or indices of one or more response variable(s). The default is to use all responses in the model.}
+    
   \item{...}{arguments to be passed down.}
   \item{confint, confidence.level, given.values, typical, offset, partial.residuals, transformation}{legacy arguments retained for backwards compatability; if present, these arguments take precedence
   over \code{level} element of the \code{confint} list argument and the
@@ -191,7 +206,7 @@ allEffects(mod, ...)
 }
 
 \value{
-  For \code{lm}, \code{glm},\code{svyglm}, \code{mer} and \code{lme}, \code{effect} and \code{Effect} return
+  For \code{lm}, \code{glm}, \code{svyglm}, \code{mer} and \code{lme}, \code{effect} and \code{Effect} return
   an \code{"eff"} object, and for \code{multinom},
   \code{polr}, \code{clm}, \code{clmm} and \code{clm2}, an \code{"effpoly"} object, with the components listed below.
   For an \code{"mlm"} object with one response specified, an \code{"eff"} object is returned, otherwise an \code{"efflist"} object
@@ -253,11 +268,10 @@ and of class \code{"effpoly"} with more than 2 categories.
   (as, e.g., in \code{y ~ as.factor(income)}) will cause errors. Instead, create the modified variables outside of the model
   formula (e.g., \code{fincome <- as.factor(income)}) and use these in the model formula.
 
-  Factors cannot have colons in level names (e.g., \code{"level:A"}) if you use the \code{effect} function, which will confuse the
-  colons with interactions; rename levels to remove or replace the colons (e.g., \code{"level.A"}). The \code{Effect} function, however,
-  works correctly in this situation.
+  Factors cannot have colons in level names (e.g., \code{"level:A"}); the \code{effect} function will confuse the
+  colons with interactions; rename levels to remove or replace the colons (e.g., \code{"level.A"}).
 
-  The functions in the \pkg{effects} package work properly with predictors that are numeric variables, factors, character variables, or logical variables; consequently, e.g., convert dates to numeric. Character predictors and logical predictors are treated as factors, the latter with "levels" \code{"FALSE"} and \code{"TRUE"}. Matrix predictors (i.e., matrix columns in a data frame used in a model formula) are not supported and will produce a warning message and possibly an error; \code{Effect} tries to convert one-column matrix predictors to vectors, with a warning.
+  The functions in the \pkg{effects} package work properly with predictors that are numeric variables, factors, character variables, or logical variables; consequently, e.g., convert dates to numeric. Character predictors and logical predictors are treated as factors, the latter with "levels" \code{"FALSE"} and \code{"TRUE"}.
 
   Empty cells in crossed-factors are now permitted for \code{"lm"}, \code{"glm"}, and \code{"multinom"} models.
   For \code{"multinom"} models with two or more crossed factors with an empty cell, stacked area plots
@@ -304,6 +318,9 @@ and of class \code{"effpoly"} with more than 2 categories.
     	    Extensions to the effects package.
     \emph{Journal of Statistical Software}
     \bold{32:1}, 1--24, <\url{http://www.jstatsoft.org/v32/i01/}>.
+    
+    Fox, J. and S. Weisberg (2019).  An R Companion to Applied Regression, third edition,
+    Thousand Oaks: Sage.
 
     Fox, J. and S. Weisberg (2018).
     Visualizing Fit and Lack of Fit in Complex Regression Models
@@ -333,7 +350,7 @@ and Jangman Hong.}
     \code{\link{print.effpoly}}, \code{\link{summary.effpoly}}, \code{\link{plot.effpoly}},
     \code{\link{print.efflist}}, \code{\link{summary.efflist}},
     \code{\link{plot.efflist}}, \code{\link{xyplot}},
-    \code{\link{densityplot}}, and the \href{../doc/partial-residuals.pdf}{Effect Displays with Partial Residuals} and \href{../doc/adding-Effect-methods.pdf}{Defining Effect Methods for Other Models} vignettes.}
+    \code{\link{densityplot}}, and the \href{../doc/partial-residuals.pdf}{Effect Displays with Partial Residuals} and \href{../doc/methods-supported-by-effects.pdf}{Defining Effect Methods for Other Models} vignettes.}
 
 \examples{
 mod.cowles <- glm(volunteer ~ sex + neuroticism*extraversion,
