@@ -52,9 +52,9 @@ S3method(effSources,default)
 S3method(effSources,glmmPQL)
 S3method(effSources,gls)
 S3method(effSources,rlmerMod)
-#export(effSources,effSources.default,effSources.gls,effSources.glmmPQL,
-#       effSources.rlmerMod,effSources.clm,effSources.clm2,
-#       effSources.clmm,effSources.betareg)
+export(effSources,effSources.default,effSources.gls,effSources.glmmPQL,
+       effSources.rlmerMod,effSources.clm,effSources.clm2,
+       effSources.clmm,effSources.betareg)
 
 S3method(print, eff)
 S3method(print, efflist)
