@@ -31,7 +31,7 @@
   \code{effect}, and will succeed with some models for which \code{effect} fails.  The \code{effect} function
   works by constructing a call to \code{Effect} and continues to be included in \code{effects} so older code that uses it will not break.
 
-  The \code{Effect} and \code{effect} functions can also be used with many other models; see \code{\link{Effect.default}} and the \href{../doc/methods-supported-by-effects.pdf}{Defining Effect Methods for Other Models} vignette.
+  The \code{Effect} and \code{effect} functions can also be used with many other models; see \code{\link{Effect.default}} and the \href{../doc/methods-supported-by-effects.pdf}{Regression Models Supported by the Effects Package} vignette.
 
   \code{allEffects} identifies all of the high-order terms in a model and returns
   a list of \code{"eff"} or \code{"effpoly"} objects (i.e., an object of type \code{"efflist"}).
@@ -350,7 +350,7 @@ and Jangman Hong.}
     \code{\link{print.effpoly}}, \code{\link{summary.effpoly}}, \code{\link{plot.effpoly}},
     \code{\link{print.efflist}}, \code{\link{summary.efflist}},
     \code{\link{plot.efflist}}, \code{\link{xyplot}},
-    \code{\link{densityplot}}, and the \href{../doc/partial-residuals.pdf}{Effect Displays with Partial Residuals} and \href{../doc/methods-supported-by-effects.pdf}{Defining Effect Methods for Other Models} vignettes.}
+    \code{\link{densityplot}}, and the \href{../doc/partial-residuals.pdf}{Effect Displays with Partial Residuals} and \href{../doc/methods-supported-by-effects.pdf}{Regression Models Supported by the Effects Package} vignettes.}
 
 \examples{
 mod.cowles <- glm(volunteer ~ sex + neuroticism*extraversion,

@@ -1,5 +1,5 @@
 %\VignetteEngine{knitr::knitr}
-%\VignetteIndexEntry{Regression Models Supported by the Effects Packaage}
+%\VignetteIndexEntry{Regression Models Supported by the Effects Package}
 
 \documentclass{article}
 

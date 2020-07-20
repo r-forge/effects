@@ -59,7 +59,7 @@ If the default \code{~ .}, a predictor effect plot is drawn for each predictor (
   \item{\dots}{
 Additional arguments passed to \code{\link{Effect}}.
 }
-\item{sources}{Provides a mechanism for applying effect methods to a variety of regression models; see the vignette \href{../doc/methods-supported-by-effects.pdf}{Defining Effect Methods for Other Models} for an explanation}
+\item{sources}{Provides a mechanism for applying effect methods to a variety of regression models; see the vignette \href{../doc/methods-supported-by-effects.pdf}{Regression Models Supported by the Effects Package} for an explanation}
 }
 \details{
 Effect plots view a fitted regression function E(Y|X) in (sequences of) two-dimensional plots using conditioning and slicing.  The functions described here use a different method of determining the conditioning and slicing than \code{allEffects} uses.  The predictor effect of a focal predictor, say \code{x1},is the  usual effect for the generalized interaction of \code{x1} with all the other predictors in a model.  When a predictor effect object is plotted, the focal predictor is by default plotted on the horizontal axis.
