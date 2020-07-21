@@ -1,5 +1,5 @@
 %\VignetteEngine{knitr::knitr}
-%\VignetteIndexEntry{Regression Models Supported by the Effects Package}
+%\VignetteIndexEntry{Regression Models Supported by the effects Package}
 
 \documentclass{article}
 
@@ -52,11 +52,11 @@
 
 \begin{document}
 
-\title{Regression Methods Supported by the Effects Package}
+\title{Regression Methods Supported by the effects Package}
 
 \author{John Fox and Sanford Weisberg}
 
-\date{\today}
+\date{2020-07-21}
 
 \maketitle
 
