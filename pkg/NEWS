@@ -1,3 +1,7 @@
+Version 4.2-1
+
+ o Fixed bug in plot.eff() for multiline plots in which the x.var argument is set explicitly (reported by Gerrit Eichner).
+
 Version 4.2-0
 
  o Adding the use of the insight package to get formulas.
