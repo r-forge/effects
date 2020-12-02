@@ -1,5 +1,7 @@
 Version 4.2-1
 
+ o Allow vcov. the call to one of the effect methods to be a matrix or a function.  Previously only a function was permitted.
+ 
  o Fixed bug in plot.eff() for multiline plots in which the x.var argument is set explicitly (reported by Gerrit Eichner).
 
 Version 4.2-0

@@ -48,6 +48,7 @@
 # 2020-05-27: Added effCoef generic that uses the 'insight' package to find the formula, coef estimates and vcov for methods supported by insight
 # 2020-06-23: Added effSources to gather sources for new regression methods.  
 #             Old mechanism of using Effect.method will still work
+# 2020-12-02: Allow cov. to be a matrix, not just a function.
 
 ### Non-exported function added 2018-01-22 to generalize given.values to allow for "equal" weighting of factor levels for non-focal predictors.
 .set.given.equal <- function(m){
@@ -367,7 +368,7 @@ Effect.lm <- function(focal.predictors, mod, xlevels=list(), fixed.predictors,
         scheffe(confidence.level, p, mod$df.residual)
       }
     }
-    V <- vcov.(mod, complete=FALSE)
+    V <- if(inherits(vcov., "matrix")) vcov. else vcov.(mod, complete=FALSE)
     mmat <- mod.matrix[, !is.na(mod$coefficients)] # remove non-cols with NA coeffs
     eff.vcov <- mmat %*% V %*% t(mmat)
     rownames(eff.vcov) <- colnames(eff.vcov) <- NULL
@@ -453,7 +454,7 @@ Effect.multinom <- function(focal.predictors, mod,
   resp.names <- make.names(mod$lev, unique=TRUE)
   resp.names <- c(resp.names[-1], resp.names[1]) # make the last level the reference level
   B <- t(coef(mod))
-  V <- vcov.(mod)
+  V <- if(inherits(vcov., "matrix")) vcov. else vcov.(mod)
   m <- ncol(B) + 1
   p <- nrow(B)
   r <- p*(m - 1)
@@ -614,8 +615,9 @@ Effect.polr <- function(focal.predictors, mod,
                  y.levels=mod$lev, variables=x,
                  x=predict.data[, focal.predictors, drop=FALSE],
                  model.matrix=X0, data=X, discrepancy=0, model="polr")
-  if (latent){
-    res <- eff.latent(X0, b, vcov.(mod)[1:p, 1:p], se)
+  if (latent){ 
+    V <- if(inherits(vcov., "matrix")) vcov. else vcov.(mod)[1:p, 1:p]
+    res <- eff.latent(X0, b, V, se)
     result$fit <- res$fit
     if (se){
       result$se <- res$se
@@ -634,7 +636,7 @@ Effect.polr <- function(focal.predictors, mod,
   m <- length(alpha) + 1
   r <- m + p - 1
   indices <- c((p+1):r, 1:p)
-  V <- vcov.(mod)[indices, indices]
+  V <- if(inherits(vcov., "matrix")) vcov. else vcov.(mod)[indices, indices]
   for (j in 1:(m-1)){  # fix up the signs of the covariances
     V[j,] <- -V[j,]  #  for the intercepts
     V[,j] <- -V[,j]}

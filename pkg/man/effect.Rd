@@ -105,7 +105,7 @@ For example, for a factor \code{X} with three levels \code{a}, \code{b} and \cod
   }
 }
 
-  \item{vcov.}{A function or the name of a function that returns the estimated variance-covariance matrix of the estimated coefficients.  This will ordinarily be the default, \code{\link{vcov}}, which will result in the function call \code{vcov(mod)} to get the variance-covariance matrix. You can use any function that takes the model object as its first argument and returns an estimated sample covariance matrix, such as the \code{\link[car]{hccm}} function in the \pkg{car} package, which returns a heteroscedasticity corrected covariance matrix for a linear model.}
+  \item{vcov.}{A function or the name of a function that returns the estimated variance-covariance matrix of the estimated coefficients, or else a matrix of the correct dimension.  This will ordinarily be the default, \code{\link{vcov}}, which will result in the function call \code{vcov(mod)} to get the variance-covariance matrix. You can use any function that takes the model object as its first argument and returns an estimated sample covariance matrix, such as the \code{\link[car]{hccm}} function in the \pkg{car} package, which returns a heteroscedasticity corrected covariance matrix for a linear model.}
   
   \item{se}{\code{TRUE} (the default), \code{FALSE}, or a list with any or all of the following elements, controlling whether and how standard errors and confidence limits are computed for the effects: 
   \describe{
