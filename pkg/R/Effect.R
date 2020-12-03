@@ -368,7 +368,9 @@ Effect.lm <- function(focal.predictors, mod, xlevels=list(), fixed.predictors,
         scheffe(confidence.level, p, mod$df.residual)
       }
     }
-    V <- if(inherits(vcov., "matrix")) vcov. else vcov.(mod, complete=FALSE)
+    V <- if(inherits(vcov., "matrix")) vcov. else {
+            if(inherits(vcov., "function")) vcov.(mod, complete=FALSE) 
+            else stop("vcov. must be a function or matrix")}
     mmat <- mod.matrix[, !is.na(mod$coefficients)] # remove non-cols with NA coeffs
     eff.vcov <- mmat %*% V %*% t(mmat)
     rownames(eff.vcov) <- colnames(eff.vcov) <- NULL
@@ -454,7 +456,9 @@ Effect.multinom <- function(focal.predictors, mod,
   resp.names <- make.names(mod$lev, unique=TRUE)
   resp.names <- c(resp.names[-1], resp.names[1]) # make the last level the reference level
   B <- t(coef(mod))
-  V <- if(inherits(vcov., "matrix")) vcov. else vcov.(mod)
+  V <- if(inherits(vcov., "matrix")) vcov. else {
+         if(inherits(vcov., "function")) vcov.(mod) 
+         else stop("vcov. must be a function or matrix")}
   m <- ncol(B) + 1
   p <- nrow(B)
   r <- p*(m - 1)
@@ -616,7 +620,9 @@ Effect.polr <- function(focal.predictors, mod,
                  x=predict.data[, focal.predictors, drop=FALSE],
                  model.matrix=X0, data=X, discrepancy=0, model="polr")
   if (latent){ 
-    V <- if(inherits(vcov., "matrix")) vcov. else vcov.(mod)[1:p, 1:p]
+    V <- if(inherits(vcov., "matrix")) vcov.[1:p, 1:p] else {
+            if(inherits(vcov., "function")) vcov.(mod)[1:p, 1:p] 
+            else stop("vcov. must be a function or matrix")}
     res <- eff.latent(X0, b, V, se)
     result$fit <- res$fit
     if (se){
@@ -636,7 +642,9 @@ Effect.polr <- function(focal.predictors, mod,
   m <- length(alpha) + 1
   r <- m + p - 1
   indices <- c((p+1):r, 1:p)
-  V <- if(inherits(vcov., "matrix")) vcov. else vcov.(mod)[indices, indices]
+  V <- if(inherits(vcov., "matrix")) vcov.[indices, indices] else {
+         if(inherits(vcov., "function")) vcov.(mod)[indices, indices] 
+         else stop("vcov. must be a function or matrix")}  
   for (j in 1:(m-1)){  # fix up the signs of the covariances
     V[j,] <- -V[j,]  #  for the intercepts
     V[,j] <- -V[,j]}
