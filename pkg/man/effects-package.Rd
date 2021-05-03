@@ -13,24 +13,24 @@ various statistical models with linear predictors.
 \details{
 \tabular{ll}{
 Package: \tab effects\cr
-Version: \tab 4.1-5\cr
-Date: \tab 2020-02-08\cr
+Version: \tab 4.2-1\cr
+Date: \tab 2021-05-03\cr
 Depends: \tab R (>= 3.5.0), carData\cr
-Suggests: \tab pbkrtest (>= 0.4-4), nlme, MASS, poLCA, heplots, splines, ordinal, car, knitr, betareg, alr4\cr
-Imports: \tab lme4, nnet, lattice, grid, colorspace, graphics, grDevices, stats, survey, utils, estimability\cr
+Suggests: \tab pbkrtest (>= 0.4-4), nlme, MASS, poLCA, heplots, splines, ordinal, car, knitr, betareg, alr4, robustlmm\cr
+Imports: \tab lme4, nnet, lattice, grid, colorspace, graphics, grDevices, stats, survey, utils, estimability, insight\cr
 LazyLoad: \tab yes\cr
 LazyData: \tab yes\cr
 License: \tab GPL (>= 2)\cr
-URL: \tab https://www.r-project.org, http://socserv.socsci.mcmaster.ca/jfox/\cr
+URL: \tab https://www.r-project.org, https://socialsciences.mcmaster.ca/jfox/\cr
 }
 
 This package creates effect displays for various kinds of models, as partly explained in the references.
 Typical usage is \code{plot(allEffects(model))} or \code{plot(predictorEffects(model))},
 where \code{model} is an appropriate fitted-model object.
-Additional arguments to \code{allEffects}, \code{predictorEffects} and \code{plot} can be used to customize the resulting
-displays. The function \code{effect} can be employed to produce an effect display for a 
-particular term in the model, or to which terms in the model are marginal. The function \code{predictorEffect} can be used
-to construct an effect display for a particularly predictor. The function \code{Effect}
+Additional arguments to \code{\link{allEffects}}, \code{\link{predictorEffects}} and \code{\link{plot}} can be used to customize the resulting
+displays. The function \code{\link{effect}} can be employed to produce an effect display for a 
+particular term in the model, or to which terms in the model are marginal. The function \code{\link{predictorEffect}} can be used
+to construct an effect display for a particularly predictor. The function \code{\link{Effect}}
 may similarly be used to produce an effect display for any combination of predictors. In any of the cases, use \code{plot}
 to graph the resulting effect object. For linear and generalized linear models it is also possible to plot 
 partial residuals to obtain (multidimensional) component+residual plots.
@@ -38,7 +38,7 @@ See \code{?effect}, \code{?Effect}, \code{?predictorEffect}, and \code{?plot.eff
 }
 
 \author{
-John Fox, Sanford Weisberg, Michael Friendly, Jangman Hong, 
+John Fox, Sanford Weisberg, Brad Price, Michael Friendly, Jangman Hong, 
 Robert Anderson, David Firth, Steve Taylor, and the R Core Team. 
 
 Maintainer: John Fox <jfox@mcmaster.ca>
