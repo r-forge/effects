@@ -19,7 +19,6 @@ Depends: \tab R (>= 3.5.0), carData\cr
 Suggests: \tab pbkrtest (>= 0.4-4), nlme, MASS, poLCA, heplots, splines, ordinal, car, knitr, betareg, alr4, robustlmm\cr
 Imports: \tab lme4, nnet, lattice, grid, colorspace, graphics, grDevices, stats, survey, utils, estimability, insight\cr
 LazyLoad: \tab yes\cr
-LazyData: \tab yes\cr
 License: \tab GPL (>= 2)\cr
 URL: \tab https://www.r-project.org, https://socialsciences.mcmaster.ca/jfox/\cr
 }
