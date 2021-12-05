@@ -14,7 +14,7 @@ various statistical models with linear predictors.
 \tabular{ll}{
 Package: \tab effects\cr
 Version: \tab 4.2-1\cr
-Date: \tab 2021-05-03\cr
+Date: \tab 2021-12-05\cr
 Depends: \tab R (>= 3.5.0), carData\cr
 Suggests: \tab pbkrtest (>= 0.4-4), nlme, MASS, poLCA, heplots, splines, ordinal, car, knitr, betareg, alr4, robustlmm\cr
 Imports: \tab lme4, nnet, lattice, grid, colorspace, graphics, grDevices, stats, survey, utils, estimability, insight\cr
@@ -56,7 +56,7 @@ Maintainer: John Fox <jfox@mcmaster.ca>
     Fox, J. (2003)
     Effect displays in R for generalised linear models.
     \emph{Journal of Statistical Software}
-    \bold{8:15}, 1--27, <\url{https://www.jstatsoft.org/article/view/v008i15}>.
+    \bold{8:15}, 1--27, \doi{10.18637/jss.v008.i15}.
     
     Fox, J. and R. Andersen (2006)
     Effect displays  for multinomial and proportional-odds logit models.
@@ -67,13 +67,13 @@ Maintainer: John Fox <jfox@mcmaster.ca>
     Effect displays in R for multinomial and proportional-odds logit models: 
         Extensions to the effects package.
     \emph{Journal of Statistical Software}
-    \bold{32:1}, 1--24, <\url{https://www.jstatsoft.org/article/view/v032i01}>.
+    \bold{32:1}, 1--24, \doi{10.18637/jss.v032.i01}.
     
     Fox, J. and S. Weisberg (2018).
     Visualizing Fit and Lack of Fit in Complex Regression Models:
         Effect Plots with Partial Residuals.
     \emph{Journal of Statistical Software}
-    \bold{87:9}, 1--27, <\url{https://www.jstatsoft.org/article/view/v087i09}>.
+    \bold{87:9}, 1--27, \doi{10.18637/jss.v087.i09}.
 }
 
 

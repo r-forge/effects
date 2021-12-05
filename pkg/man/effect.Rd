@@ -232,7 +232,7 @@ The functions in the \pkg{effects} package work properly with predictors that ar
     Fox, J. (2003)
     Effect displays in R for generalised linear models.
     \emph{Journal of Statistical Software}
-    \bold{8:15}, 1--27, <\url{https://www.jstatsoft.org/article/view/v008i15}>.
+    \bold{8:15}, 1--27, \doi{10.18637/jss.v008.i15}.
 
   	Fox, J. and R. Andersen (2006).
    	Effect displays for multinomial and proportional-odds logit models.
@@ -243,7 +243,7 @@ The functions in the \pkg{effects} package work properly with predictors that ar
     Effect displays in R for multinomial and proportional-odds logit models:?
     	    Extensions to the effects package.
     \emph{Journal of Statistical Software}
-    \bold{32:1}, 1--24, <\url{https://www.jstatsoft.org/article/view/v032i01}>.
+    \bold{32:1}, 1--24, \doi{10.18637/jss.v032.i01}.
     
     Fox, J. and S. Weisberg (2019).  \emph{An R Companion to Applied Regression, third edition},
     Thousand Oaks: Sage.
@@ -252,7 +252,7 @@ The functions in the \pkg{effects} package work properly with predictors that ar
     Visualizing Fit and Lack of Fit in Complex Regression Models
         with Predictor Effect Plots with Partial Residuals.
     \emph{Journal of Statistical Software}
-    \bold{87:9}, 1--27, <\url{https://www.jstatsoft.org/article/view/v087i09}>
+    \bold{87:9}, 1--27, \doi{10.18637/jss.v087.i09}.
 
     Hastie, T. J. (1992).
     Generalized additive models.
