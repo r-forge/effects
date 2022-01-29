@@ -335,8 +335,9 @@ Effect.lm <- function(focal.predictors, mod, xlevels=list(), fixed.predictors,
                                paste(focal.predictors, collapse="*"),
                                " effect are estimable")
   } else if ((n.not.estimable <- sum(!is.estimable)) > 0) {
-    message("Note: ", n.not.estimable, " values in the ", 
-            paste(focal.predictors, collapse="*"),
+    message("Note:\n  ", n.not.estimable,
+            if (n.not.estimable > 1) " values" else " value",
+            " in the ",  paste(focal.predictors, collapse="*"),
             " effect are not estimable")
     }
     # substitute 0 for NA in coef vector and compute effects
