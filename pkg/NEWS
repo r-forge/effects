@@ -1,3 +1,7 @@
+Version 4.2-2
+
+ o Added warning or note about unestimable effects.
+
 Version 4.2-1
 
  o Allow the vcov. argument in the call to one of the effect methods to be a matrix or a function.  Previously only a function was permitted.

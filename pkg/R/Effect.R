@@ -49,6 +49,7 @@
 # 2020-06-23: Added effSources to gather sources for new regression methods.  
 #             Old mechanism of using Effect.method will still work
 # 2020-12-02: Allow cov. to be a matrix, not just a function.
+# 2022-01-29: Added warning or note about unestimable effects.
 
 ### Non-exported function added 2018-01-22 to generalize given.values to allow for "equal" weighting of factor levels for non-focal predictors.
 .set.given.equal <- function(m){
@@ -325,11 +326,20 @@ Effect.lm <- function(focal.predictors, mod, xlevels=list(), fixed.predictors,
                                    excluded.predictors, typical, given.values, 
                                    apply.typical.to.factors) 
 # 11/3/2017.  Check to see if the model is full rank
-  # Compute a basis for the null space, using estimibility package
+  # Compute a basis for the null space, using estimability package
   null.basis <- estimability::nonest.basis(mod)  # returns basis for null space
   # check to see if each row of mod.matrix is estimable
   is.estimable <- estimability::is.estble(mod.matrix, null.basis) # TRUE if effect is estimable else FALSE
-  # substitute 0 for NA in coef vector and compute effects
+  if (!any(is.estimable)) {
+    warning("none of the values of the ",
+                               paste(focal.predictors, collapse="*"),
+                               " effect are estimable")
+  } else if ((n.not.estimable <- sum(!is.estimable)) > 0) {
+    message("Note: ", n.not.estimable, " values in the ", 
+            paste(focal.predictors, collapse="*"),
+            " effect are not estimable")
+    }
+    # substitute 0 for NA in coef vector and compute effects
   scoef <- ifelse(is.na(mod$coefficients), 0L, mod$coefficients)
   effect <- off + mod.matrix %*% scoef
   effect[!is.estimable] <- NA  # set all non-estimable effects to NA
@@ -371,7 +381,10 @@ Effect.lm <- function(focal.predictors, mod, xlevels=list(), fixed.predictors,
     V <- if(inherits(vcov., "matrix")) vcov. else {
             if(inherits(vcov., "function")) vcov.(mod, complete=FALSE) 
             else stop("vcov. must be a function or matrix")}
-    mmat <- mod.matrix[, !is.na(mod$coefficients)] # remove non-cols with NA coeffs
+    use <- !is.na(mod$coefficients) # new
+    # mmat <- mod.matrix[, !is.na(mod$coefficients)] # remove non-cols with NA coeffs
+    mmat <- mod.matrix[, use] # remove non-cols with NA coeffs # new
+    if (any(is.na(V))) V <- V[use, use] # new
     eff.vcov <- mmat %*% V %*% t(mmat)
     rownames(eff.vcov) <- colnames(eff.vcov) <- NULL
     var <- diag(eff.vcov)
