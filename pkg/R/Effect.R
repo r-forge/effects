@@ -50,6 +50,7 @@
 #             Old mechanism of using Effect.method will still work
 # 2020-12-02: Allow cov. to be a matrix, not just a function.
 # 2022-01-29: Added warning or note about unestimable effects.
+# 2022-02-16: Make computation of residual df more robust.
 
 ### Non-exported function added 2018-01-22 to generalize given.values to allow for "equal" weighting of factor levels for non-focal predictors.
 .set.given.equal <- function(m){
@@ -372,11 +373,13 @@ Effect.lm <- function(focal.predictors, mod, xlevels=list(), fixed.predictors,
       }
     }
     else {
+      df.residual <- df.residual(mod)
+      if (is.null(df.residual) || is.na(df.residual)) df.residual <- Inf
       z <- if (confidence.type == "pointwise") {
-        qt(1 - (1 - confidence.level)/2, df = mod$df.residual)
+        qt(1 - (1 - confidence.level)/2, df = df.residual)
       } else {
         p <- length(na.omit(coef(mod)))
-        scheffe(confidence.level, p, mod$df.residual)
+        scheffe(confidence.level, p, df.residual)
       }
     }
     V <- if(inherits(vcov., "matrix")) vcov. else {

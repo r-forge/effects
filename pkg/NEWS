@@ -1,6 +1,8 @@
 Version 4.2-2
 
  o Added warning or note about unestimable effects.
+ 
+ o More robust computation of residual df in Effect.lm(), to accommodate broader classes of models.
 
 Version 4.2-1
 
