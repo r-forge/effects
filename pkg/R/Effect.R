@@ -143,7 +143,7 @@ Effect.default <- function(focal.predictors, mod, ..., sources){
     if(!is.null(fam$variance)){
       if(length(formals(fam$variance)) > 1)
         stop("Effect plots are not implemented for families with more than
-             one parameter in the variance function (e.g., negitave binomials).")}
+             one parameter in the variance function (e.g., negative binomial).")}
   }
   cl$family <- fam
 # get the coefficient estimates and vcov from sources if present
