@@ -8,6 +8,10 @@
 \alias{plot.efflist}
 \alias{plot.mlm.efflist}
 \alias{[.efflist}
+\alias{levels2dates}
+\alias{levels2dates.eff}
+\alias{levels2dates.effpoly}
+
 
 \title{Plots of Effects and Predictor Effects}
 
@@ -51,6 +55,10 @@
     layout, key.args, use.splines)
     
 \method{plot}{mlm.efflist}(x, ...)
+
+levels2dates(effect, ...)
+\method{levels2dates}{eff}(effect, predictor, origin, evenly.spaced=TRUE, n, ...)
+\method{levels2dates}{effpoly}(effect, predictor, origin, evenly.spaced=TRUE, n, ...)
 }
 
 \arguments{
@@ -82,6 +90,12 @@
   \item{graphics}{if \code{TRUE} (the default), then the menu of terms to plot is presented in a dialog box rather than as a text menu.}
   
   \item{...}{arguments to be passed down. For \code{"predictoreff"} or \code{"predictorefflist"} objects, the arguments passed down can include all the arguments for \code{"eff"}.}
+  
+  \item{effect}{An object of class \code{"eff"} or \code{"effpoly"}.}
+  \item{predictor}{The quoted name of the date variable in the effect.}
+  \item{origin}{The date origin for the date variable: see Details}
+  \item{evenly.spaced}{Should the dates be evenly spaced? \code{TRUE} (the default) or \code{FALSE}: see Details.}
+  \item{n}{Number of tick marks for the date axis: see Details.}
   
 \item{multiline, z.var, rug, xlab, ylab, colors, cex, lty, lwd,
      ylim, xlim, factor.names, ci.style,
@@ -257,6 +271,8 @@ Other elements:
 
 }
 }
+
+The \code{levels2dates} function is provided to partially accommodate \code{"Date"} variables in effect plots, as long as the date variable is on the horizontal axis of the plot. The date variable must be converted to numeric in the fitted model. The purpose of \code{levels2dates} is to reconvert the numeric version of the date variable to dates to label axis tick marks in the graph. If the argument \code{evenly.spaced} is \code{TRUE} (which is the default), then the tick marks along the horizontal axis are evenly spaced between the minimum and maximum dates of the date variable in the effect; otherwise, the levels for the variable in the effect object are used. The number of tick marks is given by the \code{n} argument; if \code{n} isn't supplied (and \code{evenly.spaced=TRUE}), then the number of tick marks is taken from the number of levels for the variable in the effect object.
 }
 
 \value{
@@ -404,6 +420,34 @@ plot(p1, lines=list(multiline=TRUE),
 plot(p1, lines=list(multiline=TRUE), grid=TRUE,
      lattice=list(key.args=list(space="right", border=TRUE)),
      axes=list(y=list(transform=exp, lab="prestige")))
+     
+# plotting an effect with a date variable
+
+data("airquality", package="datasets")
+airquality$Date <- with(airquality, as.Date(paste("1973", Month, Day, sep="-"),
+                                            format="\%Y-\%m-\%d"))
+airquality$Date.num <- as.numeric(airquality$Date)
+m1.date <- lm(Ozone ~ Date.num + Solar.R + Wind + Temp, data=airquality)
+eff.date.1 <- Effect("Date.num", m1.date)
+plot(eff.date.1, axes=list(x=list(Date.num=list(lab="Date", 
+    ticks=list(at=levels2dates(eff.date.1 <- Effect("Date.num", m1.date)
+, "Date.num", "1970-01-01"))), 
+    rotate=45)), main="Date Effect")
+plot(eff.date.1, axes=list(x=list(Date.num=list(lab="Date", 
+    ticks=list(at=levels2dates(eff.date.1 <- Effect("Date.num", m1.date)
+, "Date.num", "1970-01-01", n=4))))), 
+    main="Date Effect")
+
+eff.date.df <- as.data.frame(eff.date.1)
+eff.date.df$Date <- as.Date(eff.date.df$Date.num, origin="1970-01-01")
+eff.date.df
+
+m2.date <- lm(Ozone ~ Date.num*Temp + Solar.R + Wind, data=airquality)
+eff.date.2 <- Effect(c("Date.num", "Temp"), m2.date, xlevels=6)
+plot(eff.date.2, axes=list(x=list(Date.num=list(lab="Date", 
+  ticks=list(at=levels2dates(eff.date.2, "Date.num", "1970-01-01", n=3))), 
+  rotate=45)), main="Date Effect by Temperature")
+
 }
 
 \keyword{hplot}

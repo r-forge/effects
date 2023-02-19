@@ -2,6 +2,8 @@ Version 4.2-3
 
   o Import version >= 1.4.1 of estimability to avoid bug in version 1.4.0 (suggestion of Russell Lenth).
   
+  o Added levels2dates(), with "eff" and "effpoly" methods, for limited support for plotting "Date" objects (request of Christoph Scherber).
+  
 Version 4.2-2
 
  o Added warning or note about unestimable effects.

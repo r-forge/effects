@@ -1,4 +1,4 @@
-# last modified 2020-7-22 by S. Weisberg
+# last modified 2023-02-19 by J. Fox
 
 import(carData)
 
@@ -26,6 +26,7 @@ export(predictorEffect, predictorEffects)
 export(Effect.default, effect.default, allEffects.default)
 export(effectsHexsticker)
 export(effCoef)
+export(levels2dates)
 S3method(plot, predictoreff)
 S3method(plot, predictorefflist)
 S3method(predictorEffects, default)
@@ -86,3 +87,5 @@ S3method(allEffects, mlm)
 S3method(effect, default)
 S3method(vcov, eff)
 S3method(`[`, efflist)
+S3method(levels2dates, effpoly)
+S3method(levels2dates, eff)
