@@ -430,12 +430,10 @@ airquality$Date.num <- as.numeric(airquality$Date)
 m1.date <- lm(Ozone ~ Date.num + Solar.R + Wind + Temp, data=airquality)
 eff.date.1 <- Effect("Date.num", m1.date)
 plot(eff.date.1, axes=list(x=list(Date.num=list(lab="Date", 
-    ticks=list(at=levels2dates(eff.date.1 <- Effect("Date.num", m1.date)
-, "Date.num", "1970-01-01"))), 
+    ticks=list(at=levels2dates(eff.date.1, "Date.num", "1970-01-01"))), 
     rotate=45)), main="Date Effect")
 plot(eff.date.1, axes=list(x=list(Date.num=list(lab="Date", 
-    ticks=list(at=levels2dates(eff.date.1 <- Effect("Date.num", m1.date)
-, "Date.num", "1970-01-01", n=4))))), 
+    ticks=list(at=levels2dates(eff.date.1, "Date.num", "1970-01-01", n=4))))), 
     main="Date Effect")
 
 eff.date.df <- as.data.frame(eff.date.1)
