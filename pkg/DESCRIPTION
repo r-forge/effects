@@ -1,6 +1,6 @@
 Package: effects
 Version: 4.2-3
-Date: 2023-02-20
+Date: 2025-07-21
 Title: Effect Displays for Linear, Generalized Linear, and Other Models
 Authors@R: c(person("John", "Fox", role = c("aut", "cre"), email = "jfox@mcmaster.ca"),
 	person("Sanford", "Weisberg", role = "aut", email = "sandy@umn.edu"),
@@ -18,5 +18,5 @@ Description:
   Graphical and tabular effect displays, e.g., of interactions, for 
   various statistical models with linear predictors.
 License: GPL (>= 2)
-URL: https://www.r-project.org, https://socialsciences.mcmaster.ca/jfox/
+URL: https://cran.r-project.org/package=effects, https://www.john-fox.ca/
 VignetteBuilder: knitr

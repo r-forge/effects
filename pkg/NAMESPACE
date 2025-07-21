@@ -1,4 +1,4 @@
-# last modified 2023-02-19 by J. Fox
+# last modified 2025-07-21 by J. Fox
 
 import(carData)
 
@@ -23,7 +23,6 @@ importFrom(utils, menu, browseURL)
 
 export(effect, allEffects, Effect, effectsTheme)
 export(predictorEffect, predictorEffects)
-export(Effect.default, effect.default, allEffects.default)
 export(effectsHexsticker)
 export(effCoef)
 export(levels2dates)
@@ -43,8 +42,9 @@ S3method(Effect, mlm)
 S3method(Effect, svyglm)
 S3method(Effect, multinom)
 S3method(Effect, polr)
+S3method(Effect, merMod)
 
-export(Effect,Effect.default,predictorEffect.default,predictorEffects.default)
+export(predictorEffect.default,predictorEffects.default)
 S3method(effSources,betareg)
 S3method(effSources,clm)
 S3method(effSources,clm2) 

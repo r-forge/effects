@@ -38,6 +38,7 @@
 # 2019-11-14: change class(x) == "y" to inherits(x, "y")
 # 2022-02-18: insure that levels of focal predictor in returned objects are in proper order (bug reported by Christoph Scherber, didn't affect plots or tables).
 # 2023-02-19: added levels2dates() and methods. J. Fox (request of Christoph Scherber).
+# 2025-07-21: rename to is_factor_predictor() and is_numeric_predictor() to avoid confusion. J. Fox
 
 has.intercept <- function(model, ...) any(names(coefficients(model))=="(Intercept)")
 
@@ -271,7 +272,7 @@ Analyze.model <- function(focal.predictors, mod, xlevels, default.levels=NULL, f
   factor.cols <- rep(FALSE, length(cnames))
   names(factor.cols) <- cnames
   for (name in all.predictors){
-    if (is.factor.predictor(name, mod)) {
+    if (is_factor_predictor(name, mod)) {
       factor.cols[grep(paste("^", name, sep=""), cnames)] <- TRUE
     }
   }
@@ -293,7 +294,7 @@ Analyze.model <- function(focal.predictors, mod, xlevels, default.levels=NULL, f
   }
   
   for (name in all.predictors){
-    if (is.factor.predictor(name, mod) && is.null(xlevels[[name]])) {
+    if (is_factor_predictor(name, mod) && is.null(xlevels[[name]])) {
       xlevels[[name]] <- levels(X[, name]) # accomodate logical predictor
     }
   }
@@ -336,7 +337,7 @@ Analyze.model <- function(focal.predictors, mod, xlevels, default.levels=NULL, f
     x[[name]] <- list(name=name, is.factor=is.factor(X[, name]), levels=levels)
   }
   if (partial.residuals){
-    numeric.predictors <- sapply(focal.predictors, function(predictor) is.numeric.predictor(predictor, mod))
+    numeric.predictors <- sapply(focal.predictors, function(predictor) is_numeric_predictor(predictor, mod))
     if (is.null(x.var)){
       x.var <- if (any(numeric.predictors)) which(numeric.predictors)[1]
       else 1
@@ -533,15 +534,15 @@ eff.latent <- function(X0, b, V, se){
 
 # determine class of a predictor
 
-# is.factor.predictor <- function(predictor, model) {
+# is_factor_predictor <- function(predictor, model) {
 #   !is.null(model$xlevels[[predictor]])
 # }
 
-is.factor.predictor <- function(predictor, model) {
+is_factor_predictor <- function(predictor, model) {
   predictor %in% names(attr(model.matrix(model), "contrasts"))
 }
 
-is.numeric.predictor <- function(predictor, model) {
+is_numeric_predictor <- function(predictor, model) {
   is.null(model$xlevels[[predictor]])
 }
 

@@ -15,7 +15,7 @@
 
 \title{Functions For Constructing Effect Displays}
 \description{
-  \code{Effect} and \code{effect} construct an \code{"eff"} object for a term (usually a high-order term) in a regression that models a response as a linear function of main effects and interactions of factors and covariates. These models include, among others, linear models (fit by \code{\link{lm}} and \code{\link{gls}}), and generalized linear models (fit by \code{\link{glm}}), for which an \code{"eff"} object is created, and multinomial and proportional-odds logit models (fit respectively by \code{\link{multinom}} and \code{\link{polr}}), for which an \code{"effpoly"} object is created. The computed effect absorbs the lower-order terms marginal to the term in question, and averages over other terms in the model.  For multivariate linear models (of class \code{"mlm"}, fit by \code{\link{lm}}), the functions construct a list of \code{"eff"} objects, separately for the various response variables in the model. 
+  \code{Effect} and \code{effect} construct an \code{"eff"} object for a term (usually a high-order term) in a regression that models a response as a linear function of main effects and interactions of factors and covariates. These models include, among others, linear models (fit by \code{\link[stats]{lm}} and \code{\link[nlme]{gls}}), and generalized linear models (fit by \code{\link[stats]{glm}}), for which an \code{"eff"} object is created, and multinomial and proportional-odds logit models (fit respectively by \code{\link[nnet]{multinom}} and \code{\link[MASS]{polr}}), for which an \code{"effpoly"} object is created. The computed effect absorbs the lower-order terms marginal to the term in question, and averages over other terms in the model.  For multivariate linear models (of class \code{"mlm"}, fit by \code{\link[stats]{lm}}), the functions construct a list of \code{"eff"} objects, separately for the various response variables in the model. 
 
 \code{effect} builds the required object by specifying explicitly a focal term like \code{"a:b"} for an \code{a} by \code{b} interaction.  \code{Effect} in contrast specifies the predictors in  a term, for example \code{c("a", "b")}, rather than the term itself.  \code{Effect} is consequently more flexible and robust than \code{effect}, and will succeed with some models for which \code{effect} fails.  The \code{effect} function works by constructing a call to \code{Effect} and continues to be included in \pkg{effects} so older code that uses it will not break.
 
@@ -94,14 +94,14 @@ allEffects(mod, ...)
       
 Character and logical predictors are treated as factors. 
 
-For example, for a factor \code{X} with three levels \code{a}, \code{b} and \code{c}, the regressors generated using the default \code{\link{contr.treatment}} parameterization for a factor will be named \code{Xb} and \code{Xc}, as the regressor for level \code{a} is excluded as the baseline level.  The specification \code{given.values=c(Xb=1/2, Xc=1/4)} would average over the levels of \code{X} with weight 1/2 for level \code{b}, 1/4 for \code{c}, and weight 1 = 1/2 - 1/4 = 1/4 for the baseline level \code{a}.  Setting \code{given.values=c(Xb=1)} would fix \code{X} at level \code{b}.
+For example, for a factor \code{X} with three levels \code{a}, \code{b} and \code{c}, the regressors generated using the default \code{\link[stats]{contr.treatment}} parameterization for a factor will be named \code{Xb} and \code{Xc}, as the regressor for level \code{a} is excluded as the baseline level.  The specification \code{given.values=c(Xb=1/2, Xc=1/4)} would average over the levels of \code{X} with weight 1/2 for level \code{b}, 1/4 for \code{c}, and weight 1 = 1/2 - 1/4 = 1/4 for the baseline level \code{a}.  Setting \code{given.values=c(Xb=1)} would fix \code{X} at level \code{b}.
 }
 
-  	  \item{typical}{a function to be applied to the columns of the model matrix over which the effect is "averaged"; with the exception of the \code{"svyglm"} method, the default is \code{\link{mean}}. For\code{"svyglm"} objects, the default is to use the survey-design weighted mean.}
+  	  \item{typical}{a function to be applied to the columns of the model matrix over which the effect is "averaged"; with the exception of the \code{"svyglm"} method, the default is \code{\link[base]{mean}}. For\code{"svyglm"} objects, the default is to use the survey-design weighted mean.}
 
       \item{apply.typical.to.factors}{It generally doesn't make sense to apply typical values that aren't means (e.g., medians) to the columns of the model-matrix representing contrasts for factors. This value generally defaults to \code{FALSE} except for \code{"svyglm"} objects, for which the default is \code{TRUE}, using the the survey-design weighted mean.}
 
-      \item{offset}{a function to be applied to the offset values (if there is an offset) in a linear or generalized linear model, or a mixed-effects model fit by \code{\link{lmer}} or \code{\link{glmer}}; or a numeric value, to which the offset will be set. The default is the \code{\link{mean}} function, and thus the offset will be set to its mean; in the case of \code{"svyglm"} objects, the default is to use the survey-design weighted mean. \emph{Note:} Only offsets defined by the \code{offset} argument to \code{\link{lm}}, \code{\link{glm}}, \code{\link{svyglm}}, \code{\link{lmer}}, or \code{\link{glmer}} will be handled correctly; use of the \code{offset} function in the model formula is not supported.}
+      \item{offset}{a function to be applied to the offset values (if there is an offset) in a linear or generalized linear model, or a mixed-effects model fit by \code{\link[lme4]{lmer}} or \code{\link[lme4]{glmer}}; or a numeric value, to which the offset will be set. The default is the \code{\link[base]{mean}} function, and thus the offset will be set to its mean; in the case of \code{"svyglm"} objects, the default is to use the survey-design weighted mean. \emph{Note:} Only offsets defined by the \code{offset} argument to \code{\link[stats]{lm}}, \code{\link[stats]{glm}}, \code{\link[survey]{svyglm}}, \code{\link[lme4]{lmer}}, or \code{\link[lme4]{glmer}} will be handled correctly; use of the \code{offset} function in the model formula is not supported.}
   }
 }
 
@@ -128,7 +128,7 @@ For example, for a factor \code{X} with three levels \code{a}, \code{b} and \cod
   
   \item{x}{an object of class \code{"eff"}, \code{"effpoly"}, or \code{"efflatent"}.}
   
-  \item{KR}{if \code{TRUE} and the \pkg{pbkrtest} package is installed, use the Kenward-Roger coefficient covariance matrix to compute effect standard errors for linear mixed models fit with \code{\link{lmer}}; the default is \code{FALSE} because the computation can be time-consuming.}
+  \item{KR}{if \code{TRUE} and the \pkg{pbkrtest} package is installed, use the Kenward-Roger coefficient covariance matrix to compute effect standard errors for linear mixed models fit with \code{\link[lme4]{lmer}}; the default is \code{FALSE} because the computation can be time-consuming.}
   
    \item{response}{for an \code{"mlm"} object, a vector containing the (quoted) name(s) or indices of one or more response variable(s). The default is to use all responses in the model.}
     
@@ -140,7 +140,7 @@ For example, for a factor \code{X} with three levels \code{a}, \code{b} and \cod
 \details{
   Normally, the functions to be used directly are \code{allEffects}, to return a list of high-order effects, and the generic \code{plot} function to plot the effects (see \code{\link{plot.efflist}}, \code{\link{plot.eff}}, and \code{\link{plot.effpoly}}). Alternatively, \code{Effect} can be used to vary a subset of predictors over their ranges, while other predictors are held to typical values.
   
-Plotting methods for effect objects call the \code{\link{xyplot}} (or in some cases, the \code{\link{densityplot}}) function in the \pkg{lattice} package. Effects may also be printed (implicitly or explicitly via \code{print}) or summarized (using \code{summary}) (see \code{\link{print.efflist}}, \code{\link{summary.efflist}}, \code{\link{print.eff}}, \code{\link{summary.eff}}, \code{\link{print.effpoly}}, and \code{\link{summary.effpoly}}).
+Plotting methods for effect objects call the \code{\link[lattice]{xyplot}} (or in some cases, the \code{\link[lattice]{densityplot}}) function in the \pkg{lattice} package. Effects may also be printed (implicitly or explicitly via \code{print}) or summarized (using \code{summary}) (see \code{\link{print.efflist}}, \code{\link{summary.efflist}}, \code{\link{print.eff}}, \code{\link{summary.eff}}, \code{\link{print.effpoly}}, and \code{\link{summary.effpoly}}).
 
   If asked, the \code{effect} function will compute effects for terms that have higher-order relatives in the model, averaging over those terms (which rarely makes sense), or for terms that do not appear in the model but are higher-order relatives of terms that do. For example, for the model \code{Y ~ A*B + A*C + B*C}, one could compute the effect corresponding to the absent term \code{A:B:C}, which absorbs the constant, the \code{A}, \code{B}, and \code{C} main effects, and the three two-way interactions. In either of these cases, a warning is printed.
 
@@ -214,11 +214,11 @@ The \code{effect} function doesn't work with factors that have colons in level n
 
 The functions in the \pkg{effects} package work properly with predictors that are numeric variables, factors, character variables, or logical variables; consequently, e.g., convert dates to numeric. Character predictors and logical predictors are treated as factors, the latter with "levels" \code{"FALSE"} and \code{"TRUE"}.
 
-  Empty cells in crossed-factors are now permitted for \code{"lm"}, \code{"glm"}, and \code{"multinom"} models. For \code{"multinom"} models with two or more crossed factors with an empty cell, stacked area plots apparently do not work because of a bug in the \code{\link{barchart}} function in the \pkg{lattice} package.  However, the default line plots do work.
+  Empty cells in crossed-factors are now permitted for \code{"lm"}, \code{"glm"}, and \code{"multinom"} models. For \code{"multinom"} models with two or more crossed factors with an empty cell, stacked area plots apparently do not work because of a bug in the \code{\link[lattice]{barchart}} function in the \pkg{lattice} package.  However, the default line plots do work.
 
   Offsets in linear and generalized linear models are supported, as are offsets in mixed models fit by \code{lmer} or \code{glmer}, but must be supplied through the \code{offset} argument to \code{lm}, \code{glm}, \code{lmer} or \code{glmer}; offsets supplied via calls to the \code{offset} function on the right-hand side of the model formula are not supported.
 
-  Fitting ordinal mixed models using \code{\link[ordinal]{clmm}} or \code{\link[ordinal:clmmOld]{clmm2}} permits many options, including a variety of link functions, scale functions, nominal regressors, and various methods for setting thresholds.  Effects are currently generated only for the default values of the arguments \code{scale}, \code{nominal}, \code{link}, and \code{threshold}, which is equivalent to fitting an ordinal-response mixed-effects model with a logit link. \code{Effect} can also be used with objects created by \code{\link[ordinal]{clm}} or \code{\link[ordinal:clmOld]{clm2}}, fitting ordinal response models with the same links permitted by \code{\link{polr}} in the \pkg{MASS} package, with no random effects, and with results similar to those from \code{\link{polr}}.
+  Fitting ordinal mixed models using \code{\link[ordinal]{clmm}} or \code{\link[ordinal:clmmOld]{clmm2}} permits many options, including a variety of link functions, scale functions, nominal regressors, and various methods for setting thresholds.  Effects are currently generated only for the default values of the arguments \code{scale}, \code{nominal}, \code{link}, and \code{threshold}, which is equivalent to fitting an ordinal-response mixed-effects model with a logit link. \code{Effect} can also be used with objects created by \code{\link[ordinal]{clm}} or \code{\link[ordinal:clmOld]{clm2}}, fitting ordinal response models with the same links permitted by \code{\link[MASS]{polr}} in the \pkg{MASS} package, with no random effects, and with results similar to those from \code{\link[MASS]{polr}}.
 
   Calling any of these functions from within a user-written function may result in errors due to R's scoping rules.  See the vignette \code{embedding.pdf} in the \pkg{car} package for a solution to this problem.
   }
@@ -275,8 +275,8 @@ and Jangman Hong.}
     \code{\link{print.summary.eff}},
     \code{\link{print.effpoly}}, \code{\link{summary.effpoly}}, \code{\link{plot.effpoly}},
     \code{\link{print.efflist}}, \code{\link{summary.efflist}},
-    \code{\link{plot.efflist}}, \code{\link{xyplot}},
-    \code{\link{densityplot}}, and the \href{../doc/partial-residuals.pdf}{Effect Displays with Partial Residuals} and \href{../doc/methods-supported-by-effects.pdf}{Regression Models Supported by the effects Package} vignettes.}
+    \code{\link{plot.efflist}}, \code{\link[lattice]{xyplot}},
+    \code{\link[lattice]{densityplot}}, and the \href{../doc/partial-residuals.pdf}{Effect Displays with Partial Residuals} and \href{../doc/methods-supported-by-effects.pdf}{Regression Models Supported by the effects Package} vignettes.}
 
 \examples{
 mod.cowles <- glm(volunteer ~ sex + neuroticism*extraversion,
