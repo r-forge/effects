@@ -1,5 +1,7 @@
 Version 4.2-3
 
+  o Fix bug in summary.eff() output when the transformation (e.g., link function) is inverse rather than direct, as in a gamma GLM (reported by Natalie Nicholls).
+
   o Import version >= 1.4.1 of estimability to avoid bug in version 1.4.0 (suggestion of Russell Lenth).
   
   o Added levels2dates(), with "eff" and "effpoly" methods, for limited support for plotting "Date" objects (request of Christoph Scherber).
