@@ -286,7 +286,7 @@ The \code{levels2dates} function is provided to partially accommodate \code{"Dat
   \item{upper}{an array containing the upper confidence limits.}
 
   The \code{plot} method for \code{"eff"} objects returns a \code{"plot.eff"} object (an enhanced \code{"trellis"} object); the provided
-\code{\link[base]{print}} method plots the object.
+\code{\link{print}} method plots the object.
 
   The \code{[} method for \code{"efflist"} objects is used to subset an \code{"efflist"} object and returns an object of the same class.
 }
