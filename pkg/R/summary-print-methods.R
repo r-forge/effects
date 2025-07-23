@@ -24,7 +24,7 @@ summary.eff <- function(object, type=c("response", "link"), ...){
   trans.effect <- object$transformation$inverse(effect)
   check.order  <- if (all(order(effect) == order(trans.effect))){
     "direct"
-  } else if (all(order(effect) == rev(order(trans.effect)))){
+  } else if (all(order(effect) == order(- trans.effect))){ 
     "inverse"
   } else {
     "inconsistent"
