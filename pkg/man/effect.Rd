@@ -38,10 +38,10 @@ Effect(focal.predictors, mod, ...)
 \method{Effect}{lm}(focal.predictors, mod, xlevels=list(),
     fixed.predictors, vcov. = vcov, se=TRUE,
     residuals=FALSE, quantiles=seq(0.2, 0.8, by=0.2),
-    x.var=NULL,  ...,
+    x.var=NULL, transformation, ...,
     #legacy arguments:
     given.values, typical, offset, confint, confidence.level,
-    partial.residuals, transformation)
+    partial.residuals)
 
 \method{Effect}{multinom}(focal.predictors, mod,
     xlevels=list(), fixed.predictors,
@@ -124,17 +124,19 @@ For example, for a factor \code{X} with three levels \code{a}, \code{b} and \cod
     
   \item{x.var}{the (quoted) name or index of the numeric predictor to define the horizontal axis of an effect plot for a linear or generalized linear model; the default is \code{NULL}, in which case the first numeric predictor in the effect will be used \emph{if} partial residuals are to be computed. This argument is intended to be used when \code{residuals} is \code{TRUE}; otherwise, the variable on the horizontal axis can be chosen when the effect object is plotted: see \code{\link{plot.eff}}.}
   
+  \item{transformation}{for the \code{Effect.lm} method, an optional two-element list with \code{link} and \code{inverse} elements to transform the response (see examples); an alternative to use for graphs is to set the argument \code{axes = list(y = list(transformation = list(link = link-function, inverse = mean-function)))} (see \code{\link{plot.eff})}; the argument must be used for transforming the response in printed or summary output.}
+  
   \item{latent}{if \code{TRUE}, effects in a proportional-odds logit model are computed on the scale of the latent response; if \code{FALSE}	(the default) effects are computed as individual-level probabilities and logits.}
   
   \item{x}{an object of class \code{"eff"}, \code{"effpoly"}, or \code{"efflatent"}.}
   
   \item{KR}{if \code{TRUE} and the \pkg{pbkrtest} package is installed, use the Kenward-Roger coefficient covariance matrix to compute effect standard errors for linear mixed models fit with \code{\link[lme4]{lmer}}; the default is \code{FALSE} because the computation can be time-consuming.}
   
-   \item{response}{for an \code{"mlm"} object, a vector containing the (quoted) name(s) or indices of one or more response variable(s). The default is to use all responses in the model.}
+  \item{response}{for an \code{"mlm"} object, a vector containing the (quoted) name(s) or indices of one or more response variable(s). The default is to use all responses in the model.}
     
   \item{...}{arguments to be passed down.}
   
-  \item{confint, confidence.level, given.values, typical, offset, partial.residuals, transformation}{legacy arguments retained for backwards compatibility; if present, these arguments take precedence over the \code{level} element of the \code{confint} list argument and the \code{given.values}, \code{typical}, and \code{offset} elements of the \code{fixed.predictors} list argument; \code{confint} may be used in place of the \code{se} argument; \code{partial.residuals} may be used in place of the \code{residuals} argument. See \code{\link{LegacyArguments}} for details.}
+  \item{confint, confidence.level, given.values, typical, offset, partial.residuals}{legacy arguments retained for backwards compatibility; if present, these arguments take precedence over the \code{level} element of the \code{confint} list argument and the \code{given.values}, \code{typical}, and \code{offset} elements of the \code{fixed.predictors} list argument; \code{confint} may be used in place of the \code{se} argument; \code{partial.residuals} may be used in place of the \code{residuals} argument. See \code{\link{LegacyArguments}} for details.}
 }
 
 \details{
@@ -191,7 +193,7 @@ Plotting methods for effect objects call the \code{\link[lattice]{xyplot}} (or i
   
   \item{confidence.level}{for the confidence limits.}
   
-  \item{transformation}{(for \code{"eff"} objects) a two-element list, with element \code{link} giving the link function, and element \code{inverse} giving the inverse-link (mean) function.}
+  \item{transformation}{(for \code{"eff"} objects) a two-element list, with element \code{link} giving the link function, and element \code{inverse} giving the inverse-link (mean) function; may be set directly via the \code{transformation} argument to \code{Effect.lm} or inferred from the model.}
   
   \item{residuals}{(working) residuals for linear or generalized linear models (and some similar models), to be used by \code{\link{plot.eff}} to compute and plot partial residuals.}
   

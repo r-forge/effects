@@ -6,6 +6,8 @@ Version 4.2-3
   
   o Added levels2dates(), with "eff" and "effpoly" methods, for limited support for plotting "Date" objects (request of Christoph Scherber).
   
+  o transformation is no longer considered a "legacy" argument for Effect.lm().
+  
   o Update \link{}s in .Rd files to adhere to new rules.
   
   o Various small updates to conform to R/CRAN rules.
